@@ -1,0 +1,86 @@
+<div class="page-header">
+	<div class="form-group" fxFlex>
+		<label>Search</label>
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Search.." (keyup)="searchChanged($event.target.value)">
+			<div class="input-group-append">
+				<span class="input-group-text">
+					<i class="fas fa-search"></i>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container-fluid page-body">
+	<panel>
+		<panel-body class="p-0">
+			<ng-container *ngIf="isInitialized">
+				<mat-table class="data-grid" #dataGrid [dataSource]="sales" matSort matSortDisableClear>
+
+					<ng-container matColumnDef="no">
+						<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+						</mat-header-cell>
+						<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+							{{ i + 1 }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="unitName">
+						<mat-header-cell fxFlex="160px" mat-sort-header *matHeaderCellDef>Unit</mat-header-cell>
+						<mat-cell fxFlex="160px" *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h3>{{ row.projectName }}</h3>
+							<h2>{{ row.unitName }}</h2>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="fullName">
+						<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Customer</mat-header-cell>
+						<mat-cell fxFlex *matCellDef="let row">{{ row.fullName }}</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="paymentMethodName">
+						<mat-header-cell fxFlex="160px" mat-sort-header *matHeaderCellDef>Pay. Method</mat-header-cell>
+						<mat-cell fxFlex="160px" *matCellDef="let row">{{ row.paymentMethodName }}</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="salesPrice">
+						<mat-header-cell fxFlex="140px" mat-sort-header *matHeaderCellDef>Price</mat-header-cell>
+						<mat-cell fxFlex="140px" *matCellDef="let row">
+							{{ row.salesPrice | currency:'IDR':'Rp. ':'1.0-0' }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="paidAmount">
+						<mat-header-cell fxFlex="140px" mat-sort-header *matHeaderCellDef>Paid Amt.</mat-header-cell>
+						<mat-cell fxFlex="140px" *matCellDef="let row">
+							{{ row.paidAmount | currency:'IDR':'Rp. ':'1.0-0' }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="currentInvoiceDescription">
+						<mat-header-cell fxFlex="140px" mat-sort-header *matHeaderCellDef>Current Inv.</mat-header-cell>
+						<mat-cell fxFlex="140px" *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h4 class="text-success">{{ row.currentInvoiceDate }}</h4>
+							<h2>{{ row.currentInvoiceDescription }}</h2>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<mat-header-cell fxFlex="50px" *matHeaderCellDef></mat-header-cell>
+						<mat-cell fxFlex="50px" *matCellDef="let row">
+							<a [routerLink]="[row.salesId]" class="btn btn-primary btn-sm"><i
+									class="far fa-eye"></i></a>
+						</mat-cell>
+					</ng-container>
+
+					<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+					<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+				</mat-table>
+			</ng-container>
+			<ng-container *ngIf="!isInitialized">
+				<loading></loading>
+			</ng-container>
+			<mat-paginator [pageSizeOptions]="[10, 50, 100]" showFirstLastButtons></mat-paginator>
+		</panel-body>
+	</panel>
+</div>

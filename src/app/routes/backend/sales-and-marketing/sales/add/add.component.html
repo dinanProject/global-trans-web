@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>Add Sales</h2>
+<mat-dialog-content fxLayout="column">
+	<ng-container *ngIf="isInitialized">
+		<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+			<div class="form-group" fxFlex>
+				<label>Employee</label>
+				<div class="input-group">
+					<input class="form-control" [class.is-invalid]="employeeId.invalid && formSubmitAttempt"
+						[(ngModel)]="fullName" [ngModelOptions]="{ standalone: true }">
+					<input type="hidden" formControlName="employeeId">
+					<div class="input-group-append">
+						<button type="button" class="btn btn-primary" (click)="selectEmployee()"><i
+								class="fas fa-ellipsis-h"></i></button>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label>Sales Type</label>
+				<select class="form-control" formControlName="salesInhouseTypeId"
+					[class.is-invalid]="salesInhouseTypeId.invalid && formSubmitAttempt">
+					<option *ngFor="let s of salesInhouseTypes" [value]="s.salesInhouseTypeId">{{ s.salesInhouseTypeName
+						}}
+					</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label>Team</label>
+				<select class="form-control" formControlName="teamId"
+					[class.is-invalid]="teamId.invalid && formSubmitAttempt">
+					<option *ngFor="let t of teams" [value]="t.teamId">{{ t.teamName }}</option>
+				</select>
+			</div>
+			<div class="form-group mb-0">
+				<label>Active Date</label>
+				<div class="input-group">
+					<input [matDatepicker]="datePicker" class="form-control" (click)="datePicker.open()"
+						formControlName="activeDate" [class.is-invalid]="activeDate.invalid && formSubmitAttempt" />
+					<div class="input-group-append">
+						<button type="button" class="btn btn-primary" (click)="datePicker.open()"><i
+								class="far fa-calendar-alt"></i></button>
+					</div>
+					<mat-datepicker #datePicker></mat-datepicker>
+				</div>
+			</div>
+		</form>
+	</ng-container>
+	<ng-container *ngIf="!isInitialized">
+		<loading></loading>
+	</ng-container>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px">
+	<span fxFlex></span>
+	<loading-button (click)="submit()" [isLoading]="isSaving" className="btn btn-primary">
+		<i class="fa fa-save mr-1"></i> Save
+	</loading-button>
+	<button mat-dialog-close class="btn btn-danger">
+		<i class="fa fa-times mr-1"></i> Close
+	</button>
+</mat-dialog-actions>

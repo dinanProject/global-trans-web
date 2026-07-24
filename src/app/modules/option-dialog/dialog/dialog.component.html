@@ -1,0 +1,53 @@
+<h2 *ngIf="title" mat-dialog-title>{{ title }}</h2>
+<mat-dialog-content fxLayout="column" class="py-3">
+	<div class="form-group mb-0" fxFlex>
+		<label>Search</label>
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Search.." [formControl]="search">
+			<div class="input-group-append">
+				<span class="input-group-text">
+					<i class="fas fa-search"></i>
+				</span>
+			</div>
+		</div>
+	</div>
+</mat-dialog-content>
+<mat-dialog-content fxLayout="column" class="p-0">
+	<ng-container *ngIf="isInitialized">
+		<mat-table class="data-grid scroll scroll-y" #dataGrid [dataSource]="options" matSort matSortDisableClear>
+
+			<ng-container matColumnDef="no">
+				<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+				</mat-header-cell>
+				<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+					{{ i + 1 }}
+				</mat-cell>
+			</ng-container>
+
+			<ng-container matColumnDef="description">
+				<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Description</mat-header-cell>
+				<mat-cell fxFlex *matCellDef="let row">
+					<ng-container *ngTemplateOutlet="optionTemplate; context: {$implicit: row}"></ng-container>
+				</mat-cell>
+			</ng-container>
+
+			<ng-container matColumnDef="actions">
+				<mat-header-cell fxFlex="40px" *matHeaderCellDef></mat-header-cell>
+				<mat-cell fxFlex="40px" *matCellDef="let row">
+					<button class="btn btn-primary btn-sm" (click)="select(row)"><i class="fas fa-check"></i></button>
+				</mat-cell>
+			</ng-container>
+
+			<mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+			<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+		</mat-table>
+	</ng-container>
+	<ng-container *ngIf="!isInitialized">
+		<loading fxFlex="134px"></loading>
+	</ng-container>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px" *ngIf="onAdd">
+	<button class="btn btn-primary btn-block" (click)="add()">
+		<i class="fas fa-plus mr-2"></i>Add
+	</button>
+</mat-dialog-actions>

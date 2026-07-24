@@ -1,0 +1,143 @@
+<ng-container *ngIf="isLoading">
+	<div class="container">
+		<div class="row my-4">
+			<div class="col col-12 panel">
+				<div class="panel-body" fxLayout="column" fxLayoutAlign="center center">
+					<div class="client-logo" fxFlex="200px">
+						<image-holder [src]="clientLogoPath" fxFlex></image-holder>
+					</div>
+					<h1>{{ clientName }}</h1>
+				</div>
+				<div class="panel-body">
+					<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout
+						fxLayout.lt-md="column" fxLayoutGap="30px" fxLayoutGap.lt-md="0px">
+						<div fxFlex fxLayout="column">
+							<div class="form-group required mb-0" fxFlex>
+								<label>Prefered User Name</label>
+								<div class="input-group">
+									<input class="form-control text-right" formControlName="userName"
+										[class.is-invalid]="(userName.invalid && formSubmitAttempt) || isInvalid"
+										replaceSpaceAndLowerCase>
+									<div class="input-group-append">
+										<span class="input-group-text">
+											@{{ clientSuffix }}
+										</span>
+									</div>
+								</div>
+								<div *ngIf="!isInvalid" class="user-not-exists">
+								</div>
+								<div *ngIf="isInvalid" class="user-exists">
+									{{ errorMessage }}
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex>
+									<label>Full Name</label>
+									<input class="form-control" formControlName="fullName"
+										[class.is-invalid]="fullName.invalid && formSubmitAttempt">
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px" fxLayout.lt-md="column">
+								<div class="form-group" fxFlex.md="140px">
+									<label>Gender</label>
+									<select class="form-control" formControlName="genderId">
+										<option *ngFor="let g of genders" [value]="g.genderId">{{ g.genderName }}
+										</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex.gt-md="140px">
+									<label>Religion</label>
+									<select class="form-control" formControlName="religionId">
+										<option *ngFor="let r of religions" [value]="r.religionId">{{ r.religionName }}
+										</option>
+									</select>
+								</div>
+								<div fxLayout fxLayoutGap="10px">
+									<div class="form-group required" fxFlex="130px">
+										<label>Birth Date</label>
+										<div class="input-group">
+											<input [matDatepicker]="dobDatePicker" class="form-control"
+												[class.is-invalid]="dob.invalid && formSubmitAttempt"
+												(click)="dobDatePicker.open()" formControlName="dob" />
+											<div class="input-group-append">
+												<span class="input-group-text" (click)="dobDatePicker.open()"><i
+														class="far fa-calendar-alt"></i></span>
+											</div>
+											<mat-datepicker #dobDatePicker></mat-datepicker>
+										</div>
+									</div>
+									<div class="form-group" fxFlex>
+										<label>Birth Place</label>
+										<input class="form-control" formControlName="pob">
+									</div>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex="100px">
+									<label>Identity Type</label>
+									<select class="form-control" formControlName="identityCodeTypeId">
+										<option *ngFor="let i of identityCodeTypes" [value]="i.identityCodeTypeId">{{
+											i.identityCodeTypeName }}</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Identity Code</label>
+									<input class="form-control" formControlName="identityCode">
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Marital Status</label>
+									<select class="form-control" formControlName="maritalStatusId">
+										<option *ngFor="let m of maritalStatuses" [value]="m.maritalStatusId">{{
+											m.maritalStatusName }}</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Nationality</label>
+									<select class="form-control" formControlName="nationalityId">
+										<option *ngFor="let n of nationalities" [value]="n.nationalityId">{{
+											n.nationalityName }}</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div fxFlex fxLayout="column">
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Home Phone</label>
+									<input class="form-control" formControlName="homePhone">
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Mobile Phone</label>
+									<input class="form-control" formControlName="handPhone"
+										[class.is-invalid]="handPhone.invalid && formSubmitAttempt">
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Identity Address</label>
+								<textarea class="form-control" formControlName="identityAddress"></textarea>
+							</div>
+							<div class="form-group">
+								<label>Mailing Address</label>
+								<textarea class="form-control" formControlName="mailingAddress"></textarea>
+							</div>
+							<div class="form-group required">
+								<label>Email</label>
+								<input class="form-control" formControlName="email"
+									[class.is-invalid]="email.invalid && formSubmitAttempt">
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="panel-footer" fxLayout fxLayoutGap="10px">
+					<button class="btn btn-primary btn-block" (click)="submit()"><i
+							class="fas fa-save mr-2"></i>Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isLoading">
+	<loading></loading>
+</ng-container>

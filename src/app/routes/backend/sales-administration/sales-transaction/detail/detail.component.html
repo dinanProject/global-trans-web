@@ -1,0 +1,1309 @@
+<ng-container *ngIf="isInitialized">
+	<page-body>
+		<panel>
+			<panel-body fxLayout>
+				<div fxlayout="column" fxFlex>
+					<h1>{{ unitName }}</h1>
+					<h5 class="text-primary">{{ projectName }}</h5>
+				</div>
+				<div fxLayout="column" fxFlex fxLayoutAlign="center end">
+					<!-- <ng-container *ngIf="revisionStatusDate">
+						<h3 class="text-primary text-right"><i class="fas fa-pen mr-2"></i>{{ revisionStatusName }}
+						</h3>
+						<h5 class="text-right">{{ revisionStatusUser }}</h5>
+						<h6 class="text-secondary text-right m-0">{{ revisionStatusDate }}</h6>
+					</ng-container> -->
+					<ng-container *ngIf="cancelationDate">
+						<h3 class="text-danger text-right"><i class="fas fa-times mr-2"></i>Cancelation Approval</h3>
+						<h5 class="text-right">{{ cancelationUser }}</h5>
+						<h6 class="text-secondary text-right m-0">{{ cancelationDate }}</h6>
+					</ng-container>
+				</div>
+			</panel-body>
+			<panel-body *ngIf="isRevision" fxLayout="column" class="revision-mark">
+				<ng-container *ngIf="isRevisionApproved">
+					<div fxLayout fxLayoutAlign="start center">
+						<p fxFlex>This sales transaction is being <b class="text-primary">REVISED</b></p>
+						<a class="btn btn-primary"
+							[routerLink]="'/backend/sales-administration/sales-revision/' + salesRevisionId">
+							<i class="fas fa-pen mr-2"></i>
+							Open Revision
+							<i class="fas fa-chevron-right ml-2"></i></a>
+					</div>
+				</ng-container>
+				<ng-container *ngIf="!isRevisionApproved">
+					<div fxLayout fxLayoutAlign="start center">
+						<div fxLayout="column" fxFlex>
+							<p>This sales transaction is being requested for <b class="text-primary">REVISION</b> and
+								waiting
+								for <b class="text-primary">REVISION
+									APPROVAL</b></p>
+							<p>Reason : <b>{{ revisionReason }}</b></p>
+						</div>
+						<loading-button className="btn btn-success btn-block" (click)="approveRevision()"
+							[isLoading]="isApprovingRevision">
+							<i class="fas fa-check mr-2"></i>
+							Approve Revision
+							<i class="fas fa-chevron-right ml-2"></i>
+						</loading-button>
+					</div>
+				</ng-container>
+			</panel-body>
+			<panel-body class="panel-body-trx-info">
+				<h6>Customer Information</h6>
+				<panel class="panel-trx-info">
+					<panel-body class="p-0" fxLayout>
+						<div fxFlex fxLayout="column" class="panel-column">
+							<div class="panel-row" fxLayout="column" fxFlex>
+								<small>Customer Name</small>
+								<p>{{ fullName.value }}</p>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex="25%">
+									<small>Gender</small>
+									<p>{{ genderName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex="25%">
+									<small>Birth Date</small>
+									<p>{{ formattedDob }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex="50%">
+									<small>Birth Place</small>
+									<p>{{ pob.value }}</p>
+								</div>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Religion</small>
+									<p>{{ religionName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Marital Status</small>
+									<p>{{ maritalStatusName }}</p>
+								</div>
+							</div>
+							<div class="panel-row" fxLayout="column">
+								<small>Email</small>
+								<p>{{ email.value }}</p>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Home Phone</small>
+									<p>{{ homePhone.value }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Mobile Phone</small>
+									<p>{{ mobilePhone.value }}</p>
+								</div>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Identity Code (KTP)</small>
+									<p>{{ identityCode.value }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>NPWP</small>
+									<p>{{ npwp.value }}</p>
+								</div>
+							</div>
+							<div class="panel-row" fxLayout="column" fxFlex="160px">
+								<small>Identity Address</small>
+								<p>{{ identityAddress.value }}</p>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Identity Province</small>
+									<p>{{ identityProvinceName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Identity City</small>
+									<p>{{ identityCityName }}</p>
+								</div>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Identity District</small>
+									<p>{{ identityDistrictName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Identity Subdistrict</small>
+									<p>{{ identitySubdistrictName }}</p>
+								</div>
+							</div>
+						</div>
+						<div fxFlex fxLayout="column" class="panel-column">
+							<div class="panel-row" fxLayout="column" fxFlex>
+								<small>Mailing Address</small>
+								<p>{{ mailingAddress.value }}</p>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Mailing Province</small>
+									<p>{{ mailingProvinceName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Mailing City</small>
+									<p>{{ mailingCityName }}</p>
+								</div>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Mailing District</small>
+									<p>{{ mailingDistrictName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Mailing Subdistrict</small>
+									<p>{{ mailingSubdistrictName }}</p>
+								</div>
+							</div>
+							<div class="panel-row" fxLayout="column">
+								<small>Occupation</small>
+								<p>{{ occupationName || '-' }}</p>
+							</div>
+							<div class="panel-row" fxLayout="column">
+								<small>Company Name</small>
+								<p>{{ companyName.value || '-' }}</p>
+							</div>
+							<div class="panel-row" fxLayout="column" fxFlex=>
+								<small>Company Address</small>
+								<p>{{ companyAddress.value || '-'}}</p>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Company Phone</small>
+									<p>{{ companyPhone.value || '-' }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Company Fax</small>
+									<p>{{ companyFax.value || '-' }}</p>
+								</div>
+							</div>
+						</div>
+					</panel-body>
+				</panel>
+				<h6>Transaction Information</h6>
+				<panel class="panel-trx-info">
+					<panel-body class="p-0" fxLayout>
+						<div fxFlex fxLayout="column" class="panel-column">
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Sales Date</small>
+									<p>{{ formattedSalesDate }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Unit Name</small>
+									<p>{{ unitName }}</p>
+								</div>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Unit Type</small>
+									<p>{{ unitTypeName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Cluster Name</small>
+									<p>{{ projectName }}</p>
+								</div>
+							</div>
+						</div>
+						<div fxFlex fxLayout="column" class="panel-column">
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Payment Plan</small>
+									<p>{{ paymentPlanName }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Unit Price</small>
+									<p>{{ unitPrice | currency:'IDR':'Rp. ':'1.0-0' }}</p>
+								</div>
+							</div>
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Sales Price</small>
+									<p>{{ salesPrice.value | currency:'IDR':'Rp. ':'1.0-0' }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>SPR</small>
+									<a class="btn btn-primary btn-block btn-sm" [href]="sprFilePath" target="_blank"><i
+											class="fas fa-file-pdf mr-2"></i>Print SPR</a>
+								</div>
+							</div>
+						</div>
+					</panel-body>
+				</panel>
+				<h6>Payment Plan</h6>
+				<div class="grid grid-payment-plan">
+					<div class="grid-header">
+						<div class="grid-column no" fxFlex="60px" fxLayoutAlign="center center">
+							No.
+						</div>
+						<div class="grid-column invoice-date" fxFlex="160px" fxLayoutAlign="center center">
+							Invoice Date
+						</div>
+						<div class="grid-column invoice-description" fxFlex>
+							Description
+						</div>
+						<div class="grid-column invoice-amount" fxFlex="180px" fxLayoutAlign="center center">
+							Amount
+						</div>
+						<!-- <div class="grid-column paid-date" fxFlex="120px" fxLayoutAlign="center center">
+							Paid Date
+						</div>
+						<div class="grid-column paid-amount" fxFlex="140px" fxLayoutAlign="center center">
+							Paid Amount
+						</div>
+						<div class="grid-column outstanding-amount" fxFlex="140px" fxLayoutAlign="center center">
+							Outst. Amount
+						</div> -->
+					</div>
+					<div class="grid-body">
+						<ng-container *ngFor="let inv of invoices; let i = index">
+							<div class="grid-row">
+								<div class="grid-column no" fxFlex="60px" fxLayoutAlign="center center">
+									{{ i + 1 }}.
+								</div>
+								<div class="grid-column invoice-date" fxFlex="160px" fxLayoutAlign="center center">
+									{{ inv.invoiceDate }}
+								</div>
+								<div class="grid-column invoice-description" fxFlex fxLayout="column"
+									fxLayoutAlign="center start">
+									<small class="text-success">{{ inv.invoiceCode }}</small>
+									<p>{{ inv.invoiceDescription }}</p>
+								</div>
+								<div class="grid-column invoice-amount" fxFlex="180px" fxLayout="column"
+									fxLayoutAlign="center end">
+									{{ inv.invoiceAmount | currency:'IDR':'Rp. ':'1.0-0'}}
+								</div>
+								<!-- <div class="grid-column paid-date" fxFlex="120px" fxLayoutAlign="center center">
+									{{ inv.invoicePaidDate }}
+								</div>
+								<div class="grid-column paid-amount" fxFlex="140px" fxLayoutAlign="end center">
+									{{ inv.invoicePaidAmount | currency:'IDR':'Rp. ':'1.0-0'}}
+								</div>
+								<div class="grid-column outstanding-amount" fxFlex="140px" fxLayoutAlign="end center">
+									{{ inv.invoiceOutstandingAmount | currency:'IDR':'Rp. ':'1.0-0'}}
+								</div> -->
+							</div>
+						</ng-container>
+					</div>
+				</div>
+				<div fxLayout fxLayoutGap="30px" class="mt-5">
+					<div fxFlex fxLayout="column">
+						<h6>Sales Information</h6>
+						<panel class="panel-trx-info">
+							<panel-body class="p-0" fxLayout>
+								<div fxLayout="column" fxFlex class="panel-column">
+									<div class="panel-row" fxLayout="column" fxFlex>
+										<small>Inhouse / Property Agent</small>
+										<p>{{ salesPropertyTypeName }}</p>
+									</div>
+									<div *ngIf="salesPropertyTypeName === 'Inhouse'" class="panel-row" fxLayout="column"
+										fxFlex>
+										<small>Supervisor Name</small>
+										<p>{{ salesInhouseSupervisorName }}</p>
+									</div>
+									<div *ngIf="salesPropertyTypeName === 'Property Agent'" class="panel-row"
+										fxLayout="column" fxFlex>
+										<small>Property Agent</small>
+										<p>{{ propertyAgentName || '-' }}</p>
+									</div>
+								</div>
+								<div fxLayout="column" fxFlex class="panel-column">
+									<div *ngIf="salesPropertyTypeName === 'Inhouse'" class="panel-row" fxLayout="column"
+										fxFlex>
+										<small>Sales Name</small>
+										<p>{{ salesInhouseName || '-'}}</p>
+									</div>
+									<div *ngIf="salesPropertyTypeName === 'Property Agent'" class="panel-row"
+										fxLayout="column" fxFlex>
+										<small>Sales Name</small>
+										<p>{{ salesAgentName || '-' }}</p>
+									</div>
+									<div *ngIf="salesPropertyTypeName === 'Inhouse'" class="panel-row" fxLayout="column"
+										fxFlex>
+										<small>Manager Name</small>
+										<p>{{ salesInhouseManagerName || '-'}}</p>
+									</div>
+									<div *ngIf="salesPropertyTypeName === 'Property Agent'" class="panel-row"
+										fxLayout="column" fxFlex>
+										<small>Lead Property Agent</small>
+										<p>{{ leadPropertyAgentName || '-' }}</p>
+									</div>
+								</div>
+							</panel-body>
+						</panel>
+						<h6>Other Information</h6>
+						<panel class="panel-trx-info">
+							<panel-body class="p-0" fxLayout="column">
+								<div fxLayout>
+									<div class="panel-row" fxLayout="column" fxFlex>
+										<small>Purpose Of Purchase</small>
+										<p>{{ purposeOfPurchaseName }}</p>
+									</div>
+									<div class="panel-row" fxLayout="column" fxFlex>
+										<small>Source Of Fund</small>
+										<p>{{ sourceOfFundName }}</p>
+									</div>
+								</div>
+								<div fxLayout>
+									<div class="panel-row" fxLayout="column" fxFlex>
+										<small>Reference</small>
+										<p>{{ referenceName }}</p>
+									</div>
+									<div class="panel-row" fxLayout="column" fxFlex *ngIf="!isRevision">
+										<small>Handover Date</small>
+										<ng-container *ngIf="formattedHandOverDate">
+											<p>{{ formattedHandOverDate || '-' }}</p>
+										</ng-container>
+										<ng-container *ngIf="!formattedHandOverDate">
+											<loading-button *ngIf="isShowHandover"
+												className="btn btn-success btn-sm btn-block" (click)="handover()"
+												[isLoading]="isHandovering"><i class="fas fa-key mr-2"></i>
+												Handover
+											</loading-button>
+										</ng-container>
+									</div>
+								</div>
+								<div fxLayout *ngIf="isKPR">
+									<div class="panel-row" fxLayout="column" fxFlex>
+										<small>Akad Date</small>
+										<p>{{ formattedAkadDate }}</p>
+									</div>
+									<div class="panel-row" fxLayout="column" fxFlex>
+										<small>Akad Realization Date</small>
+										<ng-container *ngIf="formattedAkadRealizationDate">
+											<p>{{ formattedAkadRealizationDate || '-' }}</p>
+										</ng-container>
+										<ng-container *ngIf="!formattedAkadRealizationDate">
+											<loading-button className="btn btn-success btn-block btn-sm"
+												(click)="akadProcess()" [isLoading]="isAkadProcessing"><i
+													class="far fa-calendar-check mr-2"></i>
+												Proses Akad
+											</loading-button>
+										</ng-container>
+									</div>
+								</div>
+							</panel-body>
+						</panel>
+					</div>
+					<div fxFlex fxLayout="column">
+						<h6>Promo and Notes</h6>
+						<panel class="panel-trx-info">
+							<panel-body class="p-0" fxLayout="column">
+								<div class="panel-row" fxLayout="column">
+									<small>Promo</small>
+									<p class="notes" [fxFlex]="isKPR ? '156px' : '123px'">{{ promo.value }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column">
+									<small>Notes</small>
+									<p class="notes" [fxFlex]="isKPR ? '157px' : '123px'">{{ notes.value }}</p>
+								</div>
+							</panel-body>
+						</panel>
+					</div>
+				</div>
+				<ng-container *ngIf="cancelationDate">
+					<h6 class="text-danger">Cancelation Information</h6>
+					<panel class="panel-trx-info cancelation">
+						<panel-body class="p-0" fxLayout="column">
+							<div fxLayout>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Cancelation Date</small>
+									<p>{{ formattedCancelationDate }}</p>
+								</div>
+								<div class="panel-row" fxLayout="column" fxFlex>
+									<small>Cancelation User</small>
+									<p>{{ cancelationUser }}</p>
+								</div>
+							</div>
+
+							<div class="panel-row" fxLayout="column" fxFlex>
+								<small>Cancelation Type</small>
+								<p>{{ cancelationTypeName }}</p>
+							</div>
+							<div class="panel-row" fxLayout="column" fxFlex>
+								<small>Cancelation Notes</small>
+								<p class="cancelation-notes">{{ cancelationNotes }}</p>
+							</div>
+						</panel-body>
+					</panel>
+				</ng-container>
+			</panel-body>
+			<!-- <panel-body *ngIf="isRevisionApproved">
+				<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()"
+					fxLayout="column">
+					<h6>Customer Information</h6>
+					<div fxLayout fxLayoutGap="20px" class="customer-information">
+						<div fxFlex fxLayout="column">
+							<div class="form-group required">
+								<label>Customer Name</label>
+								<input class="form-control" formControlName="fullName"
+									[class.is-invalid]="fullName.invalid && formSubmitAttempt" id="field-no-autofill-1"
+									autocomplete="do-not-autofill" [readonly]="isReadOnly">
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex="130px">
+									<label>Gender</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getOptionName(genders, genderId.value)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" formControlName="genderId">
+											<option *ngFor="let o of genders" [value]="o.optionId">{{ o.optionName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex="140px">
+									<label>Birth Date</label>
+									<div class="input-group">
+										<input [matDatepicker]="birthDatePicker" class="form-control"
+											formControlName="dob" [class.is-invalid]="dob.invalid && formSubmitAttempt"
+											readonly />
+										<div class="input-group-append">
+											<ng-container *ngIf="isReadOnly">
+												<span class="input-group-text">
+													<i class="far fa-calendar-alt"></i>
+												</span>
+											</ng-container>
+											<ng-container *ngIf="!isReadOnly">
+												<button type="button" class="btn btn-primary"
+													(click)="birthDatePicker.open()" [disabled]="isReadOnly"><i
+														class="far fa-calendar-alt"></i></button>
+											</ng-container>
+										</div>
+									</div>
+									<mat-datepicker #birthDatePicker></mat-datepicker>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Birth Place</label>
+									<input class="form-control" formControlName="pob" [readonly]="isReadOnly">
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex="130px">
+									<label>Religion</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control"
+											[ngModel]="getOptionName(religions, religionId.value)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" formControlName="religionId">
+											<option *ngFor="let o of religions" [value]="o.optionId">{{ o.optionName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex="130px">
+									<label>Marital Status</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control"
+											[ngModel]="getOptionName(maritalStatuses, maritalStatusId.value)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" formControlName="maritalStatusId">
+											<option *ngFor="let o of maritalStatuses" [value]="o.optionId">
+												{{ o.optionName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Email</label>
+									<input class="form-control" formControlName="email" id="field-no-autofill-2"
+										autocomplete="do-not-autofill"
+										[class.is-invalid]="email.invalid && formSubmitAttempt" [readonly]="isReadOnly">
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Home Phone</label>
+									<input numbersOnly class="form-control" formControlName="homePhone"
+										[readonly]="isReadOnly">
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Mobile Phone</label>
+									<input numbersOnly class="form-control" formControlName="mobilePhone"
+										[class.is-invalid]="mobilePhone.invalid && formSubmitAttempt"
+										[readonly]="isReadOnly">
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex>
+									<label>Identity Code (KTP)</label>
+									<input numbersOnly class="form-control" formControlName="identityCode"
+										[class.is-invalid]="identityCode.invalid && formSubmitAttempt"
+										[readonly]="isReadOnly">
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>NPWP Code</label>
+									<input numbersOnly class="form-control" formControlName="npwp"
+										[class.is-invalid]="npwp.invalid && formSubmitAttempt" [readonly]="isReadOnly">
+								</div>
+							</div>
+							<div class="form-group required">
+								<label>Identity Address</label>
+								<textarea class="form-control" formControlName="identityAddress" rows="4"
+									id="field-no-autofill-3" autocomplete="do-not-autofill"
+									[class.is-invalid]="identityAddress.invalid && formSubmitAttempt"
+									[readonly]="isReadOnly"></textarea>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex>
+									<label>Province</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getProvinceName(identityProvinceId)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" [(ngModel)]="identityProvinceId"
+											[ngModelOptions]="ngModelOptions"
+											[class.is-invalid]="identitySubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select Province</option>
+											<option *ngFor="let o of provinces" [value]="o.provinceId">
+												{{ o.provinceName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>City</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getCityName(identityCityId)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" [(ngModel)]="identityCityId"
+											[ngModelOptions]="ngModelOptions"
+											[class.is-invalid]="identitySubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select City</option>
+											<option *ngFor="let o of getFilteredCities(identityProvinceId)"
+												[value]="o.cityId">
+												{{ o.cityName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex>
+									<label>District</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getDistrictName(identityDistrictId)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" [(ngModel)]="identityDistrictId"
+											[ngModelOptions]="ngModelOptions"
+											[class.is-invalid]="identitySubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select District</option>
+											<option *ngFor="let o of getFilteredDistricts(identityCityId)"
+												[value]="o.districtId">
+												{{ o.districtName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Subdistrict</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control"
+											[ngModel]="getSubdistrictName(identitySubdistrictId.value)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" formControlName="identitySubdistrictId"
+											[class.is-invalid]="identitySubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select SubDistrict</option>
+											<option *ngFor="let o of getFilteredSubdistricts(identityDistrictId)"
+												[value]="o.subdistrictId">
+												{{ o.subdistrictName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+							</div>
+						</div>
+						<div fxFlex fxLayout="column">
+							<div class="form-group required">
+								<div fxLayout>
+									<label>Mailing Address</label>
+									<span fxFlex></span>
+									<ng-container *ngIf="!isReadOnly">
+										<a (click)="copyFromIdentityAddress()"><small class="text-primary">Copy From
+												Identity Address</small></a>
+									</ng-container>
+								</div>
+								<textarea class="form-control" formControlName="mailingAddress" rows="4"
+									id="field-no-autofill-4" autocomplete="do-not-autofill"
+									[class.is-invalid]="mailingAddress.invalid && formSubmitAttempt"
+									[readonly]="isReadOnly"></textarea>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex>
+									<label>Province</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getProvinceName(mailingProvinceId)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" [(ngModel)]="mailingProvinceId"
+											[ngModelOptions]="ngModelOptions"
+											[class.is-invalid]="mailingSubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select Province</option>
+											<option *ngFor="let o of provinces" [value]="o.provinceId">
+												{{ o.provinceName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>City</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getCityName(mailingCityId)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" [(ngModel)]="mailingCityId"
+											[ngModelOptions]="ngModelOptions"
+											[class.is-invalid]="mailingSubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select City</option>
+											<option *ngFor="let o of getFilteredCities(mailingProvinceId)"
+												[value]="o.cityId">
+												{{ o.cityName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex>
+									<label>District</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getDistrictName(mailingDistrictId)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" [(ngModel)]="mailingDistrictId"
+											[ngModelOptions]="ngModelOptions"
+											[class.is-invalid]="mailingSubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select District</option>
+											<option *ngFor="let o of getFilteredDistricts(mailingCityId)"
+												[value]="o.districtId">
+												{{ o.districtName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Subdistrict</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control"
+											[ngModel]="getSubdistrictName(mailingSubdistrictId.value)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" formControlName="mailingSubdistrictId"
+											[class.is-invalid]="mailingSubdistrictId.invalid && formSubmitAttempt">
+											<option value="0">Select SubDistrict</option>
+											<option *ngFor="let o of getFilteredSubdistricts(mailingDistrictId)"
+												[value]="o.subdistrictId">
+												{{ o.subdistrictName }}
+											</option>
+										</select>
+									</ng-container>
+								</div>
+							</div>
+							<div class="form-group required">
+								<label>Occupation</label>
+								<ng-container *ngIf="isReadOnly">
+									<input class="form-control"
+										[ngModel]="getOptionName(occupations, occupationId.value)"
+										[ngModelOptions]="{ standalone: true }" readonly>
+								</ng-container>
+								<ng-container *ngIf="!isReadOnly">
+									<select class="form-control" formControlName="occupationId"
+										[class.is-invalid]="occupationId.invalid && formSubmitAttempt">
+										<option value="0">Select Occupation</option>
+										<option *ngFor="let o of occupations" [value]="o.optionId">
+											{{ o.optionName }}
+										</option>
+									</select>
+								</ng-container>
+							</div>
+							<div class="form-group">
+								<label>Company Name</label>
+								<input class="form-control" formControlName="companyName" [readonly]="isReadOnly">
+							</div>
+							<div class="form-group">
+								<label>Company Address</label>
+								<textarea class="form-control" rows="4" formControlName="companyAddress"
+									id="field-no-autofill-3" autocomplete="do-not-autofill"
+									[readonly]="isReadOnly"></textarea>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Company Phone</label>
+									<input class="form-control" formControlName="companyPhone" [readonly]="isReadOnly">
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Company Fax</label>
+									<input class="form-control" formControlName="companyFax" [readonly]="isReadOnly">
+								</div>
+							</div>
+						</div>
+					</div>
+					<h6 class="mt-4">Sales Information</h6>
+					<div fxLayout fxLayoutGap="20px">
+						<div fxLayout="column" fxFlex>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex="140px">
+									<label>Sales Date</label>
+									<div class="input-group">
+										<input [matDatepicker]="reservationDatePicker" class="form-control"
+											formControlName="salesDate" readonly
+											[class.is-invalid]="salesDate.invalid && formSubmitAttempt" />
+										<div class="input-group-append">
+											<ng-container *ngIf="isReadOnly">
+												<span class="input-group-text">
+													<i class="far fa-calendar-alt"></i>
+												</span>
+											</ng-container>
+											<ng-container *ngIf="!isReadOnly">
+												<button type="button" class="btn btn-primary"
+													(click)="reservationDatePicker.open()"><i
+														class="far fa-calendar-alt"></i></button>
+											</ng-container>
+										</div>
+									</div>
+									<mat-datepicker #reservationDatePicker></mat-datepicker>
+								</div>
+								<div class="form-group" fxFlex="140px">
+									<label>Billing Start Date</label>
+									<div class="input-group">
+										<input [matDatepicker]="billingStartDatePicker" class="form-control"
+											formControlName="billingStartDate" readonly
+											[class.is-invalid]="billingStartDate.invalid && formSubmitAttempt" />
+										<div class="input-group-append">
+											<ng-container *ngIf="isReadOnly">
+												<span class="input-group-text">
+													<i class="far fa-calendar-alt"></i>
+												</span>
+											</ng-container>
+											<ng-container *ngIf="!isReadOnly">
+												<button type="button" class="btn btn-primary"
+													(click)="billingStartDatePicker.open()"><i
+														class="far fa-calendar-alt"></i></button>
+											</ng-container>
+										</div>
+									</div>
+									<mat-datepicker #billingStartDatePicker></mat-datepicker>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Unit Name</label>
+									<option-dialog formControlName="unit" [options]="getUnits()" keyName="unitId"
+										valueName="unitName" placeholder="Select Unit" (onSelect)="unitSelected($event)"
+										[isInvalid]="unit.invalid && formSubmitAttempt" [readonly]="isReadOnly">
+										<ng-container *option="let row">
+											<div fxLayout="column" fxFlex fxLayoutAlign="center start">
+												<h6>{{ row.unitName }}</h6>
+												<h6 class="text-secondary">{{ row.unitTypeName }}</h6>
+											</div>
+										</ng-container>
+									</option-dialog>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex="140px">
+									<label>Type</label>
+									<input class="form-control" [ngModel]="unitTypeName"
+										[ngModelOptions]="ngModelOptions" readonly>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Cluster Name</label>
+									<input class="form-control" [ngModel]="projectName"
+										[ngModelOptions]="ngModelOptions" readonly>
+								</div>
+							</div>
+						</div>
+						<div fxLayout="column" fxFlex>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Payment Plan</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control" [ngModel]="getPaymentPlanName(paymentPlanId.value)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" formControlName="paymentPlanId"
+											(change)="paymentPlanChanged()"
+											[class.is-invalid]="paymentPlanId.invalid && formSubmitAttempt">
+											<option *ngFor="let p of paymentPlans" [value]="p.paymentPlanId">{{
+												p.paymentPlanName }}</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group" fxFlex="200px">
+									<label>Unit Price</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												Rp.
+											</span>
+										</div>
+										<input readonly currencyMask [options]="{ prefix: ''}"
+											class="form-control text-right" [ngModel]="unitPrice"
+											[ngModelOptions]="ngModelOptions"
+											[class.is-invalid]="unitPrice.invalid && formSubmitAttempt">
+									</div>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex="100px">
+									<label>Discount %</label>
+									<div class="input-group">
+										<input class="form-control" formControlName="discountPercent"
+											[readonly]="isReadOnly">
+										<div class="input-group-append">
+											<span class="input-group-text">
+												%
+											</span>
+										</div>
+									</div>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Discount Amt.</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												Rp.
+											</span>
+										</div>
+										<input currencyMask [options]="{ prefix: ''}" class="form-control"
+											formControlName="discountAmount" [readonly]="isReadOnly">
+									</div>
+								</div>
+								<div class="form-group required" fxFlex="200px">
+									<label>Sales Price</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												Rp.
+											</span>
+										</div>
+										<input currencyMask [options]="{ prefix: ''}" class="form-control text-right"
+											formControlName="salesPrice" [readonly]="isReadOnly"
+											[class.is-invalid]="salesPrice.invalid && formSubmitAttempt">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<h6 class="mt-4">Payment Plan</h6>
+					<ng-container *ngFor="let ppd of selectedPaymentPlanDetails; let i = index">
+						<panel class="panel-payment-plan" [class.paid]="ppd.isPaid">
+							<panel-body fxLayout="column" class="panel-payment-plan-header">
+								<div fxLayout fxLayoutGap="5px">
+									<div class="form-group mb-0" fxFlex>
+										<label>Payment Scheme</label>
+										<input class="form-control" [ngModel]="ppd.paymentSchemeName"
+											[ngModelOptions]="ngModelOptions"
+											(ngModelChange)="headerPaymentSchemeNameChanged(ppd, $event)"
+											[readonly]="isReadOnly || ppd.isPaid" />
+									</div>
+									<div class="form-group mb-0" fxFlex="45px">
+										<label>Count</label>
+										<input class="form-control" [ngModel]="ppd.numberOfInstall"
+											[ngModelOptions]="ngModelOptions"
+											(ngModelChange)="headerCountChanged(ppd, $event)"
+											[readonly]="isReadOnly || ppd.isPaid" />
+									</div>
+									<div class="form-group mb-0" fxFlex="45px">
+										<label>Intv</label>
+										<input class="form-control" [(ngModel)]="ppd.interval"
+											[ngModelOptions]="ngModelOptions" [readonly]="isReadOnly || ppd.isPaid" />
+									</div>
+									<div class="form-group" fxFlex="100px">
+										<label>Price Percent</label>
+										<div class="input-group">
+											<input class="form-control"
+												[ngModel]="roundPercent(ppd.updatedPricePercent || getPricePercent(ppd.updatedPriceAmount))"
+												[ngModelOptions]="ngModelOptions"
+												(ngModelChange)="headerPricePercentChanged(ppd, $event)"
+												[readonly]="(+i === selectedPaymentPlanDetails.length - 1) || isReadOnly || ppd.isPaid">
+											<div class="input-group-append">
+												<span class="input-group-text">
+													%
+												</span>
+											</div>
+										</div>
+									</div>
+									<div class="form-group mb-0" fxFlex="200px">
+										<label>Price Amount</label>
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text">
+													Rp.
+												</span>
+											</div>
+											<input class="form-control" currencyMask [options]="{ prefix: ''}"
+												[ngModel]="ppd.updatedPriceAmount || getPriceAmount(ppd.updatedPricePercent)"
+												[ngModelOptions]="ngModelOptions"
+												(ngModelChange)="headerPriceAmountChanged(ppd, $event)"
+												[readonly]="(+i === selectedPaymentPlanDetails.length - 1) || isReadOnly || ppd.isPaid" />
+										</div>
+									</div>
+								</div>
+							</panel-body>
+							<ng-container *ngFor="let t of ppd.paymentPlanTrxs; let j = index">
+								<panel-body class="panel-payment-plan-detail">
+									<div fxLayout fxLayoutGap="5px">
+										<div class="input-group" fxFlex="150px">
+											<input [matDatepicker]="datePicker" class="form-control"
+												[(ngModel)]="t.updatedPaymentDate" [ngModelOptions]="ngModelOptions"
+												(dateChange)="detailPaymentDateChanged(t, $event.target.value)"
+												[readonly]="(+i === 0 && +j === 0) || isReadOnly || t.isPaid" />
+											<div class="input-group-append">
+												<ng-container *ngIf="(+i === 0 && +j === 0) || isReadOnly || t.isPaid">
+													<span class="input-group-text">
+														<i class="far fa-calendar-alt"></i>
+													</span>
+												</ng-container>
+												<ng-container
+													*ngIf="!(+i === 0 && +j === 0) && !isReadOnly && !t.isPaid">
+													<button type="button" class="btn btn-primary"
+														(click)="datePicker.open()"><i
+															class="far fa-calendar-alt"></i></button>
+												</ng-container>
+											</div>
+										</div>
+										<mat-datepicker #datePicker></mat-datepicker>
+										<input class="form-control" [ngModel]="t.updatedDescription"
+											[ngModelOptions]="ngModelOptions" fxFlex
+											(ngModelChange)="detailDescriptionChanged(t, $event)"
+											[readonly]="isReadOnly || t.isPaid" />
+										<div class="input-group" fxFlex="100px">
+											<input class="form-control"
+												[ngModel]="roundPercent(t.updatedPricePercent || getPricePercent(t.updatedPriceAmount))"
+												[ngModelOptions]="ngModelOptions"
+												(ngModelChange)="detailPricePercentChanged(t, $event)"
+												[readonly]="(+j === ppd.paymentPlanTrxs.length - 1) || isReadOnly || t.isPaid">
+											<div class="input-group-append">
+												<span class="input-group-text">
+													%
+												</span>
+											</div>
+										</div>
+										<div class="input-group" fxFlex="200px">
+											<div class="input-group-prepend">
+												<span class="input-group-text">
+													Rp.
+												</span>
+											</div>
+											<input class="form-control" currencyMask [options]="{ prefix: ''}"
+												[ngModel]="t.updatedPriceAmount || getPriceAmount(t.updatedPricePercent)"
+												[ngModelOptions]="ngModelOptions"
+												(ngModelChange)="detailPriceAmountChanged(t, $event)"
+												[readonly]="(+j === ppd.paymentPlanTrxs.length - 1) || isReadOnly || t.isPaid" />
+										</div>
+									</div>
+								</panel-body>
+							</ng-container>
+						</panel>
+					</ng-container>
+					<panel class="panel-total">
+						<panel-body fxLayout fxLayoutGap="5px">
+							<div class="form-group mb-0" fxFlex="150px">
+								<label>Last Payment Date</label>
+								<input class="form-control" [value]="lastDate | date:'dd/M/yyyy'" readonly>
+							</div>
+							<div class="form-group mb-0" fxFlex>
+								<label>Scheme</label>
+								<input class="form-control" value="Total Price" readonly>
+							</div>
+							<div class="form-group mb-0" fxFlex="100px">
+								<label>Price Percent</label>
+								<div class="input-group">
+									<input class="form-control" [ngModel]="totalPricePercent"
+										[ngModelOptions]="ngModelOptions" readonly>
+									<div class="input-group-append">
+										<span class="input-group-text">
+											%
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="form-group mb-0" fxFlex="200px">
+								<label>Price Amount</label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											Rp.
+										</span>
+									</div>
+									<input class="form-control" currencyMask [options]="{ prefix: ''}"
+										[ngModel]="totalPriceAmount" [ngModelOptions]="ngModelOptions" readonly>
+								</div>
+							</div>
+						</panel-body>
+					</panel>
+					<div fxLayout fxLayoutGap="20px">
+						<div fxLayout="column" fxFlex>
+							<h6>Sales Information</h6>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Inhouse / Property Agent</label>
+									<ng-container *ngIf="isReadOnly">
+										<input class="form-control"
+											[ngModel]="getOptionName(salesPropertyTypes, salesPropertyTypeId.value)"
+											[ngModelOptions]="{ standalone: true }" readonly>
+									</ng-container>
+									<ng-container *ngIf="!isReadOnly">
+										<select class="form-control" formControlName="salesPropertyTypeId">
+											<option *ngFor="let o of salesPropertyTypes" [value]="o.optionId">{{
+												o.optionName }}</option>
+										</select>
+									</ng-container>
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Sales Name</label>
+									<ng-container *ngIf="+salesPropertyTypeId.value === 1">
+										<option-dialog formControlName="salesInhouse" [options]="getSalesInhouses()"
+											keyName="salesId" valueName="fullName" placeholder="Select Sales"
+											(onSelect)="salesInhouseSelected($event)"
+											[isInvalid]="salesInhouse.invalid && formSubmitAttempt"
+											[readonly]="isReadOnly">
+											<ng-container *option="let row">
+												<div fxLayout="column" fxFlex fxLayoutAlign="center start">
+													<small class="text-primary">{{ row.employeeCode }}</small>
+													<h6>{{ row.fullName }}</h6>
+													<h6 class="text-secondary">{{ row.salesInhouseTypeName }}</h6>
+												</div>
+											</ng-container>
+										</option-dialog>
+									</ng-container>
+									<ng-container *ngIf="+salesPropertyTypeId.value === 2">
+										<option-dialog formControlName="salesAgent" [options]="getSalesAgents()"
+											keyName="salesAgentId" valueName="fullName" placeholder="Select Sales"
+											(onSelect)="salesAgentSelected($event)"
+											[isInvalid]="salesAgent.invalid && formSubmitAttempt"
+											[readonly]="isReadOnly">
+											<ng-container *option="let row">
+												<div fxLayout="column" fxFlex fxLayoutAlign="center start">
+													<small class="text-primary">{{ row.salesAgentCode }}</small>
+													<h6>{{ row.fullName }}</h6>
+													<small class="text-secondary">{{ row.propertyAgentName }}</small>
+												</div>
+											</ng-container>
+										</option-dialog>
+									</ng-container>
+								</div>
+							</div>
+							<ng-container *ngIf="+salesPropertyTypeId.value === 1">
+								<div fxLayout fxLayoutGap="10px">
+									<div class="form-group" fxFlex>
+										<label>Supervisor Name</label>
+										<input class="form-control" [ngModel]="salesInhouseSupervisorName"
+											[ngModelOptions]="ngModelOptions" readonly>
+									</div>
+									<div class="form-group" fxFlex>
+										<label>Manager Name</label>
+										<input class="form-control" [ngModel]="salesInhouseManagerName"
+											[ngModelOptions]="ngModelOptions" readonly>
+									</div>
+								</div>
+							</ng-container>
+							<ng-container *ngIf="+salesPropertyTypeId.value === 2">
+								<div fxLayout fxLayoutGap="10px">
+									<div class="form-group" fxFlex>
+										<label>Property Agent</label>
+										<input class="form-control" [ngModel]="propertyAgentName"
+											[ngModelOptions]="ngModelOptions" readonly>
+									</div>
+									<div class="form-group" fxFlex>
+										<label>Lead Property Agent</label>
+										<ng-container *ngIf="isReadOnly">
+											<input class="form-control"
+												[ngModel]="getOptionName(leadPropertyAgents, leadPropertyAgentId.value)"
+												[ngModelOptions]="{ standalone: true }" readonly>
+										</ng-container>
+										<ng-container *ngIf="!isReadOnly">
+											<select class="form-control" formControlName="leadPropertyAgentId">
+												<option value="0">Select Lead Property Agent</option>
+												<option *ngFor="let o of leadPropertyAgents" [value]="o.optionId">{{
+													o.optionName }}</option>
+											</select>
+										</ng-container>
+									</div>
+								</div>
+							</ng-container>
+							<h6>Other Information</h6>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" fxFlex="60%">
+									<label>Purpose of Purchase</label>
+									<option-dialog formControlName="purposeOfPurchase" addOption="true"
+										[options]="getPurposeOfPurchases()" (add)="purposeOfPurchaseAdded()"
+										(onSelect)="purposeOfPurchaseSelected($event)"
+										[isInvalid]="purposeOfPurchase.invalid && formSubmitAttempt"
+										[readonly]="isReadOnly">
+										<ng-container *option="let row">{{
+											row.optionName }}</ng-container>
+									</option-dialog>
+								</div>
+								<div class="form-group required" fxFlex="40%">
+									<label>Source of Fund</label>
+									<option-dialog formControlName="sourceOfFund" addOption="true"
+										[options]="getSourcesOfFund()" (add)="sourceOfFundAdded()"
+										(onSelect)="sourceOfFundSelected($event)"
+										[isInvalid]="sourceOfFund.invalid && formSubmitAttempt" [readonly]="isReadOnly">
+										<ng-container *option="let row">{{
+											row.optionName }}</ng-container>
+									</option-dialog>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group required" [fxFlex]="isKPR ? '60%' : 'auto'">
+									<label>Reference</label>
+									<option-dialog formControlName="reference" addOption="true"
+										[options]="getReferences()" (add)="referenceAdded()"
+										(onSelect)="referenceSelected($event)"
+										[isInvalid]="reference.invalid && formSubmitAttempt" [readonly]="isReadOnly">
+										<ng-container *option="let row">{{
+											row.optionName }}</ng-container>
+									</option-dialog>
+								</div>
+								<div class="form-group" fxFlex="40%" *ngIf="isKPR">
+									<label>Akad Date</label>
+									<div class="input-group">
+										<input [matDatepicker]="akadDatePicker" class="form-control" readonly
+											formControlName="akadDate" />
+										<div class="input-group-append">
+											<button type="button" class="btn btn-primary"
+												(click)="akadDatePicker.open()"><i
+													class="far fa-calendar-alt"></i></button>
+										</div>
+									</div>
+									<mat-datepicker #akadDatePicker></mat-datepicker>
+								</div>
+							</div>
+						</div>
+						<div class="promo-and-notes" fxLayout="column" fxFlex>
+							<h6>Promo and Notes</h6>
+							<div class="form-group">
+								<label>Promo</label>
+								<textarea class="form-control" rows="8" formControlName="promo"
+									[readonly]="isReadOnly"></textarea>
+							</div>
+							<div class="form-group">
+								<label>Notes</label>
+								<textarea class="form-control" rows="8" formControlName="notes"
+									[readonly]="isReadOnly"></textarea>
+							</div>
+						</div>
+					</div>
+					<div fxLayout="column">
+						<h6>Documents</h6>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="document" fxLayout="column" fxFlex>
+								<small>KTP :</small>
+								<div fxLayout="column" fxLayoutAlign="center center"
+									[class.is-invalid]="isRequestApprovalAttempt && !identityImagePath">
+									<ng-container *ngIf="!!uploadedIdentity">
+										<image-holder [src]="uploadedIdentity" fxFlexFill></image-holder>
+									</ng-container>
+									<ng-container *ngIf="!uploadedIdentity">
+										<ng-container *ngIf="identityImagePath">
+											<image-holder [src]="identityImagePath" fxFlexFill></image-holder>
+										</ng-container>
+										<ng-container *ngIf="!identityImagePath">
+											<p>No Image</p>
+										</ng-container>
+									</ng-container>
+								</div>
+								<input #uploadIdentity (change)="uploadIdentityChanged($event)" type="file"
+									accept="image/*" class="d-none">
+								<ng-container *ngIf="!isReadOnly">
+									<button type="button" class="btn btn-primary"
+										(click)="uploadIdentity.click()">Upload
+										Identity</button>
+								</ng-container>
+							</div>
+							<div class="document" fxLayout="column" fxFlex>
+								<small>NPWP :</small>
+								<div fxLayout="column" fxLayoutAlign="center center"
+									[class.is-invalid]="isRequestApprovalAttempt && !npwpImagePath">
+									<ng-container *ngIf="!!uploadedNpwp">
+										<image-holder [src]="uploadedNpwp" fxFlexFill></image-holder>
+									</ng-container>
+									<ng-container *ngIf="!uploadedNpwp">
+										<ng-container *ngIf="npwpImagePath">
+											<image-holder [src]="npwpImagePath" fxFlexFill></image-holder>
+										</ng-container>
+										<ng-container *ngIf="!npwpImagePath">
+											<p>No Image</p>
+										</ng-container>
+									</ng-container>
+								</div>
+								<input #uploadNpwp (change)="uploadNpwpChanged($event)" type="file" accept="image/*"
+									class="d-none">
+								<ng-container *ngIf="!isReadOnly">
+									<button type="button" class="btn btn-primary" (click)="uploadNpwp.click()">Upload
+										NPWP</button>
+								</ng-container>
+							</div>
+							<div class="document" fxLayout="column" fxFlex>
+								<small>Proof of Payment :</small>
+								<div fxLayout="column" fxLayoutAlign="center center"
+									[class.is-invalid]="isRequestApprovalAttempt && !proofOfTransferImagePath">
+									<ng-container *ngIf="!!uploadedProofOfTransfer">
+										<image-holder [src]="uploadedProofOfTransfer" fxFlexFill></image-holder>
+									</ng-container>
+									<ng-container *ngIf="!uploadedProofOfTransfer">
+										<ng-container *ngIf="proofOfTransferImagePath">
+											<image-holder [src]="proofOfTransferImagePath" fxFlexFill></image-holder>
+										</ng-container>
+										<ng-container *ngIf="!proofOfTransferImagePath">
+											<p>No Image</p>
+										</ng-container>
+									</ng-container>
+								</div>
+								<input #uploadProofOfTransfer (change)="uploadProofOfTransferChanged($event)"
+									type="file" accept="image/*" class="d-none">
+								<ng-container *ngIf="!isReadOnly">
+									<button type="button" class="btn btn-primary"
+										(click)="uploadProofOfTransfer.click()">Upload Proof of
+										Payment</button>
+								</ng-container>
+							</div>
+						</div>
+					</div>
+				</form>
+			</panel-body> -->
+			<panel-footer fxLayout="column" fxLayoutGap="5px">
+				<ng-container *ngIf="!isRevision">
+					<loading-button *ngIf="!cancelationDate" className="btn btn-primary btn-block" (click)="revision()"
+						[isLoading]="isRevisioning">
+						<i class="fas fa-pen mr-2"></i>
+						Revision
+					</loading-button>
+				</ng-container>
+				<loading-button *ngIf="!cancelationDate" className="btn btn-danger btn-block" (click)="cancelation()"
+					[isLoading]="isCanceling">
+					<i class="fas fa-times mr-2"></i>
+					Cancelation
+				</loading-button>
+				<loading-button *ngIf="cancelationDate" className="btn btn-danger btn-block"
+					(click)="approveCancelation()" [isLoading]="isCanceling">
+					<i class="fas fa-check mr-2"></i>
+					Approve Cancelation
+				</loading-button>
+			</panel-footer>
+		</panel>
+	</page-body>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

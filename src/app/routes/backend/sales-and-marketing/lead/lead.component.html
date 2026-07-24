@@ -1,0 +1,117 @@
+<page-header>
+	<div class="form-group" fxFlex>
+		<label>Search</label>
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Search.."
+				(keyup)="searchChanged($any($event.target).value)">
+			<div class="input-group-append">
+				<span class="input-group-text">
+					<i class="fas fa-search"></i>
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="form-group" fxFlex="120px">
+		<label>Category</label>
+		<select class="form-control" (change)="categoryChanged($any($event.target).value)">
+			<option value="">All</option>
+			<option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+		</select>
+	</div>
+	<div class="form-group" fxFlex="160px">
+		<label>Status</label>
+		<select class="form-control" (change)="statusChanged($any($event.target).value)">
+			<option value="">All</option>
+			<option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+		</select>
+	</div>
+	<button class="btn btn-primary" (click)="addLead()"><i class="fas fa-plus mr-2"></i>Add Lead</button>
+</page-header>
+<page-body>
+	<panel>
+		<panel-body class="p-0">
+			<ng-container *ngIf="isInitialized">
+				<mat-table class="data-grid" #dataGrid [dataSource]="dataSource" matSort matSortDisableClear>
+
+					<ng-container matColumnDef="no">
+						<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+						</mat-header-cell>
+						<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+							{{ row.no }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="fullName">
+						<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Lead</mat-header-cell>
+						<mat-cell fxFlex *matCellDef="let row" fxLayout fxLayoutAlign="start center">
+							<!-- <h4 [style.background-color]="'#' + row.color">{{ row.leadInitial }}</h4> -->
+							<div fxLayout="column" fxLayoutAlign="center start">
+								<h2>{{ row.fullName }}</h2>
+								<h3>{{ row.phoneNumber }}</h3>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="locationName">
+						<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Location</mat-header-cell>
+						<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.locationName }}</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="registeredDate">
+						<mat-header-cell fxFlex="140px" mat-sort-header *matHeaderCellDef>Regist. Date</mat-header-cell>
+						<mat-cell fxFlex="140px" *matCellDef="let row">{{ row.registeredDate }}</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="categoryName">
+						<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Category</mat-header-cell>
+						<mat-cell fxFlex="120px" *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<!-- <h2><i class="fas fa-circle mr-2" [style.color]="'#' + row.color"></i>{{ row.categoryName }}
+							</h2> -->
+							<h2>{{ row.categoryName }}</h2>
+							<h3>{{ row.categoryDate }}</h3>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="statusName">
+						<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Status</mat-header-cell>
+						<mat-cell fxFlex="120px" *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h2><i [ngClass]="row.icon" class="mr-2"></i>{{ row.statusName }}</h2>
+							<h3>{{ row.statusDate }}</h3>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="salesName">
+						<mat-header-cell fxFlex="140px" mat-sort-header *matHeaderCellDef>Sales</mat-header-cell>
+						<mat-cell fxFlex="140px" *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h2>{{ row.salesName }}</h2>
+							<h3>{{ row.salesInhouseTypeName }}</h3>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<mat-header-cell fxFlex="120px" *matHeaderCellDef></mat-header-cell>
+						<mat-cell fxFlex="120px" *matCellDef="let row" fxLayoutGap="5px" fxLayoutAlign="end center">
+							<button *ngIf="row.categoryName === 'Neutral'" class="btn btn-success btn-sm"><i
+									class="fas fa-paper-plane"></i></button>
+							<button *ngIf="row.categoryName === 'Neutral'" (click)="assign(row)"
+								class="btn btn-success btn-sm"><i class="fas fa-user-check"></i></button>
+							<a class="btn btn-primary btn-sm" [routerLink]="row.leadId.toString()">
+								<i class="fas fa-pen"></i>
+							</a>
+						</mat-cell>
+					</ng-container>
+
+					<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+					<mat-row *matRowDef="let row; columns: displayedColumns;"
+						[style.box-shadow]="'inset 5px 0px #' + row.color"></mat-row>
+				</mat-table>
+			</ng-container>
+			<ng-container *ngIf="!isInitialized">
+				<div class="loading-container">
+					<loading></loading>
+				</div>
+			</ng-container>
+			<mat-paginator [pageSizeOptions]="[10, 50, 100]" showFirstLastButtons></mat-paginator>
+		</panel-body>
+	</panel>
+</page-body>

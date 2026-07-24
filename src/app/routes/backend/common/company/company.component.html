@@ -1,0 +1,23 @@
+<div class="container-fluid page-body">
+	<div class="panel panel-company">
+		<div class="panel-filter" fxLayoutGap="10px" fxLayoutAlign="start end">
+			<div class="form-group" fxFlex>
+				<label>Search</label>
+				<input class="form-control" (keyup)="applyFilter($event)" />
+			</div>
+			<div>
+				<button class="btn btn-primary" (click)="addCompany()"><i class="fas fa-plus mr-2"></i>Add
+					Company</button>
+			</div>
+		</div>
+		<div class="panel-body p-0">
+			<ul>
+				<ng-container *ngFor="let company of companies">
+					<company-tree [company]="company" (companyAdded)="companyAdded($event)"
+						(companyEdited)="companyEdited($event)" (companyDeleted)="companyDeleted($event)">
+					</company-tree>
+				</ng-container>
+			</ul>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,90 @@
+<ng-container *ngIf="isInitialized">
+	<h2 mat-dialog-title>Payment Plan</h2>
+	<mat-dialog-content fxLayout="column">
+		<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+			<div fxLayout fxLayoutGap="10px">
+				<div class="form-group" fxFlex>
+					<label>Payment Plan Name</label>
+					<input class="form-control" formControlName="paymentPlanName">
+				</div>
+				<div class="form-group" fxFlex="160px">
+					<label>Payment Method</label>
+					<select class="form-control" formControlName="paymentMethodId">
+						<option *ngFor="let p of paymentMethods" [value]="p.paymentMethodId">{{ p.paymentMethodName }}
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label>Remark</label>
+				<input class="form-control" formControlName="remark">
+			</div>
+		</form>
+		<mat-table class="data-grid scroll scroll-y" #dataGrid [dataSource]="paymentPlanDetails" matSort
+			matSortDisableClear fxFlex="218px">
+
+			<ng-container matColumnDef="no">
+				<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+				</mat-header-cell>
+				<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+					{{ i + 1 }}
+				</mat-cell>
+			</ng-container>
+
+			<ng-container matColumnDef="paymentSchemeName">
+				<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Payment Scheme</mat-header-cell>
+				<mat-cell fxFlex *matCellDef="let row">
+					{{ row.paymentSchemeName }}
+				</mat-cell>
+			</ng-container>
+
+			<ng-container matColumnDef="priceAmount">
+				<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Price</mat-header-cell>
+				<mat-cell fxFlex="120px" *matCellDef="let row">
+					{{ row.priceAmount ? (row.priceAmount | currency:'IDR':'Rp. ':'1.0-0') : (row.pricePercent ?
+					row.pricePercent + '%' : '') }}
+				</mat-cell>
+			</ng-container>
+
+			<ng-container matColumnDef="numberOfInstall">
+				<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef>Count</mat-header-cell>
+				<mat-cell fxFlex="60px" *matCellDef="let row">
+					{{ row.numberOfInstall + 'x'}}
+				</mat-cell>
+			</ng-container>
+
+			<ng-container matColumnDef="interval">
+				<mat-header-cell fxFlex="80px" mat-sort-header *matHeaderCellDef>Intv</mat-header-cell>
+				<mat-cell fxFlex="80px" *matCellDef="let row">
+					{{ row.interval + ' ' + row.intervalTypeName }}
+				</mat-cell>
+			</ng-container>
+
+			<ng-container matColumnDef="actions">
+				<mat-header-cell fxFlex="80px" *matHeaderCellDef></mat-header-cell>
+				<mat-cell fxFlex="80px" *matCellDef="let row" fxLayoutGap="5px">
+					<button class="btn btn-primary btn-sm" (click)="editDetail(row)"><i class="fas fa-pen"></i></button>
+					<button class="btn btn-danger btn-sm" (click)="deleteDetail(row)"><i
+							class="far fa-trash-alt"></i></button>
+				</mat-cell>
+			</ng-container>
+
+			<mat-header-row *matHeaderRowDef="paymentPlanDetailsColumns; sticky: true"></mat-header-row>
+			<mat-row *matRowDef="let row; columns: paymentPlanDetailsColumns"></mat-row>
+		</mat-table>
+	</mat-dialog-content>
+	<mat-dialog-actions fxLayout fxLayoutGap="10px">
+		<button class="btn btn-primary" (click)="addDetail()"><i class="fas fa-plus mr-2"></i>Add Detail</button>
+		<span fxFlex></span>
+		<button class="btn btn-primary" (click)="submit()">
+			<i class="fa fa-save mr-1"></i> Save
+		</button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button>
+	</mat-dialog-actions>
+
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

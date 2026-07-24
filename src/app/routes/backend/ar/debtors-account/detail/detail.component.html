@@ -1,0 +1,106 @@
+<ng-container *ngIf="isInitialized">
+	<div class="page-body container-fluid">
+		<panel>
+			<panel-body class="py-3">
+				<h2 class="text-uppercase text-secondary">{{ sales.projectName }}</h2>
+				<h1>{{ sales.unitName }}</h1>
+			</panel-body>
+			<panel-body fxLayout fxLayoutGap="30px">
+				<div fxFlex fxLayout="column">
+					<h3>Customer Info</h3>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Nama Konsumen</label>
+						<p fxFlex>{{ sales.fullName || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Alamat Rumah (KTP)</label>
+						<p fxFlex>{{ sales.identityAddress || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Alamat Surat Menyurat</label>
+						<p fxFlex>{{ sales.mailingAddress || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">No. KTP / SIM / Passprt</label>
+						<p fxFlex>{{ sales.identityCode || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">NPWP</label>
+						<p fxFlex>{{ sales.npwp || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Telp. Rumah</label>
+						<p fxFlex>{{ sales.homePhone || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Telp. Kantor</label>
+						<p fxFlex>{{ sales.customerCompanyPhone || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Handphone</label>
+						<p fxFlex>{{ sales.handPhone || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Email</label>
+						<p fxFlex>{{ sales.email || '-' }}</p>
+					</span>
+					<h3>Payment Info</h3>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Cara Bayar</label>
+						<p fxFlex>{{ sales.paymentPlanName || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Jml. / Persen Terbayarkan</label>
+						<p fxFlex>
+							{{ (sales.paidAmount | currency:'IDR':'Rp. ':'1.0-0') + ' (' + sales.paidPercent + '%)' }}
+						</p>
+					</span>
+				</div>
+				<div fxFlex>
+					<h3>Unit Info</h3>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Cluster</label>
+						<p fxFlex>{{ sales.projectName || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Type</label>
+						<p fxFlex>{{ sales.unitTypeName || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Jalan / No.</label>
+						<p fxFlex>{{ sales.unitName || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Luas Tanah</label>
+						<p fxFlex>{{ sales.lt || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Luas Bangunan</label>
+						<p fxFlex>{{ sales.lb || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Harga Jual</label>
+						<p fxFlex>{{ sales.salesPrice | currency:'IDR':'Rp. ':'1.0-0' }}</p>
+					</span>
+					<h3>Sales Info</h3>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Nama Agent</label>
+						<p fxFlex>{{ sales.salesName || '-' }}</p>
+					</span>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Kantor Agent</label>
+						<p fxFlex>{{ sales.agentPropertyName || '-' }}</p>
+					</span>
+					<h3>Customer Deposit Info</h3>
+					<span fxLayout fxLayoutAlign="start start">
+						<label fxFlex="240px">Jumlah Deposit</label>
+						<p fxFlex>{{ sales.salesPrice | currency:'IDR':'Rp. ':'1.0-0' }}</p>
+					</span>
+				</div>
+			</panel-body>
+		</panel>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

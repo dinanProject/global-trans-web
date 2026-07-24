@@ -1,0 +1,229 @@
+form {
+	h6 {
+		text-transform: uppercase;
+		font-weight: 700;
+		margin: 30px 0 15px;
+	}
+
+	&>h6 {
+		margin-top: 0px;
+	}
+
+	a {
+		cursor: pointer;
+	}
+
+	.customer-information {
+		textarea {
+			height: 102px;
+		}
+	}
+
+	.grid {
+		border: 1px solid #ced4da;
+		border-radius: 4px;
+		overflow: hidden;
+		margin-bottom: 1rem;
+
+		.grid-header {
+			border-bottom: 1px solid #ced4da;
+			background-color: #f5f8fa;
+
+			>small {
+				margin: 0px;
+				padding: 7px 10px;
+				font-weight: normal;
+				text-transform: none;
+				border-left: 1px solid #ced4da;
+
+				&:first-child {
+					border-left: none;
+				}
+
+				&:last-child {
+					text-align: center;
+				}
+			}
+		}
+
+		.grid-body {
+			// .grid-header-row {
+			// 	border-bottom: 1px solid #ced4da;
+
+			.menu {
+				button {
+					outline: none;
+				}
+			}
+
+			.grid-row {
+				border-bottom: 1px solid #ced4da;
+
+				>div {
+					padding: 10px;
+					border-left: 1px solid #ced4da;
+
+					h6 {
+						text-transform: none;
+						font-weight: 400;
+						margin: 0px;
+					}
+
+					&:first-child {
+						border-left: none;
+					}
+
+					&:last-child {
+						text-align: right;
+					}
+				}
+
+				&:last-child {
+					border-bottom: none;
+				}
+			}
+
+			// }
+
+			.no-unit-selected {
+				padding: 20px;
+				border-bottom: 1px solid #ced4da;
+			}
+		}
+
+		.grid-footer {
+			background-color: #f5f8fa;
+			border-top: 1px solid #ced4da;
+			border-bottom: none;
+
+			>div {
+				font-weight: 600;
+				padding: 7px 10px;
+
+				&:first-child {
+					border-right: none;
+				}
+
+				&:last-child {
+					text-align: right;
+					border-right: none;
+				}
+			}
+		}
+	}
+
+	.panel-payment-plan {
+		panel-body {
+			padding: 10px 10px 5px;
+			background-color: #F2F2F2;
+		}
+
+		.panel-payment-plan-header {}
+
+		.panel-payment-plan-detail {
+			padding: 5px 10px;
+			background-color: #FFFFFF;
+		}
+
+		border-color: var(--input-border-color);
+		margin-bottom: 13px;
+
+
+
+		h6 {
+			text-transform: none;
+			font-weight: 400;
+			margin: 0px;
+		}
+
+		.form-control[readonly] {
+			background-color: #e9ecef;
+		}
+
+		&.paid {
+			panel-body {
+				background-color: var(--gray2);
+			}
+		}
+	}
+
+	.panel-total {
+		border-color: var(--input-border-color);
+		margin-bottom: 13px;
+
+		panel-body {
+			padding: 13px 10px;
+			background-color: #dddddd;
+
+			.form-control[readonly] {
+				// background-color: #e9ecef;
+			}
+		}
+
+		h6 {
+			margin: 0px;
+		}
+	}
+
+	.promo-and-notes {
+		textarea {
+			height: 133px;
+		}
+	}
+
+	.document {
+		// margin-bottom: 14px;
+
+		small {
+			margin-bottom: 2px;
+		}
+
+		>div {
+			border-radius: var(--border-radius);
+			border: 1px solid var(--input-border-color);
+			height: 194px;
+
+			p {
+				color: var(--text-light);
+			}
+
+			&.is-invalid {
+				border-color: var(--danger);
+			}
+		}
+
+		>.btn {
+			margin-top: 14px;
+		}
+	}
+
+	.payment {
+		margin-top: 14px;
+
+		textarea {
+			height: 171px;
+		}
+	}
+
+	.booking-fee {
+		small {
+			margin-bottom: 2px;
+		}
+
+		.outstanding-amount {
+			padding: 10px 22px;
+			border: 2px solid var(--success);
+			border-radius: 10px;
+			margin-bottom: 10px;
+
+			&.not-equal {
+				border: 1px solid var(--danger);
+			}
+		}
+	}
+}
+
+panel-footer {
+	padding-left: 30px;
+	padding-right: 30px;
+}

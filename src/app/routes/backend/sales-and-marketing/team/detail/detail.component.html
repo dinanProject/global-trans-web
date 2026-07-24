@@ -1,0 +1,130 @@
+<ng-container *ngIf="isInitialized">
+	<mat-dialog-content>
+		<h1>{{ teamName.value || 'New Team'}}</h1>
+	</mat-dialog-content>
+	<mat-dialog-content fxLayout="column">
+		<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+			<!-- <div fxLayout fxLayoutGap="10px">
+				<div class="form-group" fxFlex>
+					<label>Team Name</label>
+					<input class="form-control" formControlName="teamName"
+						[class.is-invalid]="teamName.invalid && formSubmitAttempt">
+				</div>
+				<div class="form-group" fxFlex="180px">
+					<label>Sales Type</label>
+					<select class="form-control" formControlName="salesInhouseTypeId">
+						<option *ngFor="let s of salesInhouseTypes" [value]="s.salesInhouseTypeId">{{ s.salesInhouseTypeName }}
+						</option>
+					</select>
+				</div>
+			</div> -->
+			<div class="form-group" fxFlex>
+				<label>Team Name</label>
+				<input class="form-control" formControlName="teamName"
+					[class.is-invalid]="teamName.invalid && formSubmitAttempt">
+			</div>
+			<div fxLayout fxLayoutGap="10px">
+				<div class="form-group mb-0" fxFlex>
+					<label>Supervisor</label>
+					<div class="input-group">
+						<input type="text" class="form-control" [(ngModel)]="supervisorName"
+							[ngModelOptions]="{ standalone: true }" readonly>
+						<div class="input-group-append">
+							<span class="input-group-text" (click)="getSupervisor()">
+								<i class="fas fa-ellipsis-h"></i>
+							</span>
+						</div>
+					</div>
+					<input type="hidden" formControlName="supervisorId" />
+				</div>
+				<div class="form-group mb-0" fxFlex>
+					<label>SM</label>
+					<div class="input-group">
+						<input type="text" class="form-control" [(ngModel)]="smName"
+							[ngModelOptions]="{ standalone: true }" readonly>
+						<div class="input-group-append">
+							<span class="input-group-text" (click)="getSM()">
+								<i class="fas fa-ellipsis-h"></i>
+							</span>
+						</div>
+					</div>
+					<input type="hidden" formControlName="smId" />
+				</div>
+				<div class="form-group mb-0" fxFlex>
+					<label>GM</label>
+					<div class="input-group">
+						<input type="text" class="form-control" [(ngModel)]="gmName"
+							[ngModelOptions]="{ standalone: true }" readonly>
+						<div class="input-group-append">
+							<span class="input-group-text" (click)="getGM()">
+								<i class="fas fa-ellipsis-h"></i>
+							</span>
+						</div>
+					</div>
+					<input type="hidden" formControlName="gmId" />
+				</div>
+			</div>
+		</form>
+		<error-message>{{ errorMessage }}</error-message>
+	</mat-dialog-content>
+	<ng-container *ngIf="teamId">
+		<div class="separator my-0"></div>
+		<mat-dialog-content fxLayout="column">
+			<div fxLayout fxLayoutGap="10px" fxLayoutAlign="top start">
+				<div class="form-group" fxFlex>
+					<div class="input-group">
+						<input type="text" class="form-control" placeholder="Search.."
+							(keyup)="searchChanged($event.target.value)">
+						<div class="input-group-append">
+							<span class="input-group-text">
+								<i class="fas fa-search"></i>
+							</span>
+						</div>
+					</div>
+				</div>
+				<button class="btn btn-primary" (click)="addSales()"><i class="fas fa-plus mr-2"></i>Add
+					Sales</button>
+			</div>
+			<mat-table class="data-grid scroll scroll-y" fxFlex="230px" #dataGrid [dataSource]="dataSource">
+
+				<ng-container matColumnDef="no">
+					<mat-header-cell fxFlex="60px" *matHeaderCellDef> No.
+					</mat-header-cell>
+					<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+						{{ i + 1 }}
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="fullName">
+					<mat-header-cell fxFlex *matHeaderCellDef>Sales</mat-header-cell>
+					<mat-cell fxFlex *matCellDef="let row">{{ row.fullName }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<mat-header-cell fxFlex="40px" *matHeaderCellDef></mat-header-cell>
+					<mat-cell fxFlex="40px" *matCellDef="let row" fxLayoutGap="5px">
+						<button class="btn btn-primary btn-sm" (click)="changeTeam(row.salesInhouseId)"><i
+								class="fas fa-sync"></i></button>
+					</mat-cell>
+				</ng-container>
+
+				<mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+				<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+			</mat-table>
+		</mat-dialog-content>
+	</ng-container>
+	<mat-dialog-actions fxLayout fxLayoutGap="10px">
+		<button *ngIf="teamId" class="btn btn-danger" (click)="deleteTeam()"><i class="far fa-trash-alt mr-2"></i>Delete
+			Team</button>
+		<span fxFlex></span>
+		<button class="btn btn-primary" (click)="submit()">
+			<i class="fa fa-save mr-1"></i> Save
+		</button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button>
+	</mat-dialog-actions>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

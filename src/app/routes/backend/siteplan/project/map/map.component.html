@@ -1,0 +1,87 @@
+<ng-container *ngIf="isInitialized">
+	<div id="map-container" class="map-container" fxFlexFill #mapContainer appPanAndZoom>
+		<div id="map-holder" class="map-holder" #mapHolder appPannable appZoomable>
+			<div class="image-cover"></div>
+			<img [src]="project.siteplanPath" />
+			<ng-container *ngFor="let unit of dataSource.filteredData; let i = index">
+				<a #unitz class="unit" [style.top.px]="unit.picY" [style.left.px]="unit.picX" (click)="salesEntry(unit)"
+					[ngClass]="[
+							unit.formattedSalesStatusName,
+							unit.formattedProgressStatusName
+						]" [class.show-unit]="unit.isShowUnit">
+					<div class="unit-inner">
+						<h2>{{ unit.unitNo }}</h2>
+						<div class="show-unit"></div>
+					</div>
+				</a>
+				<div class="unit-tooltip" [ngClass]="[
+							unit.formattedUnitCategoryName
+						]" [style.top.px]="unit.picY" [style.left.px]="unit.picX">
+					<div class="unit-tooltip-inner">
+						<div class="unit-tooltip-text">
+							<h3>{{ unit.unitName }}</h3>
+							<div class="separator"></div>
+							<h2><span>Luas Tanah / Bangunan</span>{{ unit.lt || '0' }} / {{ unit.lb || '0'}}</h2>
+							<h2><span>Sales Status</span>{{ unit.salesStatusName }}</h2>
+							<h2><span>Progress Status</span>{{ unit.progressStatusName }}</h2>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+			<!-- <div *ngIf="isProjectInitialized" class="siteplan-download-legend">
+				<div class="legend legend-status">
+					<h1>Status</h1>
+					<div class="sub-legends">
+						<div class="sub-legend">
+							<label><i class="available"></i>Available<span>{{ countLotStatus('available') + ' Unit' +
+									(countLotStatus('available') > 1 ? 's':'') }}</span></label>
+							<label><i class="hold"></i>Hold<span>{{ countLotStatus('hold') + ' Unit' +
+									(countLotStatus('hold') > 1 ? 's':'') }}</span></label>
+							<label><i class="reserved"></i>Reserved<span>{{ countLotStatus('reserved') + ' Unit' +
+									(countLotStatus('reserved') > 1 ? 's':'') }}</span></label>
+						</div>
+						<div class="sub-legend">
+							<label><i class="sold-regular"></i>Sold
+								Regular<span>{{ countLotStatus('sold-regular') + ' Unit' +
+									(countLotStatus('sold-regular') > 1 ? 's':'') }}</span></label>
+							<label><i class="sold-superpi"></i>Sold
+								SuperPI<span>{{ countLotStatus('sold-superpi') + ' Unit' +
+									(countLotStatus('sold-superpi') > 1 ? 's':'') }}</span></label>
+						</div>
+					</div>
+				</div>
+				<div class="legend legend-progress">
+					<h1>Progress</h1>
+					<label><i class="indent"></i>Indent<span>{{ countLotProgress('indent') + ' Unit' +
+							(countLotProgress('indent') > 1 ? 's':'') }}</span></label>
+					<label><img src="/assets/on-progress.jpg" />On
+						Progress<span>{{ countLotProgress('on-progress') + ' Unit' + (countLotProgress('on-progress') >
+							1 ? 's':'') }}</span></label>
+					<label><i class="ready-stock"></i>Ready
+						Stock<span>{{ countLotProgress('ready-stock') + ' Unit' + (countLotProgress('ready-stock') > 1 ?
+							's':'') }}</span></label>
+				</div>
+				<div class="legend legend-category">
+					<h1>Category</h1>
+					<label><img src="/assets/show-unit.jpg" />Show
+						Unit<span>{{ countLotCategory('show-unit') + ' Unit' + (countLotCategory('show-unit') > 1 ?
+							's':'') }}</span></label>
+					<label><i class="sales-unit"></i>Sales
+						Unit<span>{{ countLotCategory('sales-unit') + ' Unit' + (countLotCategory('sales-unit') > 1 ?
+							's':'') }}</span></label>
+				</div>
+				<div class="legend siteplan-info">
+					<h5><span>Printed On</span>{{ project.formattedCurrentDate | date:'dd MMMM yyyy, HH:mm' }}</h5>
+					<ng-container *ifAuth>
+						<h5><span>Printed By</span>{{ user.fullName + ' (' + user.userName + ')' }}</h5>
+					</ng-container>
+				</div>
+			</div> -->
+		</div>
+	</div>
+	<button class="btn btn-primary btn-download-siteplan" (click)="downloadSiteplan()"><i
+			class="fas fa-cloud-download-alt"></i></button>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

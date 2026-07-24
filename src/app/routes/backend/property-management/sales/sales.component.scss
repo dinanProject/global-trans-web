@@ -1,0 +1,138 @@
+.page-header {
+	.form-group {
+		margin: 0px;
+	}
+}
+.title {
+	margin-top: 30px;
+	margin-bottom: 10px;
+	h1 {
+		font-size: 30px;
+		font-weight: 300;
+		margin: 0;
+		// border-right: 1px solid #000000;
+		padding: 0px 20px 0px 0px;
+		line-height: 32px;
+	}
+	h4 {
+		font-size: 20px;
+		font-weight: 500;
+		margin: 0;
+		// border-right: 1px solid #000000;
+		padding: 0px 20px 0px 0px;
+		line-height: 32px;
+	}
+	h2 {
+		font-size: 16px;
+		margin: 0;
+		padding-left: 20px;
+		padding-right: 3px;
+		text-align: right;
+	}
+	h3 {
+		font-size: 14px;
+		margin: 0;
+		color: #0088E5;
+		padding-right: 3px;
+		padding-left: 20px;
+		text-align: right;
+		// color: #999999;
+	}
+}
+.grid {
+	background-color: #ffffff;
+	border: 1px solid #e6eaee;
+	border-radius: 3px;
+	overflow: hidden;
+	.grid-header {
+		border-bottom: 1px solid #e6eaee;
+		background-color: #f5f8fa;
+		> div {
+			padding: 10px 10px;
+			border-right: 1px solid #e6eaee;
+			color: #7f8fa4;
+			h1 {
+				font-size: 14px;
+				margin: 0px;
+			}
+			h2 {
+				font-size: 12px;
+				margin: 0px;
+				color: #1bb934;
+			}
+			&:last-child {
+				border-right: none;
+			}
+		}
+	}
+	.grid-body {
+		.grid-row {
+			border-bottom: 1px solid #e6eaee;
+			&.handover {
+				box-shadow: inset 2px 0px 0px 0px #1bb934;
+			}
+			> div {
+				padding: 5px 10px;
+				display: flex;
+				align-items: center;
+				border-right: 1px solid #e6eaee;
+				h1 {
+					font-size: 14px;
+					margin: 0px;
+					&.cancelation {
+						color: #ed1c24;
+					}
+					.fa-check-circle {
+						margin-right: 5px;
+						color: #0088E5;
+					}
+				}
+				h2 {
+					font-size: 12px;
+					margin: 0;
+					color: #0088E5;
+					&.danger {
+						color: #ed1c24;
+					}
+					&.warning {
+						color: #fd9a18;
+					}
+					&.done {
+						color: #1bb934;
+					}
+				}
+				h3 {
+					font-size: 12px;
+					margin: 0;
+					color: #999999;
+				}
+				h4 {
+					font-size: 14px;
+					margin: 0;
+					color: #999999;
+				}
+				&.text-center {
+					justify-content: center;
+				}
+				&.handover {
+					// color: #999999;
+				}
+				&.text-right {
+					justify-content: flex-end;
+				}
+				&:last-child {
+					border-right: none;
+				}
+			}
+			&:nth-child(odd) {
+				background-color: #fafafa;
+			}
+			&:last-child {
+				border-bottom: none;
+			}
+		}
+	}
+	&:last-child {
+		margin-bottom: 40px;
+	}
+}

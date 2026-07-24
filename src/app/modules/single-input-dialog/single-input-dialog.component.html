@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<mat-dialog-content fxLayout="column">
+	<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+		<div class="form-group mb-0 required">
+			<label>{{ label }}</label>
+			<ng-container *ngIf="type === 'input'">
+				<input class="form-control" [placeholder]="placeholder" formControlName="formControl"
+					[class.is-invalid]="formControl.invalid && formSubmitAttempt">
+			</ng-container>
+			<ng-container *ngIf="type === 'textaera'">
+				<textarea class="form-control" [placeholder]="placeholder" formControlName="formControl"
+					[class.is-invalid]="formControl.invalid && formSubmitAttempt"></textarea>
+			</ng-container>
+			<ng-container *ngIf="type === 'datepicker'">
+				<div class="input-group">
+					<input [matDatepicker]="inputDatePicker" class="form-control" [placeholder]="placeholder"
+						formControlName="formControl" [class.is-invalid]="formControl.invalid && formSubmitAttempt"
+						readonly />
+					<div class="input-group-append">
+						<button type="button" class="btn btn-primary" (click)="inputDatePicker.open()"><i
+								class="far fa-calendar-alt"></i></button>
+					</div>
+				</div>
+				<mat-datepicker #inputDatePicker></mat-datepicker>
+			</ng-container>
+		</div>
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px">
+	<span fxFlex></span>
+	<button class="btn btn-primary" (click)="submit()">
+		<i class="fa fa-save mr-1"></i> Save
+	</button>
+	<button mat-dialog-close class="btn btn-danger">
+		<i class="fa fa-times mr-1"></i> Close
+	</button>
+</mat-dialog-actions>

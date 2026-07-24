@@ -1,0 +1,70 @@
+<div class="container-fluid page-body">
+	<div class="panel panel-project">
+		<div class="panel-filter" fxLayoutGap="10px" fxLayoutAlign="start end">
+			<div class="form-group" fxFlex>
+				<label>Search</label>
+				<input class="form-control" (keyup)="applyFilter($event)" />
+			</div>
+			<div>
+				<button class="btn btn-primary" (click)="addProject()"><i class="fas fa-plus mr-2"></i>Add
+					Project</button>
+			</div>
+		</div>
+		<div class="panel-body p-0">
+			<mat-table class="data-grid" #dataGrid [dataSource]="dataSource" matSort matSortDisableClear>
+
+				<ng-container matColumnDef="no">
+					<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+					</mat-header-cell>
+					<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+						{{ i + 1 }}
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="projectName">
+					<mat-header-cell fxFlex="200px" mat-sort-header *matHeaderCellDef>Project Name</mat-header-cell>
+					<mat-cell fxFlex="200px" *matCellDef="let row">{{ row.projectName }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="city">
+					<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>City</mat-header-cell>
+					<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.city }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="remark">
+					<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Remark</mat-header-cell>
+					<mat-cell fxFlex *matCellDef="let row">{{ row.remark }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="formattedLaunchingDate">
+					<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Launching Date</mat-header-cell>
+					<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.formattedLaunchingDate }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<mat-header-cell fxFlex="200px" *matHeaderCellDef></mat-header-cell>
+					<mat-cell fxFlex="200px" *matCellDef="let row">
+						<div fxFlex fxLayout fxLayoutAlign="end center" fxLayoutGap="5px">
+							<a class="btn btn-sm btn-primary" [routerLink]="[ row.projectId + '/unit' ]"><i
+									class="fas fa-list-ul"></i></a>
+							<a class="btn btn-sm btn-primary" [routerLink]="[ row.projectId + '/mapper' ]"><i
+									class="fas fa-map-marked-alt"></i></a>
+							<a class="btn btn-sm btn-success" [routerLink]="[ row.projectId + '/map' ]"><i
+									class="fas fa-map"></i></a>
+							<button class="btn btn-sm btn-primary" (click)="editProject(row.projectId)">
+								<i class="fas fa-pen"></i>
+							</button>
+							<button class="btn btn-sm btn-primary" (click)="deleteProject(row.projectId)">
+								<i class="far fa-trash-alt"></i>
+							</button>
+						</div>
+					</mat-cell>
+				</ng-container>
+
+				<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+				<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+			</mat-table>
+			<mat-paginator [pageSizeOptions]="[10, 50, 100]" showFirstLastButtons></mat-paginator>
+		</div>
+	</div>
+</div>

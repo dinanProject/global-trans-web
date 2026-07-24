@@ -1,0 +1,18 @@
+<mat-dialog-content fxLayout="column" fxLayoutAlign="center center">
+	<i class="fas fa-question"></i>
+	<h4 class="font-weight-bold text-center">{{ title }}</h4>
+	<p class="text-center text-secondary mb-3">{{ description }}</p>
+	<ng-container *ngIf="showReason">
+		<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="confirm()" fxLayout="column">
+			<div class="form-group mb-0">
+				<label>Reason</label>
+				<textarea class="form-control" formControlName="reason"
+					[class.is-invalid]="reason.invalid && formSubmitAttempt"></textarea>
+			</div>
+		</form>
+	</ng-container>
+	<div fxLayout fxLayoutGap="15px">
+		<button class="btn btn-primary" (click)="confirm()">Confirm</button>
+		<button mat-dialog-close class="btn btn-danger">Cancel</button>
+	</div>
+</mat-dialog-content>

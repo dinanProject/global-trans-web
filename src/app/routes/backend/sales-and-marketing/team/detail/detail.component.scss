@@ -1,0 +1,25 @@
+.mat-dialog-content {
+	&:first-child {
+		background-color: #FAFAFA;
+		border-bottom: 1px solid #ced4da;
+		padding-bottom: 10px;
+
+		h1,
+		h2 {
+			margin: 0;
+		}
+
+		h1 {
+			// line-height: 30px;
+		}
+
+		h2 {
+			font-size: 14px;
+		}
+	}
+
+	.data-grid {
+		border: 1px solid var(--input-border);
+		border-radius: 3.5px;
+	}
+}

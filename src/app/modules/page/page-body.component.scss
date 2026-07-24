@@ -1,0 +1,16 @@
+:host {
+	flex-direction: column;
+	box-sizing: border-box;
+	display: flex;
+	padding: 20px;
+	position: relative;
+
+	:ng-deep .loading-container {
+		position: relative;
+		min-height: 550px;
+
+		loading {
+			transform: translateX(-50%);
+		}
+	}
+}

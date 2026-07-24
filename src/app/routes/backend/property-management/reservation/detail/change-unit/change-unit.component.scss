@@ -1,0 +1,10 @@
+.loading-container {
+	height: 499px;
+}
+.data-grid {
+	.mat-row {
+		&:hover {
+			background-color: #fafafa;
+		}
+	}
+}

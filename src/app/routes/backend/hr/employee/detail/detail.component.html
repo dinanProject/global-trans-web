@@ -1,0 +1,131 @@
+<ng-container *ngIf="isInitialized">
+	<div class="page-body container-fluid">
+		<div class="panel">
+			<div class="panel-header">
+				<h1>{{ fullName.value }}</h1>
+			</div>
+			<div class="panel-body">
+				<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout
+					fxLayoutGap="30px">
+					<div fxFlex fxLayout="column">
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex="140px">
+								<label>Employee Code</label>
+								<input class="form-control" formControlName="employeeCode">
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Full Name</label>
+								<input class="form-control" formControlName="fullName">
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex="140px">
+								<label>Gender</label>
+								<select class="form-control" formControlName="genderId">
+									<option *ngFor="let g of genders" [value]="g.genderId">{{ g.genderName }}</option>
+								</select>
+							</div>
+							<div class="form-group" fxFlex="140px">
+								<label>Religion</label>
+								<select class="form-control" formControlName="religionId">
+									<option *ngFor="let r of religions" [value]="r.religionId">{{ r.religionName }}
+									</option>
+								</select>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Birth Date</label>
+								<div class="input-group">
+									<input [matDatepicker]="dobDatePicker" class="form-control"
+										(click)="dobDatePicker.open()" (dateChange)="dateChanged($event)"
+										formControlName="dob" />
+									<div class="input-group-append">
+										<span class="input-group-text" (click)="dobDatePicker.open()"><i
+												class="far fa-calendar-alt"></i></span>
+									</div>
+									<mat-datepicker #dobDatePicker></mat-datepicker>
+								</div>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex="120px">
+								<label>Identity Type</label>
+								<select class="form-control" formControlName="identityCodeTypeId">
+									<option *ngFor="let i of identityCodeTypes" [value]="i.identityCodeTypeId">{{
+										i.identityCodeTypeName }}</option>
+								</select>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Identity Code</label>
+								<input class="form-control" formControlName="identityCode">
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex>
+								<label>Marital Status</label>
+								<select class="form-control" formControlName="maritalStatusId">
+									<option *ngFor="let m of maritalStatuses" [value]="m.maritalStatusId">{{
+										m.maritalStatusName }}</option>
+								</select>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Nationality</label>
+								<select class="form-control" formControlName="nationalityId">
+									<option *ngFor="let n of nationalities" [value]="n.nationalityId">{{
+										n.nationalityName }}</option>
+								</select>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex>
+								<label>Home Phone</label>
+								<input class="form-control" formControlName="homePhone">
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Mobile Phone</label>
+								<input class="form-control" formControlName="handPhone">
+							</div>
+						</div>
+					</div>
+					<div fxFlex fxLayout="column">
+						<div class="form-group">
+							<label>Identity Address</label>
+							<textarea class="form-control" formControlName="identityAddress"></textarea>
+						</div>
+						<div class="form-group">
+							<label>Mailing Address</label>
+							<textarea class="form-control" formControlName="mailingAddress"></textarea>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex>
+								<label>Email</label>
+								<input class="form-control" formControlName="homePhone">
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Occupation</label>
+								<div class="input-group">
+									<input type="text" class="form-control" formControlName="occupationName">
+									<div class="input-group-append">
+										<button class="btn btn-primary"><i class="fas fa-pen"></i></button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex>
+								<label>Department</label>
+								<input class="form-control" formControlName="departmentName">
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Company</label>
+								<input class="form-control" formControlName="companyName">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

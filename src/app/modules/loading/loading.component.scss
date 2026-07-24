@@ -1,0 +1,16 @@
+.loading {
+	position: absolute;
+	z-index: 9999;
+	text-align: center;
+	flex-direction: column;
+	box-sizing: border-box;
+	display: flex;
+	place-content: center;
+	align-items: center;
+	transform: translate(-50%, -50%);
+
+	label {
+		white-space: nowrap;
+		margin-bottom: 0px;
+	}
+}

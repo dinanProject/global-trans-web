@@ -1,0 +1,15 @@
+p {
+	font-size: 14px;
+	padding: 10px 30px;
+	border: 1px solid #ed1c24;
+	color: #ed1c24;
+	background-color: #fde4e5;
+	margin: 0px;
+	line-height: normal;
+	border-radius: 3.5px;
+	margin-top: 20px;
+
+	&:empty {
+		display: none;
+	}
+}

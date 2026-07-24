@@ -1,0 +1,30 @@
+li {
+	list-style: none;
+	> div {
+		border-bottom: 1px solid #e6eaee;
+		padding: 5px 30px 5px 0px;
+		> i {
+			color: #34aa44;
+		}
+		> div {
+			h2 {
+				font-size: 14px;
+				line-height: normal;
+				margin: 0;
+			}
+			h5 {
+				font-size: 12px;
+				line-height: normal;
+				margin: 0;
+				color: #7f8fa4;
+			}
+		}
+		.btn {
+			min-width: 30px;
+		}
+	}
+	> ul {
+		margin: 0px;
+		padding: 0px;
+	}
+}

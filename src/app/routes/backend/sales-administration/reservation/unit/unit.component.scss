@@ -1,0 +1,23 @@
+.search {
+	padding-top: 10px !important;
+	padding-bottom: 10px !important;
+}
+
+.data-grid {
+	.mat-row {
+		padding-top: 5px;
+		padding-bottom: 5px;
+
+		h1 {
+			font-size: 14px;
+			color: var(--text);
+			margin: 0px;
+		}
+
+		h2 {
+			font-size: 12px;
+			color: var(--text-light);
+			margin: 0px;
+		}
+	}
+}

@@ -1,0 +1,19 @@
+<li class="company">
+	<div fxLayout fxLayoutAlign="start center">
+		<span [fxFlex]="(company.level * 20) + 'px'"></span>
+		<mat-checkbox fxFlex="30px" [checked]="company.isChecked" [indeterminate]="company.isIndeterminate"
+			(change)="change($event)" (indeterminateChange)="indeterminateChange($event)"></mat-checkbox>
+		<i class="fas fa-industry" fxFlex="30px" fxLayout fxLayoutAlign="start center"></i>
+		<!-- <i class="fas fa-building" fxFlex="30px" fxLayout fxLayoutAlign="start center"></i> -->
+		<div fxFlex fxLayout="column">
+			<h2>{{ company.companyName }}</h2>
+		</div>
+	</div>
+	<ul *ngIf="company.child">
+		<ng-container *ngFor="let company of company.child">
+			<company-tree [company]="company" (changed)="childChange($event)"
+				(indeterminateChanged)="childIndeterminateChange($event)">
+			</company-tree>
+		</ng-container>
+	</ul>
+</li>

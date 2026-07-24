@@ -1,0 +1,92 @@
+<ng-container *ngIf="isInitialized">
+	<h2 mat-dialog-title>{{ billing.billingCode }}</h2>
+	<mat-dialog-content fxLayout="column" class="billing-info">
+		<div fxLayout fxLayoutGap="20px">
+			<div class="form-group" fxFlex>
+				<label>Project Name</label>
+				<input class="form-control" [(ngModel)]="billing.projectName" readonly tabindex="-1">
+			</div>
+			<div class="form-group" fxFlex="140px">
+				<label>Unit Name</label>
+				<input class="form-control" [(ngModel)]="billing.unitName" readonly tabindex="-1">
+			</div>
+		</div>
+		<div class="form-group">
+			<label>Customer Name</label>
+			<input class="form-control" [(ngModel)]="billing.fullName" readonly tabindex="-1">
+		</div>
+		<div fxLayout fxLayoutGap="20px">
+			<div class="form-group mb-0" fxFlex="130px">
+				<label>Billing Date</label>
+				<div class="input-group">
+					<input class="form-control" [(ngModel)]="billing.billingDate" readonly tabindex="-1">
+					<div class="input-group-append">
+						<span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group mb-0" fxFlex>
+				<label>Billing Amount</label>
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text">
+							Rp.
+						</span>
+					</div>
+					<input currencyMask [options]="{ prefix: ''}" class="form-control"
+						[(ngModel)]="billing.billingAmount" readonly tabindex="-1">
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+	<mat-dialog-content fxLayout="column">
+		<form [formGroup]="formGroup" class="needs-validation" novalidate (ngSubmit)="save()" fxLayout="column">
+			<div fxLayout fxLayoutGap="20px">
+				<div class="form-group" fxFlex="130px">
+					<label>Payment Date</label>
+					<div class="input-group">
+						<input [matDatepicker]="paymentDatePicker" class="form-control"
+							(click)="paymentDatePicker.open()" formControlName="paymentDate"
+							[class.is-invalid]="paymentDate.invalid && formSubmitAttempt" readonly tabindex="-1" />
+						<div class="input-group-append">
+							<span class="input-group-text" (click)="paymentDatePicker.open()"><i
+									class="far fa-calendar-alt"></i></span>
+						</div>
+						<mat-datepicker #paymentDatePicker></mat-datepicker>
+					</div>
+				</div>
+				<div class="form-group" fxFlex>
+					<label>Payment Amount</label>
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								Rp.
+							</span>
+						</div>
+						<input currencyMask [options]="{ prefix: ''}" formControlName="paymentAmount"
+							class="form-control" [class.is-invalid]="paymentAmount.invalid && formSubmitAttempt">
+					</div>
+				</div>
+			</div>
+			<div class="form-group mb-0">
+				<label>Remark</label>
+				<textarea class="form-control" formControlName="remark" rows="3"></textarea>
+			</div>
+			<button type="submit" class="d-none"></button>
+		</form>
+	</mat-dialog-content>
+	<mat-dialog-actions fxLayout fxLayoutGap="10px">
+		<span fxFlex></span>
+		<button class="btn btn-primary" (click)="save()">
+			<i class="fa fa-save mr-1"></i> Save
+		</button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button>
+	</mat-dialog-actions>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<!-- <div class="loading-container" fxFlex> -->
+	<loading></loading>
+	<!-- </div> -->
+</ng-container>

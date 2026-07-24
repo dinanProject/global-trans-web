@@ -1,0 +1,83 @@
+<div class="page-container" fxFlexFill>
+	<mat-sidenav-container fxFlex fxLayout>
+		<mat-sidenav #sidebar [mode]="getSidebarMode()" [opened]="isSidebarOpened()" fxFlex="300px">
+			<div class="sidebar" fxFlexFill fxLayout="column">
+				<div class="site" fxFlex="70px" fxLayout fxLayoutAlign="start center" fxLayoutGap="15px">
+					<ng-container *ngIf="client.clientLogoPath">
+						<div class="logo" fxLayout="column">
+							<image-holder fxFlex [src]="client.clientLogoPath"></image-holder>
+						</div>
+					</ng-container>
+					<h1 fxFlex>{{ client.clientName }}</h1>
+				</div>
+				<div class="search-bar">
+					<!-- <div class="form-group">
+						<label>Search Menu</label>
+						<input class="form-control" (keyup)="searchMenu($event)" (blur)="searchMenuBlur()"
+							(focus)="searchMenuFocus()">
+					</div> -->
+					<input type="text" class="form-control" placeholder="Search Menu.." (keyup)="searchMenu($event)"
+						(blur)="searchMenuBlur()" (focus)="searchMenuFocus()">
+				</div>
+				<div class="sidebar-inner scroll scroll-y" fxLayout="column" fxFlex>
+					<div class="sidebar-menus">
+						<ng-container *ngIf="menus">
+							<ul class="menus">
+								<ng-container *ngFor="let menu of menus">
+									<app-menu [menu]="menu" [currentUrl]="currentUrl"
+										[isMenuFiltering]="isMenuFiltering" [selectedMenuIndex]="selectedMenuIndex">
+									</app-menu>
+								</ng-container>
+							</ul>
+						</ng-container>
+					</div>
+				</div>
+			</div>
+		</mat-sidenav>
+		<mat-sidenav-content fxFlex fxLayout="column">
+			<mat-toolbar fxLayout fxLayoutAlign="start center" fxFlex="70px" class="p-0">
+				<!-- <button mat-icon-button color="primary" (click)="toggleSidebar()">
+					<mat-icon>menu</mat-icon>
+				</button> -->
+				<div class="logo-raya" (click)="toggleSidebar()" fxFlex="70px" fxLayoutAlign="center center">
+					<img src="./assets/images/logo-raya-40x40.png" />
+				</div>
+				<div class="toolbar-separator" fxHide.lt-lg></div>
+				<div fxFlex fxLayout="column" fxLayoutAlign="center start" class="px-0 px-lg-4">
+					<h1>{{ getToolbarTitle() }}</h1>
+					<h2>{{ getToolbarSubtitle() }}</h2>
+					<!-- <div fxLayout>
+						<ng-container *ngFor="let b of getBreadcrumbs()">
+							<a [routerLink]="'/backend' + b.path">{{ b.label }}</a>
+						</ng-container>
+					</div> -->
+				</div>
+				<ng-container *ngIf="user">
+					<div class="user" [matMenuTriggerFor]="userMenu" fxLayout fxLayoutAlign="start center"
+						fxLayoutGap="10px">
+						<div class="user-detail">
+							<h1 fxHide.lt-lg>{{ user.fullName }}</h1>
+							<h2 fxHide.lt-lg>{{ user.occupationName }}</h2>
+						</div>
+						<div class="user-image">
+							<thumb [src]="user.userImagePath" height="40px"></thumb>
+						</div>
+						<div class="online-indicator" [class.connected]="isWebSocketConnected"></div>
+						<i class="fas fa-chevron-down"></i>
+					</div>
+					<mat-menu #userMenu="matMenu" xPosition="before" class="user-menu">
+						<a mat-menu-item (click)="userProfile()">
+							<i class="fas fa-user"></i> Profile
+						</a>
+						<a routerLink="/auth/logout" mat-menu-item>
+							<i class="fas fa-power-off"></i> Logout
+						</a>
+					</mat-menu>
+				</ng-container>
+			</mat-toolbar>
+			<div class="page-content scroll scroll-y" fxFlex>
+				<router-outlet></router-outlet>
+			</div>
+		</mat-sidenav-content>
+	</mat-sidenav-container>
+</div>

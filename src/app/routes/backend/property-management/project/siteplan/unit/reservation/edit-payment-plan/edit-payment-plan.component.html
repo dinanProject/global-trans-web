@@ -1,0 +1,175 @@
+<ng-container *ngIf="isInitialized">
+	<h2 mat-dialog-title>Custom Payment Plan</h2>
+	<mat-dialog-content fxLayout="column" class="scroll scroll-y">
+		<div class="panel">
+			<div class="panel-body px-3 pt-3 pb-0" fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="8px">
+				<div class="form-group" fxFlex.gt-md>
+					<label>Payment Plan</label>
+					<input readonly class="form-control" [value]="paymentPlan.paymentPlanName">
+				</div>
+				<div class="form-group" fxFlex.gt-md="160px">
+					<label>Amount</label>
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								Rp.
+							</span>
+						</div>
+						<input class="form-control text-right"
+							[ngModel]="paymentPlan.price | currency:'IDR':'':'1.0-0'">
+					</div>
+				</div>
+			</div>
+		</div>
+		<ng-container *ngFor="let p of paymentPlan.paymentPlanDetails; let i = index">
+			<div class="panel">
+				<div class="panel-body px-3 pt-3 pb-0" fxLayout="column">
+					<div class="payment-plan-detail" fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="8px">
+						<div class="form-group" fxFlex.gt-md>
+							<label>Skema</label>
+							<input class="form-control" [value]="p.paymentSchemeName" readonly>
+						</div>
+						<div class="pb-0" fxLayout fxLayoutGap="8px">
+							<div class="form-group mb-0" fxFlex fxFlex.gt-md="50px">
+								<label>Count</label>
+								<input class="form-control" [(ngModel)]="p.numberOfInstall"
+									(change)="headerCountChanged(i)" [readonly]="p.paymentSchemeId === 5">
+							</div>
+							<div class="form-group mb-0" fxFlex fxFlex.gt-md="40px">
+								<label>Intv.</label>
+								<input class="form-control" [(ngModel)]="p.interval" (change)="headerIntvChanged(p)"
+									[readonly]="p.paymentSchemeId === 5">
+							</div>
+							<div class="form-group mb-0" fxFlex="95px">
+								<label>Percent</label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											%
+										</span>
+									</div>
+									<input class="form-control text-right" [ngModel]="p.pricePercent | number: '1.2-2'"
+										(change)="headerPercentChanged(p, $any($event.target).value)"
+										[readonly]="p.paymentSchemeId === 5">
+								</div>
+							</div>
+						</div>
+						<div class="form-group" fxFlex.gt-md="160px">
+							<label>Amount</label>
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">
+										Rp.
+									</span>
+								</div>
+								<input class="form-control text-right"
+									[ngModel]="p.priceAmount | currency:'IDR':'':'1.0-0'"
+									(change)="headerAmountChanged(p, $any($event.target).value)"
+									[readonly]="p.paymentSchemeId === 5">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="separator m-0"></div>
+				<div class="panel-body p-0">
+					<ng-container *ngFor="let d of p.paymentPlanDatas; let i = index">
+						<div class="payment-plan-data border-bottom border-bottom-md-0 border-bottom-lg-0 border-bottom-xl-0 px-3 pb-0"
+							fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="8px">
+							<div class="form-group" fxFlex.gt-md="110px">
+								<input class="form-control" readonly [value]="d.paymentDate | date:'dd MMM yyyy'">
+							</div>
+							<div class="pb-0" fxLayout fxLayoutGap="8px" fxFlex.gt-md>
+								<div class="form-group mb-0" fxFlex>
+									<input class="form-control" [readonly]="p.paymentSchemeId === 5"
+										[(ngModel)]="d.paymentSchemeName">
+								</div>
+								<div class="form-group mb-0" fxFlex="95px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												%
+											</span>
+										</div>
+										<ng-container *ngIf="i < (p.paymentPlanDatas.length - 1)">
+											<input class="form-control text-right" [readonly]="p.paymentSchemeId === 5"
+												[value]="d.pricePercent | number: '1.2-2'"
+												(change)="detailPercentChanged(p, d, i, $any($event.target).value)">
+										</ng-container>
+										<ng-container *ngIf="i === (p.paymentPlanDatas.length - 1)">
+											<input class="form-control text-right" readonly
+												[value]="d.pricePercent | number: '1.2-2'"
+												(change)="detailPercentChanged(p, d, i, $any($event.target).value)">
+										</ng-container>
+									</div>
+								</div>
+							</div>
+							<div class="form-group" fxFlex.gt-md="160px">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											Rp.
+										</span>
+									</div>
+									<ng-container *ngIf="i < (p.paymentPlanDatas.length - 1)">
+										<input class="form-control text-right"
+											[ngModel]="d.priceAmount | currency:'IDR':'':'1.0-0'"
+											(change)="detailAmountChanged(p, d, i, $any($event.target).value)">
+									</ng-container>
+									<ng-container *ngIf="i === (p.paymentPlanDatas.length - 1)">
+										<input class="form-control text-right" readonly
+											[ngModel]="d.priceAmount | currency:'IDR':'':'1.0-0'">
+									</ng-container>
+								</div>
+							</div>
+						</div>
+					</ng-container>
+				</div>
+			</div>
+		</ng-container>
+		<div class="panel">
+			<div class="panel-body p-0" fxLayout="column">
+				<div class="payment-plan-total px-3 pb-0" fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="8px">
+					<div class="pb-0" fxLayout fxLayoutGap="8px" fxFlex.gt-md>
+						<div class="form-group mb-0" fxFlex>
+							<input class="form-control" readonly value="Total">
+						</div>
+						<div class="form-group mb-0" fxFlex="95px">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">
+										%
+									</span>
+								</div>
+								<input class="form-control text-right" readonly
+									[value]="totalPricePercent | number: '1.2-2'">
+							</div>
+						</div>
+					</div>
+					<div class="form-group" fxFlex.gt-md="160px">
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text">
+									Rp.
+								</span>
+							</div>
+							<input class="form-control text-right" readonly
+								[value]="totalPriceAmount | currency:'IDR':'':'1.0-0'">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+	<mat-dialog-actions fxLayout fxLayoutGap="10px">
+		<span fxFlex></span>
+		<button class="btn btn-primary" (click)="save()">
+			<i class="fa fa-save mr-1"></i> Save
+		</button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button>
+	</mat-dialog-actions>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

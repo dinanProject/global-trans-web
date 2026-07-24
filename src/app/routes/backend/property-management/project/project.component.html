@@ -1,0 +1,67 @@
+<ng-container *ngIf="isInitialized">
+	<div class="page-header" fxLayout fxLayoutGap="10px" fxLayoutAlign="start end">
+		<div class="form-group" fxFlex="200px">
+			<label>Company</label>
+			<select class="form-control" (change)="companyChanged($event)">
+				<option value="0">All</option>
+				<option *ngFor="let company of companies" [value]="company.companyId">{{ company.companyName }}
+				</option>
+			</select>
+		</div>
+		<div class="form-group" fxFlex="200px">
+			<label>Search</label>
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Search.." (keyup)="searchChanged($event)">
+				<div class="input-group-append">
+					<span class="input-group-text">
+						<i class="fas fa-search"></i>
+					</span>
+				</div>
+			</div>
+		</div>
+		<span fxFlex></span>
+		<!-- <button class="btn btn-primary" (click)="add()"><i class="fas fa-plus mr-2"></i>New Project</button> -->
+		<a class="btn btn-primary" [routerLink]="[ 'add' ]"><i class="fas fa-plus mr-2"></i>New Project</a>
+	</div>
+	<div class="page-body container-fluid">
+		<div class="row">
+			<ng-container *ngFor="let project of dataSource.filteredData">
+				<div class="col col-12 col-md-6 col-lg-4">
+					<div (click)="openSiteplan($event, project.projectId)" class="panel panel-project">
+						<div class="panel-body project-image" fxLayout="column">
+							<image-holder [src]="project.logoPath" fxFlex="200px"></image-holder>
+						</div>
+						<div class="panel-body project-info" fxLayout fxLayoutAlign="start center" fxLayoutGap="10px">
+							<div fxLayout="column" fxFlex>
+								<h1>{{ project.projectName }}</h1>
+								<h2>{{ project.companyName }}</h2>
+								<p>{{ project.city }}</p>
+							</div>
+							<div fxLayout fxLayoutGap="5px">
+								<!-- <ng-container *ifHasMn="['web.backend.property-management.project.edit']">
+									<button class="btn btn-sm btn-primary" (click)="edit($event, project.projectId)"><i
+											class="fas fa-pen"></i></button>
+								</ng-container> -->
+								<ng-container *ifHasMn="['web.backend.property-management.project.edit']">
+									<a class="btn btn-sm btn-primary" [routerLink]="[project.projectId]"><i
+											class="fas fa-pen"></i></a>
+								</ng-container>
+								<ng-container *ifHasMn="['web.backend.property-management.project.siteplan-mapping']">
+									<button class="btn btn-sm btn-primary"
+										(click)="openSiteplanMapper($event, project.projectId)"><i
+											class="fas fa-map-marked-alt"></i></button>
+								</ng-container>
+								<!-- <a target="_blank" class="btn btn-sm btn-primary"
+									[routerLink]="[ project.projectId + '/siteplan-mapper' ]"><i
+										class="fas fa-map-marked-alt"></i></a> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

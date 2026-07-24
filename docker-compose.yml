@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  local:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: local
+    image: "luna/web:latest"
+    container_name: luna_web
+    ports:
+      - "4200:4200"
+    volumes:
+      - /usr/local/src/node/web/node_modules
+      - ./src:/usr/local/src/node/web/src
+  production:
+    build:
+      context: .
+      target: build
+      platforms:
+        - "linux/arm64"
+        - "linux/amd64"
+    ports:
+      - "80:80"

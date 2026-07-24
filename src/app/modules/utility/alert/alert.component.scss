@@ -1,0 +1,39 @@
+.mat-dialog-content {
+	padding: 30px !important;
+
+	i {
+		font-size: 85px;
+		margin-top: 70px;
+		margin-bottom: 70px;
+		border-radius: 50%;
+		width: 120px;
+		height: 120px;
+		background-color: #CCCCCC;
+		color: #ffffff;
+		text-align: center;
+		line-height: 120px;
+
+		&.fa-info {
+			background-color: var(--primary);
+		}
+
+		&.fa-check {
+			background-color: var(--success);
+		}
+
+		&.fa-exclamation {
+			background-color: var(--warning);
+		}
+
+		&.fa-times {
+			background-color: var(--danger);
+		}
+	}
+
+	.btn {
+		margin-top: 40px;
+		margin-bottom: 10px;
+		width: 160px;
+	}
+
+}

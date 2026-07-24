@@ -1,0 +1,103 @@
+<page-header>
+	<div class="form-group" fxFlex>
+		<label>Search</label>
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Search.." (keyup)="searchChanged($event.target.value)">
+			<div class="input-group-append">
+				<span class="input-group-text">
+					<i class="fas fa-search"></i>
+				</span>
+			</div>
+		</div>
+	</div>
+</page-header>
+<page-body>
+	<panel>
+		<panel-body class="p-0" fxLayout="column">
+			<ng-container *ngIf="isInitialized">
+				<mat-table class="data-grid" #dataGrid [dataSource]="dataSource" matSort matSortDisableClear>
+
+					<ng-container matColumnDef="no">
+						<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+						</mat-header-cell>
+						<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+							{{ i + 1 }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="salesDate">
+						<mat-header-cell fxFlex="100px" mat-sort-header *matHeaderCellDef>Date</mat-header-cell>
+						<mat-cell fxFlex="100px" *matCellDef="let row">{{ row.salesDate }}</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="unitName">
+						<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Customer / Unit</mat-header-cell>
+						<mat-cell fxFlex *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h6 class="text-secondary">{{ row.customerName }}</h6>
+							<h6>{{ row.unitName }}</h6>
+							<small class="text-primary">{{ row.projectName }}</small>
+						</mat-cell>
+					</ng-container>
+					<!--
+					<ng-container matColumnDef="customerName">
+						<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Customer</mat-header-cell>
+						<mat-cell fxFlex *matCellDef="let row">
+							<h6>{{ row.customerName }}</h6>
+						</mat-cell>
+					</ng-container> -->
+
+					<ng-container matColumnDef="salesPrice">
+						<mat-header-cell fxFlex="140px" mat-sort-header *matHeaderCellDef>Price</mat-header-cell>
+						<mat-cell fxFlex="140px" *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h6>{{ row.salesPrice | currency:'IDR':'Rp. ':'1.0-0' }}</h6>
+							<small class="text-success">{{ row.paymentMethodName }}</small>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="salesName">
+						<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Sales</mat-header-cell>
+						<mat-cell fxFlex *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h6>{{ row.salesName }}</h6>
+							<small class="text-secondary">{{ row.organizationName }}</small>
+							<small class="text-success" *ngIf="row.leadPropertyAgentName">{{ row.leadPropertyAgentName
+								}}</small>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="akadDate">
+						<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Akad</mat-header-cell>
+						<mat-cell fxFlex="120px" *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+							<h6>{{ row.akadDate }}</h6>
+							<small class="text-secondary" *ngIf="!row.akadRealizationDate"
+								[class.text-danger]="row.akadDaysRemaining < 0">{{ row.akadDescription }}</small>
+							<small *ngIf="row.akadRealizationDate">{{ row.akadRealicationDate }}</small>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="handOverDate">
+						<mat-header-cell fxFlex="100px" mat-sort-header *matHeaderCellDef>Hand Over</mat-header-cell>
+						<mat-cell fxFlex="100px" *matCellDef="let row">{{ row.handOverDate }}</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<mat-header-cell fxFlex="100px" *matHeaderCellDef></mat-header-cell>
+						<mat-cell fxFlex="100px" *matCellDef="let row" fxLayoutAlign="end center" fxLayoutGap="5px">
+							<a title="Print SPR" class="btn btn-success btn-sm" [href]="row.sprFilePath"
+								target="_blank"><i class="fas fa-file-pdf"></i></a>
+							<a title="View Transaction" class="btn btn-primary btn-sm" [routerLink]="row.salesId">
+								<i class="fas fa-chevron-right"></i>
+							</a>
+						</mat-cell>
+					</ng-container>
+
+					<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+					<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+				</mat-table>
+				<mat-paginator [pageSizeOptions]="[10, 50, 100]" showFirstLastButtons></mat-paginator>
+			</ng-container>
+			<ng-container *ngIf="!isInitialized">
+				<loading fxFlex="500px"></loading>
+			</ng-container>
+		</panel-body>
+	</panel>
+</page-body>

@@ -1,0 +1,64 @@
+<ng-container *ngIf="isInitialized">
+	<page-body>
+		<panel>
+			<panel-body>
+				<h6 class="text-secondary">{{emailGroup.value}}</h6>
+				<h3>{{emailName.value}}</h3>
+				<small class="text-primary">{{emailCode.value}}</small>
+			</panel-body>
+			<panel-body>
+				<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()"
+					fxLayout="column">
+					<div fxLayout fxLayoutGap="10px">
+						<div class="form-group" fxFlex>
+							<label>Email Group</label>
+							<input class="form-control" formControlName="emailGroup"
+								[class.is-invalid]="emailGroup.invalid && formSubmitAttempt">
+						</div>
+						<div class="form-group" fxFlex>
+							<label>Email Name</label>
+							<input class="form-control" formControlName="emailName"
+								[class.is-invalid]="emailName.invalid && formSubmitAttempt">
+						</div>
+						<div class="form-group" fxFlex>
+							<label>Email Code</label>
+							<input class="form-control" formControlName="emailCode"
+								[class.is-invalid]="emailCode.invalid && formSubmitAttempt">
+						</div>
+						<div class="form-group" fxFlex>
+							<label>Transport</label>
+							<select class="form-control" formControlName="transportId"
+								[class.is-invalid]="transportId.invalid && formSubmitAttempt">
+								<option *ngFor="let t of transports" [value]="t.transportId">{{ t.transportName }}
+								</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Subject</label>
+						<input class="form-control" formControlName="subject"
+							[class.is-invalid]="subject.invalid && formSubmitAttempt">
+					</div>
+					<div class="form-group">
+						<label>HTML</label>
+						<ckeditor [editor]="editor" formControlName="html"
+							[class.is-invalid]="html.invalid && formSubmitAttempt"></ckeditor>
+					</div>
+					<div class="form-group mb-0">
+						<label>Remark</label>
+						<textarea class="form-control" formControlName="remark" rows="5"></textarea>
+					</div>
+				</form>
+				<error-message>{{ errorMessage }}</error-message>
+			</panel-body>
+			<panel-footer>
+				<button class="btn btn-primary btn-block" (click)="submit()"><i
+						class="fas fa-save mr-2"></i>Save</button>
+
+			</panel-footer>
+		</panel>
+	</page-body>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

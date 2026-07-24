@@ -1,0 +1,50 @@
+.grid {
+	background-color: #ffffff;
+	border: 1px solid #e6eaee;
+	border-radius: 4px;
+	.grid-header {
+		border-bottom: 1px solid #e6eaee;
+		background-color: #f5f8fa;
+		> div {
+			padding: 10px 10px;
+			border-right: 1px solid #e6eaee;
+			color: #7f8fa4;
+			&:last-child {
+				border-right: none;
+			}
+		}
+	}
+	.grid-body {
+		.grid-row {
+			border-bottom: 1px solid #e6eaee;
+			> div {
+				min-height: 43.5px;
+				padding: 5px 10px;
+				display: flex;
+				align-items: center;
+				border-right: 1px solid #e6eaee;
+				&.text-center {
+					justify-content: center;
+					input {
+						text-align: center;
+					}
+				}
+				&.text-right {
+					justify-content: flex-end;
+					input {
+						text-align: right;
+					}
+				}
+				&:last-child {
+					border-right: none;
+				}
+			}
+			&:nth-child(odd) {
+				background-color: #fafafa;
+			}
+			&:last-child {
+				border-bottom: none;
+			}
+		}
+	}
+}

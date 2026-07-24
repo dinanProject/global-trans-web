@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Add Price</h2>
+<mat-dialog-content fxLayout="column">
+	<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()">
+		<div class="form-group required">
+			<label>Payment Plan</label>
+			<select class="form-control" formControlName="paymentPlanId">
+				<option *ngFor="let p of paymentPlans" [value]="p.paymentPlanId">
+					{{ p.remark ? (p.paymentPlanName + ' - ' + p.remark) : p.paymentPlanName }}
+				</option>
+			</select>
+		</div>
+		<div class="form-group required">
+			<label>Price</label>
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text">
+						IDR.
+					</span>
+				</div>
+				<input currencyMask [options]="{ prefix: ''}" class="form-control" formControlName="price"
+					[class.is-invalid]="price.invalid && formSubmitAttempt">
+			</div>
+		</div>
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px">
+	<span fxFlex></span>
+	<button class="btn btn-primary" (click)="submit()">
+		<i class="fa fa-save mr-1"></i> Save
+	</button>
+	<button mat-dialog-close class="btn btn-danger">
+		<i class="fa fa-times mr-1"></i> Close
+	</button>
+</mat-dialog-actions>

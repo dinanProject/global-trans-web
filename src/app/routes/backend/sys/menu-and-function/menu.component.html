@@ -1,0 +1,36 @@
+<li class="menu" *ngFor="let menu of menus">
+	<div fxLayout fxLayoutAlign="start center">
+		<span [fxFlex]="(menu.level * 30) + 'px'"></span>
+		<ng-container *ngIf="menu.icon">
+			<i fxFlex="30px" [class]="menu.icon" fxLayout fxLayoutAlign="start center"></i>
+		</ng-container>
+		<ng-container *ngIf="!menu.icon">
+			<ng-container *ngIf="menu.menuTypeId === 4">
+				<i fxFlex="30px" class="fas fa-th-large" fxLayout fxLayoutAlign="start center"></i>
+			</ng-container>
+			<ng-container *ngIf="menu.menuTypeId !== 4">
+				<i fxFlex="30px"
+					[class]="menu.menuTypeId === 1 ? 'far fa-window-maximize' : (menu.menuTypeId === 2 ? 'fas fa-layer-group' : (menu.menuTypeId === 5 ? 'fas fa-hashtag' : 'fas fa-folder'))"
+					fxLayout fxLayoutAlign="start center"></i>
+			</ng-container>
+		</ng-container>
+		<div fxFlex fxLayout="column">
+			<h2>{{ menu.menuName }}</h2>
+			<h5>{{ menu.menuCode }}</h5>
+		</div>
+		<div fxFlex="300px">{{ menu.route }}</div>
+		<!-- <div fxFlex="100px">{{ menu.openInName }}</div> -->
+		<div fxFlex="100px" fxLayout fxLayoutGap="5px" fxLayoutAlign="end center">
+			<button *ngIf="menu.menuTypeId !== 5" title="Insert Child" class="btn btn-sm btn-success"
+				(click)="addMenu(menu.menuId)"><i class="fas fa-plus"></i></button>
+			<button title="Edit" class="btn btn-sm btn-primary" (click)="editMenu(menu.menuId)"><i
+					class="fas fa-pen"></i></button>
+			<button *ngIf="menu.menuTypeId > 3" title="Delete" class="btn btn-sm btn-danger"
+				(click)="deleteMenu(menu.menuId)"><i class="far fa-trash-alt"></i></button>
+		</div>
+	</div>
+	<ul *ngIf="menu.child">
+		<app-menu [menus]="menu.child" (addMenuClick)="addMenu($event)" (editMenuClick)="editMenu($event)"
+			(deleteMenuClick)="deleteMenu($event)"></app-menu>
+	</ul>
+</li>

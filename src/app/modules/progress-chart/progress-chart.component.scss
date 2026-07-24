@@ -1,0 +1,15 @@
+:host {
+	width: 100%;
+	display: block;
+	.progress-chart {
+		// background-color: #DFE7EC;
+		// height: 3px;
+		// border-radius: 50%;
+		display: block;
+		overflow: hidden;
+		.chart-value {
+			// background-color: #b10000;
+			height: 100%;
+		}
+	}
+}

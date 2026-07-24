@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ title || 'Delete Reason' }}</h2>
+<mat-dialog-content fxLayout="column">
+	<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+		<div class="form-group required  mb-0">
+			<label>Reason</label>
+			<textarea class="form-control" formControlName="reason" rows="5"
+				[class.is-invalid]="reason.invalid && formSubmitAttempt"></textarea>
+		</div>
+	</form>
+	<error-message *ngIf="errorMessage">{{ errorMessage }}</error-message>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px">
+	<span fxFlex></span>
+	<button class="btn btn-primary" (click)="submit()">
+		<i class="fa fa-save mr-1"></i> Submit
+	</button>
+	<button mat-dialog-close class="btn btn-danger">
+		<i class="fa fa-times mr-1"></i> Cancel
+	</button>
+</mat-dialog-actions>

@@ -1,0 +1,53 @@
+.data-grid {
+	.mat-row {
+		min-height: 50px;
+		h1 {
+			font-size: 14px;
+			margin: 0;
+		}
+		h2 {
+			font-size: 12px;
+			margin: 0;
+			color: #999999;
+			text-transform: uppercase;
+		}
+		h3 {
+			font-size: 12px;
+			margin: 0;
+			color: #999999;
+		}
+		&:hover {
+			background-color: #fafafa;
+		}
+
+		.printing {
+			position: relative;
+			height: 27px;
+			span {
+				margin-left: 30px;
+					margin-right: 5px;
+			}
+		}
+		&.finalized {
+			.mat-column-reservationStatusName {
+				color: #1bb934!important;
+			}
+		}
+		&.canceled {
+			background-color: #fafafa;
+			.mat-cell {
+				color: #999999;
+				h1, h2, h3 {
+					color: #999999;
+				}
+				&.mat-column-reservationStatusName {
+					color: #ed1c24;
+				}
+			}
+		}
+	}
+}
+.loading-container {
+	height: 400px;
+	position: relative;
+}

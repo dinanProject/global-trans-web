@@ -1,0 +1,159 @@
+<ng-container *ngIf="isInitialized">
+	<mat-dialog-content>
+		<h2 class="text-success">{{ salesAgentCode || 'New'}}</h2>
+		<h1>{{ fullName.value || 'New Sales Agent'}}</h1>
+	</mat-dialog-content>
+	<mat-dialog-content fxLayout="column" class="p-0">
+		<div class="tabs">
+			<div class="tab-header" fxLayout>
+				<div [class.active]="selectedTab === 'detail'" (click)="selectedTab = 'detail'">Detail</div>
+				<div [class.active]="selectedTab === 'units'" (click)="selectedTab = 'units'">
+					Units
+				</div>
+			</div>
+			<div class="tab-contents">
+				<div class="tab-content" fxHide [fxShow]="selectedTab === 'detail'">
+					<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()"
+						fxLayout="column">
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex="120px">
+								<label>Code</label>
+								<input class="form-control" [(ngModel)]="salesAgentCode" readonly
+									[ngModelOptions]="{standalone: true}">
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Full Name</label>
+								<input class="form-control" formControlName="fullName"
+									[class.is-invalid]="fullName.invalid && formSubmitAttempt">
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex="100px">
+								<label>Gender</label>
+								<select class="form-control" formControlName="genderId">
+									<option value="1">Male</option>
+									<option value="2">Female</option>
+								</select>
+							</div>
+							<div class="form-group" fxFlex="140px">
+								<label>Birth Date</label>
+								<div class="input-group">
+									<input [matDatepicker]="datePicker" class="form-control" (click)="datePicker.open()"
+										formControlName="dob" />
+									<div class="input-group-append">
+										<span class="input-group-text" (click)="datePicker.open()"><i
+												class="far fa-calendar-alt"></i></span>
+									</div>
+									<mat-datepicker #datePicker></mat-datepicker>
+								</div>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Identity Code (KTP)</label>
+								<input class="form-control" formControlName="identityCode">
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group" fxFlex>
+								<label>Handphone</label>
+								<input class="form-control" formControlName="handPhone">
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Email</label>
+								<input class="form-control" formControlName="email">
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px">
+							<div class="form-group mb-0" fxFlex>
+								<label>Bank Account Code</label>
+								<input class="form-control" formControlName="handPhone">
+							</div>
+							<div class="form-group mb-0" fxFlex="160px">
+								<label>Bank Name</label>
+								<input class="form-control" formControlName="email">
+							</div>
+						</div>
+						<button fxHide></button>
+					</form>
+					<error-message>{{ errorMessage }}</error-message>
+				</div>
+				<div class="tab-content p-0" fxHide [fxShow]="selectedTab === 'sales-agents'" fxLayout="column">
+					tab 2
+					<!-- <div class="tab-content-header" fxLayoutGap="10px">
+						<div class="form-group mb-0" fxFlex>
+							<div class="input-group">
+								<input type="text" class="form-control" placeholder="Search.."
+									(keyup)="searchChanged($event.target.value)">
+								<div class="input-group-append">
+									<span class="input-group-text">
+										<i class="fas fa-search"></i>
+									</span>
+								</div>
+							</div>
+						</div>
+						<button *ngIf="propertyAgentId" class="btn btn-primary" (click)="addSalesAgent()"><i
+								class="fas fa-plus mr-2"></i>Add
+							Sales
+							Agent</button>
+					</div>
+					<mat-table class="data-grid scroll scroll-y" fxFlex="330px" #dataGrid [dataSource]="dataSource"
+						matSort matSortDisableClear>
+
+						<ng-container matColumnDef="no">
+							<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+							</mat-header-cell>
+							<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+								{{ row.no }}
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="salesAgentCode">
+							<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Code</mat-header-cell>
+							<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.salesAgentCode }}</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="fullName">
+							<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Full Name</mat-header-cell>
+							<mat-cell fxFlex *matCellDef="let row">{{ row.fullName }}</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="handPhone">
+							<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Handphone
+							</mat-header-cell>
+							<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.handPhone }}</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="email">
+							<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Email
+							</mat-header-cell>
+							<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.email }}</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="actions">
+							<mat-header-cell fxFlex="85px" *matHeaderCellDef></mat-header-cell>
+							<mat-cell fxFlex="85px" *matCellDef="let row" fxLayoutGap="5px">
+								<button class="btn btn-primary btn-sm" (click)="editSalesAgent(row.salesAgentId)"><i
+										class="fas fa-pen"></i></button>
+								<button class="btn btn-danger btn-sm" (click)="deleteSalesAgent(row.salesAgentId)"><i
+										class="far fa-trash-alt"></i></button>
+							</mat-cell>
+						</ng-container>
+
+						<mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+						<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+					</mat-table> -->
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+	<mat-dialog-actions fxLayout fxLayoutGap="10px">
+		<span fxFlex></span>
+		<loading-button className="btn btn-primary" (click)="submit()" [isLoading]="isSaving"><i
+				class="fa fa-save mr-1"></i> Save</loading-button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button>
+	</mat-dialog-actions>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

@@ -1,0 +1,24 @@
+<div class="page-header" fxLayoutGap="10px">
+	<button class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Add Province</button>
+</div>
+<ng-container *ngIf="isInitialized">
+	<div class="page-body container-fluid">
+		<div class="panel">
+			<div class="panel-body p-0" fxLayout="column">
+				<div class="tree-header" fxLayout fxLayoutAlign="start center">
+					<div fxFlex>Area Name</div>
+					<div fxFlex="160px">Area Type</div>
+					<div fxFlex="60px"></div>
+				</div>
+				<ul class="tree-content">
+					<ng-container *ngFor="let p of provinces">
+						<province-tree [province]="p"></province-tree>
+					</ng-container>
+				</ul>
+			</div>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

@@ -1,0 +1,84 @@
+<div class="container-fluid page-body">
+	<div class="panel panel-unit">
+		<div class="panel-filter" fxLayoutGap="10px" fxLayoutAlign="start end">
+			<div class="form-group" fxFlex>
+				<label>Search</label>
+				<input class="form-control" (keyup)="applyFilter($event)" />
+			</div>
+			<div>
+				<button class="btn btn-primary" (click)="addUnit()"><i class="fas fa-plus mr-2"></i>Add
+					Unit</button>
+			</div>
+		</div>
+		<div class="panel-body p-0">
+			<mat-table class="data-grid" #dataGrid [dataSource]="dataSource" matSort matSortDisableClear>
+
+				<ng-container matColumnDef="no">
+					<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+					</mat-header-cell>
+					<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+						{{ i + 1 }}
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="unitName">
+					<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Unit Name</mat-header-cell>
+					<mat-cell fxFlex *matCellDef="let row">{{ row.unitName }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="lt">
+					<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef>LT</mat-header-cell>
+					<mat-cell fxFlex="60px" *matCellDef="let row">{{ row.lt }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="lb">
+					<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef>LB</mat-header-cell>
+					<mat-cell fxFlex="60px" *matCellDef="let row">{{ row.lb }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="unitCategoryName">
+					<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Category</mat-header-cell>
+					<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.unitCategoryName }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="unitTypeName">
+					<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Type</mat-header-cell>
+					<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.unitTypeName }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="salesStatusName">
+					<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Status</mat-header-cell>
+					<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.salesStatusName }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="progressStatusName">
+					<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Progress</mat-header-cell>
+					<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.progressStatusName }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="lastModifiedUser">
+					<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Last Modified</mat-header-cell>
+					<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.lastModifiedDate }}</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<mat-header-cell fxFlex="100px" *matHeaderCellDef></mat-header-cell>
+					<mat-cell fxFlex="100px" *matCellDef="let row">
+						<div fxFlex fxLayout fxLayoutAlign="end center" fxLayoutGap="5px">
+							<button class="btn btn-sm btn-primary" (click)="editUnit(row.unitId)">
+								<i class="fas fa-pen mr"></i>
+							</button>
+							<button class="btn btn-sm btn-primary" (click)="deleteUnit(row.unitId)">
+								<i class="far fa-trash-alt"></i>
+							</button>
+						</div>
+					</mat-cell>
+				</ng-container>
+
+				<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+				<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+			</mat-table>
+			<mat-paginator [pageSizeOptions]="[10, 50, 100]" showFirstLastButtons></mat-paginator>
+		</div>
+	</div>
+</div>

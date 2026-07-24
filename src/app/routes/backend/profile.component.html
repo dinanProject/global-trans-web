@@ -1,0 +1,63 @@
+<ng-container *ngIf="isInitialized">
+	<mat-dialog-content fxLayout="column">
+		<div class="user-image" fxFlex="100px">
+			<image-holder [src]="user.userImagePath" fxFlex></image-holder>
+		</div>
+		<div class="user-info" fxLayout="column" fxLayoutAlign="start center">
+			<h1>{{ user.fullName }}</h1>
+			<h2>{{ user.occupationName }}</h2>
+			<h3>{{ user.userName }}</h3>
+		</div>
+		<ng-container *ngIf="action === 'change-password-success'">
+			<div class="success-checkmark">
+				<div class="check-icon">
+					<span class="icon-line line-tip"></span>
+					<span class="icon-line line-long"></span>
+					<div class="icon-circle"></div>
+					<div class="icon-fix"></div>
+				</div>
+			</div>
+			<p>Change password success !<br>You will be logged out from current session</p>
+		</ng-container>
+		<ng-container *ngIf="action === 'change-password'">
+			<form [formGroup]="formGroup" class="needs-validation" novalidate (ngSubmit)="submitChangePassword()">
+				<div class="form-group">
+					<label>Current Password</label>
+					<input class="form-control" type="password" formControlName="currentPassword"
+						[class.is-invalid]="currentPassword.invalid && formSubmitAttempt" />
+				</div>
+				<div class="form-group">
+					<label>New Password</label>
+					<input class="form-control" type="password" formControlName="newPassword"
+						[class.is-invalid]="newPassword.invalid && formSubmitAttempt" />
+				</div>
+				<div class="form-group">
+					<label>Repeat New Password</label>
+					<input class="form-control" type="password" formControlName="repeatPassword"
+						[class.is-invalid]="repeatPassword.invalid && formSubmitAttempt" />
+				</div>
+				<button type="submit" class="btn btn-primary btn-block mt-3">Change Password</button>
+			</form>
+		</ng-container>
+		<ng-container *ngIf="!action">
+			<div class="user-action" fxLayout="column">
+				<button class="btn btn-primary btn-block" (click)="changePassword()">Change Password</button>
+				<button class="btn btn-primary btn-block" [disabled]="isUploadingProfilePicture"
+					(click)="uploadProfilePicture.click()">
+					<ng-container *ngIf="isUploadingProfilePicture">
+						<span class="spinner-border spinner-border-sm mr-2"></span>
+						Uploading...
+					</ng-container>
+					<ng-container *ngIf="!isUploadingProfilePicture">
+						Upload Profile Picture
+					</ng-container>
+				</button>
+				<input type="file" class="d-none" accept="image/*" #uploadProfilePicture
+					(change)="uploadProfilePictureChanged($event)" />
+			</div>
+		</ng-container>
+	</mat-dialog-content>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

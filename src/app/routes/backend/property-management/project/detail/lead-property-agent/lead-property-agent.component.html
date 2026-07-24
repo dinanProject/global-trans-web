@@ -1,0 +1,57 @@
+<h2 mat-dialog-title>Add Lead Property Agent</h2>
+<mat-dialog-content fxLayout="column">
+	<ng-container *ngIf="isInitialized">
+		<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+			<div class="form-group" fxFlex>
+				<label>Property Agent</label>
+				<div class="input-group">
+					<input class="form-control" [(ngModel)]="propertyAgentName" [ngModelOptions]="{ standalone: true }"
+						[class.is-invalid]="propertyAgentId.invalid && formSubmitAttempt" readonly>
+					<input class="form-control" type="hidden" formControlName="propertyAgentId">
+					<div *ngIf="!isReadOnly" class="input-group-append">
+						<button type="button" class="btn btn-primary" (click)="selectPropertyAgent()"
+							[disabled]="isReadOnly"><i class="fas fa-ellipsis-h"></i></button>
+					</div>
+				</div>
+			</div>
+			<div fxLayout fxLayoutGap="10px">
+				<div class="form-group mb-0">
+					<label>Start Date</label>
+					<div class="input-group">
+						<input [matDatepicker]="startDatePicker" class="form-control" (click)="startDatePicker.open()"
+							formControlName="startDate" [class.is-invalid]="startDate.invalid && formSubmitAttempt" />
+						<div class="input-group-append">
+							<button type="button" class="btn btn-primary" (click)="startDatePicker.open()"><i
+									class="far fa-calendar-alt"></i></button>
+						</div>
+					</div>
+					<mat-datepicker #startDatePicker></mat-datepicker>
+				</div>
+				<div class="form-group mb-0">
+					<label>End Date</label>
+					<div class="input-group">
+						<input [matDatepicker]="endDatePicker" class="form-control" (click)="endDatePicker.open()"
+							formControlName="endDate" [class.is-invalid]="endDate.invalid && formSubmitAttempt" />
+						<div class="input-group-append">
+							<button type="button" class="btn btn-primary" (click)="endDatePicker.open()"><i
+									class="far fa-calendar-alt"></i></button>
+						</div>
+					</div>
+					<mat-datepicker #endDatePicker></mat-datepicker>
+				</div>
+			</div>
+		</form>
+	</ng-container>
+	<ng-container *ngIf="!isInitialized">
+		<loading fxFlex="124px"></loading>
+	</ng-container>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px">
+	<span fxFlex></span>
+	<button class="btn btn-primary" (click)="submit()">
+		<i class="fa fa-save mr-1"></i> Save
+	</button>
+	<button mat-dialog-close class="btn btn-danger">
+		<i class="fa fa-times mr-1"></i> Close
+	</button>
+</mat-dialog-actions>

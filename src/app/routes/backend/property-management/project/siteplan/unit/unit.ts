@@ -1,0 +1,35 @@
+export interface Unit {
+	unitId: number;
+	blockName: string;
+	unitNo: string;
+	unitName: string;
+	projectId: number;
+	projectName: string;
+	companyId: number;
+	companyName: string;
+	siteplanPath: string;
+	unitCategoryId: number;
+	unitCategoryName: string;
+	unitTypeId: number;
+	unitTypeName: string;
+	lt: number;
+	lb: number;
+	floor: number;
+	bedRoom: number;
+	bathRoom: number;
+	carPort: number;
+	salesStatusId: number;
+	salesStatusName: string;
+	formattedSalesStatusName: string;
+	progressStatusId: number;
+	progressStatusName: string;
+	picX: string;
+	picY: string;
+	isLocked: boolean;
+	lockedDate: Date;
+	formattedLockedDate: string;
+	lockedUserId: number;
+	lockedUserName: string;
+	isOpen: boolean;
+	isShowUnit: boolean;
+}

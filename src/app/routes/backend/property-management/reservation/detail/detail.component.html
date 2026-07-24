@@ -1,0 +1,650 @@
+<ng-container *ngIf="isInitialized">
+	<div class="page-body container">
+		<div class="panel">
+			<div class="panel-header" fxLayout fxLayoutAlign="start center">
+				<h1 class="panel-title">Reservation Detail</h1>
+				<span [ngClass]="reservation.reservationStatusName.toLowerCase()">{{
+					reservation.reservationStatusName
+					}}</span>
+			</div>
+			<div class="panel-body p-4 px-md-5 py-md-4" fxLayout="column">
+				<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()">
+					<h1>Data Pribadi</h1>
+					<div class="row">
+						<div class="col col-12 col-lg-6 px-3">
+							<div class="form-group required">
+								<label>Nama Lengkap</label>
+								<input class="form-control" formControlName="fullName"
+									[class.is-invalid]="fullName.invalid && formSubmitAttempt" [readonly]="isReadOnly">
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group required" fxFlex.gt-md="110px">
+									<label>Jenis Kelamin</label>
+									<select class="form-control" formControlName="genderId">
+										<option *ngFor="let gender of genders" [value]="gender.genderId">{{
+											gender.genderName }}</option>
+									</select>
+								</div>
+								<div class="form-group required" fxFlex.gt-md="130px">
+									<label>Tanggal Lahir</label>
+									<div class="input-group">
+										<input [matDatepicker]="datePicker" class="form-control"
+											(click)="datePicker.open()" formControlName="dob"
+											[class.is-invalid]="dob.invalid && formSubmitAttempt"
+											[readonly]="isReadOnly" />
+										<div class="input-group-append">
+											<span class="input-group-text" (click)="datePicker.open()"><i
+													class="far fa-calendar-alt"></i></span>
+										</div>
+										<mat-datepicker #datePicker></mat-datepicker>
+									</div>
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Tempat Lahir</label>
+									<input class="form-control" formControlName="pob">
+								</div>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group required" fxFlex.gt-md="110px">
+									<label>Agama</label>
+									<select class="form-control" formControlName="religionId">
+										<option *ngFor="let religion of religions" [value]="religion.religionId">{{
+											religion.religionName }}</option>
+									</select>
+								</div>
+								<div class="form-group required" fxFlex.gt-md="130px">
+									<label>Status Pernikahan</label>
+									<select class="form-control" formControlName="maritalStatusId">
+										<option *ngFor="let maritalStatus of maritalStatuses"
+											[value]="maritalStatus.maritalStatusId">{{ maritalStatus.maritalStatusName
+											}}
+										</option>
+									</select>
+								</div>
+								<div class="form-group required" fxFlex.gt-md>
+									<label>Email</label>
+									<input class="form-control" formControlName="email"
+										[class.is-invalid]="email.invalid && formSubmitAttempt">
+								</div>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group required" fxFlex.gt-md>
+									<label>No. Identitas</label>
+									<input class="form-control" formControlName="identityCode"
+										[class.is-invalid]="identityCode.invalid && formSubmitAttempt">
+								</div>
+								<div class="form-group required" fxFlex.gt-md>
+									<label>NPWP</label>
+									<input class="form-control" formControlName="npwp"
+										[class.is-invalid]="npwp.invalid && formSubmitAttempt">
+								</div>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group required" fxFlex.gt-md>
+									<label>Telp. Rumah</label>
+									<input class="form-control" formControlName="homePhone"
+										[class.is-invalid]="homePhone.invalid && formSubmitAttempt">
+								</div>
+								<div class="form-group required" fxFlex.gt-md>
+									<label>Handphone</label>
+									<input class="form-control" formControlName="handPhone"
+										[class.is-invalid]="handPhone.invalid && formSubmitAttempt">
+								</div>
+							</div>
+							<div class="form-group required">
+								<label>Alamat Sesuai KTP</label>
+								<textarea class="form-control" rows="4" formControlName="identityAddress"
+									[class.is-invalid]="identityAddress.invalid && formSubmitAttempt"></textarea>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Provinsi</label>
+									<select class="form-control" (change)="identityProvinceChanged()"
+										formControlName="identityProvinceId"
+										[class.is-invalid]="identityProvinceId.invalid && formSubmitAttempt">
+										<option value="0">Select Province</option>
+										<option *ngFor="let p of identityProvinces" [value]="p.provinceId">{{
+											p.provinceName }}
+										</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Kota</label>
+									<select class="form-control" (change)="identityCityChanged()"
+										formControlName="identityCityId"
+										[class.is-invalid]="identityCityId.invalid && formSubmitAttempt">
+										<option value="0">Select City</option>
+										<option *ngFor="let c of identityCities" [value]="c.cityId">{{ c.cityName }}
+										</option>
+									</select>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Kecamatan</label>
+									<select class="form-control" (change)="identityDistrictChanged()"
+										formControlName="identityDistrictId"
+										[class.is-invalid]="identityDistrictId.invalid && formSubmitAttempt">
+										<option value="0">Select District</option>
+										<option *ngFor="let d of identityDistricts" [value]="d.districtId">{{
+											d.districtName }}
+										</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Kelurahan</label>
+									<select class="form-control" formControlName="identitySubdistrictId"
+										[class.is-invalid]="identitySubdistrictId.invalid && formSubmitAttempt">
+										<option value="0">Select Subdistrict</option>
+										<option *ngFor="let s of identitySubdistricts" [value]="s.subdistrictId">{{
+											s.subdistrictName }}
+										</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="col col-12 col-lg-6 px-3">
+							<div class="form-group required">
+								<label>Alamat Surat Menyurat</label>
+								<textarea class="form-control" rows="4" formControlName="mailingAddress"
+									[class.is-invalid]="mailingAddress.invalid && formSubmitAttempt"></textarea>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Provinsi</label>
+									<select class="form-control" (change)="mailingProvinceChanged()"
+										formControlName="mailingProvinceId"
+										[class.is-invalid]="mailingProvinceId.invalid && formSubmitAttempt">
+										<option value="0">Select Province</option>
+										<option *ngFor="let p of mailingProvinces" [value]="p.provinceId">{{
+											p.provinceName }}
+										</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Kota</label>
+									<select class="form-control" (change)="mailingCityChanged()"
+										formControlName="mailingCityId"
+										[class.is-invalid]="mailingCityId.invalid && formSubmitAttempt">
+										<option value="0">Select City</option>
+										<option *ngFor="let c of mailingCities" [value]="c.cityId">{{ c.cityName }}
+										</option>
+									</select>
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px">
+								<div class="form-group" fxFlex>
+									<label>Kecamatan</label>
+									<select class="form-control" (change)="mailingDistrictChanged()"
+										formControlName="mailingDistrictId"
+										[class.is-invalid]="mailingDistrictId.invalid && formSubmitAttempt">
+										<option value="0">Select District</option>
+										<option *ngFor="let d of mailingDistricts" [value]="d.districtId">{{
+											d.districtName }}
+										</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex>
+									<label>Kelurahan</label>
+									<select class="form-control" formControlName="mailingSubdistrictId"
+										[class.is-invalid]="mailingSubdistrictId.invalid && formSubmitAttempt">
+										<option value="0">Select Subdistrict</option>
+										<option *ngFor="let s of mailingSubdistricts" [value]="s.subdistrictId">{{
+											s.subdistrictName }}
+										</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group required">
+								<label>Pekerjaan</label>
+								<select class="form-control" formControlName="occupationId">
+									<option *ngFor="let o of occupations" [value]="o.occupationId">{{
+										o.occupationName }}</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Nama Perusahaan</label>
+								<input class="form-control" formControlName="companyName">
+							</div>
+							<div class="form-group">
+								<label>Alamat Perusahaan</label>
+								<textarea class="form-control" rows="4" formControlName="companyAddress"></textarea>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md>
+									<label>Telp. Perusahaan</label>
+									<input class="form-control" formControlName="companyPhone">
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Fax. Perusahaan</label>
+									<input class="form-control" formControlName="companyFax">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col col-12 col-lg-6">
+							<h1>Informasi Unit</h1>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Unit</label>
+									<div class="input-group">
+										<input class="form-control" [value]="reservation.unitName" readonly>
+										<div class="input-group-append">
+											<button type="button" class="btn btn-primary" (click)="changeUnit()"><i
+													class="fas fa-sync-alt"></i></button>
+										</div>
+									</div>
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Project</label>
+									<input class="form-control" [value]="reservation.projectName" readonly>
+								</div>
+							</div>
+							<h1>Informasi Cara Pembayaran</h1>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Cara Bayar</label>
+									<input class="form-control" [value]="reservationPaymentPlan.paymentPlanName"
+										readonly>
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Harga Unit</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												Rp.
+											</span>
+										</div>
+										<input readonly currencyMask [options]="{ prefix: ''}"
+											class="form-control text-right" formControlName="unitPrice">
+									</div>
+								</div>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md="90px">
+									<label>Diskon %</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												%
+											</span>
+										</div>
+										<input class="form-control text-right" formControlName="discountPercent"
+											(change)="discountPercentChanged($any($event.target).value)">
+									</div>
+								</div>
+								<div class="form-group" fxFlex.gt-md="160px">
+									<label>Diskon Rp.</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												Rp.
+											</span>
+										</div>
+										<input class="form-control text-right"
+											[ngModel]="discountAmount.value | currency:'IDR':'':'1.0-0'"
+											(change)="discountAmountChanged($any($event.target).value)"
+											[ngModelOptions]="{standalone: true}">
+									</div>
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Harga Jual</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">
+												Rp.
+											</span>
+										</div>
+										<input readonly currencyMask [options]="{ prefix: ''}"
+											class="form-control text-right" formControlName="salesPrice">
+									</div>
+								</div>
+							</div>
+							<div class="grid payment-schemes">
+								<div class="grid-header">
+									<div class="no" fxFlex="40px">No. </div>
+									<div class="tanggal" fxFlex.gt-md="95px" fxHide fxShow.gt-md>Tanggal</div>
+									<div class="skema" fxFlex fxFlex.gt-md="150px">Skema</div>
+									<div class="harga" fxFlex.gt-md fxHide fxShow.gt-md>Harga</div>
+								</div>
+								<div class="grid-body">
+									<ng-container *ngFor="let ppd of reservationPaymentPlan.paymentPlanDetails">
+										<div *ngFor="let p of ppd.paymentPlanDatas" class="grid-header-row"
+											fxLayout="column">
+											<div class="grid-row" fxLayout>
+												<div class="no" fxFlex="40px" fxLayoutAlign="center center">{{ p.no }}
+												</div>
+												<div class="tanggal" fxFlex.gt-md="95px" fxHide fxShow.gt-md>
+													{{ p.paymentDate | date:'dd MMM yyyy'}}
+												</div>
+												<div class="skema" fxFlex fxFlex.gt-md="150px">
+													<h2 fxShow fxHide.gt-md>
+														{{ p.paymentDate | date:'dd MMM yyyy'}}
+													</h2>
+													<h1>{{ p.paymentSchemeName }}</h1>
+													<h3 fxShow fxHide.gt-md class="text-right">
+														{{ p.priceAmount | currency:'IDR':'Rp. ':'1.0-0' }}
+													</h3>
+												</div>
+												<div class="harga" fxFlex.gt-md fxHide fxShow.gt-md>
+													{{ p.priceAmount | currency:'IDR':'Rp. ':'1.0-0' }}
+												</div>
+											</div>
+										</div>
+									</ng-container>
+								</div>
+								<div class="grid-footer">
+									<div fxFlex>Total Harga</div>
+									<div fxFlex="160px">{{ totalPrice | currency:'IDR':'Rp. ':'1.0-0' }}</div>
+								</div>
+							</div>
+							<ng-container *ngIf="reservation.reservationStatusId !== 2">
+								<button *ifHasMn="['web.backend.property-management.reservation.edit']"
+									class="btn btn-primary btn-block mb-5" type="button" (click)="customPlan()"><i
+										class="fas fa-pen mr-2"></i>Edit Cara Bayar</button>
+							</ng-container>
+							<h1>Promo dan Catatan</h1>
+							<div class="form-group">
+								<label>Promo</label>
+								<input class="form-control" formControlName="promo">
+							</div>
+							<div class="form-group">
+								<label>Catatan</label>
+								<textarea class="form-control" rows="4" formControlName="remark"></textarea>
+							</div>
+						</div>
+						<div class="col col-12 col-lg-6">
+							<h1>Informasi Sales</h1>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Sales</label>
+									<select #agentPropertyTypeControl class="form-control"
+										formControlName="agentPropertyTypeId">
+										<option *ngFor="let agentPropertyType of agentPropertyTypes"
+											[value]="agentPropertyType.agentPropertyTypeId">{{
+											agentPropertyType.agentPropertyTypeName
+											}}</option>
+									</select>
+								</div>
+								<div class="form-group required" fxFlex.gt-md>
+									<label>Sales Name</label>
+									<input class="form-control" formControlName="salesName">
+								</div>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px"
+								*ngIf="+agentPropertyTypeId.value !== 2">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Supervisor Name</label>
+									<input class="form-control" formControlName="salesSupervisorName">
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Manager Name</label>
+									<input class="form-control" formControlName="salesManagerName">
+								</div>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px"
+								*ngIf="+agentPropertyTypeId.value === 2">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Agent Property Name</label>
+									<input class="form-control" formControlName="agentPropertyName">
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Lead Name</label>
+									<input class="form-control" formControlName="agentPropertyLeadName">
+								</div>
+							</div>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px"
+								*ngIf="+agentPropertyTypeId.value === 2">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Office Phone</label>
+									<input class="form-control" formControlName="agentPropertyOfficePhone">
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Sales Phone</label>
+									<input class="form-control" formControlName="agentPropertySalesPhone">
+								</div>
+							</div>
+							<h1>Tujuan Pembelian dan Sumber Dana</h1>
+							<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Tujuan Pembelian</label>
+									<select class="form-control" formControlName="purposeOfPurchaseId">
+										<option *ngFor="let purposeOfPurchase of purposeOfPurchases"
+											[value]="purposeOfPurchase.purposeOfPurchaseId">{{
+											purposeOfPurchase.purposeOfPurchaseName }}</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Keterangan</label>
+									<input class="form-control" formControlName="purposeOfPurchaseRemark">
+								</div>
+							</div>
+							<div xLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Sumber Dana</label>
+									<select class="form-control" formControlName="sourceOfFundsId">
+										<option *ngFor="let sourceOfFunds of sourceOfFundses"
+											[value]="sourceOfFunds.sourceOfFundsId">{{ sourceOfFunds.sourceOfFundsName
+											}}
+										</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Keterangan</label>
+									<input class="form-control" formControlName="sourceOfFundsRemark">
+								</div>
+							</div>
+							<h1>Referensi Produk</h1>
+							<div xLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+								<div class="form-group" fxFlex.gt-md="180px">
+									<label>Referensi Produk</label>
+									<select class="form-control" formControlName="productReferenceId">
+										<option *ngFor="let productReference of productReferences"
+											[value]="productReference.productReferenceId">{{
+											productReference.productReferenceName
+											}}</option>
+									</select>
+								</div>
+								<div class="form-group" fxFlex.gt-md>
+									<label>Keterangan</label>
+									<input class="form-control" formControlName="productReferenceRemark">
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+				<h1>Kelengkapan Data</h1>
+				<div class="row">
+					<div class="col col-12 col-lg-6 px-3">
+						<div fxLayout="column" fxLayout.gt-md="row" fxLayoutGap="14px" fxLayoutGap.gt-md="20px">
+							<div class="image" fxFlex.gt-md fxLayout="column">
+								<label>KTP :</label>
+								<div class="image-box">
+									<ng-container *ngIf="reservation.identityImagePath && !uploadedKtp">
+										<a [href]="reservation.identityImagePath" target="_blank">
+											<thumb [src]="reservation.identityImagePath" height="120px"></thumb>
+										</a>
+									</ng-container>
+									<ng-container *ngIf="uploadedKtp">
+										<thumb [src]="uploadedKtp" height="120px"></thumb>
+									</ng-container>
+									<ng-container *ngIf="!reservation.identityImagePath && !uploadedKtp">
+										No image
+									</ng-container>
+								</div>
+								<ng-container *ifHasMn="['web.backend.property-management.reservation.edit']">
+									<input #uploadKtp (change)="uploadKtpChanged($event)" type="file" accept="image/*"
+										class="d-none">
+									<button type="button" class="btn btn-primary mt-2 mt-lg-3 mt-xl-3"
+										(click)="uploadKtp.click()"><i class="fas fa-cloud-upload-alt mr-2"></i>Upload
+										KTP</button>
+								</ng-container>
+							</div>
+							<div class="image" fxFlex.gt-md fxLayout="column">
+								<label>NPWP :</label>
+								<div class="image-box">
+									<ng-container *ngIf="reservation.npwpImagePath && !uploadedNpwp">
+										<a [href]="reservation.npwpImagePath" target="_blank">
+											<thumb [src]="reservation.npwpImagePath" height="120px"></thumb>
+										</a>
+									</ng-container>
+									<ng-container *ngIf="uploadedNpwp">
+										<thumb [src]="uploadedNpwp" height="120px"></thumb>
+									</ng-container>
+									<ng-container *ngIf="!reservation.npwpImagePath && !uploadedNpwp">
+										No image
+									</ng-container>
+								</div>
+								<ng-container *ifHasMn="['web.backend.property-management.reservation.edit']">
+									<input #uploadNpwp (change)="uploadNpwpChanged($event)" type="file" accept="image/*"
+										class="d-none">
+									<button type="button" class="btn btn-primary mt-2 mt-lg-3 mt-xl-3"
+										(click)="uploadNpwp.click()"><i class="fas fa-cloud-upload-alt mr-2"></i>Upload
+										NPWP</button>
+								</ng-container>
+							</div>
+						</div>
+					</div>
+					<div class="col col-12 col-lg-6 px-3">
+						<div class="image" fxLayout="column">
+							<div fxHide.gt-md class="mt-3"></div>
+							<label>Bukti Transfer :</label>
+							<div class="image-box">
+								<ng-container *ngIf="reservation.proofOfTransferImagePath && !uploadedProofOfTransfer">
+									<a [href]="reservation.proofOfTransferImagePath" target="_blank">
+										<thumb [src]="reservation.proofOfTransferImagePath" height="120px"></thumb>
+									</a>
+								</ng-container>
+								<ng-container *ngIf="uploadedProofOfTransfer">
+									<thumb [src]="uploadedProofOfTransfer" height="120px"></thumb>
+								</ng-container>
+								<ng-container *ngIf="!reservation.proofOfTransferImagePath && !uploadedProofOfTransfer">
+									No image
+								</ng-container>
+							</div>
+							<ng-container *ifHasMn="['web.backend.property-management.reservation.edit']">
+								<input #uploadProofOfTransfer (change)="uploadProofOfTransferChanged($event)"
+									type="file" accept="image/*" class="d-none">
+								<button type="button" class="btn btn-primary mt-2 mt-lg-3 mt-xl-3"
+									(click)="uploadProofOfTransfer.click()"><i
+										class="fas fa-cloud-upload-alt mr-2"></i>Upload
+									Bukti Transfer</button>
+							</ng-container>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel-body" fxLayout="column">
+
+				<!-- IF STATUS != CANCELED AND != FINALIZED -->
+				<ng-container *ngIf="+reservation.reservationStatusId !== 3 && +reservation.reservationStatusId !== 2">
+					<!-- IF DIRTY -->
+					<ng-container *ngIf="formGroup.dirty">
+						<ng-container *ngIf="formGroup.invalid && formSubmitAttempt">
+							<div class="invalid-form-group">
+								<i class="fa fa-exclamation-triangle mr-2" aria-hidden="true"></i>Please fill all
+								mandatory field
+							</div>
+						</ng-container>
+						<!-- SAVE -->
+						<button title="Save" *ifHasMn="['web.backend.property-management.reservation.edit']"
+							class="btn btn-primary btn-block" [disabled]="isSaving" (click)="save()">
+							<ng-container *ngIf="!isSaving">
+								<i class="fas fa-save mr-2"></i> Save
+							</ng-container>
+							<ng-container *ngIf="isSaving">
+								<span class="spinner-border spinner-border-sm text-light mr-1" role="status"
+									aria-hidden="true"></span>
+								Saving..
+							</ng-container>
+						</button>
+					</ng-container>
+
+					<!-- IF NOT DIRTY -->
+					<ng-container *ngIf="!formGroup.dirty">
+						<!-- IF STATUS = RESERVED (1) -->
+						<ng-container *ngIf="+reservation.reservationStatusId === 1">
+							<!-- REQUEST APPROVAL -->
+							<button title="Request Approval"
+								*ifHasMn="['web.backend.property-management.reservation.edit']"
+								class="btn btn-primary btn-block" [disabled]="isRequestingApproval"
+								(click)="requestApproval()">
+								<ng-container *ngIf="!isRequestingApproval">
+									<i class="fas fa-check mr-2"></i> Request Approval
+								</ng-container>
+								<ng-container *ngIf="isRequestingApproval">
+									<span class="spinner-border spinner-border-sm text-light mr-1" role="status"
+										aria-hidden="true"></span>
+									Requesting Approval..
+								</ng-container>
+							</button>
+						</ng-container>
+
+						<!-- IF STATUS = APPROVAL (5) -->
+						<ng-container *ngIf="+reservation.reservationStatusId === 5">
+							<!-- APPROVE -->
+							<button title="Approve" *ifHasMn="['web.backend.property-management.reservation.approval']"
+								class="btn btn-primary btn-block" [disabled]="isApproving" (click)="approve()">
+								<ng-container *ngIf="!isApproving">
+									<i class="fas fa-check mr-2"></i> Approve
+								</ng-container>
+								<ng-container *ngIf="isApproving">
+									<span class="spinner-border spinner-border-sm text-light mr-1" role="status"
+										aria-hidden="true"></span>
+									Approving..
+								</ng-container>
+							</button>
+						</ng-container>
+
+						<!-- IF STATUS = APPROVED (6) -->
+						<ng-container *ngIf="+reservation.reservationStatusId === 6">
+							<!-- FINALIZE -->
+							<button title="Finalize" *ifHasMn="['web.backend.property-management.reservation.edit']"
+								class="btn btn-primary btn-block" [disabled]="isFinalizing" (click)="finalize()">
+								<ng-container *ngIf="!isFinalizing">
+									<i class="fas fa-check mr-2"></i> Finalize
+								</ng-container>
+								<ng-container *ngIf="isFinalizing">
+									<span class="spinner-border spinner-border-sm text-light mr-1" role="status"
+										aria-hidden="true"></span>
+									Finalizing..
+								</ng-container>
+							</button>
+						</ng-container>
+
+						<!-- PREVIEW SPR -->
+						<button title="Preview SPR" class="btn btn-secondary btn-block" [disabled]="isSprPreviewing"
+							(click)="previewSpr()">
+							<ng-container *ngIf="!isSprPreviewing">
+								<i class="fas fa-print mr-2"></i> Preview SPR
+							</ng-container>
+							<ng-container *ngIf="isSprPreviewing">
+								<span class="spinner-border spinner-border-sm text-light mr-1" role="status"
+									aria-hidden="true"></span>
+								Previewing..
+							</ng-container>
+						</button>
+
+						<!-- CANCELATION -->
+						<button title="Cancelation" *ifHasMn="['web.backend.property-management.reservation.edit']"
+							class="btn btn-danger btn-block" [disabled]="isCanceling" (click)="cancelation()">
+							<ng-container *ngIf="!isCanceling">
+								<i class="fas fa-times mr-2"></i> Cancelation
+							</ng-container>
+							<ng-container *ngIf="isCanceling">
+								<span class="spinner-border spinner-border-sm text-light mr-1" role="status"
+									aria-hidden="true"></span>
+								Canceling..
+							</ng-container>
+						</button>
+
+					</ng-container>
+				</ng-container>
+			</div>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

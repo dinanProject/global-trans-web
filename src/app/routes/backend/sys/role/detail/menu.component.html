@@ -1,0 +1,30 @@
+<li class="menu">
+	<div fxLayout fxLayoutAlign="start center">
+		<span [fxFlex]="(menu.level * 30) + 'px'"></span>
+		<mat-checkbox fxFlex="30px" [checked]="menu.isChecked" [indeterminate]="menu.isIndeterminate"
+			(change)="change($event)" (indeterminateChange)="indeterminateChange($event)"></mat-checkbox>
+		<ng-container *ngIf="menu.icon">
+			<i fxFlex="30px" [class]="menu.icon" fxLayout fxLayoutAlign="start center"></i>
+		</ng-container>
+		<ng-container *ngIf="!menu.icon">
+			<ng-container *ngIf="menu.menuTypeId === 4">
+				<i fxFlex="30px" class="fas fa-th-large" fxLayout fxLayoutAlign="start center"></i>
+			</ng-container>
+			<ng-container *ngIf="menu.menuTypeId !== 4">
+				<i fxFlex="30px"
+					[class]="menu.menuTypeId === 1 ? 'far fa-window-maximize' : (menu.menuTypeId === 2 ? 'fas fa-layer-group' : (menu.menuTypeId === 5 ? 'fas fa-hashtag' : 'fas fa-folder'))"
+					fxLayout fxLayoutAlign="start center"></i>
+			</ng-container>
+		</ng-container>
+		<div fxFlex fxLayout="column">
+			<h2>{{ menu.menuName }}</h2>
+		</div>
+	</div>
+	<ul *ngIf="menu.child">
+		<ng-container *ngFor="let menu of menu.child">
+			<menu-tree [menu]="menu" (changed)="childChange($event)"
+				(indeterminateChanged)="childIndeterminateChange($event)">
+			</menu-tree>
+		</ng-container>
+	</ul>
+</li>

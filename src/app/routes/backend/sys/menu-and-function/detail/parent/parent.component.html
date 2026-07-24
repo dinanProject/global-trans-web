@@ -1,0 +1,7 @@
+<h2 mat-dialog-title>Menu Parent</h2>
+<mat-dialog-content class="p-0" fxLayout="column">
+	<ul class="tree-content scroll scroll-y" fxFlex="400px">
+		<app-parent-menu [menus]="menus" [selectedMenuId]="selectedMenuId" (selectClick)="select($event)">
+		</app-parent-menu>
+	</ul>
+</mat-dialog-content>

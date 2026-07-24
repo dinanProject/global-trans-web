@@ -1,0 +1,44 @@
+.lead-info {
+	h3 {
+		width: 50px;
+		height: 50px;
+		border-radius: 8px;
+		line-height: 50px;
+		text-align: center;
+		font-weight: 600;
+		font-size: 24px;
+		color: #ffffff;
+		background-color: #444444;
+		margin: 0px;
+	}
+
+	h1 {
+		font-size: 20px;
+		margin: 0px;
+	}
+
+	h2 {
+		font-size: 14px;
+		margin: 0px;
+		color: var(--text-light);
+	}
+}
+
+.search {
+	padding-top: 5px !important;
+	// padding-bottom: 5px !important;
+	border-bottom: 1px solid var(--border);
+}
+
+.data-grid {
+	h1 {
+		font-size: 14px;
+		margin: 0px;
+	}
+
+	h2 {
+		font-size: 12px;
+		margin: 0px;
+		color: var(--text-light);
+	}
+}

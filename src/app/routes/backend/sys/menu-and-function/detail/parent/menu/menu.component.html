@@ -1,0 +1,20 @@
+<li class="menu" *ngFor="let menu of menus">
+	<div fxLayout fxLayoutAlign="start center" [class.selected]="menu.menuId === selectedMenuId">
+		<span [fxFlex]="(menu.level * 25) + 'px'"></span>
+		<ng-container *ngIf="menu.icon">
+			<i fxFlex="25px" [class]="menu.icon" fxLayout fxLayoutAlign="start center"></i>
+		</ng-container>
+		<ng-container *ngIf="!menu.icon">
+			<i fxFlex="25px"
+				[class]="menu.menuTypeId === 1 ? 'far fa-window-maximize' : (menu.menuTypeId === 2 ? 'fas fa-layer-group' : (menu.menuTypeId === 5 ? 'fas fa-hashtag' : 'fas fa-folder'))"
+				fxLayout fxLayoutAlign="start center"></i>
+		</ng-container>
+		<h2 fxFlex>{{ menu.menuName }}</h2>
+		<button *ngIf="menu.menuId !== selectedMenuId" class="btn btn-sm btn-primary" (click)="select(menu)"><i
+				class="fas fa-check"></i></button>
+	</div>
+	<ul *ngIf="menu.child">
+		<app-parent-menu [menus]="menu.child" [selectedMenuId]="selectedMenuId" (selectClick)="select($event)">
+		</app-parent-menu>
+	</ul>
+</li>

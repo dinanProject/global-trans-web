@@ -1,0 +1,19 @@
+<div class="loading" [style.left]="left" [style.top]="top" fxLayout="column" fxLayoutAlign="center center"
+	fxLayoutGap="10px">
+	<!-- <div class="spinner" [style.width]="size" [style.height]="size">
+		<div class="bounce1"></div>
+		<div class="bounce2"></div>
+		<div class="bounce3"></div>
+	</div> -->
+	<div class="spinner-border text-primary" role="status" [style.width]="size" [style.height]="size"></div>
+	<!-- <div class="sk-folding-cube" [style.width]="size" [style.height]="size"
+		[ngClass]="[isProduction ? '' : 'development', !text ? 'no-label' : '']">
+		<div class="sk-cube1 sk-cube"></div>
+		<div class="sk-cube2 sk-cube"></div>
+		<div class="sk-cube4 sk-cube"></div>
+		<div class="sk-cube3 sk-cube"></div>
+	</div> -->
+	<ng-container *ngIf="text">
+		<label [style.color]="textColor">{{ text }}</label>
+	</ng-container>
+</div>

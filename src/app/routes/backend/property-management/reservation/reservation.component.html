@@ -1,0 +1,145 @@
+<ng-container *ngIf="isInitialized">
+	<div class="page-header" fxLayoutGap="10px">
+		<div class="form-group" fxFlex>
+			<label>Search</label>
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Search.."
+					(keyup)="searchChanged($any($event.target).value)">
+				<div class="input-group-append">
+					<span class="input-group-text">
+						<i class="fas fa-search"></i>
+					</span>
+				</div>
+			</div>
+		</div>
+		<!-- <a class="btn btn-primary" [routerLink]="['new']"><i class="fas fa-plus mr-2"></i>Create Reservation</a> -->
+	</div>
+	<div class="page-body container-fluid">
+		<div class="panel">
+			<div class="panel-body p-0">
+				<ng-container *ngIf="isInitialized">
+					<mat-table class="data-grid" #dataGrid [dataSource]="dataSource" matSort matSortDisableClear>
+						<!-- 'no', 'formattedReservationDate', 'fullName', 'unitName', 'lt', 'unitPrice', 'paymentPlanStatusName', 'reservationStatusName', 'actions' -->
+						<ng-container matColumnDef="no">
+							<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+							</mat-header-cell>
+							<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+								{{ i + 1 }}
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="formattedReservationDate">
+							<mat-header-cell fxHide fxShow.gt-md fxFlex.gt-md="110px" mat-sort-header *matHeaderCellDef>
+								Date
+							</mat-header-cell>
+							<mat-cell fxHide fxShow.gt-md fxFlex.gt-md="110px" *matCellDef="let row">{{
+								row.formattedReservationDate }}
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="unitName">
+							<mat-header-cell fxHide fxShow.gt-md fxFlex.gt-md="160px" mat-sort-header *matHeaderCellDef>
+								Unit
+							</mat-header-cell>
+							<mat-cell fxHide fxShow.gt-md fxFlex.gt-md="160px" *matCellDef="let row" fxLayout="column"
+								fxLayoutAlign="center start">
+								<h2>{{ row.projectName }}</h2>
+								<h1>{{ row.unitName }}</h1>
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="fullName">
+							<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Customer
+							</mat-header-cell>
+							<mat-cell fxFlex *matCellDef="let row" fxLayout="column" fxLayoutAlign="center start">
+								<h2 fxShow fxHide.gt-md>{{ row.projectName }}</h2>
+								<h1 fxShow fxHide.gt-md>{{ row.unitName }}</h1>
+								<h1>{{ row.fullName }}</h1>
+								<h3 fxHide fxShow.gt-md>{{ row.genderName }} / {{ row.formattedAge }}</h3>
+								<h3 fxShow fxHide.gt-md class="reservation-status">{{ row.reservationStatusName }}</h3>
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="unitPrice">
+							<mat-header-cell fxHide fxShow.gt-md fxFlex.gt-md="130px" mat-sort-header *matHeaderCellDef>
+								Cash Price
+							</mat-header-cell>
+							<mat-cell fxHide fxShow.gt-md fxFlex.gt-md="130px" *matCellDef="let row">
+								{{ row.cashPrice | currency:'IDR':'Rp. ':'1.0-0' }}
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="progressStatusName">
+							<mat-header-cell fxHide fxShow.gt-md fxFlex.gt-md="90px" mat-sort-header *matHeaderCellDef>
+								Progress
+							</mat-header-cell>
+							<mat-cell fxHide fxShow.gt-md fxFlex.gt-md="90px" *matCellDef="let row">{{
+								row.progressStatusName }}</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="paymentMethodName">
+							<mat-header-cell fxHide fxShow.gt-md fxFlex.gt-md="120px" mat-sort-header *matHeaderCellDef>
+								Pay. Method
+							</mat-header-cell>
+							<mat-cell fxHide fxShow.gt-md fxFlex.gt-md="120px" *matCellDef="let row">{{
+								row.paymentMethodName }}</mat-cell>
+						</ng-container>
+
+						<!-- <ng-container matColumnDef="paymentPlanStatusName">
+							<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Payment Plan
+							</mat-header-cell>
+							<mat-cell fxFlex="120px" *matCellDef="let row">{{ row.paymentPlanStatusName }}</mat-cell>
+						</ng-container> -->
+
+						<ng-container matColumnDef="reservationStatusName">
+							<mat-header-cell fxHide fxShow.gt-md fxFlex.gt-md="90px" mat-sort-header *matHeaderCellDef>
+								Status</mat-header-cell>
+							<mat-cell fxHide fxShow.gt-md fxFlex.gt-md="90px" *matCellDef="let row">{{
+								row.reservationStatusName }}</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="actions">
+							<mat-header-cell fxFlex="50px" *matHeaderCellDef></mat-header-cell>
+							<mat-cell fxFlex="50px" *matCellDef="let row" fxLayout fxLayoutGap="5px"
+								fxLayoutAlign="end center">
+								<!-- <ng-container *ngIf="+row.reservationStatusId > 1">
+									<a [routerLink]="[row.reservationId]" class="btn btn-primary btn-sm">
+										<i class="fas fa-chevron-right"></i>
+									</a>
+									<ng-container *ngIf="!row.isSprPrinting">
+										<button title="Print SPR" class="btn btn-secondary btn-sm"
+											(click)="printSpr(row)"><i class="fas fa-print"></i></button>
+									</ng-container>
+									<ng-container *ngIf="row.isSprPrinting">
+										<img [src]="apiUrl + '/images/ajax-loader.gif'" />
+									</ng-container>
+								</ng-container>
+								<ng-container *ngIf="+row.reservationStatusId === 1">
+									<a [routerLink]="[row.reservationId]" class="btn btn-primary btn-sm">
+										<i class="fas fa-chevron-right"></i>
+									</a>
+								</ng-container> -->
+								<a [routerLink]="[row.reservationId]" class="btn btn-primary btn-sm">
+									<i class="fas fa-chevron-right"></i>
+								</a>
+							</mat-cell>
+						</ng-container>
+
+						<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+						<mat-row *matRowDef="let row; columns: displayedColumns;"
+							[ngClass]="row.formattedReservationStatusName"></mat-row>
+					</mat-table>
+				</ng-container>
+				<ng-container *ngIf="!isInitialized">
+					<div class="loading-container">
+						<loading></loading>
+					</div>
+				</ng-container>
+				<mat-paginator [pageSizeOptions]="[10, 50, 100]" showFirstLastButtons></mat-paginator>
+			</div>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

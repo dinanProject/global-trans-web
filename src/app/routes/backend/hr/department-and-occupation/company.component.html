@@ -1,0 +1,82 @@
+<li class="company">
+	<div fxLayout fxLayoutAlign="start center">
+		<span [fxFlex]="(company.level * 30) + 'px'"></span>
+		<i class="fas fa-industry" fxFlex="30px" fxLayout fxLayoutAlign="start center"></i>
+		<div fxFlex fxLayout="column">
+			<h2>{{ company.companyName }}</h2>
+			<!-- <h5>{{ company.remark }}</h5> -->
+		</div>
+		<div fxLayout fxLayoutGap="5px">
+			<button class="btn btn-primary btn-sm" (click)="addCompany()">
+				<i class="fas fa-plus"></i>
+			</button>
+			<button class="btn btn-primary btn-sm" (click)="editCompany()">
+				<i class="fas fa-pen"></i>
+			</button>
+			<ng-container *ngIf="
+				company.companies.length === 0 &&
+				company.occupations.length === 0 &&
+				company.departments.length === 0">
+				<button class="btn btn-danger btn-sm" (click)="deleteCompany()">
+					<i class="far fa-trash-alt"></i>
+				</button>
+			</ng-container>
+			<!-- <button mat-icon-button [matMenuTriggerFor]="menu">
+				<mat-icon>more_vert</mat-icon>
+			</button>
+			<mat-menu #menu="matMenu">
+				<button mat-menu-item class="menu-success" (click)="addCompany()">
+					<i class="fas fa-plus"></i>
+					<span>Add Company</span>
+				</button>
+				<button mat-menu-item class="menu-success" (click)="addDepartment()">
+					<i class="fas fa-plus"></i>
+					<span>Add Department</span>
+				</button>
+				<button mat-menu-item class="menu-success" (click)="addOccupation()">
+					<i class="fas fa-plus"></i>
+					<span>Add Occupation</span>
+				</button>
+				<button mat-menu-item class="menu-primary" (click)="editCompany()">
+					<i class="fas fa-pen"></i>
+					<span>Edit Company</span>
+				</button>
+				<ng-container *ngIf="
+					company.companies.length === 0 &&
+					company.occupations.length === 0 &&
+					company.departments.length === 0">
+					<button mat-menu-item class="menu-danger" (click)="deleteCompany()">
+						<i class="far fa-trash-alt"></i>
+						<span>Delete Company</span>
+					</button>
+				</ng-container>
+			</mat-menu> -->
+		</div>
+	</div>
+	<ul *ngIf="company.occupations.length > 0">
+		<ng-container *ngFor="let occupation of company.occupations">
+			<occupation-tree [occupation]="occupation" (occupationAdded)="occupationAdded.emit($event)"
+				(occupationEdited)="occupationEdited.emit($event)" (occupationDeleted)="occupationDeleted.emit($event)">
+			</occupation-tree>
+		</ng-container>
+	</ul>
+	<ul *ngIf="company.departments.length > 0">
+		<ng-container *ngFor="let department of company.departments">
+			<department-tree [department]="department" (departmentAdded)="departmentAdded.emit($event)"
+				(departmentEdited)="departmentEdited.emit($event)" (departmentDeleted)="departmentDeleted.emit($event)"
+				(occupationAdded)="occupationAdded.emit($event)" (occupationEdited)="occupationEdited.emit($event)"
+				(occupationDeleted)="occupationDeleted.emit($event)">
+			</department-tree>
+		</ng-container>
+	</ul>
+	<ul *ngIf="company.companies.length > 0">
+		<ng-container *ngFor="let c of company.companies">
+			<company-tree [company]="c" (companyAdded)="companyAdded.emit($event)"
+				(companyEdited)="companyEdited.emit($event)" (companyDeleted)="companyDeleted.emit($event)"
+				(departmentAdded)="departmentAdded.emit($event)" (departmentEdited)="departmentEdited.emit($event)"
+				(departmentDeleted)="departmentDeleted.emit($event)" (occupationAdded)="occupationAdded.emit($event)"
+				(occupationEdited)="occupationEdited.emit($event)" (occupationDeleted)="occupationDeleted.emit($event)">
+			</company-tree>
+		</ng-container>
+	</ul>
+</li>

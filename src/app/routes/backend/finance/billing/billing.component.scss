@@ -1,0 +1,22 @@
+.data-grid {
+	.mat-row {
+		min-height: 50px;
+		h1 {
+			font-size: 14px;
+			margin: 0;
+		}
+		h2 {
+			font-size: 12px;
+			margin: 0;
+			color: #0088E5;
+		}
+		h3 {
+			font-size: 12px;
+			margin: 0;
+			color: #999999;
+		}
+		&:hover {
+			background-color: #fafafa;
+		}
+	}
+}

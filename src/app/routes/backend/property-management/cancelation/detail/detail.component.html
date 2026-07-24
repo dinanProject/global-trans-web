@@ -1,0 +1,360 @@
+<ng-container *ngIf="isInitialized">
+	<div class="page-body container">
+		<div class="panel">
+			<div class="panel-header" fxLayout fxLayoutAlign="start center">
+				<h1 class="panel-title">Cancelation Detail</h1>
+			</div>
+			<div class="panel-body">
+				<h1>Data Pribadi dan Pekerjaan Konsumen</h1>
+				<div class="row">
+					<div class="col col-12 col-lg-6 px-3">
+						<div class="form-group required">
+							<label>Nama Lengkap</label>
+							<input class="form-control" [(ngModel)]="cancelation.fullName" readonly>
+						</div>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group required" fxFlex="110px">
+								<label>Jenis Kelamin</label>
+								<input class="form-control" [(ngModel)]="cancelation.genderName" readonly />
+							</div>
+							<div class="form-group required" fxFlex="130px">
+								<label>Tanggal Lahir</label>
+								<input class="form-control" [(ngModel)]="cancelation.formattedDob" readonly />
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Tempat Lahir</label>
+								<input class="form-control" [(ngModel)]="cancelation.pob" readonly>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group required" fxFlex="110px">
+								<label>Agama</label>
+								<input class="form-control" [(ngModel)]="cancelation.religionName" readonly />
+							</div>
+							<div class="form-group required" fxFlex="130px">
+								<label>Status Pernikahan</label>
+								<input class="form-control" [(ngModel)]="cancelation.maritalStatusName" readonly />
+							</div>
+							<div class="form-group required" fxFlex>
+								<label>Email</label>
+								<input class="form-control" [(ngModel)]="cancelation.email" readonly>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group required" fxFlex>
+								<label>No. Identitas</label>
+								<input class="form-control" [(ngModel)]="cancelation.identityCode" readonly>
+							</div>
+							<div class="form-group required" fxFlex>
+								<label>NPWP</label>
+								<input class="form-control" [(ngModel)]="cancelation.npwp" readonly>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group required" fxFlex>
+								<label>Telp. Rumah</label>
+								<input class="form-control" [(ngModel)]="cancelation.homePhone" readonly>
+							</div>
+							<div class="form-group required" fxFlex>
+								<label>Handphone</label>
+								<input class="form-control" [(ngModel)]="cancelation.handPhone" readonly>
+							</div>
+						</div>
+						<div class="form-group required">
+							<label>Alamat Sesuai KTP</label>
+							<textarea class="form-control" rows="4" [(ngModel)]="cancelation.identityAddress"
+								readonly></textarea>
+						</div>
+					</div>
+					<div class="col col-12 col-lg-6 px-3">
+						<div class="form-group required">
+							<label>Alamat Surat Menyurat</label>
+							<textarea class="form-control" rows="4" [(ngModel)]="cancelation.mailingAddress"
+								readonly></textarea>
+						</div>
+						<div class="form-group required">
+							<label>Pekerjaan</label>
+							<input class="form-control" [(ngModel)]="cancelation.customerOccupationName" readonly>
+						</div>
+						<div class="form-group">
+							<label>Nama Perusahaan</label>
+							<input class="form-control" [(ngModel)]="cancelation.customerCompanyName" readonly>
+						</div>
+						<div class="form-group">
+							<label>Alamat Perusahaan</label>
+							<textarea class="form-control" rows="4" [(ngModel)]="cancelation.customerCompanyAddress"
+								readonly></textarea>
+						</div>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex>
+								<label>Telp. Perusahaan</label>
+								<input class="form-control" [(ngModel)]="cancelation.customerCompanyPhone" readonly>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Fax. Perusahaan</label>
+								<input class="form-control" [(ngModel)]="cancelation.customerCompanyFax" readonly>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col col-12 col-lg-6">
+						<h1>Informasi Unit</h1>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="180px">
+								<label>Unit</label>
+								<div class="input-group">
+									<input class="form-control" [(ngModel)]="cancelation.unitName" readonly>
+									<div class="input-group-append">
+										<a target="_blank" class="btn btn-primary"
+											[routerLink]="['/backend/property-management/project/' + cancelation.projectId + '/siteplan/' + cancelation.unitId ]"><i
+												class="fas fa-external-link-square-alt"></i></a>
+									</div>
+								</div>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Project</label>
+								<input class="form-control" [(ngModel)]="cancelation.projectName" readonly>
+							</div>
+						</div>
+						<h1>Informasi Cara Pembayaran</h1>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="180px">
+								<label>Cara Bayar</label>
+								<input class="form-control" [(ngModel)]="cancelation.paymentPlanName" readonly>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Harga Jual</label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											Rp.
+										</span>
+									</div>
+									<input readonly currencyMask [options]="{ prefix: ''}"
+										class="form-control text-right" [(ngModel)]="cancelation.unitPrice">
+								</div>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="90px">
+								<label>Diskon %</label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											%
+										</span>
+									</div>
+									<input class="form-control text-right" [(ngModel)]="cancelation.discountPercent"
+										readonly>
+								</div>
+							</div>
+							<div class="form-group" fxFlex="160px">
+								<label>Diskon Rp.</label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											Rp.
+										</span>
+									</div>
+									<input class="form-control text-right"
+										[ngModel]="cancelation.discountAmount | currency:'IDR':'':'1.0-0'"
+										[ngModelOptions]="{standalone: true}" readonly>
+								</div>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Harga Jual</label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											Rp.
+										</span>
+									</div>
+									<input currencyMask [options]="{ prefix: ''}" class="form-control text-right"
+										[(ngModel)]="cancelation.salesPrice" readonly>
+								</div>
+							</div>
+						</div>
+						<div class="grid payment-schemes">
+							<div class="grid-header">
+								<div class="no" fxFlex="40px">No. </div>
+								<div class="tanggal" fxFlex="95px">Tanggal</div>
+								<div class="skema" fxFlex="130px">Skema</div>
+								<div class="harga" fxFlex>Harga</div>
+							</div>
+							<div class="grid-body">
+								<ng-container *ngFor="let p of billingSchedules; let i = index">
+									<div class="grid-header-row" fxLayout="column">
+										<div class="grid-row" fxLayout>
+											<div class="no" fxFlex="40px">{{ i + 1 }}</div>
+											<div class="tanggal" fxFlex="95px">{{ p.paymentDate }}
+											</div>
+											<div class="skema" fxFlex="130px">{{ p.paymentSchemeName }}
+											</div>
+											<div class="harga" fxFlex>{{ p.priceAmount |
+												currency:'IDR':'Rp.
+												':'1.0-0' }}
+											</div>
+										</div>
+									</div>
+								</ng-container>
+							</div>
+							<div class="grid-footer">
+								<div fxFlex>Total Harga</div>
+								<div fxFlex="160px">{{ totalPrice | currency:'IDR':'Rp. ':'1.0-0' }}</div>
+							</div>
+						</div>
+						<h1>Promo dan Catatan</h1>
+						<div class="form-group">
+							<label>Promo</label>
+							<input class="form-control" [(ngModel)]="cancelation.promo">
+						</div>
+						<div class="form-group">
+							<label>Catatan</label>
+							<textarea class="form-control" rows="4" [(ngModel)]="cancelation.remark"
+								readonly></textarea>
+						</div>
+					</div>
+					<div class="col col-12 col-lg-6">
+						<h1>Informasi Sales</h1>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="180px">
+								<label>Sales</label>
+								<input class="form-control" [(ngModel)]="cancelation.agentPropertyTypeName" readonly />
+							</div>
+							<div class="form-group required" fxFlex>
+								<label>Sales Name</label>
+								<input class="form-control" [(ngModel)]="cancelation.salesName" readonly>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="20px" *ngIf="+cancelation.agentPropertyTypeId === 2">
+							<div class="form-group" fxFlex="180px">
+								<label>Agent Property Name</label>
+								<input class="form-control" [(ngModel)]="cancelation.agentPropertyName" readonly>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Lead Name</label>
+								<input class="form-control" [(ngModel)]="cancelation.agentPropertyLeadName" readonly>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="20px" *ngIf="+cancelation.agentPropertyTypeId === 2">
+							<div class="form-group" fxFlex="180px">
+								<label>Office Phone</label>
+								<input class="form-control" [(ngModel)]="cancelation.agentPropertyOfficePhone" readonly>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Sales Phone</label>
+								<input class="form-control" [(ngModel)]="cancelation.agentPropertySalesPhone" readonly>
+							</div>
+						</div>
+						<h1>Tujuan Pembelian dan Sumber Dana</h1>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="180px">
+								<label>Tujuan Pembelian</label>
+								<input class="form-control" [(ngModel)]="cancelation.purposeOfPurchaseName" readonly />
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Keterangan</label>
+								<input class="form-control" [(ngModel)]="cancelation.purposeOfPurchaseRemark" readonly>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="180px">
+								<label>Sumber Dana</label>
+								<input class="form-control" [(ngModel)]="cancelation.sourceOfFundsName" readonly>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Keterangan</label>
+								<input class="form-control" [(ngModel)]="cancelation.sourceOfFundsRemark" readonly>
+							</div>
+						</div>
+						<h1>Referensi Produk</h1>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="180px">
+								<label>Referensi Produk</label>
+								<input class="form-control" [(ngModel)]="cancelation.productReferenceName" readonly>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Keterangan</label>
+								<input class="form-control" [(ngModel)]="cancelation.productReferenceRemark" readonly>
+							</div>
+						</div>
+						<h1>Cancelation</h1>
+						<div fxLayout fxLayoutGap="20px">
+							<div class="form-group" fxFlex="180px">
+								<label>Cancelation Date</label>
+								<input class="form-control" [(ngModel)]="cancelation.cancelationDate" readonly>
+							</div>
+							<div class="form-group" fxFlex>
+								<label>Cancelation User</label>
+								<input class="form-control" [(ngModel)]="cancelation.cancelationUser" readonly>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Cancelation Reason</label>
+							<textarea class="form-control" rows="4" [(ngModel)]="cancelation.cancelationReason"
+								readonly></textarea>
+						</div>
+					</div>
+				</div>
+				<h1>Kelengkapan Data</h1>
+				<div class="row">
+					<div class="col col-12 col-lg-6 px-3">
+						<div fxLayout fxLayoutGap="20px">
+							<div class="image" fxFlex fxLayout="column">
+								<label>KTP :</label>
+								<div class="image-box">
+									<!-- TODO: delete ktpImagePath -->
+									<!-- <ng-container *ngIf="cancelation.ktpImagePath">
+										<a [href]="cancelation.ktpImagePath" target="_blank">
+											<thumb [src]="cancelation.ktpImagePath" height="120px"></thumb>
+										</a>
+									</ng-container> -->
+									<ng-container *ngIf="cancelation.identityImagePath">
+										<a [href]="cancelation.identityImagePath" target="_blank">
+											<thumb [src]="cancelation.identityImagePath" height="120px"></thumb>
+										</a>
+									</ng-container>
+									<ng-container *ngIf="!cancelation.identityImagePath">
+										No image
+									</ng-container>
+								</div>
+							</div>
+							<div class="image" fxFlex fxLayout="column">
+								<label>NPWP :</label>
+								<div class="image-box">
+									<ng-container *ngIf="cancelation.npwpImagePath">
+										<a [href]="cancelation.npwpImagePath" target="_blank">
+											<thumb [src]="cancelation.npwpImagePath" height="120px"></thumb>
+										</a>
+									</ng-container>
+									<ng-container *ngIf="!cancelation.npwpImagePath">
+										No image
+									</ng-container>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col col-12 col-lg-6 px-3">
+						<div class="image" fxLayout="column">
+							<label>Bukti Transfer :</label>
+							<div class="image-box">
+								<ng-container *ngIf="cancelation.proofOfTransferImagePath">
+									<a [href]="cancelation.proofOfTransferImagePath" target="_blank">
+										<thumb [src]="cancelation.proofOfTransferImagePath" height="120px"></thumb>
+									</a>
+								</ng-container>
+								<ng-container *ngIf="!cancelation.proofOfTransferImagePath">
+									No image
+								</ng-container>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

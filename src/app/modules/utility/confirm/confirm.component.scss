@@ -1,0 +1,35 @@
+.mat-dialog-content {
+	padding: 30px !important;
+
+	i {
+		font-size: 85px;
+		margin-top: 70px;
+		margin-bottom: 70px;
+		border-radius: 50%;
+		width: 120px;
+		height: 120px;
+		background-color: var(--primary);
+		color: #ffffff;
+		text-align: center;
+		line-height: 120px;
+	}
+
+	.form-group {
+		width: 337px;
+
+		label {
+			color: var(--text-light);
+		}
+
+		textarea {
+			height: 100px;
+		}
+	}
+
+	.btn {
+		margin-top: 30px;
+		// margin-bottom: 10px;
+		width: 160px;
+	}
+
+}

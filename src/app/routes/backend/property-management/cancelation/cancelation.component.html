@@ -1,0 +1,91 @@
+<div class="page-header">
+	<div class="form-group" fxFlex>
+		<label>Search</label>
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Search.." (keyup)="searchChanged($event)">
+			<div class="input-group-append">
+				<span class="input-group-text">
+					<i class="fas fa-search"></i>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="page-body">
+	<div class="panel">
+		<div class="panel-body p-0">
+			<ng-container *ngIf="isInitialized">
+				<mat-table class="data-grid" #dataGrid [dataSource]="dataSource" matSort matSortDisableClear
+					matSortActive="cancelationDate" matSortDirection="asc">
+
+					<ng-container matColumnDef="no">
+						<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+						</mat-header-cell>
+						<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+							{{ i + 1 }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="cancelationDate">
+						<mat-header-cell fxFlex="120px" mat-sort-header *matHeaderCellDef>Date</mat-header-cell>
+						<mat-cell fxFlex="120px" *matCellDef="let row">
+							{{ row.cancelationDate }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="fullName">
+						<mat-header-cell fxFlex="200px" mat-sort-header *matHeaderCellDef>Customer</mat-header-cell>
+						<mat-cell fxFlex="200px" *matCellDef="let row">
+							{{ row.fullName }}
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="unitName">
+						<mat-header-cell fxFlex="160px" mat-sort-header *matHeaderCellDef>Unit</mat-header-cell>
+						<mat-cell fxFlex="160px" *matCellDef="let row">
+							<div fxFlex fxLayout="column">
+								<h2>{{ row.projectName }}</h2>
+								<h1>{{ row.unitName }}</h1>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="salesName">
+						<mat-header-cell fxFlex="220px" mat-sort-header *matHeaderCellDef>Sales Executive
+						</mat-header-cell>
+						<mat-cell fxFlex="220px" *matCellDef="let row">
+							<div fxFlex fxLayout="column">
+								<h1>{{ row.salesName }}</h1>
+								<h3>{{ row.agentPropertyName }}</h3>
+							</div>
+						</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="cancelationReason">
+						<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Cancelation Reason
+						</mat-header-cell>
+						<mat-cell fxFlex *matCellDef="let row">{{ row.cancelationReason }}</mat-cell>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<mat-header-cell fxFlex="50px" *matHeaderCellDef></mat-header-cell>
+						<mat-cell fxFlex="50px" *matCellDef="let row" fxLayout fxLayoutGap="5px">
+							<a class="btn btn-primary btn-sm" [routerLink]="[ row.salesCancelationId ]">
+								<i class="far fa-eye"></i>
+							</a>
+						</mat-cell>
+					</ng-container>
+
+					<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+					<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+				</mat-table>
+			</ng-container>
+			<ng-container *ngIf="!isInitialized">
+				<div class="loading-container">
+					<loading></loading>
+				</div>
+			</ng-container>
+			<mat-paginator [pageSizeOptions]="[50, 100, 200]" showFirstLastButtons></mat-paginator>
+		</div>
+	</div>
+</div>

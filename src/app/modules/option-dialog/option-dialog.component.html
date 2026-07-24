@@ -1,0 +1,15 @@
+<div class="input-group">
+	<input class="form-control" ngDefaultControl [ngModel]="displayedValue" [placeholder]="placeholder" readonly
+		[class.is-invalid]="isInvalid" [disabled]="readonly">
+	<div class="input-group-append">
+		<ng-container *ngIf="readonly">
+			<span class="input-group-text">
+				<i class="fas fa-ellipsis-h"></i>
+			</span>
+		</ng-container>
+		<ng-container *ngIf="!readonly">
+			<button class="btn btn-primary" type="button" (click)="openDialog()"><i
+					class="fas fa-ellipsis-h"></i></button>
+		</ng-container>
+	</div>
+</div>

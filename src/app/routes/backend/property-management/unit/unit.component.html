@@ -1,0 +1,121 @@
+<ng-container *ngIf="isInitialized">
+	<div class="page-header">
+		<div class="form-group" fxFlex="160px">
+			<label>Company</label>
+			<select class="form-control" (change)="companyChanged($any($event.target).value)">
+				<option *ngFor="let c of companies" [value]="c.companyId">{{ c.companyName }}</option>
+			</select>
+		</div>
+		<div class="form-group" fxFlex="160px">
+			<label>Project</label>
+			<select class="form-control" (change)="projectChanged($any($event.target).value)">
+				<option *ngFor="let p of filteredProjects" [value]="p.projectId">{{ p.projectName }}</option>
+			</select>
+		</div>
+		<div class="form-group" fxFlex>
+			<label>Search</label>
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Search.."
+					(keyup)="searchChanged($any($event.target).value)">
+				<div class="input-group-append">
+					<span class="input-group-text">
+						<i class="fas fa-search"></i>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-group" fxFlex="100px">
+			<label>Status</label>
+			<select class="form-control" (change)="salesStatusChanged($any($event.target).value)">
+				<option value="0">All</option>
+				<option *ngFor="let s of salesStatuses" [value]="s.salesStatusId">{{ s.salesStatusName }}</option>
+			</select>
+		</div>
+		<div class="form-group ml-2 mb-1">
+			<mat-checkbox [checked]="isShowNoPriceUnits" (change)="noPriceUnitsChanged($event)">Show No Price Units
+			</mat-checkbox>
+		</div>
+		<div class="ml-2">
+			<button *ngIf="!isEditing" class="btn btn-success" (click)="edit()"><i
+					class="fas fa-pen mr-2"></i>Edit</button>
+			<button *ngIf="isEditing" class="btn btn-primary" (click)="save()"><i
+					class="fas fa-save mr-2"></i>Save</button>
+		</div>
+	</div>
+	<div class="page-body">
+		<div class="grid">
+			<!-- unitName: string;
+			projectName: string;
+			companyName: string;
+			lt: number;
+			lb: number;
+			salesStatusName: string;
+			progressStatusName: string; -->
+			<div class="grid-header">
+				<div fxFlex="60px">No.</div>
+				<div fxFlex>Unit</div>
+				<div fxFlex="75px" class="text-center">LT</div>
+				<div fxFlex="75px" class="text-center">LB</div>
+				<div fxFlex="120px" class="text-center">Status</div>
+				<div fxFlex="120px" class="text-center">Progress</div>
+				<div fxFlex="60px">
+
+				</div>
+				<!-- <ng-container *ngFor="let pc of priceColumns">
+					<div fxFlex="140px" class="text-center">{{ pc }}</div>
+				</ng-container> -->
+			</div>
+			<div class="grid-body" [fxShow]="isRowInitialized">
+				<ng-container *ngFor="let row of dataSource.filteredData; let i = index">
+					<div class="grid-row" #gridRow>
+						<div fxFlex="60px" class="text-center justify-content-center">{{ i + 1 }}</div>
+						<div fxFlex>{{ row.unitName }}</div>
+						<div fxFlex="75px" class="text-center">
+							<ng-container *ngIf="!isEditing">
+								{{ row.lt }}
+							</ng-container>
+							<ng-container *ngIf="isEditing">
+								<input class="form-control" [(ngModel)]="row.lt" />
+							</ng-container>
+						</div>
+						<div fxFlex="75px" class="text-center">
+							<ng-container *ngIf="!isEditing">
+								{{ row.lb }}
+							</ng-container>
+							<ng-container *ngIf="isEditing">
+								<input class="form-control" [(ngModel)]="row.lb" />
+							</ng-container>
+						</div>
+						<div fxFlex="120px" class="text-center">{{ row.salesStatusName }}</div>
+						<div fxFlex="120px" class="text-center">{{ row.progressStatusName }}</div>
+						<div fxFlex="60px">
+							<!-- <button class="btn btn-primary" (click)="editUnit(row.unitId)"><i
+									class="fas fa-pen"></i></button> -->
+							<a class="btn btn-primary" [routerLink]="row.unitId.toString()"><i
+									class="fas fa-pen"></i></a>
+						</div>
+						<!-- <ng-container *ngFor="let p of row.prices">
+							<div fxFlex="140px" class="text-right">
+								<ng-container *ngIf="!isEditing">
+									{{ p.price | currency:'IDR':'Rp. ':'1.0-0' }}
+								</ng-container>
+								<ng-container *ngIf="isEditing">
+									<input class="form-control" [ngModel]="p.price | currency:'IDR':'':'1.0-0'"
+										(change)="priceChanged(p, $any($event.target).value)" />
+								</ng-container>
+							</div>
+						</ng-container> -->
+					</div>
+				</ng-container>
+			</div>
+			<div class="grid-body" [fxShow]="!isRowInitialized">
+				<div class="loading-container">
+					<loading></loading>
+				</div>
+			</div>
+		</div>
+	</div>
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

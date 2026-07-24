@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Edit Payment Plan</h2>
+<mat-dialog-content fxLayout="column">
+	<ng-container *ngIf="isInitialized">
+		<ng-container *ngFor="let p of paymentPlanDetails"></ng-container>
+		<panel>
+			<panel-body>
+
+			</panel-body>
+		</panel>
+	</ng-container>
+	<ng-container *ngIf="!isInitialized">
+		<loading fxFlex="300px"></loading>
+	</ng-container>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px">
+	<span fxFlex></span>
+	<button class="btn btn-primary" (click)="submit()">
+		<i class="fa fa-save mr-1"></i> Save
+	</button>
+	<button mat-dialog-close class="btn btn-danger">
+		<i class="fa fa-times mr-1"></i> Close
+	</button>
+</mat-dialog-actions>

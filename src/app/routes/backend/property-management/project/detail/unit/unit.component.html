@@ -1,0 +1,585 @@
+<ng-container *ngIf="isInitialized">
+	<mat-dialog-content fxLayout class="unit-header" fxLayoutAlign="start end">
+		<div fxLayout="column" fxFlex>
+			<h1>{{ unitName.value || 'Unit Name'}}</h1>
+			<h2>{{ projectName }}</h2>
+		</div>
+		<div class="sales-status" [ngClass]="formattedSalesStatusName" [class.inhabited]="isInhabited.value === 'Y'">
+			{{ salesStatusName }}
+		</div>
+	</mat-dialog-content>
+	<mat-dialog-content fxLayout="column">
+		<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+			<div fxLayout fxLayoutGap="10px">
+				<div fxLayout fxLayoutGap="10px" fxFlex>
+					<div class="form-group required" fxFlex>
+						<label>Company</label>
+						<input class="form-control" [(ngModel)]="companyName" [ngModelOptions]="{standalone: true}"
+							readonly>
+					</div>
+					<div class="form-group required" fxFlex>
+						<label>Project</label>
+						<input class="form-control" [(ngModel)]="projectName" [ngModelOptions]="{standalone: true}"
+							readonly>
+					</div>
+				</div>
+				<div fxLayout fxLayoutGap="10px" fxFlex>
+					<div fxLayout fxLayoutGap="10px" fxFlex>
+						<div fxLayout fxLayoutGap="10px" fxFlex>
+							<div class="form-group required" fxFlex>
+								<label>Block Name</label>
+								<input class="form-control" formControlName="blockName" (keyup)="unitNameChanged()"
+									[readonly]="isReadOnly" [class.is-invalid]="blockName.invalid && formSubmitAttempt">
+							</div>
+							<div class="form-group required" fxFlex="80px">
+								<label>Unit No</label>
+								<input class="form-control" formControlName="unitNo" (keyup)="unitNameChanged()"
+									[readonly]="isReadOnly" [class.is-invalid]="unitNo.invalid && formSubmitAttempt">
+							</div>
+						</div>
+						<div class="form-group required" fxFlex>
+							<label>Unit Name</label>
+							<input class="form-control" formControlName="unitName" readonly>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div fxLayout fxLayoutGap="10px">
+				<div fxLayout fxLayoutGap="10px" fxFlex>
+					<ng-container *ngIf="isReadOnly">
+						<div class="form-group required" fxFlex>
+							<label>Category</label>
+							<input class="form-control" [(ngModel)]="unitCategoryName"
+								[ngModelOptions]="{standalone: true}" readonly>
+						</div>
+					</ng-container>
+					<ng-container *ngIf="!isReadOnly">
+						<div class="form-group required" fxFlex>
+							<label>Category</label>
+							<select class="form-control" formControlName="unitCategoryId">
+								<option *ngFor="let u of unitCategories" [value]="u.unitCategoryId">{{
+									u.unitCategoryName }}
+								</option>
+							</select>
+						</div>
+					</ng-container>
+					<ng-container *ngIf="isReadOnly">
+						<div class="form-group required" fxFlex>
+							<label>Type</label>
+							<input class="form-control" [(ngModel)]="unitTypeName" [ngModelOptions]="{standalone: true}"
+								readonly>
+						</div>
+					</ng-container>
+					<ng-container *ngIf="!isReadOnly">
+						<div class="form-group required" fxFlex>
+							<label>Type</label>
+							<select class="form-control" formControlName="unitTypeId">
+								<option *ngFor="let t of unitTypes" [value]="t.unitTypeId">{{
+									t.unitTypeName
+									}}</option>
+							</select>
+						</div>
+					</ng-container>
+				</div>
+				<div fxLayout fxLayoutGap="10px" fxFlex>
+					<div fxLayout fxLayoutGap="10px" fxFlex>
+						<div class="form-group required" fxFlex>
+							<label>Land</label>
+							<input class="form-control" formControlName="lt" [readonly]="isReadOnly"
+								[class.is-invalid]="lt.invalid && formSubmitAttempt">
+						</div>
+						<div class="form-group required" fxFlex>
+							<label>Building</label>
+							<input class="form-control" formControlName="lb" [readonly]="isReadOnly"
+								[class.is-invalid]="lb.invalid && formSubmitAttempt">
+						</div>
+						<div class="form-group required" fxFlex>
+							<label>Floor</label>
+							<input class="form-control" formControlName="floor" [readonly]="isReadOnly"
+								[class.is-invalid]="floor.invalid && formSubmitAttempt">
+						</div>
+					</div>
+					<div fxLayout fxLayoutGap="10px" fxFlex>
+						<div class="form-group required" fxFlex>
+							<label>Bed R.</label>
+							<input class="form-control" formControlName="bedRoom" [readonly]="isReadOnly"
+								[class.is-invalid]="bedRoom.invalid && formSubmitAttempt">
+						</div>
+						<div class="form-group required" fxFlex>
+							<label>Bath R.</label>
+							<input class="form-control" formControlName="bathRoom" [readonly]="isReadOnly"
+								[class.is-invalid]="bathRoom.invalid && formSubmitAttempt">
+						</div>
+						<div class="form-group required" fxFlex>
+							<label>Car Port</label>
+							<input class="form-control" formControlName="carPort" [readonly]="isReadOnly"
+								[class.is-invalid]="carPort.invalid && formSubmitAttempt">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div fxLayout fxLayoutGap="10px">
+				<div fxLayout fxLayoutGap="10px" fxFlex>
+					<ng-container *ngIf="isReadOnly">
+						<div class="form-group required" fxFlex>
+							<label>Progress Status</label>
+							<input class="form-control" [ngModel]="progressStatusName"
+								[ngModelOptions]="{standalone: true}" readonly>
+						</div>
+					</ng-container>
+					<ng-container *ngIf="!isReadOnly">
+						<div class="form-group required" fxFlex>
+							<label>Progress Status</label>
+							<select class="form-control" formControlName="progressStatusId"
+								(change)="progressStatusChanged($event)">
+								<option *ngFor="let p of progressStatuses" [value]="p.progressStatusId">{{
+									p.progressStatusName
+									}}
+								</option>
+							</select>
+						</div>
+					</ng-container>
+					<div class="form-group required" fxFlex>
+						<label>Cash Price</label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text">
+									IDR.
+								</span>
+							</div>
+							<input currencyMask [options]="{ prefix: ''}" class="form-control"
+								formControlName="cashPrice" [class.is-invalid]="cashPrice.invalid && formSubmitAttempt">
+						</div>
+					</div>
+				</div>
+				<div fxLayout fxLayoutGap="10px" fxFlex fxLayoutAlign="start center">
+					<div fxLayout fxLayoutGap="10px" fxFlex>
+						<ng-container *ngIf="isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Hoek</label>
+								<input class="form-control" [(ngModel)]="isHoekName"
+									[ngModelOptions]="{standalone: true}" readonly>
+							</div>
+						</ng-container>
+						<ng-container *ngIf="!isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Hoek</label>
+								<select class="form-control" formControlName="isHoek">
+									<option value="Y">Yes</option>
+									<option value="N">No</option>
+								</select>
+							</div>
+						</ng-container>
+						<ng-container *ngIf="isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Show Unit</label>
+								<input class="form-control" [(ngModel)]="isShowUnitName"
+									[ngModelOptions]="{standalone: true}" readonly>
+							</div>
+						</ng-container>
+						<ng-container *ngIf="!isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Show Unit</label>
+								<select class="form-control" formControlName="isShowUnit">
+									<option value="Y">Yes</option>
+									<option value="N">No</option>
+								</select>
+							</div>
+						</ng-container>
+					</div>
+					<div fxLayout fxLayoutGap="10px" fxFlex>
+						<ng-container *ngIf="isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Inhabited</label>
+								<input class="form-control" [(ngModel)]="isInhabitedName"
+									[ngModelOptions]="{standalone: true}" readonly>
+							</div>
+						</ng-container>
+						<ng-container *ngIf="!isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Inhabited</label>
+								<select class="form-control" formControlName="isInhabited">
+									<option value="Y">Yes</option>
+									<option value="N">No</option>
+								</select>
+							</div>
+						</ng-container>
+						<ng-container *ngIf="isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Open</label>
+								<input class="form-control" [(ngModel)]="isOpenName"
+									[ngModelOptions]="{standalone: true}" readonly>
+							</div>
+						</ng-container>
+						<ng-container *ngIf="!isReadOnly">
+							<div class="form-group required" fxFlex>
+								<label>Is Open</label>
+								<select class="form-control" formControlName="isOpen">
+									<option value="Y">Yes</option>
+									<option value="N">No</option>
+								</select>
+							</div>
+						</ng-container>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="form-group mb-0" fxLayout="column">
+			<label>Prices</label>
+			<mat-table class="data-grid scroll scroll-y" fxFlex="208px" #dataGrid [dataSource]="dataSource" matSort
+				matSortDisableClear>
+
+				<ng-container matColumnDef="no">
+					<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+					</mat-header-cell>
+					<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+						{{ i + 1 }}
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="paymentPlanId">
+					<mat-header-cell fxFlex="200px" mat-sort-header *matHeaderCellDef>Payment Plan
+					</mat-header-cell>
+					<mat-cell fxFlex="200px" *matCellDef="let row">{{ row.paymentPlanName }}
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="remark">
+					<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Remark</mat-header-cell>
+					<mat-cell fxFlex *matCellDef="let row">{{ row.remark }}
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="price">
+					<mat-header-cell fxFlex="200px" mat-sort-header *matHeaderCellDef>Price</mat-header-cell>
+					<mat-cell fxFlex="200px" *matCellDef="let row">
+						<input currencyMask [options]="{ prefix: ''}" class="form-control mr-2" fxFlex
+							[ngModel]="row.price" [readonly]="isReadOnly" (ngModelChange)="priceChanged(row, $event)">
+					</mat-cell>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<mat-header-cell fxFlex="50px" mat-sort-header *matHeaderCellDef></mat-header-cell>
+					<mat-cell fxFlex="50px" *matCellDef="let row">
+						<button [disabled]="isReadOnly" class="btn btn-danger" (click)="deletePrice(row)"><i
+								class="far fa-trash-alt"></i></button>
+					</mat-cell>
+				</ng-container>
+
+				<mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+				<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+			</mat-table>
+		</div>
+	</mat-dialog-content>
+	<mat-dialog-actions fxLayout fxLayoutGap="10px">
+		<!-- <span fxFlex></span>
+		<button class="btn btn-primary" (click)="save()">
+			<i class="fa fa-save mr-1"></i> Save
+		</button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button> -->
+		<button *ngIf="canAddPrice" [disabled]="isReadOnly" class="btn btn-primary" (click)="addPrice()"><i
+				class="fas fa-plus mr-2"></i>Add
+			Price</button>
+		<span fxFlex></span>
+		<button [disabled]="isReadOnly" class="btn btn-primary" (click)="submit()"><i
+				class="fas fa-save mr-2"></i>Save</button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button>
+	</mat-dialog-actions>
+	<!-- <div class="page-body container-fluid">
+		<div class="panel">
+			<div class="panel-header" fxLayout fxLayoutAlign="start center">
+				<div fxLayout="column" fxFlex>
+					<h1>{{ unitName.value }}</h1>
+					<h2>{{ projectName }}</h2>
+				</div>
+				<div class="sales-status" [ngClass]="formattedSalesStatusName"
+					[class.inhabited]="isInhabited.value === 'Y'">
+					{{ salesStatusName }}
+				</div>
+			</div>
+			<div class="panel-body">
+				<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()"
+					fxLayout="column">
+					<div fxLayout fxLayoutGap="10px">
+						<div fxLayout fxLayoutGap="10px" fxFlex>
+							<div class="form-group required" fxFlex>
+								<label>Company</label>
+								<input class="form-control" [(ngModel)]="companyName"
+									[ngModelOptions]="{standalone: true}" readonly>
+							</div>
+							<div class="form-group required" fxFlex>
+								<label>Project</label>
+								<input class="form-control" [(ngModel)]="projectName"
+									[ngModelOptions]="{standalone: true}" readonly>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px" fxFlex>
+							<div fxLayout fxLayoutGap="10px" fxFlex>
+								<div fxLayout fxLayoutGap="10px" fxFlex>
+									<div class="form-group required" fxFlex>
+										<label>Block Name</label>
+										<input class="form-control" formControlName="blockName"
+											(keyup)="unitNameChanged()" [readonly]="isReadOnly"
+											[class.is-invalid]="blockName.invalid && formSubmitAttempt">
+									</div>
+									<div class="form-group required" fxFlex="80px">
+										<label>Unit No</label>
+										<input class="form-control" formControlName="unitNo" (keyup)="unitNameChanged()"
+											[readonly]="isReadOnly"
+											[class.is-invalid]="unitNo.invalid && formSubmitAttempt">
+									</div>
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Unit Name</label>
+									<input class="form-control" formControlName="unitName" readonly>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div fxLayout fxLayoutGap="10px">
+						<div fxLayout fxLayoutGap="10px" fxFlex>
+							<ng-container *ngIf="isReadOnly">
+								<div class="form-group required" fxFlex>
+									<label>Category</label>
+									<input class="form-control" [(ngModel)]="unitCategoryName"
+										[ngModelOptions]="{standalone: true}" readonly>
+								</div>
+							</ng-container>
+							<ng-container *ngIf="!isReadOnly">
+								<div class="form-group required" fxFlex>
+									<label>Category</label>
+									<select class="form-control" formControlName="unitCategoryId">
+										<option *ngFor="let u of unitCategories" [value]="u.unitCategoryId">{{
+											u.unitCategoryName }}
+										</option>
+									</select>
+								</div>
+							</ng-container>
+							<ng-container *ngIf="isReadOnly">
+								<div class="form-group required" fxFlex>
+									<label>Type</label>
+									<input class="form-control" [(ngModel)]="unitTypeName"
+										[ngModelOptions]="{standalone: true}" readonly>
+								</div>
+							</ng-container>
+							<ng-container *ngIf="!isReadOnly">
+								<div class="form-group required" fxFlex>
+									<label>Type</label>
+									<select class="form-control" formControlName="unitTypeId">
+										<option *ngFor="let t of unitTypes" [value]="t.unitTypeId">{{
+											t.unitTypeName
+											}}</option>
+									</select>
+								</div>
+							</ng-container>
+						</div>
+						<div fxLayout fxLayoutGap="10px" fxFlex>
+							<div fxLayout fxLayoutGap="10px" fxFlex>
+								<div class="form-group required" fxFlex>
+									<label>Land</label>
+									<input class="form-control" formControlName="lt" [readonly]="isReadOnly"
+										[class.is-invalid]="lt.invalid && formSubmitAttempt">
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Building</label>
+									<input class="form-control" formControlName="lb" [readonly]="isReadOnly"
+										[class.is-invalid]="lb.invalid && formSubmitAttempt">
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Floor</label>
+									<input class="form-control" formControlName="floor" [readonly]="isReadOnly"
+										[class.is-invalid]="floor.invalid && formSubmitAttempt">
+								</div>
+							</div>
+							<div fxLayout fxLayoutGap="10px" fxFlex>
+								<div class="form-group required" fxFlex>
+									<label>Bed R.</label>
+									<input class="form-control" formControlName="bedRoom" [readonly]="isReadOnly"
+										[class.is-invalid]="bedRoom.invalid && formSubmitAttempt">
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Bath R.</label>
+									<input class="form-control" formControlName="bathRoom" [readonly]="isReadOnly"
+										[class.is-invalid]="bathRoom.invalid && formSubmitAttempt">
+								</div>
+								<div class="form-group required" fxFlex>
+									<label>Car Port</label>
+									<input class="form-control" formControlName="carPort" [readonly]="isReadOnly"
+										[class.is-invalid]="carPort.invalid && formSubmitAttempt">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div fxLayout fxLayoutGap="10px">
+						<div fxLayout fxLayoutGap="10px" fxFlex>
+							<ng-container *ngIf="isReadOnly">
+								<div class="form-group required" fxFlex>
+									<label>Progress Status</label>
+									<input class="form-control" [ngModel]="progressStatusName"
+										[ngModelOptions]="{standalone: true}" readonly>
+								</div>
+							</ng-container>
+							<ng-container *ngIf="!isReadOnly">
+								<div class="form-group required" fxFlex>
+									<label>Progress Status</label>
+									<select class="form-control" formControlName="progressStatusId"
+										(change)="progressStatusChanged($event)">
+										<option *ngFor="let p of progressStatuses" [value]="p.progressStatusId">{{
+											p.progressStatusName
+											}}
+										</option>
+									</select>
+								</div>
+							</ng-container>
+							<div class="form-group required" fxFlex>
+								<label>Cash Price</label>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text">
+											IDR.
+										</span>
+									</div>
+									<input currencyMask [options]="{ prefix: ''}" class="form-control"
+										formControlName="cashPrice"
+										[class.is-invalid]="cashPrice.invalid && formSubmitAttempt">
+								</div>
+							</div>
+						</div>
+						<div fxLayout fxLayoutGap="10px" fxFlex fxLayoutAlign="start center">
+							<div fxLayout fxLayoutGap="10px" fxFlex>
+								<ng-container *ngIf="isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Hoek</label>
+										<input class="form-control" [(ngModel)]="isHoekName"
+											[ngModelOptions]="{standalone: true}" readonly>
+									</div>
+								</ng-container>
+								<ng-container *ngIf="!isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Hoek</label>
+										<select class="form-control" formControlName="isHoek">
+											<option value="Y">Yes</option>
+											<option value="N">No</option>
+										</select>
+									</div>
+								</ng-container>
+								<ng-container *ngIf="isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Show Unit</label>
+										<input class="form-control" [(ngModel)]="isShowUnitName"
+											[ngModelOptions]="{standalone: true}" readonly>
+									</div>
+								</ng-container>
+								<ng-container *ngIf="!isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Show Unit</label>
+										<select class="form-control" formControlName="isShowUnit">
+											<option value="Y">Yes</option>
+											<option value="N">No</option>
+										</select>
+									</div>
+								</ng-container>
+							</div>
+							<div fxLayout fxLayoutGap="10px" fxFlex>
+								<ng-container *ngIf="isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Inhabited</label>
+										<input class="form-control" [(ngModel)]="isInhabitedName"
+											[ngModelOptions]="{standalone: true}" readonly>
+									</div>
+								</ng-container>
+								<ng-container *ngIf="!isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Inhabited</label>
+										<select class="form-control" formControlName="isInhabited">
+											<option value="Y">Yes</option>
+											<option value="N">No</option>
+										</select>
+									</div>
+								</ng-container>
+								<ng-container *ngIf="isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Open</label>
+										<input class="form-control" [(ngModel)]="isOpenName"
+											[ngModelOptions]="{standalone: true}" readonly>
+									</div>
+								</ng-container>
+								<ng-container *ngIf="!isReadOnly">
+									<div class="form-group required" fxFlex>
+										<label>Is Open</label>
+										<select class="form-control" formControlName="isOpen">
+											<option value="Y">Yes</option>
+											<option value="N">No</option>
+										</select>
+									</div>
+								</ng-container>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="form-group mb-0">
+					<label>Prices</label>
+					<mat-table class="data-grid" #dataGrid [dataSource]="dataSource" matSort matSortDisableClear>
+
+						<ng-container matColumnDef="no">
+							<mat-header-cell fxFlex="60px" mat-sort-header *matHeaderCellDef> No.
+							</mat-header-cell>
+							<mat-cell fxFlex="60px" *matCellDef="let row; let i = index">
+								{{ i + 1 }}
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="paymentPlanId">
+							<mat-header-cell fxFlex="200px" mat-sort-header *matHeaderCellDef>Payment Plan
+							</mat-header-cell>
+							<mat-cell fxFlex="200px" *matCellDef="let row">{{ row.paymentPlanName }}
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="remark">
+							<mat-header-cell fxFlex mat-sort-header *matHeaderCellDef>Remark</mat-header-cell>
+							<mat-cell fxFlex *matCellDef="let row">{{ row.remark }}
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="price">
+							<mat-header-cell fxFlex="200px" mat-sort-header *matHeaderCellDef>Price</mat-header-cell>
+							<mat-cell fxFlex="200px" *matCellDef="let row">
+								<input currencyMask [options]="{ prefix: ''}" class="form-control mr-2" fxFlex
+									[ngModel]="row.price" [readonly]="isReadOnly"
+									(ngModelChange)="priceChanged(row, $event)">
+							</mat-cell>
+						</ng-container>
+
+						<ng-container matColumnDef="actions">
+							<mat-header-cell fxFlex="50px" mat-sort-header *matHeaderCellDef></mat-header-cell>
+							<mat-cell fxFlex="50px" *matCellDef="let row">
+								<button [disabled]="isReadOnly" class="btn btn-danger" (click)="deletePrice(row)"><i
+										class="far fa-trash-alt"></i></button>
+							</mat-cell>
+						</ng-container>
+
+						<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+						<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+					</mat-table>
+				</div>
+			</div>
+			<div class="panel-footer" fxLayout>
+				<button *ngIf="canAddPrice" [disabled]="isReadOnly" class="btn btn-primary" (click)="addPrice()"><i
+						class="fas fa-plus mr-2"></i>Add
+					Price</button>
+				<span fxFlex></span>
+				<button [disabled]="isReadOnly" class="btn btn-primary" (click)="submit()"><i
+						class="fas fa-save mr-2"></i>Save</button>
+			</div>
+		</div>
+	</div> -->
+
+</ng-container>
+<ng-container *ngIf="!isInitialized">
+	<loading></loading>
+</ng-container>

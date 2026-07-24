@@ -1,0 +1,27 @@
+<div fxFlexFill fxLayout="column" fxLayoutAlign="center center">
+	<div class="panel login-box">
+		<div class="panel-body" fxLayoutAlign="center center">
+			<h1>Login</h1>
+		</div>
+		<div *ngIf="errorMessage" class="panel-body error-message">
+			{{ errorMessage }}
+		</div>
+		<div class="separator my-0"></div>
+		<div class="panel-body" fxLayout="column" fxLayoutGap="10px">
+			<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()">
+				<div class="form-group">
+					<label>User Name</label>
+					<input class="form-control" formControlName="userName"
+						[class.is-invalid]="formSubmitAttempt && userName.invalid" />
+				</div>
+				<div class="form-group">
+					<label>Password</label>
+					<input type="password" class="form-control" formControlName="password"
+						[class.is-invalid]="formSubmitAttempt && password.invalid" />
+				</div>
+				<button type="submit" class="btn btn-block btn-primary mt-4"><i
+						class="fas fa-unlock-alt mr-2"></i>Login</button>
+			</form>
+		</div>
+	</div>
+</div>

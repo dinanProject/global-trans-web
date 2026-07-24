@@ -1,0 +1,66 @@
+<h2 mat-dialog-title>{{!registration ? 'Create Link' : registration.salesName}}</h2>
+<mat-dialog-content fxLayout="column">
+	<ng-container *ngIf="isInitialized">
+		<ng-container *ngIf="!registration">
+			<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()" fxLayout="column">
+				<div class="form-group">
+					<label>Sales Name</label>
+					<input class="form-control" formControlName="salesName"
+						[class.is-invalid]="salesName.invalid && formSubmitAttempt" />
+				</div>
+				<div class="form-group">
+					<label>Sales Type</label>
+					<select class="form-control" formControlName="salesInhouseTypeId"
+						[class.is-invalid]="salesInhouseTypeId.invalid && formSubmitAttempt">
+						<option *ngFor="let s of salesInhouseTypes" [value]="s.salesInhouseTypeId">{{
+							s.salesInhouseTypeName }}
+						</option>
+					</select>
+				</div>
+				<div class="form-group mb-0">
+					<label>Team</label>
+					<select class="form-control" formControlName="teamId"
+						[class.is-invalid]="teamId.invalid && formSubmitAttempt">
+						<option *ngFor="let t of teams" [value]="t.teamId">{{ t.teamName }}</option>
+					</select>
+				</div>
+			</form>
+		</ng-container>
+		<ng-container *ngIf="!!registration">
+			<qrcode [qrdata]="link" [errorCorrectionLevel]="'M'" [imageSrc]="'./assets/images/logo-raya-40x40.png'"
+				[imageHeight]="40" [imageWidth]="40" [width]="300">
+			</qrcode>
+			<div fxLayout fxLayoutGap="10px" class="mt-2">
+				<div class="form-group mb-0" fxFlex="120px">
+					<label>Sales Type</label>
+					<input class="form-control" [(ngModel)]="registration.salesInhouseTypeName" readonly>
+				</div>
+				<div class="form-group mb-0" fxFlex>
+					<label>Team</label>
+					<input class="form-control" [(ngModel)]="registration.teamName" readonly>
+				</div>
+			</div>
+			<div class="form-group mb-0">
+				<label>Link</label>
+				<input class="form-control" [(ngModel)]="link">
+			</div>
+		</ng-container>
+	</ng-container>
+	<ng-container *ngIf="!isInitialized">
+		<loading></loading>
+	</ng-container>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout fxLayoutGap="10px">
+	<ng-container *ngIf="!registration">
+		<span fxFlex></span>
+		<loading-button className="btn btn-primary" (click)="submit()" [isLoading]="isSaving">
+			<i class="fa fa-save mr-1"></i> Save
+		</loading-button>
+		<button mat-dialog-close class="btn btn-danger">
+			<i class="fa fa-times mr-1"></i> Close
+		</button>
+	</ng-container>
+	<ng-container *ngIf="!!registration">
+		<button class="btn btn-primary btn-block" [cdkCopyToClipboard]="link">Copy</button>
+	</ng-container>
+</mat-dialog-actions>

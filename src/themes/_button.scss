@@ -1,0 +1,31 @@
+.btn {
+	border-radius: 3px;
+	// &.btn-success {
+	// 	background: #39b54a;
+	// 	background: linear-gradient(180deg,#39b54a,#34aa44);
+	// 	border-color: #249533;
+	// 	&:hover {
+	// 		background: #34a544;
+    // 		background: linear-gradient(180deg,#34a544,#2f9a3e);
+	// 	}
+	// }
+	&.btn-primary {
+		background: #4CA9FF;
+		// background: linear-gradient(180deg,#2ea1f8,#1990ea);
+		border-color: #1a91eb;
+		&:hover {
+			background: #1a98f7;
+    		// background: linear-gradient(180deg,#1a98f7,#1485db);
+		}
+	}
+	// &.btn-danger {
+	// 	background: #f95359;
+	// 	// background: linear-gradient(180deg,#f95359,#d35847);
+	// 	background: linear-gradient(180deg,#f95359,#f82d34);
+	// 	border-color: #d35847;
+	// 	&:hover {
+	// 		background: #f83f46;
+    // 		background: linear-gradient(180deg,#f83f46,#cf4937);
+	// 	}
+	// }
+}
