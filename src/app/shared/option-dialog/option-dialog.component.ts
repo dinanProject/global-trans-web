@@ -1,6 +1,6 @@
 import { Component, ContentChild, Directive, EventEmitter, forwardRef, Input, OnInit, Output, TemplateRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Observable } from 'rxjs';
 import { DialogComponent } from './dialog/dialog.component';
 
