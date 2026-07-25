@@ -7,7 +7,7 @@ import {
 import { Injectable, LOCALE_ID, NgModule } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeId from '@angular/common/locales/id';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import * as Hammer from 'hammerjs';
@@ -60,32 +60,26 @@ export class PatchedGestureConfig extends HammerGestureConfig {
 	};
 }
 
-@NgModule({
-	declarations: [AppComponent, UnauthorizedComponent],
-	imports: [
-		BrowserModule,
-		AppRoutingModule,
-		BrowserAnimationsModule,
-		HttpClientModule,
-		HammerModule,
-		UiModule,
-	],
-	providers: [
-		provideEnvironmentNgxCurrency(currencyConfig),
-		{
-			provide: HTTP_INTERCEPTORS,
-			useClass: AuthInterceptor,
-			multi: true,
-		},
-		{
-			provide: LOCALE_ID,
-			useValue: 'id',
-		},
-		{
-			provide: HAMMER_GESTURE_CONFIG,
-			useClass: PatchedGestureConfig,
-		},
-	],
-	bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [AppComponent, UnauthorizedComponent],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        HammerModule,
+        UiModule], providers: [
+        provideEnvironmentNgxCurrency(currencyConfig),
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptor,
+            multi: true,
+        },
+        {
+            provide: LOCALE_ID,
+            useValue: 'id',
+        },
+        {
+            provide: HAMMER_GESTURE_CONFIG,
+            useClass: PatchedGestureConfig,
+        },
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {}
