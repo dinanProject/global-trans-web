@@ -1,15 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 $animation-number: 0;
-@import 'themes/font';
-@import 'themes/button';
-@import 'themes/panel';
-@import 'themes/table';
+@use "themes/font";
+@use "themes/button";
+@use "themes/panel";
+@use "themes/table";
 
 /* You can add global styles to this file, and also import other style files */
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
-@import '~material-design-icons/iconfont/material-icons.css';
-@import '~roboto-fontface/css/roboto/roboto-fontface.css';
+@import "~material-design-icons/iconfont/material-icons.css";
+@import "~roboto-fontface/css/roboto/roboto-fontface.css";
 // TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
 //  The following line adds:
 //    1. Default typography styles for all components
@@ -26,7 +26,15 @@ $primary: mat.m2-define-palette(mat.$m2-light-blue-palette);
 $accent: mat.m2-define-palette(mat.$m2-orange-palette, A200, A100, A400);
 $warn: mat.m2-define-palette(mat.$m2-red-palette);
 $primary-darker: mat.m2-define-palette(mat.$m2-blue-palette, 600);
-$theme: mat.m2-define-light-theme($primary, $accent, $warn);
+$theme: mat.m2-define-light-theme(
+	(
+		color: (
+			primary: $primary,
+			accent: $accent,
+			warn: $warn,
+		),
+	)
+);
 
 // $custom-typography: mat-typography-config(
 // 	$font-family: 'Poppins, Roboto, monospace'
@@ -38,41 +46,41 @@ $theme: mat.m2-define-light-theme($primary, $accent, $warn);
 
 :root {
 	--border-color: #e6eaee;
-	--blue1: #EDF6FD;
-	--blue2: #C5E5FE;
-	--blue3: #A6DDFF;
-	--blue4: #8BC7FF;
-	--blue5: #61BDFF;
-	--blue6: #4CA9FF;
-	--blue7: #5885DC;
-	--blue8: #007BFF;
-	--blue9: #0062CC;
+	--blue1: #edf6fd;
+	--blue2: #c5e5fe;
+	--blue3: #a6ddff;
+	--blue4: #8bc7ff;
+	--blue5: #61bdff;
+	--blue6: #4ca9ff;
+	--blue7: #5885dc;
+	--blue8: #007bff;
+	--blue9: #0062cc;
 
-	--gray1: #FAFAFA;
-	--gray2: #F5F5F5;
-	--gray3: #E6EAEE;
+	--gray1: #fafafa;
+	--gray2: #f5f5f5;
+	--gray3: #e6eaee;
 	--gray4: #999999;
-	--gray5: #53575E;
+	--gray5: #53575e;
 
-	--gray6: #CED4DA;
+	--gray6: #ced4da;
 
-	--green1: #C5E069;
-	--green2: #7EAD5B;
+	--green1: #c5e069;
+	--green2: #7ead5b;
 
-	--orange1: #F3D9B0;
-	--orange2: #FEB855;
+	--orange1: #f3d9b0;
+	--orange2: #feb855;
 
-	--purple1: #989CDB;
-	--purple2: #B599D8;
-	--purple3: #86549E;
+	--purple1: #989cdb;
+	--purple2: #b599d8;
+	--purple3: #86549e;
 
-	--red1: #FB6A6A;
-	--red2: #D74545;
-	--red3: #FF0000;
-	--red4: #CC0000;
+	--red1: #fb6a6a;
+	--red2: #d74545;
+	--red3: #ff0000;
+	--red4: #cc0000;
 
-	--white: #FFFFFF;
-	--yellow: #FFD35C;
+	--white: #ffffff;
+	--yellow: #ffd35c;
 
 	--background: var(--gray1);
 	--border: var(--gray3);
@@ -85,7 +93,7 @@ $theme: mat.m2-define-light-theme($primary, $accent, $warn);
 	--text-light: var(--gray4);
 	--text-link: var(--blue8);
 
-	--primary: #4CA9FF;
+	--primary: #4ca9ff;
 	--danger: #dc3545;
 	--border-radius: 6px;
 	--border-radius-larger: 8px;
@@ -97,7 +105,7 @@ body {
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
-	font-family: 'Poppins'; //   background-color: #F2F2F2;
+	font-family: "Poppins"; //   background-color: #F2F2F2;
 	font-size: 14px;
 	font-weight: 400;
 	overflow: hidden;
@@ -105,7 +113,6 @@ body {
 }
 
 body {
-
 	h1,
 	h2,
 	h3,
@@ -124,7 +131,7 @@ body {
 	select,
 	button {
 		font-weight: 400;
-		font-family: 'Poppins';
+		font-family: "Poppins";
 		color: #354052;
 		line-height: normal;
 	}
@@ -206,11 +213,10 @@ body {
 
 	.form-group {
 		&.required {
-
 			label:first-child,
-			&>label {
+			& > label {
 				&:after {
-					content: '*';
+					content: "*";
 					float: right;
 					font-size: 12px;
 					margin-left: 4px;
@@ -220,24 +226,24 @@ body {
 		}
 
 		label:first-child,
-		&>label {
+		& > label {
 			font-size: 12px;
 			margin-bottom: 2px;
 
 			&:before {
-				content: ':';
+				content: ":";
 				float: right;
 				font-size: 12px;
 				margin-left: 4px;
 			}
 
 			&.no-colon:before {
-				content: '';
+				content: "";
 				margin-left: 0px;
 			}
 		}
 
-		&>input {
+		& > input {
 			&.uppercase {
 				text-transform: uppercase;
 			}
@@ -247,7 +253,7 @@ body {
 			}
 		}
 
-		&>textarea {
+		& > textarea {
 			resize: none;
 		}
 
@@ -270,10 +276,12 @@ body {
 		.mat-mdc-dialog-title {
 			padding: 10px 20px;
 			margin: 0px;
-			background-color: #FFFFFF;
-			box-shadow: 0 2px 2px rgba(0, 0, 0, .05), 0 1px 0 rgba(0, 0, 0, .05);
+			background-color: #ffffff;
+			box-shadow:
+				0 2px 2px rgba(0, 0, 0, 0.05),
+				0 1px 0 rgba(0, 0, 0, 0.05);
 			color: #354052;
-			font-family: 'Poppins';
+			font-family: "Poppins";
 			font-weight: 400;
 			font-size: 16px;
 			position: relative;
@@ -289,7 +297,9 @@ body {
 
 		.mat-mdc-dialog-actions {
 			background-color: #f2f2f2;
-			box-shadow: 0 -2px 2px rgba(0, 0, 0, .05), 0 -1px 0 rgba(0, 0, 0, .05);
+			box-shadow:
+				0 -2px 2px rgba(0, 0, 0, 0.05),
+				0 -1px 0 rgba(0, 0, 0, 0.05);
 			padding: 10px 20px;
 			position: relative;
 			z-index: 2;
@@ -306,10 +316,10 @@ body {
 
 	.mat-mdc-menu-panel {
 		.mat-mdc-menu-item {
-			font-family: 'Poppins'; //   background-color: #F2F2F2;
+			font-family: "Poppins"; //   background-color: #F2F2F2;
 			outline: none;
 
-			>i {
+			> i {
 				width: 26px;
 			}
 
@@ -339,7 +349,7 @@ body {
 				height: 40px;
 				font-size: 14px;
 				padding: 0 30px 0 20px;
-				color: rgba(0, 0, 0, .7);
+				color: rgba(0, 0, 0, 0.7);
 
 				i {
 					width: 35px;
@@ -378,7 +388,7 @@ body {
 				.logo {
 					width: 35px;
 					height: 35px;
-					background-color: #299EF5;
+					background-color: #299ef5;
 					text-align: center;
 					line-height: 40px;
 					border-radius: 3px;
@@ -401,7 +411,6 @@ body {
 				}
 			}
 		}
-
 	}
 
 	.mat-mdc-table {
@@ -429,7 +438,7 @@ body {
 
 		&::-webkit-scrollbar-thumb {
 			border-radius: 6px;
-			background-color: #4CA9FF;
+			background-color: #4ca9ff;
 		}
 
 		&.scroll-y {
@@ -453,12 +462,14 @@ body {
 			display: flex;
 			place-content: flex-end flex-start;
 			align-items: flex-end;
-			background-color: #FFFFFF;
+			background-color: #ffffff;
 			color: #354052;
-			box-shadow: 0 2px 2px rgb(206 197 197 / 5%), 0 1px 0 rgb(0 0 0 / 5%);
+			box-shadow:
+				0 2px 2px rgb(206 197 197 / 5%),
+				0 1px 0 rgb(0 0 0 / 5%);
 			z-index: 1;
 
-			>.form-group {
+			> .form-group {
 				margin-right: 10px;
 				margin-bottom: 0px;
 			}
@@ -493,7 +504,7 @@ body {
 	.siteplan-save {
 		position: relative;
 		display: inline-block;
-		background-color: #FFFFFF;
+		background-color: #ffffff;
 
 		unit {
 			display: inline-block;
@@ -503,7 +514,7 @@ body {
 	.siteplan-download {
 		position: relative;
 		display: inline-block;
-		background-color: #FFFFFF;
+		background-color: #ffffff;
 
 		.image-cover {
 			width: 100%;
@@ -545,7 +556,7 @@ body {
 					height: 28px;
 					border-radius: 50%;
 					text-decoration: none;
-					color: #FFFFFF;
+					color: #ffffff;
 					font-size: 16px;
 					text-align: center;
 					line-height: 26px;
@@ -693,7 +704,7 @@ body {
 				}
 			}
 
-			&+.unit-tooltip {
+			& + .unit-tooltip {
 				display: none;
 			}
 		}
