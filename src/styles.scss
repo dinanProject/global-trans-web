@@ -17,9 +17,9 @@ $animation-number: 0;
 //  If you specify typography styles for the components you use elsewhere, you should delete this line.
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
-@include mat.all-legacy-component-typographies();
-@include mat.legacy-core();
+//    `@include mat.legacy-typography-hierarchy(mat.define-typography-config());`
+@include mat.all-component-typographies();
+@include mat.core();
 
 $primary: mat.define-palette(mat.$light-blue-palette);
 $accent: mat.define-palette(mat.$orange-palette, A200, A100, A400);
@@ -31,7 +31,7 @@ $theme: mat.define-light-theme($primary, $accent, $warn);
 // 	$font-family: 'Poppins, Roboto, monospace'
 // );
 
-@include mat.all-legacy-component-themes($theme);
+@include mat.all-component-themes($theme);
 // @include mat-base-typography($custom-typography);
 // @include mat-core($custom-typography);
 
@@ -260,13 +260,13 @@ body {
 		background-color: #ffffff;
 	}
 
-	.mat-dialog-container {
+	.mat-mdc-dialog-container {
 		padding: 0px;
 		border-radius: var(--border-radius-larger);
 		background-color: #eff3f6;
 		min-height: 200px;
 
-		.mat-dialog-title {
+		.mat-mdc-dialog-title {
 			padding: 10px 20px;
 			margin: 0px;
 			background-color: #FFFFFF;
@@ -279,14 +279,14 @@ body {
 			z-index: 2;
 		}
 
-		.mat-dialog-content {
+		.mat-mdc-dialog-content {
 			margin: 0px;
 			padding: 20px 20px 20px 20px;
 			position: relative;
 			max-height: 75vh;
 		}
 
-		.mat-dialog-actions {
+		.mat-mdc-dialog-actions {
 			background-color: #f2f2f2;
 			box-shadow: 0 -2px 2px rgba(0, 0, 0, .05), 0 -1px 0 rgba(0, 0, 0, .05);
 			padding: 10px 20px;
@@ -299,12 +299,12 @@ body {
 		}
 	}
 
-	.mat-menu-trigger {
+	.mat-mdc-menu-trigger {
 		outline: none;
 	}
 
-	.mat-menu-panel {
-		.mat-menu-item {
+	.mat-mdc-menu-panel {
+		.mat-mdc-menu-item {
 			font-family: 'Poppins'; //   background-color: #F2F2F2;
 			outline: none;
 
@@ -328,7 +328,7 @@ body {
 		&.user-menu {
 			margin-top: 5px;
 
-			a.mat-menu-item {
+			a.mat-mdc-menu-item {
 				text-decoration: none;
 				place-content: center flex-start;
 				align-items: center;
@@ -362,7 +362,7 @@ body {
 			margin-right: 10px;
 			background-color: #293549;
 
-			a.mat-menu-item {
+			a.mat-mdc-menu-item {
 				text-decoration: none;
 				place-content: center flex-start;
 				align-items: center;
@@ -403,8 +403,8 @@ body {
 
 	}
 
-	.mat-table {
-		.mat-row {
+	.mat-mdc-table {
+		.mat-mdc-row {
 			padding-top: 5px;
 			padding-bottom: 5px;
 
@@ -414,7 +414,7 @@ body {
 		}
 	}
 
-	.mat-checkbox {
+	.mat-mdc-checkbox {
 		label {
 			margin-bottom: 0px;
 		}

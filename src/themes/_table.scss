@@ -1,11 +1,11 @@
-.mat-table {
-	.mat-header-row {
+.mat-mdc-table {
+	.mat-mdc-header-row {
 		background-color: #f5f8fa;
 		height: 42px;
 		min-height: 42px;
 		border-bottom: 1px solid #e6eaee;
-		.mat-header-cell {
-			font-family: 'Poppins';
+		.mat-mdc-header-cell {
+			font-family: "Poppins";
 			color: #7f8fa4;
 			font-size: 14px;
 			font-weight: 500;
@@ -13,26 +13,22 @@
 			border-bottom: none;
 		}
 	}
-	.mat-row {
+	.mat-mdc-row {
 		border-bottom: 1px solid #e6eaee;
 		// border-bottom: none;
 		// padding: 0px 10px;
-		.mat-cell {
+		.mat-mdc-cell {
 			// color: #7f8fa4;
 			color: #354052;
-			font-family: 'Poppins';
+			font-family: "Poppins";
 			font-size: 14px;
 			font-weight: 400;
 			// border-bottom: 1px solid #e6eaee;
 			vertical-align: middle;
 		}
-		.mat-checkbox-inner-container {
-			width: 15px;
-			height: 15px;
-		}
 		@media screen and (min-width: 1280px) {
 			min-height: 35px;
-			.mat-icon-button {
+			.mat-mdc-icon-button {
 				width: 35px;
 				height: 35px;
 				line-height: 35px;
@@ -45,6 +41,7 @@
 					font-size: 18px;
 				}
 			}
+			/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
 			.mat-checkbox-inner-container {
 				width: 15px;
 				height: 15px;
