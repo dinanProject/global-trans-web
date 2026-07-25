@@ -21,11 +21,11 @@ $animation-number: 0;
 @include mat.all-component-typographies();
 @include mat.core();
 
-$primary: mat.define-palette(mat.$light-blue-palette);
-$accent: mat.define-palette(mat.$orange-palette, A200, A100, A400);
-$warn: mat.define-palette(mat.$red-palette);
-$primary-darker: mat.define-palette(mat.$blue-palette, 600);
-$theme: mat.define-light-theme($primary, $accent, $warn);
+$primary: mat.m2-define-palette(mat.$m2-light-blue-palette);
+$accent: mat.m2-define-palette(mat.$m2-orange-palette, A200, A100, A400);
+$warn: mat.m2-define-palette(mat.$m2-red-palette);
+$primary-darker: mat.m2-define-palette(mat.$m2-blue-palette, 600);
+$theme: mat.m2-define-light-theme($primary, $accent, $warn);
 
 // $custom-typography: mat-typography-config(
 // 	$font-family: 'Poppins, Roboto, monospace'
