@@ -11,18 +11,35 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import * as Hammer from 'hammerjs';
-import { CurrencyMaskConfig, NgxCurrencyModule } from 'ngx-currency';
+
+import {
+	NgxCurrencyInputMode,
+	provideEnvironmentNgxCurrency,
+} from 'ngx-currency';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UiModule } from './shared/ui.module';
 
-import { NotFoundComponent } from './routes/public/not-found.component';
 import { UnauthorizedComponent } from './routes/public/unauthorized.component';
-
 import { AuthInterceptor } from './core/interceptors/auth-interceptor';
 
 registerLocaleData(localeId, 'id');
+
+const currencyConfig = {
+	align: 'right',
+	allowNegative: false,
+	allowZero: true,
+	decimal: ',',
+	precision: 0,
+	prefix: 'Rp ',
+	suffix: '',
+	thousands: '.',
+	nullable: true,
+	min: 0,
+	max: 999999999999,
+	inputMode: NgxCurrencyInputMode.Natural,
+};
 
 @Injectable()
 export class PatchedGestureConfig extends HammerGestureConfig {
@@ -43,18 +60,6 @@ export class PatchedGestureConfig extends HammerGestureConfig {
 	};
 }
 
-export const customCurrencyMaskConfig: CurrencyMaskConfig = {
-	align: 'right',
-	allowNegative: true,
-	allowZero: true,
-	decimal: ',',
-	precision: 0,
-	prefix: '',
-	suffix: '',
-	thousands: '.',
-	nullable: true,
-};
-
 @NgModule({
 	declarations: [AppComponent, UnauthorizedComponent],
 	imports: [
@@ -64,9 +69,9 @@ export const customCurrencyMaskConfig: CurrencyMaskConfig = {
 		HttpClientModule,
 		HammerModule,
 		UiModule,
-		NgxCurrencyModule.forRoot(customCurrencyMaskConfig),
 	],
 	providers: [
+		provideEnvironmentNgxCurrency(currencyConfig),
 		{
 			provide: HTTP_INTERCEPTORS,
 			useClass: AuthInterceptor,
