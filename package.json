@@ -1,13 +1,11 @@
 {
-	"name": "raya",
-	"version": "0.0.0",
+	"name": "GlobalTrans",
+	"version": "0.0.1",
 	"scripts": {
-		"ng": "ng",
-		"start": "ng serve --host 0.0.0.0 --disable-host-check",
-		"build": "ng build",
-		"test": "ng test",
-		"lint": "ng lint",
-		"e2e": "ng e2e"
+    	"start": "ng serve",
+    	"local": "ng serve --configuration=local",
+    	"dev": "ng serve --configuration=development",
+    	"global-trans": "ng serve"
 	},
 	"private": true,
 	"dependencies": {

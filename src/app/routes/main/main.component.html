@@ -1,0 +1,149 @@
+<div class="page-container" fxFlexFill>
+	<mat-sidenav-container fxFlex fxLayout>
+		<mat-sidenav
+			#sidebar
+			[mode]="getSidebarMode()"
+			[opened]="isSidebarOpened()"
+			fxFlex="300px"
+		>
+			<div class="sidebar" fxFlexFill fxLayout="column">
+				<div
+					class="site"
+					fxFlex="70px"
+					fxLayout
+					fxLayoutAlign="start center"
+					fxLayoutGap="15px"
+				>
+					<div class="logo" fxLayout="column">
+						<img
+							src="assets/images/logo-raya-40x40.png"
+							alt="Global Trans"
+						/>
+					</div>
+
+					<h1 fxFlex>Global Trans</h1>
+				</div>
+
+				<div
+					class="sidebar-inner scroll scroll-y"
+					fxLayout="column"
+					fxFlex
+				>
+					<div class="sidebar-menus">
+						<ul class="menus">
+							<li>
+								<a
+									routerLink="/main"
+									routerLinkActive="active"
+									[routerLinkActiveOptions]="{ exact: true }"
+								>
+									<i class="fas fa-home"></i>
+									<span>Dashboard</span>
+								</a>
+							</li>
+
+							<li>
+								<a
+									routerLink="/main/reservations"
+									routerLinkActive="active"
+								>
+									<i class="fas fa-calendar-check"></i>
+									<span>Reservation</span>
+								</a>
+							</li>
+
+							<li>
+								<a
+									routerLink="/main/tracking"
+									routerLinkActive="active"
+								>
+									<i class="fas fa-map-marker-alt"></i>
+									<span>Tracking</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</mat-sidenav>
+
+		<mat-sidenav-content fxFlex fxLayout="column">
+			<mat-toolbar
+				fxLayout
+				fxLayoutAlign="start center"
+				fxFlex="70px"
+				class="p-0"
+			>
+				<div
+					class="logo-raya"
+					(click)="toggleSidebar()"
+					fxFlex="70px"
+					fxLayoutAlign="center center"
+				>
+					<img
+						src="assets/images/logo-raya-40x40.png"
+						alt="Global Trans"
+					/>
+				</div>
+
+				<div class="toolbar-separator" fxHide.lt-lg></div>
+
+				<div
+					fxFlex
+					fxLayout="column"
+					fxLayoutAlign="center start"
+					class="px-0 px-lg-4"
+				>
+					<h1>{{ getToolbarTitle() }}</h1>
+					<h2>{{ getToolbarSubtitle() }}</h2>
+				</div>
+
+				<ng-container *ngIf="user">
+					<div
+						class="user"
+						[matMenuTriggerFor]="userMenu"
+						fxLayout
+						fxLayoutAlign="start center"
+						fxLayoutGap="10px"
+					>
+						<div class="user-detail">
+							<h1 fxHide.lt-lg>
+								{{ user.fullName }}
+							</h1>
+
+							<h2 fxHide.lt-lg>
+								{{ user.email }}
+							</h2>
+						</div>
+
+						<div
+							class="user-avatar"
+							fxLayout
+							fxLayoutAlign="center center"
+						>
+							{{ user.fullName.charAt(0).toUpperCase() }}
+						</div>
+
+						<i class="fas fa-chevron-down"></i>
+					</div>
+
+					<mat-menu
+						#userMenu="matMenu"
+						xPosition="before"
+						class="user-menu"
+					>
+						<button mat-menu-item type="button" (click)="logout()">
+							<i class="fas fa-power-off"></i>
+							Logout
+						</button>
+					</mat-menu>
+				</ng-container>
+			</mat-toolbar>
+
+			<div class="page-content" fxFlex>
+				<h1>Welcome</h1>
+				<p>Main layout is working.</p>
+			</div>
+		</mat-sidenav-content>
+	</mat-sidenav-container>
+</div>

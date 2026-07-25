@@ -1,66 +1,73 @@
-import { Component, OnInit, Injectable } from '@angular/core';
-import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+
+import { SessionService } from 'src/app/core/services/session.service';
 import { LoginService } from './login.service';
-import { Title } from '@angular/platform-browser';
-import { Client, SessionService, User } from 'src/app/services/session.service';
 
 @Component({
 	selector: 'app-login',
 	templateUrl: './login.component.html',
-	styleUrls: ['./login.component.scss']
+	styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-
-	formGroup: UntypedFormGroup;
-	userName: UntypedFormControl;
-	password: UntypedFormControl;
-
-	formSubmitAttempt: boolean;
-	errorMessage: string;
-	returnUrl: string;
+	formGroup!: FormGroup;
+	isSubmitting = false;
+	errorMessage = '';
+	returnUrl = '/backend';
 
 	constructor(
+		private formBuilder: FormBuilder,
 		private activatedRoute: ActivatedRoute,
-		private formBuilder: UntypedFormBuilder,
+		private router: Router,
 		private loginService: LoginService,
 		private sessionService: SessionService,
-		private router: Router,
-		private titleService: Title
-	) {
-	}
+	) {}
 
-	ngOnInit() {
-		this.titleService.setTitle('Authentication');
-		this.returnUrl = this.activatedRoute.snapshot.queryParamMap.get('return-url') || '';
+	ngOnInit(): void {
+		this.returnUrl =
+			this.activatedRoute.snapshot.queryParamMap.get('returnUrl') ||
+			'/backend';
+
 		if (this.sessionService.isAuth()) {
-			return this.router.navigateByUrl(this.returnUrl);
-		}
-		this.userName = new UntypedFormControl('', [Validators.required]);
-		this.password = new UntypedFormControl('', [Validators.required]);
-		this.formGroup = this.formBuilder.group({
-			userName: this.userName,
-			password: this.password
-		});
-	}
-
-	submit() {
-		this.formSubmitAttempt = true;
-		this.errorMessage = '';
-		if (this.formGroup.invalid) {
-			this.errorMessage = 'Please fill both the username and password field';
+			this.router.navigateByUrl(this.returnUrl);
 			return;
 		}
 
-		const credentials = this.formGroup.value;
-		this.loginService.login(credentials.userName, credentials.password)
-			.subscribe((result: { user: User, client: Client }) => {
-				this.sessionService.setUser(result.user);
-				this.sessionService.setClient(result.client);
-				this.router.navigateByUrl(this.returnUrl || result.user.defaultRoute || '/backend');
-			}, err => {
-				this.errorMessage = err.error.data;
-			})
+		this.formGroup = this.formBuilder.group({
+			email: ['', [Validators.required, Validators.email]],
+			password: ['', [Validators.required]],
+		});
 	}
 
+	submit(): void {
+		if (this.formGroup.invalid || this.isSubmitting) {
+			this.formGroup.markAllAsTouched();
+			return;
+		}
+
+		this.isSubmitting = true;
+		this.errorMessage = '';
+
+		this.loginService.login(this.formGroup.getRawValue()).subscribe({
+			next: (response) => {
+				this.sessionService.setSession({
+					user: response.user,
+					accessToken: response.accessToken,
+					refreshToken: response.refreshToken,
+				});
+
+				this.router.navigateByUrl(this.returnUrl);
+			},
+			error: (error) => {
+				this.isSubmitting = false;
+
+				this.errorMessage =
+					error?.error?.meta?.message ||
+					error?.error?.message ||
+					error?.message ||
+					'Email atau password tidak valid.';
+			},
+		});
+	}
 }

@@ -1,27 +1,64 @@
-<div fxFlexFill fxLayout="column" fxLayoutAlign="center center">
-	<div class="panel login-box">
-		<div class="panel-body" fxLayoutAlign="center center">
-			<h1>Login</h1>
-		</div>
-		<div *ngIf="errorMessage" class="panel-body error-message">
-			{{ errorMessage }}
-		</div>
-		<div class="separator my-0"></div>
-		<div class="panel-body" fxLayout="column" fxLayoutGap="10px">
-			<form [formGroup]="formGroup" novalidate class="needs-validation" (ngSubmit)="submit()">
-				<div class="form-group">
-					<label>User Name</label>
-					<input class="form-control" formControlName="userName"
-						[class.is-invalid]="formSubmitAttempt && userName.invalid" />
+<div class="login-page">
+	<div class="login-card">
+		<h1>Global Trans</h1>
+		<p>Silakan masuk ke akun Anda</p>
+
+		<form [formGroup]="formGroup" (ngSubmit)="submit()">
+			<div class="form-group">
+				<label for="email"> Email </label>
+
+				<input
+					id="email"
+					type="email"
+					formControlName="email"
+					autocomplete="username"
+				/>
+
+				<div
+					class="error-message"
+					*ngIf="
+						formGroup.get('email')?.touched &&
+						formGroup.get('email')?.invalid
+					"
+				>
+					<span *ngIf="formGroup.get('email')?.hasError('required')">
+						Email wajib diisi.
+					</span>
+
+					<span *ngIf="formGroup.get('email')?.hasError('email')">
+						Format email tidak valid.
+					</span>
 				</div>
-				<div class="form-group">
-					<label>Password</label>
-					<input type="password" class="form-control" formControlName="password"
-						[class.is-invalid]="formSubmitAttempt && password.invalid" />
+			</div>
+
+			<div class="form-group">
+				<label for="password"> Password </label>
+
+				<input
+					id="password"
+					type="password"
+					formControlName="password"
+					autocomplete="current-password"
+				/>
+
+				<div
+					class="error-message"
+					*ngIf="
+						formGroup.get('password')?.touched &&
+						formGroup.get('password')?.invalid
+					"
+				>
+					Password wajib diisi.
 				</div>
-				<button type="submit" class="btn btn-block btn-primary mt-4"><i
-						class="fas fa-unlock-alt mr-2"></i>Login</button>
-			</form>
-		</div>
+			</div>
+
+			<div class="error-message server-error" *ngIf="errorMessage">
+				{{ errorMessage }}
+			</div>
+
+			<button type="submit" [disabled]="isSubmitting">
+				{{ isSubmitting ? "Memproses..." : "Login" }}
+			</button>
+		</form>
 	</div>
 </div>
