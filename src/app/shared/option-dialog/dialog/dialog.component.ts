@@ -6,9 +6,10 @@ import { Observable } from 'rxjs';
 import { OptionDirective } from '../option-dialog.component';
 
 @Component({
-	selector: 'app-dialog',
-	templateUrl: './dialog.component.html',
-	styleUrls: ['./dialog.component.scss']
+    selector: 'app-dialog',
+    templateUrl: './dialog.component.html',
+    styleUrls: ['./dialog.component.scss'],
+    standalone: false
 })
 export class DialogComponent<T> implements OnInit {
 

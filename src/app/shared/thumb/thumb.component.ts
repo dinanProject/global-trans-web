@@ -1,10 +1,11 @@
 import { Component, OnInit, HostBinding, Input, AfterViewInit, ElementRef } from '@angular/core';
 
 @Component({
-	// tslint:disable-next-line:component-selector
-	selector: 'thumb',
-	templateUrl: './thumb.component.html',
-	styleUrls: ['./thumb.component.scss']
+    // tslint:disable-next-line:component-selector
+    selector: 'thumb',
+    templateUrl: './thumb.component.html',
+    styleUrls: ['./thumb.component.scss'],
+    standalone: false
 })
 export class ThumbComponent implements OnInit, AfterViewInit {
 

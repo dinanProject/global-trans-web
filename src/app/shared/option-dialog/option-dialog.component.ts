@@ -5,7 +5,8 @@ import { Observable } from 'rxjs';
 import { DialogComponent } from './dialog/dialog.component';
 
 @Directive({
-	selector: '[option]'
+    selector: '[option]',
+    standalone: false
 })
 export class OptionDirective { }
 export interface OptionItem {
@@ -16,19 +17,20 @@ export interface OptionItem {
 export type OnOptionAdd = (optionName: string) => Promise<any>;
 export type OnOptionChanged<T> = (option: T) => Promise<T>;
 @Component({
-	selector: 'option-dialog',
-	templateUrl: './option-dialog.component.html',
-	styleUrls: ['./option-dialog.component.scss'],
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			multi: true,
-			useExisting: forwardRef(() => OptionDialogComponent),
-		}
-	],
-	host: {
-		'(change)': 'onChange()'
-	}
+    selector: 'option-dialog',
+    templateUrl: './option-dialog.component.html',
+    styleUrls: ['./option-dialog.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            multi: true,
+            useExisting: forwardRef(() => OptionDialogComponent),
+        }
+    ],
+    host: {
+        '(change)': 'onChange()'
+    },
+    standalone: false
 })
 export class OptionDialogComponent<T> implements ControlValueAccessor {
 

@@ -3,9 +3,10 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-	selector: 'app-confirm',
-	templateUrl: './confirm.component.html',
-	styleUrls: ['./confirm.component.scss']
+    selector: 'app-confirm',
+    templateUrl: './confirm.component.html',
+    styleUrls: ['./confirm.component.scss'],
+    standalone: false
 })
 export class ConfirmComponent implements OnInit {
 

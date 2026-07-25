@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 @Component({
-	selector: 'image-holder',
-	templateUrl: './image-holder.component.html',
-	styleUrls: ['./image-holder.component.scss']
+    selector: 'image-holder',
+    templateUrl: './image-holder.component.html',
+    styleUrls: ['./image-holder.component.scss'],
+    standalone: false
 })
 export class ImageHolderComponent implements OnInit, AfterViewInit, OnChanges {
 

@@ -1,9 +1,10 @@
 import { Component, EventEmitter, HostBinding, HostListener, Input, OnInit, Output } from '@angular/core';
 
 @Component({
-	selector: 'loading-button',
-	templateUrl: './loading-button.component.html',
-	styleUrls: ['./loading-button.component.scss']
+    selector: 'loading-button',
+    templateUrl: './loading-button.component.html',
+    styleUrls: ['./loading-button.component.scss'],
+    standalone: false
 })
 export class LoadingButtonComponent implements OnInit {
 

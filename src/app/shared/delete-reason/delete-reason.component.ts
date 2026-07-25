@@ -3,9 +3,10 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-	selector: 'app-delete-reason',
-	templateUrl: './delete-reason.component.html',
-	styleUrls: ['./delete-reason.component.scss']
+    selector: 'app-delete-reason',
+    templateUrl: './delete-reason.component.html',
+    styleUrls: ['./delete-reason.component.scss'],
+    standalone: false
 })
 export class DeleteReasonComponent implements OnInit {
 
