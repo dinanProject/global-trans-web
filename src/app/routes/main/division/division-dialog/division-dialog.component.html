@@ -1,0 +1,121 @@
+<h2 mat-dialog-title>
+	{{ isEdit ? "Edit Division" : "Add Division" }}
+</h2>
+
+<form [formGroup]="formGroup" (ngSubmit)="submit()">
+	<mat-dialog-content>
+		<div class="row">
+			<div class="col-12">
+				<div class="form-group required">
+					<label>Company</label>
+
+					<select
+						class="form-control"
+						formControlName="companyUuid"
+						[class.is-invalid]="isInvalid('companyUuid')"
+					>
+						<option value="" disabled>Select company</option>
+
+						@for (company of data.companies; track company.uuid) {
+							<option [value]="company.uuid">
+								{{ company.name }} — {{ company.code }}
+								{{ company.isActive ? "" : "(Inactive)" }}
+							</option>
+						}
+					</select>
+
+					<div
+						*ngIf="isInvalid('companyUuid')"
+						class="invalid-feedback"
+					>
+						Company wajib dipilih.
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-5">
+				<div class="form-group required">
+					<label>Code</label>
+
+					<input
+						type="text"
+						class="form-control uppercase"
+						formControlName="code"
+						[class.is-invalid]="isInvalid('code')"
+						placeholder="OPERATIONS"
+						autocomplete="off"
+						(input)="onCodeInput($event)"
+					/>
+
+					<div *ngIf="isInvalid('code')" class="invalid-feedback">
+						Code wajib diisi, maksimal 50 karakter.
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-7">
+				<div class="form-group required">
+					<label>Division Name</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="name"
+						[class.is-invalid]="isInvalid('name')"
+						placeholder="Operations"
+						autocomplete="off"
+					/>
+
+					<div *ngIf="isInvalid('name')" class="invalid-feedback">
+						Division name wajib diisi.
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="form-group">
+					<label>Description</label>
+
+					<textarea
+						class="form-control"
+						formControlName="description"
+						rows="4"
+						maxlength="500"
+						placeholder="Division description..."
+					></textarea>
+
+					<div class="character-count">
+						{{
+							formGroup.controls.description.value?.length ?? 0
+						}}/500
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="form-group active-field">
+					<label class="no-colon">Active</label>
+
+					<mat-slide-toggle formControlName="isActive">
+						{{
+							formGroup.controls.isActive.value
+								? "Active"
+								: "Inactive"
+						}}
+					</mat-slide-toggle>
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<button type="button" class="btn btn-light mr-2" (click)="close()">
+			Cancel
+		</button>
+
+		<button type="submit" class="btn btn-primary">
+			<i class="fas fa-save mr-1"></i>
+			Save
+		</button>
+	</mat-dialog-actions>
+</form>

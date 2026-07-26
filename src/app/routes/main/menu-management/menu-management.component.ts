@@ -189,7 +189,7 @@ export class MenuManagementComponent implements OnInit, OnDestroy {
 						'Error',
 						error?.error?.meta?.message ??
 							'Menu gagal dinonaktifkan.',
-						'danger',
+						'error',
 					);
 				},
 			});

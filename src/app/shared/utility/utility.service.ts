@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { firstValueFrom } from 'rxjs';
 
 import {
 	UtilityDialogComponent,
 	UtilityDialogData,
 } from './utility-dialog.component';
 
-export type UtilityType = 'information' | 'success' | 'warning' | 'danger';
+export type UtilityType = 'success' | 'warning' | 'error' | 'information';
 
 @Injectable({
 	providedIn: 'root',
@@ -18,10 +17,15 @@ export class UtilityService {
 	alert(
 		title: string,
 		description: string,
-		type: UtilityType,
-	): Promise<boolean | void> {
-		const dialogRef = this.dialog.open(UtilityDialogComponent, {
-			width: '430px',
+		type: UtilityType = 'information',
+	): Promise<void> {
+		const dialogRef = this.dialog.open<
+			UtilityDialogComponent,
+			UtilityDialogData,
+			boolean
+		>(UtilityDialogComponent, {
+			width: '420px',
+			maxWidth: '95vw',
 			disableClose: true,
 			data: {
 				mode: 'alert',
@@ -29,19 +33,27 @@ export class UtilityService {
 				description,
 				type,
 				confirmText: 'OK',
-			} satisfies UtilityDialogData,
+			},
 		});
 
-		return firstValueFrom(dialogRef.afterClosed());
+		return dialogRef
+			.afterClosed()
+			.toPromise()
+			.then(() => undefined);
 	}
 
 	confirm(
 		title: string,
 		description: string,
-		type: UtilityType,
+		type: UtilityType = 'warning',
 	): Promise<boolean | void> {
-		const dialogRef = this.dialog.open(UtilityDialogComponent, {
-			width: '430px',
+		const dialogRef = this.dialog.open<
+			UtilityDialogComponent,
+			UtilityDialogData,
+			boolean
+		>(UtilityDialogComponent, {
+			width: '420px',
+			maxWidth: '95vw',
 			disableClose: true,
 			data: {
 				mode: 'confirm',
@@ -50,28 +62,9 @@ export class UtilityService {
 				type,
 				cancelText: 'Cancel',
 				confirmText: 'Confirm',
-			} satisfies UtilityDialogData,
+			},
 		});
 
-		return firstValueFrom(dialogRef.afterClosed());
-	}
-
-	uuidv4(): string {
-		if (
-			typeof crypto !== 'undefined' &&
-			typeof crypto.randomUUID === 'function'
-		) {
-			return crypto.randomUUID();
-		}
-
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-			/[xy]/g,
-			(character) => {
-				const random = (Math.random() * 16) | 0;
-				const value = character === 'x' ? random : (random & 0x3) | 0x8;
-
-				return value.toString(16);
-			},
-		);
+		return dialogRef.afterClosed().toPromise();
 	}
 }

@@ -1,0 +1,257 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<h5>Division</h5>
+			<small class="text-secondary">
+				Manage company divisions and organizational structure.
+			</small>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-primary"
+			[disabled]="isLoading || companies.length === 0"
+			(click)="openCreateDialog()"
+		>
+			<i class="fas fa-plus mr-1"></i>
+			Add Division
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<panel>
+		<panel-filter>
+			<div class="filter-content">
+				<div class="filter-fields">
+					<div class="form-group search-field">
+						<label>Search</label>
+
+						<div class="input-group">
+							<input
+								type="text"
+								class="form-control"
+								[formControl]="search"
+								placeholder="Search division..."
+							/>
+
+							<div class="input-group-append">
+								<span class="input-group-text">
+									<i class="fas fa-search"></i>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group company-field">
+						<label>Company</label>
+
+						<select
+							class="form-control"
+							[formControl]="companyUuid"
+						>
+							<option value="all">All Companies</option>
+
+							@for (company of companies; track company.uuid) {
+								<option [value]="company.uuid">
+									{{ company.name }}
+								</option>
+							}
+						</select>
+					</div>
+
+					<div class="form-group status-field">
+						<label>Status</label>
+
+						<select class="form-control" [formControl]="status">
+							<option value="all">All Statuses</option>
+							<option value="active">Active</option>
+							<option value="inactive">Inactive</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="filter-actions">
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="resetFilters()"
+					>
+						<i class="fas fa-undo mr-1"></i>
+						Reset
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="loadData()"
+					>
+						<i class="fas fa-sync-alt mr-1"></i>
+						Refresh
+					</button>
+				</div>
+			</div>
+		</panel-filter>
+
+		<panel-body class="panel-body-no-padding">
+			<div *ngIf="errorMessage" class="error-message m-3">
+				{{ errorMessage }}
+			</div>
+
+			<div *ngIf="isLoading" class="loading-container">
+				<loading text="Loading divisions..."></loading>
+			</div>
+
+			<div *ngIf="!isLoading" class="table-responsive">
+				<table
+					mat-table
+					[dataSource]="filteredDivisions"
+					[trackBy]="trackByDivisionId"
+					class="w-100 division-table p-0"
+				>
+					<ng-container matColumnDef="name">
+						<th mat-header-cell *matHeaderCellDef>Division</th>
+
+						<td mat-cell *matCellDef="let division">
+							<div class="division-name-cell">
+								<span class="division-icon">
+									<i class="fas fa-sitemap"></i>
+								</span>
+
+								<div>
+									<h6>{{ division.name }}</h6>
+
+									<small class="text-secondary">
+										{{ division.code }}
+									</small>
+								</div>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="code">
+						<th mat-header-cell *matHeaderCellDef>Code</th>
+
+						<td mat-cell *matCellDef="let division">
+							<code>{{ division.code }}</code>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="company">
+						<th mat-header-cell *matHeaderCellDef>Company</th>
+
+						<td mat-cell *matCellDef="let division">
+							<div>
+								<h6>{{ division.companyName }}</h6>
+
+								<small class="text-secondary">
+									{{ division.companyCode }}
+								</small>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="description">
+						<th mat-header-cell *matHeaderCellDef>Description</th>
+
+						<td mat-cell *matCellDef="let division">
+							<span
+								*ngIf="division.description; else noDescription"
+							>
+								{{ division.description }}
+							</span>
+
+							<ng-template #noDescription>
+								<span class="text-secondary">—</span>
+							</ng-template>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="status">
+						<th mat-header-cell *matHeaderCellDef>Status</th>
+
+						<td mat-cell *matCellDef="let division">
+							<span
+								class="status-indicator"
+								[class.active]="division.isActive"
+								[class.inactive]="!division.isActive"
+							>
+								<span class="status-dot"></span>
+
+								{{ division.isActive ? "Active" : "Inactive" }}
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<th
+							mat-header-cell
+							*matHeaderCellDef
+							class="action-column"
+						>
+							Actions
+						</th>
+
+						<td
+							mat-cell
+							*matCellDef="let division"
+							class="action-column"
+						>
+							<button
+								type="button"
+								class="btn btn-sm btn-light"
+								[matMenuTriggerFor]="actionMenu"
+							>
+								<i class="fas fa-ellipsis-v"></i>
+							</button>
+
+							<mat-menu #actionMenu="matMenu">
+								<button
+									mat-menu-item
+									(click)="openEditDialog(division)"
+								>
+									<i class="fas fa-edit mr-2"></i>
+									<span>Edit</span>
+								</button>
+
+								<button
+									mat-menu-item
+									class="menu-danger"
+									[disabled]="!division.isActive"
+									(click)="deactivateDivision(division)"
+								>
+									<i class="fas fa-ban mr-2"></i>
+									<span>Deactivate</span>
+								</button>
+							</mat-menu>
+						</td>
+					</ng-container>
+
+					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+					<tr
+						mat-row
+						*matRowDef="let row; columns: displayedColumns"
+					></tr>
+				</table>
+
+				<div *ngIf="filteredDivisions.length === 0" class="empty-state">
+					<i class="fas fa-sitemap"></i>
+
+					<h5>No division found</h5>
+
+					<p>Create a division or adjust your filters.</p>
+				</div>
+			</div>
+		</panel-body>
+
+		<panel-footer>
+			<small class="text-secondary">
+				{{ filteredDivisions.length }} displayed from
+				{{ divisions.length }} divisions
+			</small>
+		</panel-footer>
+	</panel>
+</page-body>

@@ -22,6 +22,20 @@ const routes: Routes = [
 						(m) => m.MenuManagementModule,
 					),
 			},
+			{
+				path: 'company',
+				loadChildren: () =>
+					import('./company/company.module').then(
+						(module) => module.CompanyModule,
+					),
+			},
+			{
+				path: 'division',
+				loadChildren: () =>
+					import('./division/division.module').then(
+						(module) => module.DivisionModule,
+					),
+			},
 		],
 	},
 ];

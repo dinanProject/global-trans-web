@@ -1,0 +1,260 @@
+<h2 mat-dialog-title>
+	{{ isEdit ? "Edit Company" : "Add Company" }}
+</h2>
+
+<form [formGroup]="formGroup" (ngSubmit)="submit()">
+	<mat-dialog-content>
+		<div class="row">
+			<div class="col-md-4">
+				<div class="form-group required">
+					<label>Company Type</label>
+
+					<select
+						class="form-control"
+						formControlName="typeId"
+						[class.is-invalid]="isInvalid('typeId')"
+					>
+						<option [ngValue]="null" disabled>
+							Select company type
+						</option>
+
+						@for (
+							companyType of data.companyTypes;
+							track companyType.id
+						) {
+							<option [ngValue]="companyType.id">
+								{{ companyType.name }} —
+								{{ companyType.code }}
+							</option>
+						}
+					</select>
+
+					@if (isInvalid("typeId")) {
+						<div class="invalid-feedback">
+							Company type wajib dipilih.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="form-group required">
+					<label>Code</label>
+
+					<input
+						type="text"
+						class="form-control uppercase"
+						formControlName="code"
+						[class.is-invalid]="isInvalid('code')"
+						placeholder="GTSI"
+						autocomplete="off"
+						(input)="onCodeInput($event)"
+					/>
+
+					@if (isInvalid("code")) {
+						<div class="invalid-feedback">
+							Code wajib diisi, maksimal 50 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-5">
+				<div class="form-group required">
+					<label>Company Name</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="name"
+						[class.is-invalid]="isInvalid('name')"
+						placeholder="GTSI Indonesia"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("name")) {
+						<div class="invalid-feedback">
+							Company name wajib diisi, maksimal 150 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Tax Number</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="taxNumber"
+						[class.is-invalid]="isInvalid('taxNumber')"
+						placeholder="Tax number"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("taxNumber")) {
+						<div class="invalid-feedback">
+							Tax number maksimal 50 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Email</label>
+
+					<input
+						type="email"
+						class="form-control"
+						formControlName="email"
+						[class.is-invalid]="isInvalid('email')"
+						placeholder="company@example.com"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("email")) {
+						<div class="invalid-feedback">
+							Email tidak valid atau melebihi 150 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Phone</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="phone"
+						[class.is-invalid]="isInvalid('phone')"
+						placeholder="+62"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("phone")) {
+						<div class="invalid-feedback">
+							Phone maksimal 50 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="form-group">
+					<label>Address</label>
+
+					<textarea
+						class="form-control"
+						formControlName="address"
+						[class.is-invalid]="isInvalid('address')"
+						rows="3"
+						maxlength="500"
+						placeholder="Company address..."
+					></textarea>
+
+					@if (isInvalid("address")) {
+						<div class="invalid-feedback">
+							Address maksimal 500 karakter.
+						</div>
+					}
+
+					<div class="character-count">
+						{{ formGroup.controls.address.value?.length ?? 0 }}/500
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-5">
+				<div class="form-group">
+					<label>City</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="city"
+						[class.is-invalid]="isInvalid('city')"
+						placeholder="Jakarta"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("city")) {
+						<div class="invalid-feedback">
+							City maksimal 100 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-5">
+				<div class="form-group">
+					<label>Province</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="province"
+						[class.is-invalid]="isInvalid('province')"
+						placeholder="DKI Jakarta"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("province")) {
+						<div class="invalid-feedback">
+							Province maksimal 100 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-2">
+				<div class="form-group">
+					<label>Postal Code</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="postalCode"
+						[class.is-invalid]="isInvalid('postalCode')"
+						placeholder="12345"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("postalCode")) {
+						<div class="invalid-feedback">
+							Postal code maksimal 20 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="form-group active-field">
+					<label class="no-colon">Active</label>
+
+					<mat-slide-toggle formControlName="isActive">
+						{{
+							formGroup.controls.isActive.value
+								? "Active"
+								: "Inactive"
+						}}
+					</mat-slide-toggle>
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<button type="button" class="btn btn-light mr-2" (click)="close()">
+			Cancel
+		</button>
+
+		<button type="submit" class="btn btn-primary">
+			<i class="fas fa-save mr-1"></i>
+			Save
+		</button>
+	</mat-dialog-actions>
+</form>

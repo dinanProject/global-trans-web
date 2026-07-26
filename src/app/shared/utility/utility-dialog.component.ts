@@ -33,9 +33,10 @@ export class UtilityDialogComponent {
 			case 'warning':
 				return 'fas fa-exclamation-triangle';
 
-			case 'danger':
+			case 'error':
 				return 'fas fa-times-circle';
 
+			case 'information':
 			default:
 				return 'fas fa-info-circle';
 		}
@@ -43,7 +44,7 @@ export class UtilityDialogComponent {
 
 	get confirmButtonClass(): string {
 		switch (this.dialogData.type) {
-			case 'danger':
+			case 'error':
 				return 'btn btn-danger';
 
 			case 'warning':
@@ -52,6 +53,7 @@ export class UtilityDialogComponent {
 			case 'success':
 				return 'btn btn-success';
 
+			case 'information':
 			default:
 				return 'btn btn-primary';
 		}
