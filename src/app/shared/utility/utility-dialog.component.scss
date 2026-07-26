@@ -1,0 +1,83 @@
+:host {
+	display: block;
+}
+
+.utility-dialog-content {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	min-height: 88px;
+	padding: 6px 4px;
+
+	.utility-dialog-icon {
+		width: 52px;
+		height: 52px;
+		flex: 0 0 52px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+
+		i {
+			font-size: 24px;
+		}
+	}
+
+	.utility-dialog-message {
+		flex: 1;
+		min-width: 0;
+	}
+
+	p {
+		margin: 0;
+		font-size: 16px;
+		line-height: 1.5;
+		color: #354052;
+	}
+
+	&.information {
+		.utility-dialog-icon {
+			color: #1a91eb;
+			background-color: #e9f4ff;
+		}
+	}
+
+	&.success {
+		.utility-dialog-icon {
+			color: #249533;
+			background-color: #eaf7ec;
+		}
+	}
+
+	&.warning {
+		.utility-dialog-icon {
+			color: #d59400;
+			background-color: #fff6dc;
+		}
+	}
+
+	&.danger {
+		.utility-dialog-icon {
+			color: #d35847;
+			background-color: #fdeceb;
+		}
+	}
+}
+
+::ng-deep {
+	.mat-mdc-dialog-content {
+		padding: 20px 28px !important;
+	}
+
+	.mat-mdc-dialog-actions {
+		display: flex;
+		gap: 10px;
+		min-height: auto;
+		padding: 14px 20px !important;
+
+		.btn {
+			min-width: 92px;
+			padding: 8px 18px;
+		}
+	}
+}

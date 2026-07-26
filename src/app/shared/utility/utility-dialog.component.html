@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>
+	{{ dialogData.title }}
+</h2>
+
+<mat-dialog-content>
+	<div class="utility-dialog-content" [ngClass]="dialogData.type">
+		<div class="utility-dialog-icon">
+			<i [class]="icon"></i>
+		</div>
+
+		<div class="utility-dialog-message">
+			<p>{{ dialogData.description }}</p>
+		</div>
+	</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+	@if (dialogData.mode === "confirm") {
+		<button type="button" class="btn btn-light" (click)="cancel()">
+			Cancel
+		</button>
+	}
+
+	<button type="button" [class]="confirmButtonClass" (click)="confirm()">
+		{{ dialogData.confirmText || "OK" }}
+	</button>
+</mat-dialog-actions>

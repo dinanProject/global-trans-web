@@ -1,68 +1,84 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment as env } from 'src/environments/environment';
 
-export interface ApiResponse<T = unknown> {
+interface ApiResponse {
 	meta: {
 		timestamp: number;
 		message: string;
 	};
 	dataType: string;
-	data: T;
+	data: any;
 	message?: string;
-	additionalData?: unknown;
+	additionalData?: any;
 }
 
 @Injectable({
 	providedIn: 'root',
 })
 export class ApiService {
-	constructor(private http: HttpClient) {}
+	constructor(
+		public http: HttpClient,
+		public router: Router,
+	) {}
 
-	post<T>(path: string, data: unknown = {}): Observable<T> {
-		return this.http.post<ApiResponse<T>>(this.buildUrl(path), data).pipe(
+	post(path: string, data: any = {}): Observable<any> {
+		return this.http.post<ApiResponse>(this.buildUrl(path), data).pipe(
 			map((result) => result.data),
 			catchError((error) => throwError(() => error)),
 		);
 	}
 
-	get<T>(path: string, params: HttpParams = new HttpParams()): Observable<T> {
+	get(path: string, params: HttpParams = new HttpParams()): Observable<any> {
+		return this.http.get<ApiResponse>(this.buildUrl(path), { params }).pipe(
+			map((result) => result.data),
+			catchError((error) => throwError(() => error)),
+		);
+	}
+
+	getBlob(
+		path: string,
+		params: HttpParams = new HttpParams(),
+	): Observable<any> {
+		return this.http.get(this.buildUrl(path), {
+			params,
+			responseType: 'blob',
+		});
+	}
+
+	put(path: string, body: any = {}): Observable<any> {
+		return this.http.put<ApiResponse>(this.buildUrl(path), body).pipe(
+			map((result) => result.data),
+			catchError((error) => throwError(() => error)),
+		);
+	}
+
+	delete(path: string, body: any = {}): Observable<any> {
 		return this.http
-			.get<ApiResponse<T>>(this.buildUrl(path), { params })
+			.delete<ApiResponse>(this.buildUrl(path), { body })
 			.pipe(
 				map((result) => result.data),
 				catchError((error) => throwError(() => error)),
 			);
 	}
 
-	put<T>(path: string, body: unknown = {}): Observable<T> {
-		return this.http.put<ApiResponse<T>>(this.buildUrl(path), body).pipe(
-			map((result) => result.data),
-			catchError((error) => throwError(() => error)),
-		);
-	}
-
-	delete<T>(path: string, body: unknown = {}): Observable<T> {
-		return this.http
-			.delete<ApiResponse<T>>(this.buildUrl(path), { body })
-			.pipe(
-				map((result) => result.data),
-				catchError((error) => throwError(() => error)),
-			);
-	}
-
-	upload<T>(path: string, file: FormData, update = false): Observable<T> {
+	upload(path: string, file: any, update = false): Observable<any> {
 		const request$ = update
-			? this.http.put<ApiResponse<T>>(this.buildUrl(path), file)
-			: this.http.post<ApiResponse<T>>(this.buildUrl(path), file);
+			? this.http.put<ApiResponse>(this.buildUrl(path), file)
+			: this.http.post<ApiResponse>(this.buildUrl(path), file);
 
 		return request$.pipe(
 			map((result) => result.data),
 			catchError((error) => throwError(() => error)),
 		);
+	}
+
+	throwError(err: any): Promise<boolean> {
+		return Promise.reject(err);
 	}
 
 	private buildUrl(path: string): string {

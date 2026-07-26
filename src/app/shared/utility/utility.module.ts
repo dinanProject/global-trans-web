@@ -1,16 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AlertModule } from './alert/alert.module';
-import { ConfirmModule } from './confirm/confirm.module';
+
+import { MaterialModule } from '../material.module';
+import { UtilityDialogComponent } from './utility-dialog.component';
 
 @NgModule({
-	declarations: [
-
-	],
-	imports: [
-		CommonModule,
-		AlertModule,
-		ConfirmModule
-	]
+	declarations: [UtilityDialogComponent],
+	imports: [CommonModule, MaterialModule],
+	exports: [UtilityDialogComponent],
 })
-export class UtilityModule { }
+export class UtilityModule {}

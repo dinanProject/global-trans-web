@@ -1,21 +1,15 @@
-import { Component, EventEmitter, HostBinding, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
-    selector: 'loading-button',
-    templateUrl: './loading-button.component.html',
-    styleUrls: ['./loading-button.component.scss'],
-    standalone: false
+	selector: 'loading-button',
+	templateUrl: './loading-button.component.html',
+	styleUrls: ['./loading-button.component.scss'],
+	standalone: false,
 })
-export class LoadingButtonComponent implements OnInit {
-
-	@Input() isLoading: boolean;
-	@Input() disabled: boolean;
-	@Input() loadingText = 'Loading..';
-	@Input() type: string = 'button';
-	@Input() className: string = 'btn btn-primary';
-
-	constructor() { }
-
-	ngOnInit(): void {
-	}
+export class LoadingButtonComponent {
+	@Input() isLoading = false;
+	@Input() disabled = false;
+	@Input() loadingText = 'Loading...';
+	@Input() type: 'button' | 'submit' | 'reset' = 'button';
+	@Input() className = 'btn btn-primary';
 }

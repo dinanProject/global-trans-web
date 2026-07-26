@@ -1,10 +1,5 @@
-import {
-	BrowserModule,
-	HammerGestureConfig,
-	HammerModule,
-	HAMMER_GESTURE_CONFIG,
-} from '@angular/platform-browser';
-import { Injectable, LOCALE_ID, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeId from '@angular/common/locales/id';
 import {
@@ -12,9 +7,7 @@ import {
 	provideHttpClient,
 	withInterceptorsFromDi,
 } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import * as Hammer from 'hammerjs';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 import {
 	NgxCurrencyInputMode,
@@ -45,34 +38,12 @@ const currencyConfig = {
 	inputMode: NgxCurrencyInputMode.Natural,
 };
 
-@Injectable()
-export class PatchedGestureConfig extends HammerGestureConfig {
-	overrides: any = {
-		pinch: {
-			direction: Hammer.DIRECTION_ALL,
-			enable: true,
-		},
-		pan: {
-			direction: Hammer.DIRECTION_ALL,
-			requireFailure: ['pinch'],
-			threshold: 2,
-		},
-		swipe: {
-			direction: Hammer.DIRECTION_ALL,
-			enable: true,
-		},
-	};
-}
 @NgModule({
 	declarations: [AppComponent, UnauthorizedComponent],
-	imports: [
-		BrowserModule,
-		AppRoutingModule,
-		BrowserAnimationsModule,
-		HammerModule,
-		UiModule,
-	],
+	imports: [BrowserModule, AppRoutingModule, UiModule],
 	providers: [
+		provideAnimations(),
+		provideHttpClient(withInterceptorsFromDi()),
 		provideEnvironmentNgxCurrency(currencyConfig),
 		{
 			provide: HTTP_INTERCEPTORS,
