@@ -2,10 +2,11 @@ import { Component, OnInit, Input } from '@angular/core';
 import { environment as env } from 'src/environments/environment';
 
 @Component({
-	// tslint:disable-next-line:component-selector
-	selector: 'loading',
-	templateUrl: './loading.component.html',
-	styleUrls: ['./loading.component.scss']
+    // tslint:disable-next-line:component-selector
+    selector: 'loading',
+    templateUrl: './loading.component.html',
+    styleUrls: ['./loading.component.scss'],
+    standalone: false
 })
 export class LoadingComponent implements OnInit {
 

@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MatDrawerMode } from '@angular/material/sidenav';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+import { MainBootstrapResponse } from 'src/app/core/models/main-bootstrap.model';
+import { Menu } from 'src/app/core/models/menu.model';
 import { ApiService } from 'src/app/core/services/api.service';
 
 export interface Breadcrumb {
@@ -13,35 +17,59 @@ export interface Breadcrumb {
 export class MainService {
 	sidebarOpened = true;
 	sidebarMode: MatDrawerMode = 'side';
-	toolbarTitle!: string;
-	toolbarSubtitle!: string;
-	breadcrumbs: any;
-	isMobile!: boolean;
 
-	constructor(private apiService: ApiService) {}
+	toolbarTitle = 'Dashboard';
+	toolbarSubtitle = '';
+	breadcrumbs: Breadcrumb[] = [];
+	isMobile = false;
 
-	toggleSidebar() {
+	private readonly menusSubject = new BehaviorSubject<Menu[]>([]);
+	readonly menus$ = this.menusSubject.asObservable();
+
+	constructor(private readonly apiService: ApiService) {}
+
+	setMenus(menus: Menu[]): void {
+		this.menusSubject.next(menus);
+	}
+
+	refreshMenus(): void {
+		this.getUser().subscribe({
+			next: (response: MainBootstrapResponse) => {
+				console.log('Refreshing sidebar menus', response.menus);
+				this.setMenus(response.menus ?? []);
+			},
+			error: (error: unknown) => {
+				console.error('Failed to refresh sidebar menus', error);
+			},
+		});
+	}
+
+	getUser(): Observable<MainBootstrapResponse> {
+		return this.apiService.get('/backend');
+	}
+
+	getMenus(): Observable<Menu[]> {
+		return this.apiService.get('/menu');
+	}
+
+	toggleSidebar(): void {
 		this.sidebarOpened = !this.sidebarOpened;
 	}
 
-	hideSidebar() {
-		return new Promise<void>((resolve, reject) => {
+	hideSidebar(): Promise<void> {
+		return new Promise<void>((resolve) => {
 			setTimeout(() => {
 				this.sidebarOpened = false;
-				setTimeout(() => {
-					resolve();
-				}, 300);
+				resolve();
 			});
 		});
 	}
 
-	showSidebar() {
-		return new Promise<void>((resolve, reject) => {
+	showSidebar(): Promise<void> {
+		return new Promise<void>((resolve) => {
 			setTimeout(() => {
 				this.sidebarOpened = true;
-				setTimeout(() => {
-					resolve();
-				}, 300);
+				resolve();
 			});
 		});
 	}
@@ -58,7 +86,7 @@ export class MainService {
 		return this.sidebarMode;
 	}
 
-	setToolbarTitle(title: string) {
+	setToolbarTitle(title: string): void {
 		this.toolbarTitle = title;
 	}
 
@@ -66,7 +94,7 @@ export class MainService {
 		return this.toolbarTitle;
 	}
 
-	setToolbarSubtitle(subtitle: string) {
+	setToolbarSubtitle(subtitle: string): void {
 		this.toolbarSubtitle = subtitle;
 	}
 
@@ -74,15 +102,11 @@ export class MainService {
 		return this.toolbarSubtitle;
 	}
 
-	setBreadcrumbs(breadcrumbs: Breadcrumb[]) {
+	setBreadcrumbs(breadcrumbs: Breadcrumb[]): void {
 		this.breadcrumbs = breadcrumbs;
 	}
 
 	getBreadcrumbs(): Breadcrumb[] {
 		return this.breadcrumbs;
-	}
-
-	getUser() {
-		return this.apiService.get('/backend');
 	}
 }

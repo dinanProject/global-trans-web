@@ -1,11 +1,12 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core';
 
 @Component({
-	selector: 'panel',
-	template: `
+    selector: 'panel',
+    template: `
 		<ng-content></ng-content>
 	`,
-	styleUrls: ['./panel.component.scss'],
+    styleUrls: ['./panel.component.scss'],
+    standalone: false
 })
 export class PanelComponent implements OnInit {
 	@HostBinding('class.panel') panelHeader = true;
@@ -14,9 +15,10 @@ export class PanelComponent implements OnInit {
 }
 
 @Component({
-	selector: 'panel-header',
-	// template: '<h1 class="panel-title">{{ title }}</h1>'
-	template: '<ng-content></ng-content>'
+    selector: 'panel-header',
+    // template: '<h1 class="panel-title">{{ title }}</h1>'
+    template: '<ng-content></ng-content>',
+    standalone: false
 })
 export class PanelHeaderComponent implements OnInit {
 
@@ -30,8 +32,9 @@ export class PanelHeaderComponent implements OnInit {
 }
 
 @Component({
-	selector: 'panel-filter',
-	template: '<ng-content></ng-content>'
+    selector: 'panel-filter',
+    template: '<ng-content></ng-content>',
+    standalone: false
 })
 export class PanelFilterComponent implements OnInit {
 	@HostBinding('class.panel-filter') panelHeader = true;
@@ -40,8 +43,9 @@ export class PanelFilterComponent implements OnInit {
 }
 
 @Component({
-	selector: 'panel-body',
-	template: '<ng-content></ng-content>'
+    selector: 'panel-body',
+    template: '<ng-content></ng-content>',
+    standalone: false
 })
 export class PanelBodyComponent implements OnInit {
 	@HostBinding('class.panel-body') panelHeader = true;
@@ -53,8 +57,9 @@ export class PanelBodyComponent implements OnInit {
 }
 
 @Component({
-	selector: 'panel-footer',
-	template: '<ng-content></ng-content>'
+    selector: 'panel-footer',
+    template: '<ng-content></ng-content>',
+    standalone: false
 })
 export class PanelFooterComponent implements OnInit {
 	@HostBinding('class.panel-footer') panelHeader = true;

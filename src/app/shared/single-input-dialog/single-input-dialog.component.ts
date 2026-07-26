@@ -1,11 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-	selector: 'app-single-input-dialog',
-	templateUrl: './single-input-dialog.component.html',
-	styleUrls: ['./single-input-dialog.component.scss']
+    selector: 'app-single-input-dialog',
+    templateUrl: './single-input-dialog.component.html',
+    styleUrls: ['./single-input-dialog.component.scss'],
+    standalone: false
 })
 export class SingleInputDialogComponent implements OnInit {
 

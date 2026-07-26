@@ -1,0 +1,58 @@
+<li
+	class="menu"
+	[ngClass]="isHeader ? menu.visibility : ''"
+	[class.menu-header]="isHeader"
+	[class.hidden]="isHidden"
+	[class.selected]="isMenuSelected"
+>
+	@if (isHeader) {
+		<h4>{{ menu.menuName }}</h4>
+	}
+
+	@if (isLink) {
+		<a
+			class="anc"
+			[routerLink]="menu.route || null"
+			(click)="onMenuClick($event)"
+			[class.active]="isActive"
+			fxLayout
+			fxLayoutAlign="start center"
+		>
+			<span class="level" [style.width.px]="menuLevel * 27"></span>
+
+			<i
+				[class]="menu.icon || 'fas fa-th-large'"
+				fxLayout
+				fxLayoutAlign="center center"
+			></i>
+
+			<h5>{{ menu.menuName }}</h5>
+
+			@if (hasChildren) {
+				<i
+					class="submenu-indicator"
+					[ngClass]="
+						menu.visibility === 'expanded'
+							? 'fas fa-caret-up'
+							: 'fas fa-caret-down'
+					"
+				></i>
+			}
+		</a>
+	}
+
+	@if (hasChildren) {
+		<ul class="menus" [ngClass]="menu.visibility">
+			@for (subMenu of children; track subMenu) {
+				<app-menu
+					[menu]="subMenu"
+					[menuLevel]="menuLevel + 1"
+					[currentUrl]="currentUrl"
+					[isMenuFiltering]="isMenuFiltering"
+					[selectedMenuIndex]="selectedMenuIndex"
+					(clicked)="clicked.emit($event)"
+				></app-menu>
+			}
+		</ul>
+	}
+</li>

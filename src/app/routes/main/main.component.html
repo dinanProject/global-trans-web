@@ -24,44 +24,38 @@
 					<h1 fxFlex>Global Trans</h1>
 				</div>
 
+				<div class="search-bar">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="Search Menu..."
+						(keyup)="searchMenu($event)"
+						(focus)="searchMenuFocus()"
+						(blur)="searchMenuBlur()"
+					/>
+				</div>
+
 				<div
 					class="sidebar-inner scroll scroll-y"
 					fxLayout="column"
 					fxFlex
 				>
 					<div class="sidebar-menus">
-						<ul class="menus">
-							<li>
-								<a
-									routerLink="/main"
-									routerLinkActive="active"
-									[routerLinkActiveOptions]="{ exact: true }"
-								>
-									<i class="fas fa-home"></i>
-									<span>Dashboard</span>
-								</a>
-							</li>
-
-							<li>
-								<a
-									routerLink="/main/reservations"
-									routerLinkActive="active"
-								>
-									<i class="fas fa-calendar-check"></i>
-									<span>Reservation</span>
-								</a>
-							</li>
-
-							<li>
-								<a
-									routerLink="/main/tracking"
-									routerLinkActive="active"
-								>
-									<i class="fas fa-map-marker-alt"></i>
-									<span>Tracking</span>
-								</a>
-							</li>
-						</ul>
+						@if (menus.length > 0) {
+							<ul class="menus">
+								@for (menu of menus; track menu) {
+									<app-menu
+										[menu]="menu"
+										[currentUrl]="currentUrl"
+										[isMenuFiltering]="isMenuFiltering"
+										[selectedMenuIndex]="selectedMenuIndex"
+										(clicked)="onMenuClicked($event)"
+									></app-menu>
+								}
+							</ul>
+						} @else {
+							<div class="empty-menu">No menu available</div>
+						}
 					</div>
 				</div>
 			</div>
@@ -75,15 +69,13 @@
 				class="p-0"
 			>
 				<div
-					class="logo-raya"
+					class="sidebar-toggle"
 					(click)="toggleSidebar()"
 					fxFlex="70px"
+					fxLayout
 					fxLayoutAlign="center center"
 				>
-					<img
-						src="assets/images/logo-raya-40x40.png"
-						alt="Global Trans"
-					/>
+					<i class="fas fa-bars"></i>
 				</div>
 
 				<div class="toolbar-separator" fxHide.lt-lg></div>
@@ -92,13 +84,18 @@
 					fxFlex
 					fxLayout="column"
 					fxLayoutAlign="center start"
-					class="px-0 px-lg-4"
+					class="toolbar-title px-0 px-lg-4"
 				>
 					<h1>{{ getToolbarTitle() }}</h1>
-					<h2>{{ getToolbarSubtitle() }}</h2>
+
+					@if (getToolbarSubtitle()) {
+						<h2>
+							{{ getToolbarSubtitle() }}
+						</h2>
+					}
 				</div>
 
-				<ng-container *ngIf="user">
+				@if (user) {
 					<div
 						class="user"
 						[matMenuTriggerFor]="userMenu"
@@ -121,7 +118,7 @@
 							fxLayout
 							fxLayoutAlign="center center"
 						>
-							{{ user.fullName.charAt(0).toUpperCase() }}
+							{{ getUserInitial() }}
 						</div>
 
 						<i class="fas fa-chevron-down"></i>
@@ -137,13 +134,10 @@
 							Logout
 						</button>
 					</mat-menu>
-				</ng-container>
+				}
 			</mat-toolbar>
 
-			<div class="page-content" fxFlex>
-				<h1>Welcome</h1>
-				<p>Main layout is working.</p>
-			</div>
+			<router-outlet></router-outlet>
 		</mat-sidenav-content>
 	</mat-sidenav-container>
 </div>

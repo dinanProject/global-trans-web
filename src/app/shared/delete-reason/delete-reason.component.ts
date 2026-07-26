@@ -1,11 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-	selector: 'app-delete-reason',
-	templateUrl: './delete-reason.component.html',
-	styleUrls: ['./delete-reason.component.scss']
+    selector: 'app-delete-reason',
+    templateUrl: './delete-reason.component.html',
+    styleUrls: ['./delete-reason.component.scss'],
+    standalone: false
 })
 export class DeleteReasonComponent implements OnInit {
 

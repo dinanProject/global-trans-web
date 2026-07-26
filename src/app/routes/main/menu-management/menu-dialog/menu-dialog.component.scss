@@ -1,0 +1,35 @@
+:host {
+	display: block;
+}
+
+.mat-mdc-dialog-content {
+	width: 720px;
+	max-width: 100%;
+}
+
+.form-group {
+	margin-bottom: 16px;
+}
+
+.active-field {
+	display: flex;
+	flex-direction: column;
+
+	mat-slide-toggle {
+		min-height: 38px;
+		display: flex;
+		align-items: center;
+	}
+}
+
+.input-group-text {
+	min-width: 42px;
+	justify-content: center;
+	background-color: #ffffff;
+}
+
+@media (max-width: 767px) {
+	.mat-mdc-dialog-content {
+		width: auto;
+	}
+}

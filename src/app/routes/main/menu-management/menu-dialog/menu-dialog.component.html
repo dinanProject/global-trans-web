@@ -1,0 +1,175 @@
+<h2 mat-dialog-title>
+	{{ isEdit ? "Edit Menu" : "Add Menu" }}
+</h2>
+
+<form [formGroup]="formGroup" (ngSubmit)="submit()">
+	<mat-dialog-content>
+		<div class="row">
+			<div class="col-12">
+				<div class="form-group">
+					<label>Parent Menu</label>
+
+					@if (canSelectParent) {
+						<select
+							class="form-control"
+							formControlName="parentUuid"
+						>
+							<option [ngValue]="null">Root Menu</option>
+							@for (menu of parentMenus; track menu.menuId) {
+								<option [ngValue]="menu.uuid">
+									{{ menu.menuName }}
+								</option>
+							}
+						</select>
+					} @else {
+						<input
+							type="text"
+							class="form-control"
+							[value]="parentMenuName"
+							readonly
+						/>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="form-group required">
+					<label>Code</label>
+
+					<input
+						type="text"
+						class="form-control uppercase"
+						formControlName="code"
+						[class.is-invalid]="isInvalid('code')"
+						placeholder="SYSTEM.MANAGEMENT"
+						autocomplete="off"
+					/>
+
+					<div *ngIf="isInvalid('code')" class="invalid-feedback">
+						Code wajib diisi.
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="form-group required">
+					<label>Menu Name</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="menuName"
+						[class.is-invalid]="isInvalid('menuName')"
+						placeholder="Menu Management"
+						autocomplete="off"
+					/>
+
+					<div *ngIf="isInvalid('menuName')" class="invalid-feedback">
+						Menu name wajib diisi.
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Route</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="route"
+						placeholder="/main/menu-management"
+						autocomplete="off"
+					/>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Icon</label>
+
+					<div class="input-group">
+						<div
+							*ngIf="formGroup.controls.icon.value"
+							class="input-group-prepend"
+						>
+							<span class="input-group-text">
+								<i [class]="formGroup.controls.icon.value"></i>
+							</span>
+						</div>
+
+						<input
+							type="text"
+							class="form-control"
+							formControlName="icon"
+							placeholder="fas fa-bars"
+							autocomplete="off"
+						/>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Permission ID</label>
+
+					<input
+						type="number"
+						class="form-control"
+						formControlName="permissionId"
+						placeholder="Optional"
+						min="1"
+					/>
+
+					<small class="text-secondary">
+						Sementara menggunakan ID sampai Permission Management
+						tersedia.
+					</small>
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="form-group required">
+					<label>Sequence</label>
+
+					<input
+						type="number"
+						class="form-control"
+						formControlName="sequence"
+						[class.is-invalid]="isInvalid('sequence')"
+						min="0"
+					/>
+
+					<div *ngIf="isInvalid('sequence')" class="invalid-feedback">
+						Sequence minimal 0.
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="form-group active-field">
+					<label class="no-colon">Active</label>
+
+					<mat-slide-toggle formControlName="isActive">
+						{{
+							formGroup.controls.isActive.value
+								? "Active"
+								: "Inactive"
+						}}
+					</mat-slide-toggle>
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<button type="button" class="btn btn-light mr-2" (click)="close()">
+			Cancel
+		</button>
+
+		<button type="submit" class="btn btn-primary">
+			<i class="fas fa-save mr-1"></i>
+			Save
+		</button>
+	</mat-dialog-actions>
+</form>

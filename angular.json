@@ -3,7 +3,7 @@
 	"version": 1,
 	"newProjectRoot": "projects",
 	"projects": {
-		"raya": {
+		"global-trans": {
 			"projectType": "application",
 			"schematics": {
 				"@schematics/angular:component": {
@@ -95,18 +95,18 @@
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "raya:build"
+            "buildTarget": "global-trans:build"
 					},
 					"configurations": {
             "production": {
-              "buildTarget": "raya:build:production"
+              "buildTarget": "global-trans:build:production"
 						}
 					}
 				},
 				"extract-i18n": {
 					"builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "raya:build"
+            "buildTarget": "global-trans:build"
 					}
 				},
 				"test": {
@@ -131,11 +131,11 @@
 					"builder": "@angular-devkit/build-angular:protractor",
 					"options": {
 						"protractorConfig": "e2e/protractor.conf.js",
-						"devServerTarget": "raya:serve"
+						"devServerTarget": "global-trans:serve"
 					},
 					"configurations": {
 						"production": {
-							"devServerTarget": "raya:serve:production"
+							"devServerTarget": "global-trans:serve:production"
 						}
 					}
 				}
@@ -144,5 +144,31 @@
 	},
 	"cli": {
 		"analytics": "691e46cb-5880-49d0-ad05-300ebe98bc8e"
-	}
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
+  }
 }

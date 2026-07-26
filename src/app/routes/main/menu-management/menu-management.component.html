@@ -1,0 +1,272 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<h5>Menu Management</h5>
+			<small class="text-secondary">
+				Manage application navigation and permissions.
+			</small>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-primary"
+			(click)="openCreateDialog()"
+		>
+			<i class="fas fa-plus mr-1"></i>
+			Add Root Menu
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<panel>
+		<panel-filter>
+			<div class="filter-content">
+				<div class="form-group search-field">
+					<label>Search</label>
+
+					<div class="input-group">
+						<input
+							type="text"
+							class="form-control"
+							[formControl]="search"
+							placeholder="Search menu, code or route..."
+						/>
+
+						<div class="input-group-append">
+							<span class="input-group-text">
+								<i class="fas fa-search"></i>
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					class="btn btn-light"
+					[disabled]="isLoading"
+					(click)="loadMenus()"
+				>
+					<i class="fas fa-sync-alt mr-1"></i>
+					Refresh
+				</button>
+			</div>
+		</panel-filter>
+
+		<panel-body class="panel-body-no-padding">
+			<div *ngIf="errorMessage" class="error-message mb-3">
+				{{ errorMessage }}
+			</div>
+
+			<div *ngIf="isLoading" class="loading-container">
+				<loading text="Loading menus..."></loading>
+			</div>
+
+			<div *ngIf="!isLoading" class="table-responsive">
+				<table
+					mat-table
+					[dataSource]="menuRows"
+					[trackBy]="trackByMenuId"
+					class="w-100 menu-table p-0"
+				>
+					<ng-container matColumnDef="menuName">
+						<th mat-header-cell *matHeaderCellDef>Menu</th>
+
+						<td mat-cell *matCellDef="let menu">
+							<div
+								class="menu-name-cell"
+								[style.padding-left.px]="menu.level * 28"
+							>
+								<button
+									type="button"
+									class="tree-toggle"
+									[class.tree-toggle-hidden]="
+										!menu.hasChildren
+									"
+									(click)="
+										toggleMenu(menu);
+										$event.stopPropagation()
+									"
+								>
+									<i
+										class="fas"
+										[class.fa-chevron-down]="
+											isExpanded(menu.menuId)
+										"
+										[class.fa-chevron-right]="
+											!isExpanded(menu.menuId)
+										"
+									></i>
+								</button>
+
+								<span class="menu-icon">
+									<i
+										[class]="menu.icon || 'far fa-circle'"
+									></i>
+								</span>
+
+								<div>
+									<h6>{{ menu.menuName }}</h6>
+
+									<small
+										*ngIf="menu.parentMenuName"
+										class="text-secondary"
+									>
+										Child of
+										{{ menu.parentMenuName }}
+									</small>
+								</div>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="code">
+						<th mat-header-cell *matHeaderCellDef>Code</th>
+
+						<td mat-cell *matCellDef="let menu">
+							<code>{{ menu.code }}</code>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="route">
+						<th mat-header-cell *matHeaderCellDef>Route</th>
+
+						<td mat-cell *matCellDef="let menu">
+							<span
+								*ngIf="menu.route; else noRoute"
+								class="route-value"
+							>
+								{{ menu.route }}
+							</span>
+
+							<ng-template #noRoute>
+								<span class="text-secondary">—</span>
+							</ng-template>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="permission">
+						<th mat-header-cell *matHeaderCellDef>Permission</th>
+
+						<td mat-cell *matCellDef="let menu">
+							<div *ngIf="menu.permissionCode">
+								<h6>
+									{{ menu.permissionLabel }}
+								</h6>
+
+								<small class="text-secondary">
+									{{ menu.permissionCode }}
+								</small>
+							</div>
+
+							<span
+								*ngIf="!menu.permissionCode"
+								class="text-secondary"
+							>
+								—
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="sequence">
+						<th mat-header-cell *matHeaderCellDef>Sequence</th>
+
+						<td mat-cell *matCellDef="let menu">
+							{{ menu.sequence }}
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="status">
+						<th mat-header-cell *matHeaderCellDef>Status</th>
+
+						<td mat-cell *matCellDef="let menu">
+							<span
+								class="status-indicator"
+								[class.active]="menu.isActive"
+								[class.inactive]="!menu.isActive"
+							>
+								<span class="status-dot"></span>
+
+								{{ menu.isActive ? "Active" : "Inactive" }}
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<th
+							mat-header-cell
+							*matHeaderCellDef
+							class="action-column"
+						>
+							Actions
+						</th>
+
+						<td
+							mat-cell
+							*matCellDef="let menu"
+							class="action-column"
+						>
+							<button
+								type="button"
+								class="btn btn-sm btn-light"
+								[matMenuTriggerFor]="actionMenu"
+								(click)="$event.stopPropagation()"
+							>
+								<i class="fas fa-ellipsis-v"></i>
+							</button>
+
+							<mat-menu #actionMenu="matMenu">
+								<button
+									mat-menu-item
+									(click)="openEditDialog(menu)"
+								>
+									<i class="fas fa-edit mr-2"></i>
+									<span>Edit</span>
+								</button>
+
+								<button
+									mat-menu-item
+									(click)="openCreateDialog(menu)"
+								>
+									<i class="fas fa-plus mr-2"></i>
+									<span>Add Child</span>
+								</button>
+
+								<button
+									mat-menu-item
+									class="menu-danger"
+									[disabled]="!menu.isActive"
+									(click)="deactivateMenu(menu)"
+								>
+									<i class="fas fa-ban mr-2"></i>
+									<span>Deactivate</span>
+								</button>
+							</mat-menu>
+						</td>
+					</ng-container>
+
+					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+					<tr
+						mat-row
+						*matRowDef="let row; columns: displayedColumns"
+						[class.clickable-row]="row.hasChildren"
+						(click)="toggleMenu(row)"
+					></tr>
+				</table>
+
+				<div *ngIf="menuRows.length === 0" class="empty-state">
+					<i class="fas fa-bars"></i>
+					<h5>No menu found</h5>
+					<p>Create a menu or adjust your search.</p>
+				</div>
+			</div>
+		</panel-body>
+
+		<panel-footer>
+			<small class="text-secondary">
+				{{ menuRows.length }} displayed from {{ menus.length }} menus
+			</small>
+		</panel-footer>
+	</panel>
+</page-body>

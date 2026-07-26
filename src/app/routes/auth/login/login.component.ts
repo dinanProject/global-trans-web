@@ -1,73 +1,123 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { NonNullableFormBuilder, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
 import { SessionService } from 'src/app/core/services/session.service';
 import { LoginService } from './login.service';
+
+interface LoginErrorResponse {
+	message?: string;
+	meta?: {
+		message?: string;
+	};
+}
 
 @Component({
 	selector: 'app-login',
 	templateUrl: './login.component.html',
 	styleUrls: ['./login.component.scss'],
+	standalone: false,
 })
 export class LoginComponent implements OnInit {
-	formGroup!: FormGroup;
-	isSubmitting = false;
-	errorMessage = '';
-	returnUrl = '/backend';
+	private readonly formBuilder = inject(NonNullableFormBuilder);
+	private readonly activatedRoute = inject(ActivatedRoute);
+	private readonly router = inject(Router);
+	private readonly loginService = inject(LoginService);
+	private readonly sessionService = inject(SessionService);
+	private readonly destroyRef = inject(DestroyRef);
 
-	constructor(
-		private formBuilder: FormBuilder,
-		private activatedRoute: ActivatedRoute,
-		private router: Router,
-		private loginService: LoginService,
-		private sessionService: SessionService,
-	) {}
+	readonly formGroup = this.formBuilder.group({
+		email: ['', [Validators.required, Validators.email]],
+		password: ['', [Validators.required]],
+	});
+
+	readonly isSubmitting = signal(false);
+	readonly errorMessage = signal('');
+
+	private returnUrl = '/main';
+
+	get email() {
+		return this.formGroup.controls.email;
+	}
+
+	get password() {
+		return this.formGroup.controls.password;
+	}
 
 	ngOnInit(): void {
-		this.returnUrl =
-			this.activatedRoute.snapshot.queryParamMap.get('returnUrl') ||
-			'/backend';
+		const requestedReturnUrl =
+			this.activatedRoute.snapshot.queryParamMap.get('returnUrl');
+
+		this.returnUrl = this.getSafeReturnUrl(requestedReturnUrl);
 
 		if (this.sessionService.isAuth()) {
-			this.router.navigateByUrl(this.returnUrl);
-			return;
+			void this.router.navigateByUrl(this.returnUrl);
 		}
-
-		this.formGroup = this.formBuilder.group({
-			email: ['', [Validators.required, Validators.email]],
-			password: ['', [Validators.required]],
-		});
 	}
 
 	submit(): void {
-		if (this.formGroup.invalid || this.isSubmitting) {
+		if (this.formGroup.invalid) {
 			this.formGroup.markAllAsTouched();
 			return;
 		}
 
-		this.isSubmitting = true;
-		this.errorMessage = '';
+		if (this.isSubmitting()) {
+			return;
+		}
 
-		this.loginService.login(this.formGroup.getRawValue()).subscribe({
-			next: (response) => {
-				this.sessionService.setSession({
-					user: response.user,
-					accessToken: response.accessToken,
-					refreshToken: response.refreshToken,
-				});
+		this.isSubmitting.set(true);
+		this.errorMessage.set('');
 
-				this.router.navigateByUrl(this.returnUrl);
-			},
-			error: (error) => {
-				this.isSubmitting = false;
+		this.loginService
+			.login(this.formGroup.getRawValue())
+			.pipe(
+				finalize(() => {
+					this.isSubmitting.set(false);
+				}),
+				takeUntilDestroyed(this.destroyRef),
+			)
+			.subscribe({
+				next: (response) => {
+					this.sessionService.setSession({
+						user: response.user,
+						accessToken: response.accessToken,
+						refreshToken: response.refreshToken,
+					});
 
-				this.errorMessage =
-					error?.error?.meta?.message ||
-					error?.error?.message ||
-					error?.message ||
-					'Email atau password tidak valid.';
-			},
-		});
+					void this.router.navigateByUrl(this.returnUrl);
+				},
+				error: (error: HttpErrorResponse) => {
+					this.errorMessage.set(this.getErrorMessage(error));
+				},
+			});
+	}
+
+	private getSafeReturnUrl(returnUrl: string | null): string {
+		if (
+			!returnUrl ||
+			!returnUrl.startsWith('/') ||
+			returnUrl.startsWith('//')
+		) {
+			return '/main';
+		}
+
+		return returnUrl;
+	}
+
+	private getErrorMessage(error: HttpErrorResponse): string {
+		const responseError = error.error as
+			| LoginErrorResponse
+			| null
+			| undefined;
+
+		return (
+			responseError?.meta?.message ||
+			responseError?.message ||
+			error.message ||
+			'Email atau password tidak valid.'
+		);
 	}
 }

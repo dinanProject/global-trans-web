@@ -1,9 +1,10 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
 
 @Component({
-	selector: 'page-header',
-	template: '<ng-content></ng-content>',
-	styleUrls: ['./page-header.component.scss']
+    selector: 'page-header',
+    template: '<ng-content></ng-content>',
+    styleUrls: ['./page-header.component.scss'],
+    standalone: false
 })
 export class PageHeaderComponent implements OnInit {
 
@@ -16,9 +17,10 @@ export class PageHeaderComponent implements OnInit {
 
 }
 @Component({
-	selector: 'page-body',
-	template: '<ng-content></ng-content>',
-	styleUrls: ['./page-body.component.scss']
+    selector: 'page-body',
+    template: '<ng-content></ng-content>',
+    styleUrls: ['./page-body.component.scss'],
+    standalone: false
 })
 export class PageBodyComponent implements OnInit {
 
