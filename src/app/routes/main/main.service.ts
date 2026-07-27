@@ -18,7 +18,7 @@ export class MainService {
 	sidebarOpened = true;
 	sidebarMode: MatDrawerMode = 'side';
 
-	toolbarTitle = 'Dashboard';
+	toolbarTitle: string = '';
 	toolbarSubtitle = '';
 	breadcrumbs: Breadcrumb[] = [];
 	isMobile = false;

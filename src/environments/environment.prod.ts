@@ -1,5 +1,5 @@
 export const environment = {
 	production: true,
 	appName: 'global-trans',
-	apiUrl: '',
+	apiUrl: 'https://api.globaltransgroup.id/api/v1',
 };

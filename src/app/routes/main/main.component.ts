@@ -65,7 +65,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.user = this.sessionService.getUser();
 		this.currentUrl = this.getCurrentUrl();
 
-		this.mainService.setToolbarTitle('Dashboard');
+		this.mainService.setToolbarTitle('');
 		this.mainService.setToolbarSubtitle('');
 
 		this.initMenus();
@@ -343,6 +343,9 @@ export class MainComponent implements OnInit, OnDestroy {
 				let route = this.activatedRoute;
 				let routePath = '';
 
+				let toolbarTitle = '';
+				let toolbarSubtitle = '';
+
 				const breadcrumbs: Breadcrumb[] = [];
 
 				while (route.firstChild) {
@@ -358,22 +361,24 @@ export class MainComponent implements OnInit, OnDestroy {
 
 					const data = route.snapshot.data;
 
-					if (data['title']) {
-						this.mainService.setToolbarTitle(String(data['title']));
+					if (data['title'] !== undefined) {
+						toolbarTitle = String(data['title']);
 					}
 
-					if (data['subtitle']) {
-						const subtitle = String(data['subtitle']);
+					if (data['subtitle'] !== undefined) {
+						toolbarSubtitle = String(data['subtitle']);
 
-						this.mainService.setToolbarSubtitle(subtitle);
-
-						breadcrumbs.push({
-							label: subtitle,
-							path: routePath,
-						});
+						if (toolbarSubtitle) {
+							breadcrumbs.push({
+								label: toolbarSubtitle,
+								path: routePath,
+							});
+						}
 					}
 				}
 
+				this.mainService.setToolbarTitle(toolbarTitle);
+				this.mainService.setToolbarSubtitle(toolbarSubtitle);
 				this.mainService.setBreadcrumbs(breadcrumbs);
 			});
 
