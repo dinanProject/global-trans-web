@@ -13,6 +13,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MainRoutingModule } from './main-routing.module';
 import { MainComponent } from './main.component';
 import { MenuComponent } from './menu/menu.component';
+import { UiModule } from '../../shared/ui.module';
 
 @NgModule({
 	declarations: [MainComponent, MenuComponent],
@@ -20,7 +21,7 @@ import { MenuComponent } from './menu/menu.component';
 		CommonModule,
 		RouterModule,
 		FlexLayoutModule,
-
+		UiModule,
 		MatButtonModule,
 		MatIconModule,
 		MatMenuModule,

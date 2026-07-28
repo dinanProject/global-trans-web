@@ -15,26 +15,81 @@ const routes: Routes = [
 				pathMatch: 'full',
 				redirectTo: 'home',
 			},
-			{
-				path: 'menu-management',
-				loadChildren: () =>
-					import('./menu-management/menu-management.module').then(
-						(m) => m.MenuManagementModule,
-					),
-			},
+
+			/*
+			 * Route lama tetap dipertahankan sementara
+			 * supaya bookmark atau link lama tidak rusak.
+			 */
 			{
 				path: 'company',
+				pathMatch: 'full',
+				redirectTo: 'organization/companies',
+			},
+			{
+				path: 'division',
+				pathMatch: 'full',
+				redirectTo: 'organization/divisions',
+			},
+			{
+				path: 'menu-management',
+				pathMatch: 'full',
+				redirectTo: 'menus',
+			},
+
+			/*
+			 * Organization
+			 */
+			{
+				path: 'organization/companies',
 				loadChildren: () =>
 					import('./company/company.module').then(
 						(module) => module.CompanyModule,
 					),
 			},
 			{
-				path: 'division',
+				path: 'organization/divisions',
 				loadChildren: () =>
 					import('./division/division.module').then(
 						(module) => module.DivisionModule,
 					),
+			},
+
+			{
+				path: 'equipment',
+				loadChildren: () =>
+					import('./equipment/equipment.module').then(
+						(m) => m.EquipmentModule,
+					),
+			},
+
+			{
+				path: 'administration',
+				loadChildren: () =>
+					import('./administration/administration.module').then(
+						(m) => m.AdministrationModule,
+					),
+			},
+
+			{
+				path: 'menus',
+				loadChildren: () =>
+					import('./menu-management/menu-management.module').then(
+						(m) => m.MenuManagementModule,
+					),
+			},
+
+			/*
+			 * Module yang belum dibuat.
+			 * Jangan redirect ke /main karena akan terlihat seperti menu gagal.
+			 * Untuk sementara route-nya belum didaftarkan.
+			 */
+
+			/*
+			 * Fallback harus paling terakhir.
+			 */
+			{
+				path: '**',
+				redirectTo: 'home',
 			},
 		],
 	},

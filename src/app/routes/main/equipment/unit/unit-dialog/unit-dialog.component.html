@@ -1,0 +1,222 @@
+<h2 mat-dialog-title>
+	{{ isEdit ? "Edit Equipment Unit" : "Add Equipment Unit" }}
+</h2>
+
+<form [formGroup]="formGroup" (ngSubmit)="submit()">
+	<mat-dialog-content>
+		<div class="row">
+			<div class="col-12">
+				<div class="form-group required">
+					<label>Category</label>
+
+					<select
+						class="form-control"
+						formControlName="categoryUuid"
+						[class.is-invalid]="isInvalid('categoryUuid')"
+					>
+						<option value="" disabled>
+							Select equipment category
+						</option>
+
+						<option
+							*ngFor="let category of data.categories"
+							[value]="category.uuid"
+						>
+							{{ category.name }} ({{ category.code }})
+							{{
+								isCategoryActive(category) ? "" : " - Inactive"
+							}}
+						</option>
+					</select>
+
+					@if (isInvalid("categoryUuid")) {
+						<div class="invalid-feedback">
+							Equipment category wajib dipilih.
+						</div>
+					}
+
+					@if (selectedCategory) {
+						<div class="category-preview">
+							<span class="category-icon">
+								<i
+									[class]="
+										selectedCategory.icon ||
+										'fas fa-layer-group'
+									"
+								></i>
+							</span>
+
+							<div>
+								<strong>{{ selectedCategory.name }}</strong>
+
+								<small class="text-secondary">
+									{{ selectedCategory.code }}
+								</small>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group required">
+					<label>Unit Code</label>
+
+					<input
+						type="text"
+						class="form-control uppercase"
+						formControlName="unitCode"
+						[class.is-invalid]="isInvalid('unitCode')"
+						placeholder="FL-001"
+						autocomplete="off"
+						(input)="onUnitCodeInput($event)"
+					/>
+
+					@if (isInvalid("unitCode")) {
+						<div class="invalid-feedback">
+							Unit code wajib diisi, maksimal 50 karakter, dan
+							hanya boleh berisi huruf, angka, underscore, atau
+							tanda minus.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-8">
+				<div class="form-group required">
+					<label>Unit Name</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="unitName"
+						[class.is-invalid]="isInvalid('unitName')"
+						placeholder="Toyota Forklift 3 Ton"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("unitName")) {
+						<div class="invalid-feedback">
+							Unit name wajib diisi, maksimal 150 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Asset Number</label>
+
+					<input
+						type="text"
+						class="form-control uppercase"
+						formControlName="assetNumber"
+						[class.is-invalid]="isInvalid('assetNumber')"
+						placeholder="AST-FL-0001"
+						autocomplete="off"
+						(input)="onAssetNumberInput($event)"
+					/>
+
+					@if (isInvalid("assetNumber")) {
+						<div class="invalid-feedback">
+							Asset number maksimal 100 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Model Number</label>
+
+					<input
+						type="text"
+						class="form-control"
+						formControlName="modelNumber"
+						[class.is-invalid]="isInvalid('modelNumber')"
+						placeholder="8FD30"
+						autocomplete="off"
+					/>
+
+					@if (isInvalid("modelNumber")) {
+						<div class="invalid-feedback">
+							Model number maksimal 100 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Plate Number</label>
+
+					<input
+						type="text"
+						class="form-control uppercase"
+						formControlName="plateNumber"
+						[class.is-invalid]="isInvalid('plateNumber')"
+						placeholder="B 1234 ABC"
+						autocomplete="off"
+						(input)="onPlateNumberInput($event)"
+					/>
+
+					@if (isInvalid("plateNumber")) {
+						<div class="invalid-feedback">
+							Plate number maksimal 50 karakter.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="form-group">
+					<label>Remarks</label>
+
+					<textarea
+						class="form-control"
+						formControlName="remarks"
+						[class.is-invalid]="isInvalid('remarks')"
+						rows="3"
+						maxlength="500"
+						placeholder="Additional information about this equipment unit..."
+					></textarea>
+
+					@if (isInvalid("remarks")) {
+						<div class="invalid-feedback">
+							Remarks maksimal 500 karakter.
+						</div>
+					}
+
+					<div class="character-count">
+						{{ formGroup.controls.remarks.value?.length ?? 0 }}/500
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="form-group active-field">
+					<label class="no-colon">Active</label>
+
+					<mat-slide-toggle formControlName="isActive">
+						{{
+							formGroup.controls.isActive.value
+								? "Active"
+								: "Inactive"
+						}}
+					</mat-slide-toggle>
+				</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+
+	<mat-dialog-actions align="end">
+		<button type="button" class="btn btn-light mr-2" (click)="close()">
+			Cancel
+		</button>
+
+		<button type="submit" class="btn btn-primary">
+			<i class="fas fa-save mr-1"></i>
+			Save
+		</button>
+	</mat-dialog-actions>
+</form>

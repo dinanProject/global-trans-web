@@ -141,9 +141,6 @@ export class CompanyComponent implements OnInit, AfterViewInit, OnDestroy {
 				}),
 			)
 			.subscribe(({ companies, companyTypes }) => {
-				console.log('companies response:', companies);
-				console.log('companyTypes response:', companyTypes);
-
 				this.companies = companies ?? [];
 
 				const mappedCompanyTypes: CompanyType[] = (companyTypes ?? [])

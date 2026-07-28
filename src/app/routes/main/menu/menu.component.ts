@@ -54,16 +54,12 @@ export class MenuComponent implements OnInit {
 		return this.menu.child ?? [];
 	}
 
-	get isHeader(): boolean {
-		return !this.menu.route && !this.hasChildren;
-	}
-
-	get isLink(): boolean {
-		return Boolean(this.menu.route || this.hasChildren);
-	}
-
 	get hasChildren(): boolean {
 		return this.children.length > 0;
+	}
+
+	get isLeaf(): boolean {
+		return !this.hasChildren;
 	}
 
 	get isActive(): boolean {

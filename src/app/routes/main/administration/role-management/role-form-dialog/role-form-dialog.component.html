@@ -1,0 +1,147 @@
+<div class="dialog-header">
+	<div>
+		<h2>{{ title }}</h2>
+		<p>
+			{{
+				data.mode === "create"
+					? "Create a new role."
+					: "Update role information."
+			}}
+		</p>
+	</div>
+
+	<button
+		type="button"
+		class="dialog-close"
+		[disabled]="isSaving"
+		(click)="cancel()"
+	>
+		<i class="fas fa-times"></i>
+	</button>
+</div>
+
+<mat-dialog-content>
+	<div *ngIf="errorMessage" class="error-message">
+		<i class="fas fa-exclamation-circle"></i>
+		<span>{{ errorMessage }}</span>
+	</div>
+
+	<form [formGroup]="form" novalidate>
+		<div class="form-group">
+			<label for="companyUuid">
+				Company
+				<span class="text-danger">*</span>
+			</label>
+
+			<select
+				id="companyUuid"
+				class="form-control"
+				formControlName="companyUuid"
+				[class.is-invalid]="
+					form.controls.companyUuid.touched &&
+					form.controls.companyUuid.invalid
+				"
+			>
+				<option value="">Select company</option>
+
+				<option
+					*ngFor="let company of data.companies"
+					[value]="company.uuid"
+				>
+					{{ company.name }} ({{ company.code }})
+				</option>
+			</select>
+
+			<div
+				*ngIf="
+					form.controls.companyUuid.touched &&
+					form.controls.companyUuid.hasError('required')
+				"
+				class="invalid-feedback"
+			>
+				Company wajib dipilih.
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="role-name">Role Name <span>*</span></label>
+			<input
+				id="role-name"
+				class="form-control"
+				type="text"
+				formControlName="name"
+			/>
+			<small
+				*ngIf="
+					form.controls.name.touched &&
+					form.controls.name.hasError('required')
+				"
+				class="field-error"
+			>
+				Role name is required.
+			</small>
+		</div>
+
+		<div class="form-group">
+			<label for="role-code">Role Code <span>*</span></label>
+			<input
+				id="role-code"
+				class="form-control"
+				type="text"
+				formControlName="code"
+				[readonly]="isSystemRole"
+				(blur)="normalizeCode()"
+			/>
+			<small class="field-help"
+				>Uppercase letters, numbers, and underscores only.</small
+			>
+			<small
+				*ngIf="form.controls.code.touched && form.controls.code.invalid"
+				class="field-error"
+			>
+				Enter a valid role code.
+			</small>
+		</div>
+
+		<div class="form-group">
+			<label for="role-description">Description</label>
+			<textarea
+				id="role-description"
+				class="form-control"
+				rows="4"
+				formControlName="description"
+			></textarea>
+		</div>
+
+		<label class="status-control" for="role-active">
+			<input
+				id="role-active"
+				type="checkbox"
+				formControlName="isActive"
+			/>
+			<span>
+				<strong>Active</strong>
+				<small>Inactive roles cannot be assigned to users.</small>
+			</span>
+		</label>
+	</form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+	<button
+		type="button"
+		class="btn btn-light"
+		[disabled]="isSaving"
+		(click)="cancel()"
+	>
+		Cancel
+	</button>
+	<button
+		type="button"
+		class="btn btn-primary"
+		[disabled]="isSaving"
+		(click)="save()"
+	>
+		<span *ngIf="isSaving" class="spinner-border spinner-border-sm"></span>
+		{{ isSaving ? "Saving..." : "Save" }}
+	</button>
+</mat-dialog-actions>

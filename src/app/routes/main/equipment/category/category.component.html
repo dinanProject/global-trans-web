@@ -1,0 +1,236 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<h5>Equipment Categories</h5>
+
+			<small class="text-secondary">
+				Manage categories used to group heavy equipment rental units.
+			</small>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-primary"
+			[disabled]="isLoading"
+			(click)="openCreateDialog()"
+		>
+			<i class="fas fa-plus mr-1"></i>
+			Add Category
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<panel>
+		<panel-filter>
+			<div class="filter-content">
+				<div class="filter-fields">
+					<div class="form-group search-field">
+						<label>Search</label>
+
+						<div class="input-group">
+							<input
+								type="text"
+								class="form-control"
+								[formControl]="searchControl"
+								placeholder="Search category..."
+							/>
+
+							<div class="input-group-append">
+								<span class="input-group-text">
+									<i class="fas fa-search"></i>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group status-field">
+						<label>Status</label>
+
+						<select
+							class="form-control"
+							[formControl]="statusControl"
+						>
+							<option value="all">All Statuses</option>
+							<option value="active">Active</option>
+							<option value="inactive">Inactive</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="filter-actions">
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="resetFilters()"
+					>
+						<i class="fas fa-undo mr-1"></i>
+						Reset
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="loadCategories()"
+					>
+						<i class="fas fa-sync-alt mr-1"></i>
+						Refresh
+					</button>
+				</div>
+			</div>
+		</panel-filter>
+
+		<panel-body class="panel-body-no-padding">
+			<div *ngIf="errorMessage" class="error-message m-3">
+				{{ errorMessage }}
+			</div>
+
+			<div *ngIf="isLoading" class="loading-container">
+				<loading text="Loading equipment categories..."></loading>
+			</div>
+
+			<div *ngIf="!isLoading" class="table-responsive">
+				<table
+					mat-table
+					[dataSource]="dataSource.data"
+					[trackBy]="trackByCategoryId"
+					class="w-100 category-table p-0"
+				>
+					<ng-container matColumnDef="name">
+						<th mat-header-cell *matHeaderCellDef>Category</th>
+
+						<td mat-cell *matCellDef="let category">
+							<div class="category-name-cell">
+								<span class="category-icon">
+									<i
+										[class]="
+											category.icon ||
+											'fas fa-layer-group'
+										"
+									></i>
+								</span>
+
+								<div>
+									<h6>{{ category.name }}</h6>
+
+									<small class="text-secondary">
+										{{ category.code }}
+									</small>
+								</div>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="code">
+						<th mat-header-cell *matHeaderCellDef>Code</th>
+
+						<td mat-cell *matCellDef="let category">
+							<code>{{ category.code }}</code>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="description">
+						<th mat-header-cell *matHeaderCellDef>Description</th>
+
+						<td mat-cell *matCellDef="let category">
+							<span *ngIf="category.description">
+								{{ category.description }}
+							</span>
+
+							<span
+								*ngIf="!category.description"
+								class="text-secondary"
+							>
+								—
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="status">
+						<th mat-header-cell *matHeaderCellDef>Status</th>
+
+						<td mat-cell *matCellDef="let category">
+							<span
+								class="status-indicator"
+								[class.active]="isActive(category)"
+								[class.inactive]="!isActive(category)"
+							>
+								<span class="status-dot"></span>
+
+								{{ isActive(category) ? "Active" : "Inactive" }}
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<th
+							mat-header-cell
+							*matHeaderCellDef
+							class="action-column"
+						>
+							Actions
+						</th>
+
+						<td
+							mat-cell
+							*matCellDef="let category"
+							class="action-column"
+						>
+							<button
+								type="button"
+								class="btn btn-sm btn-light"
+								[matMenuTriggerFor]="actionMenu"
+							>
+								<i class="fas fa-ellipsis-v"></i>
+							</button>
+
+							<mat-menu #actionMenu="matMenu">
+								<button
+									mat-menu-item
+									(click)="openEditDialog(category)"
+								>
+									<i class="fas fa-edit mr-2"></i>
+									<span>Edit</span>
+								</button>
+
+								<button
+									mat-menu-item
+									class="menu-danger"
+									[disabled]="!isActive(category)"
+									(click)="deactivateCategory(category)"
+								>
+									<i class="fas fa-ban mr-2"></i>
+									<span>Deactivate</span>
+								</button>
+							</mat-menu>
+						</td>
+					</ng-container>
+
+					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+					<tr
+						mat-row
+						*matRowDef="let row; columns: displayedColumns"
+					></tr>
+				</table>
+
+				<div *ngIf="dataSource.data.length === 0" class="empty-state">
+					<i class="fas fa-layer-group"></i>
+
+					<h5>No equipment category found</h5>
+
+					<p>Create a category or adjust your filters.</p>
+				</div>
+			</div>
+		</panel-body>
+
+		<panel-footer>
+			<small class="text-secondary">
+				{{ dataSource.data.length }} displayed from
+				{{ categories.length }} categories
+			</small>
+		</panel-footer>
+	</panel>
+</page-body>

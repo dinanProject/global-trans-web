@@ -1,0 +1,287 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<h5>Role Management</h5>
+			<small class="text-secondary">
+				Manage role master data, assignments, and permissions.
+			</small>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-primary"
+			(click)="openCreateDialog()"
+		>
+			<i class="fas fa-plus mr-1"></i>
+			Add Role
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<panel>
+		<panel-filter>
+			<div class="filter-content">
+				<div class="filter-fields">
+					<div class="form-group search-field">
+						<label>Search</label>
+
+						<div class="input-group">
+							<input
+								type="text"
+								class="form-control"
+								[formControl]="searchControl"
+								placeholder="Search role, code or description..."
+							/>
+
+							<div class="input-group-append">
+								<span class="input-group-text">
+									<i class="fas fa-search"></i>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group status-field">
+						<label>Status</label>
+
+						<select
+							class="form-control"
+							[formControl]="statusControl"
+						>
+							<option value="all">All Status</option>
+							<option value="active">Active</option>
+							<option value="inactive">Inactive</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="filter-actions">
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="resetFilters()"
+					>
+						<i class="fas fa-undo mr-1"></i>
+						Reset
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="loadRoles()"
+					>
+						<i class="fas fa-sync-alt mr-1"></i>
+						Refresh
+					</button>
+				</div>
+			</div>
+		</panel-filter>
+
+		<panel-body class="panel-body-no-padding">
+			<div *ngIf="errorMessage" class="error-message m-3">
+				{{ errorMessage }}
+			</div>
+
+			<div *ngIf="isLoading" class="loading-container">
+				<loading text="Loading roles..."></loading>
+			</div>
+
+			<div *ngIf="!isLoading" class="table-responsive">
+				<table
+					mat-table
+					[dataSource]="filteredRoles"
+					[trackBy]="trackByUuid"
+					class="w-100 role-table p-0"
+				>
+					<ng-container matColumnDef="name">
+						<th mat-header-cell *matHeaderCellDef>Role</th>
+
+						<td mat-cell *matCellDef="let role">
+							<div class="role-name-cell">
+								<span class="role-icon">
+									<i class="fas fa-user-shield"></i>
+								</span>
+
+								<div>
+									<h6>{{ role.name }}</h6>
+
+									<small
+										*ngIf="role.isSystem"
+										class="text-secondary"
+									>
+										System role
+									</small>
+								</div>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="code">
+						<th mat-header-cell *matHeaderCellDef>Code</th>
+
+						<td mat-cell *matCellDef="let role">
+							<div>{{ role.code }}</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="description">
+						<th mat-header-cell *matHeaderCellDef>Description</th>
+
+						<td mat-cell *matCellDef="let role">
+							<div
+								class="description-cell"
+								fxLayout="column"
+								fxLayoutAlign="center start"
+							>
+								<span>
+									{{ role.description || "—" }}
+								</span>
+
+								@if (role.isSystem) {
+									<span class="type-badge system">
+										System
+									</span>
+								}
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="permissionCount">
+						<th mat-header-cell *matHeaderCellDef>Permissions</th>
+
+						<td mat-cell *matCellDef="let role">
+							{{ role.permissionCount || 0 }}
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="userCount">
+						<th mat-header-cell *matHeaderCellDef>
+							Users use this
+						</th>
+
+						<td mat-cell *matCellDef="let role">
+							{{ role.userCount + " account" || 0 }}
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="status">
+						<th mat-header-cell *matHeaderCellDef>Status</th>
+
+						<td mat-cell *matCellDef="let role">
+							<span
+								class="status-indicator"
+								[class.active]="role.isActive"
+								[class.inactive]="!role.isActive"
+							>
+								<span class="status-dot"></span>
+								{{ role.isActive ? "Active" : "Inactive" }}
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<th
+							mat-header-cell
+							*matHeaderCellDef
+							class="action-column"
+						>
+							Actions
+						</th>
+
+						<td
+							mat-cell
+							*matCellDef="let role"
+							class="action-column"
+						>
+							<button
+								type="button"
+								class="btn btn-sm btn-light"
+								[matMenuTriggerFor]="actionMenu"
+							>
+								<i class="fas fa-ellipsis-v"></i>
+							</button>
+
+							<mat-menu #actionMenu="matMenu">
+								<button
+									mat-menu-item
+									(click)="openEditDialog(role)"
+								>
+									<i class="fas fa-edit mr-2"></i>
+									<span>Edit</span>
+								</button>
+
+								<button
+									mat-menu-item
+									(click)="openPermissionDialog(role)"
+								>
+									<i class="fas fa-key mr-2"></i>
+									<span>Manage Permissions</span>
+								</button>
+
+								<button
+									mat-menu-item
+									class="menu-danger"
+									[disabled]="
+										role.isSystem ||
+										deletingUuid === role.uuid
+									"
+									(click)="deleteRole(role)"
+								>
+									<i class="fas fa-ban mr-2"></i>
+									<span>Deactivate</span>
+								</button>
+							</mat-menu>
+						</td>
+					</ng-container>
+
+					<tr
+						mat-header-row
+						*matHeaderRowDef="[
+							'name',
+							'code',
+							'description',
+
+							'permissionCount',
+							'userCount',
+							'status',
+							'actions',
+						]"
+					></tr>
+
+					<tr
+						mat-row
+						*matRowDef="
+							let row;
+							columns: [
+								'name',
+								'code',
+								'description',
+
+								'permissionCount',
+								'userCount',
+								'status',
+								'actions',
+							]
+						"
+					></tr>
+				</table>
+
+				<div *ngIf="filteredRoles.length === 0" class="empty-state">
+					<i class="fas fa-user-shield"></i>
+					<h5>No role found</h5>
+					<p>Create a role or adjust your filters.</p>
+				</div>
+			</div>
+		</panel-body>
+
+		<panel-footer>
+			<small class="text-secondary">
+				{{ filteredRoles.length }} displayed from
+				{{ roles.length }} roles
+			</small>
+		</panel-footer>
+	</panel>
+</page-body>

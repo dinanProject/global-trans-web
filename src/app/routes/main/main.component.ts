@@ -74,8 +74,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private initMenus(): void {
 		const subscription = this.mainService.menus$.subscribe((menus) => {
-			console.log('MainComponent received menus', menus);
-
 			this.menus = this.normalizeMenus(menus ?? []);
 		});
 
@@ -249,8 +247,6 @@ export class MainComponent implements OnInit, OnDestroy {
 	private loadMainData(): void {
 		const subscription = this.mainService.getUser().subscribe({
 			next: (response: MainBootstrapResponse) => {
-				console.log('Backend Response:', response);
-
 				this.user = response.user ?? this.user;
 				this.mainService.setMenus(response.menus ?? []);
 			},

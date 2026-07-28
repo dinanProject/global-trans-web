@@ -35,7 +35,6 @@ export class MainService {
 	refreshMenus(): void {
 		this.getUser().subscribe({
 			next: (response: MainBootstrapResponse) => {
-				console.log('Refreshing sidebar menus', response.menus);
 				this.setMenus(response.menus ?? []);
 			},
 			error: (error: unknown) => {
