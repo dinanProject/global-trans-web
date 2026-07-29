@@ -78,6 +78,14 @@ const routes: Routes = [
 					),
 			},
 
+			{
+				path: 'equipment-request',
+				loadChildren: () =>
+					import('./equipment-request/equipment-request.module').then(
+						(module) => module.EquipmentRequestModule,
+					),
+			},
+
 			/*
 			 * Module yang belum dibuat.
 			 * Jangan redirect ke /main karena akan terlihat seperti menu gagal.
