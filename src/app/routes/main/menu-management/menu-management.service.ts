@@ -45,7 +45,9 @@ export interface MenuDialogResult {
 	payload: MenuPayload;
 }
 
-@Injectable()
+@Injectable({
+	providedIn: 'root',
+})
 export class MenuManagementService {
 	constructor(private apiService: ApiService) {}
 

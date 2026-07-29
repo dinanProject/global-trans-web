@@ -5,12 +5,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
 	declarations: [LoadingComponent],
-	imports: [
-		CommonModule,
-		FlexLayoutModule
-	],
-	exports: [
-		LoadingComponent
-	]
+	imports: [CommonModule, FlexLayoutModule],
+	exports: [LoadingComponent],
 })
-export class LoadingModule { }
+export class LoadingModule {}

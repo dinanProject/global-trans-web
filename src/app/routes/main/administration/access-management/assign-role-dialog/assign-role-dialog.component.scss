@@ -1,0 +1,397 @@
+:host {
+	display: block;
+	width: 100%;
+}
+
+.dialog-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 22px 28px 18px;
+	border-bottom: 1px solid #e2e6ea;
+	background-color: #ffffff;
+
+	h2 {
+		margin: 0;
+		padding: 0;
+		color: #354052;
+		font-size: 22px;
+		font-weight: 600;
+		line-height: 1.3;
+	}
+}
+
+.dialog-subtitle {
+	margin: 5px 0 0;
+	color: #778291;
+	font-size: 13px;
+}
+
+.dialog-close {
+	width: 36px;
+	height: 36px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	border-radius: 6px;
+	background-color: transparent;
+	color: #657080;
+	font-size: 18px;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
+
+	&:hover:not(:disabled) {
+		background-color: #f1f3f5;
+		color: #354052;
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.55;
+	}
+}
+
+mat-dialog-content {
+	width: auto;
+	max-width: 100%;
+	max-height: 68vh;
+	padding: 24px 28px !important;
+	background-color: #ffffff;
+}
+
+.user-summary {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding: 18px 20px;
+	margin-bottom: 24px;
+	border: 1px solid #dbe1e7;
+	border-radius: 8px;
+	background-color: #f8fafc;
+}
+
+.user-avatar {
+	width: 48px;
+	height: 48px;
+	flex: 0 0 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background-color: #e8f3ff;
+	color: #087cf0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.user-information {
+	min-width: 0;
+}
+
+.user-name {
+	color: #354052;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.user-email {
+	margin-top: 2px;
+	color: #748090;
+	font-size: 13px;
+}
+
+.user-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+	margin-top: 8px;
+
+	span {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		color: #687382;
+		font-size: 12px;
+	}
+
+	i {
+		width: 14px;
+		text-align: center;
+	}
+}
+
+.error-message {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	margin-bottom: 16px;
+	border: 1px solid #efc4c8;
+	border-radius: 7px;
+	background-color: #fff2f3;
+	color: #c53e49;
+	font-size: 12px;
+}
+
+.role-toolbar {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: end;
+	gap: 16px;
+}
+
+.search-field {
+	min-width: 0;
+	margin-bottom: 0;
+
+	label {
+		margin-bottom: 6px;
+		color: #354052;
+		font-size: 13px;
+		font-weight: 500;
+	}
+}
+
+.input-group {
+	flex-wrap: nowrap;
+
+	.form-control {
+		min-width: 0;
+		height: 42px;
+	}
+}
+
+.input-group-text {
+	min-width: 46px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.selection-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	white-space: nowrap;
+
+	.btn {
+		height: 42px;
+		margin: 0;
+		padding-right: 16px;
+		padding-left: 16px;
+		border-radius: 6px;
+	}
+}
+
+.selection-summary {
+	margin: 12px 0 14px;
+	color: #778291;
+	font-size: 12px;
+}
+
+.loading-state {
+	min-height: 190px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	color: #778291;
+	font-size: 12px;
+
+	.spinner-border {
+		width: 24px;
+		height: 24px;
+	}
+}
+
+.role-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-height: 310px;
+	overflow-y: auto;
+	padding: 1px 3px 1px 1px;
+}
+
+.role-card {
+	display: grid;
+	grid-template-columns: 28px minmax(0, 1fr);
+	align-items: flex-start;
+	gap: 14px;
+	margin: 0;
+	padding: 16px 18px;
+	border: 1px solid #dbe1e7;
+	border-radius: 8px;
+	background-color: #ffffff;
+	cursor: pointer;
+	transition:
+		border-color 0.15s ease,
+		background-color 0.15s ease,
+		box-shadow 0.15s ease;
+
+	&:hover {
+		border-color: #8bc3fa;
+		background-color: #f8fbff;
+	}
+
+	&.role-card-selected {
+		border-color: #4ca5fa;
+		background-color: #f1f8ff;
+		box-shadow: 0 0 0 1px rgba(76, 165, 250, 0.1);
+	}
+}
+
+.role-check {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 3px;
+
+	.form-check-input {
+		position: static;
+		width: 17px;
+		height: 17px;
+		margin: 0;
+		flex: 0 0 17px;
+		cursor: pointer;
+	}
+}
+
+.role-main {
+	min-width: 0;
+}
+
+.role-title-row {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.role-name {
+	color: #354052;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.role-code {
+	margin-top: 6px;
+	color: #087cf0;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+}
+
+.role-description {
+	margin-top: 7px;
+	color: #687382;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.system-badge,
+.assigned-badge {
+	min-height: 22px;
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.system-badge {
+	background-color: #e8f3ff;
+	color: #087cf0;
+}
+
+.assigned-badge {
+	background-color: #e8f6eb;
+	color: #249533;
+}
+
+.empty-state {
+	min-height: 190px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	color: #778291;
+
+	i {
+		margin-bottom: 10px;
+		font-size: 32px;
+		opacity: 0.55;
+	}
+
+	h3 {
+		margin: 0 0 4px;
+		color: #354052;
+		font-size: 14px;
+	}
+
+	p {
+		margin: 0;
+		font-size: 11px;
+	}
+}
+
+mat-dialog-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 12px;
+	padding: 14px 28px 18px;
+	border-top: 1px solid #e2e6ea;
+	background-color: #f8f9fa;
+
+	button {
+		min-width: 120px;
+		height: 42px;
+		margin: 0 !important;
+		border-radius: 6px;
+	}
+}
+
+@media (max-width: 700px) {
+	.dialog-header {
+		padding-right: 20px;
+		padding-left: 20px;
+	}
+
+	mat-dialog-content {
+		padding-right: 20px !important;
+		padding-left: 20px !important;
+	}
+
+	.role-toolbar {
+		grid-template-columns: 1fr;
+	}
+
+	.selection-actions {
+		justify-content: flex-end;
+	}
+
+	mat-dialog-actions {
+		padding-right: 20px;
+		padding-left: 20px;
+	}
+
+	.user-summary {
+		align-items: flex-start;
+	}
+
+	.user-meta {
+		flex-direction: column;
+		gap: 5px;
+	}
+}

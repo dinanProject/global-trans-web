@@ -1,0 +1,285 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<h5>Permission Management</h5>
+			<small class="text-secondary">
+				Manage application permissions, actions, and access scopes.
+			</small>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-primary"
+			(click)="openCreateDialog()"
+		>
+			<i class="fas fa-plus mr-1"></i>
+			Add Permission
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<panel>
+		<panel-filter>
+			<div class="filter-content">
+				<div class="filter-fields">
+					<div class="form-group search-field">
+						<label>Search</label>
+
+						<div class="input-group">
+							<input
+								type="text"
+								class="form-control"
+								[formControl]="searchControl"
+								placeholder="Search permission, code or module..."
+							/>
+
+							<div class="input-group-append">
+								<span class="input-group-text">
+									<i class="fas fa-search"></i>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group module-field">
+						<label>Module</label>
+
+						<select
+							class="form-control"
+							[formControl]="moduleControl"
+						>
+							<option value="all">All Modules</option>
+							<option
+								*ngFor="let moduleName of modules"
+								[value]="moduleName"
+							>
+								{{ moduleName }}
+							</option>
+						</select>
+					</div>
+
+					<div class="form-group status-field">
+						<label>Status</label>
+
+						<select
+							class="form-control"
+							[formControl]="statusControl"
+						>
+							<option value="all">All Status</option>
+							<option value="active">Active</option>
+							<option value="inactive">Inactive</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="filter-actions">
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="resetFilters()"
+					>
+						<i class="fas fa-undo mr-1"></i>
+						Reset
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="loadPermissions()"
+					>
+						<i class="fas fa-sync-alt mr-1"></i>
+						Refresh
+					</button>
+				</div>
+			</div>
+		</panel-filter>
+
+		<panel-body class="panel-body-no-padding">
+			<div *ngIf="errorMessage" class="error-message m-3">
+				{{ errorMessage }}
+			</div>
+
+			<div *ngIf="isLoading" class="loading-container">
+				<loading text="Loading permissions..."></loading>
+			</div>
+
+			<div *ngIf="!isLoading" class="table-responsive">
+				<table
+					mat-table
+					[dataSource]="filteredPermissions"
+					class="w-100 permission-table"
+				>
+					<ng-container matColumnDef="permission">
+						<th mat-header-cell *matHeaderCellDef>Permission</th>
+
+						<td mat-cell *matCellDef="let permission">
+							<div class="permission-cell">
+								<span class="permission-icon">
+									<i class="fas fa-key"></i>
+								</span>
+
+								<div class="permission-info">
+									<h6>{{ permission.label }}</h6>
+
+									<small
+										*ngIf="permission.description"
+										class="text-secondary permission-description"
+									>
+										{{ permission.description }}
+									</small>
+								</div>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="code">
+						<th mat-header-cell *matHeaderCellDef>Code</th>
+
+						<td mat-cell *matCellDef="let permission">
+							<div>{{ permission.code }}</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="access">
+						<th mat-header-cell *matHeaderCellDef>Access</th>
+
+						<td mat-cell *matCellDef="let permission">
+							<div class="stacked-value">
+								<h6>{{ permission.module }}</h6>
+
+								<small class="text-secondary">
+									{{ permission.action }}
+								</small>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="policy">
+						<th mat-header-cell *matHeaderCellDef>Policy</th>
+
+						<td mat-cell *matCellDef="let permission">
+							<div class="policy-cell">
+								<span
+									class="scope-quote"
+									[class.scope-own]="
+										permission.scope === 'OWN'
+									"
+									[class.scope-company]="
+										permission.scope === 'COMPANY'
+									"
+									[class.scope-all]="
+										permission.scope === 'ALL'
+									"
+								>
+									{{ permission.scope || "ALL" }}
+								</span>
+
+								<small class="text-secondary">
+									{{
+										permission.scope === "OWN"
+											? "Own data only"
+											: permission.scope === "COMPANY"
+												? "Company data"
+												: "All data"
+									}}
+								</small>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="status">
+						<th mat-header-cell *matHeaderCellDef>Status</th>
+
+						<td mat-cell *matCellDef="let permission">
+							<span
+								class="status-indicator"
+								[class.active]="permission.isActive"
+								[class.inactive]="!permission.isActive"
+							>
+								<span class="status-dot"></span>
+
+								{{
+									permission.isActive ? "Active" : "Inactive"
+								}}
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<th
+							mat-header-cell
+							*matHeaderCellDef
+							class="action-column"
+						>
+							Actions
+						</th>
+
+						<td
+							mat-cell
+							*matCellDef="let permission"
+							class="action-column"
+						>
+							<button
+								type="button"
+								class="btn btn-sm btn-light"
+								[matMenuTriggerFor]="actionMenu"
+								(click)="$event.stopPropagation()"
+							>
+								<i class="fas fa-ellipsis-v"></i>
+							</button>
+
+							<mat-menu #actionMenu="matMenu">
+								<button
+									mat-menu-item
+									(click)="openEditDialog(permission)"
+								>
+									<i class="fas fa-edit mr-2"></i>
+									<span>Edit</span>
+								</button>
+
+								<button
+									mat-menu-item
+									class="menu-danger"
+									[disabled]="
+										permission.isSystem ||
+										!permission.isActive
+									"
+									(click)="deletePermission(permission)"
+								>
+									<i class="fas fa-ban mr-2"></i>
+									<span>Deactivate</span>
+								</button>
+							</mat-menu>
+						</td>
+					</ng-container>
+
+					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+					<tr
+						mat-row
+						*matRowDef="let row; columns: displayedColumns"
+					></tr>
+				</table>
+
+				<div
+					*ngIf="filteredPermissions.length === 0"
+					class="empty-state"
+				>
+					<i class="fas fa-key"></i>
+					<h5>No permission found</h5>
+					<p>Create a permission or adjust your filters.</p>
+				</div>
+			</div>
+		</panel-body>
+
+		<panel-footer>
+			<small class="text-secondary">
+				{{ filteredPermissions.length }} displayed from
+				{{ permissions.length }} permissions
+			</small>
+		</panel-footer>
+	</panel>
+</page-body>

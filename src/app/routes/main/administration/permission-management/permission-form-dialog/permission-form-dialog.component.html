@@ -1,0 +1,66 @@
+<div class="dialog-header">
+	<div>
+		<h2>{{ title }}</h2>
+		<p>{{ data.mode === 'create' ? 'Create a new permission.' : 'Update permission information.' }}</p>
+	</div>
+	<button type="button" class="dialog-close" [disabled]="isSaving" (click)="cancel()"><i class="fas fa-times"></i></button>
+</div>
+
+<mat-dialog-content>
+	<div *ngIf="errorMessage" class="error-message"><i class="fas fa-exclamation-circle"></i><span>{{ errorMessage }}</span></div>
+
+	<form [formGroup]="form" novalidate>
+		<div class="form-grid two-columns">
+			<div class="form-group">
+				<label for="permission-label">Permission Name <span>*</span></label>
+				<input id="permission-label" class="form-control" type="text" formControlName="label" />
+				<small *ngIf="form.controls.label.touched && form.controls.label.invalid" class="field-error">Permission name is required.</small>
+			</div>
+
+			<div class="form-group">
+				<label for="permission-module">Module <span>*</span></label>
+				<input id="permission-module" class="form-control" type="text" formControlName="module" (blur)="normalizeModule(); generateCode()" />
+				<small *ngIf="form.controls.module.touched && form.controls.module.invalid" class="field-error">Module is required.</small>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="permission-code">Permission Code <span>*</span></label>
+			<div class="code-input">
+				<input id="permission-code" class="form-control" type="text" formControlName="code" [readonly]="isSystemPermission" (blur)="normalizeCode()" />
+				<button type="button" class="btn btn-light" [disabled]="isSystemPermission" (click)="generateCode()">Generate</button>
+			</div>
+			<small class="field-help">Example: AUTH.LOGIN or USER.UPDATE.</small>
+			<small *ngIf="form.controls.code.touched && form.controls.code.invalid" class="field-error">Enter a valid permission code.</small>
+		</div>
+
+		<div class="form-grid two-columns">
+			<div class="form-group">
+				<label for="permission-action">Action</label>
+				<input id="permission-action" class="form-control" type="text" formControlName="action" (blur)="normalizeAction(); generateCode()" />
+			</div>
+			<div class="form-group">
+				<label for="permission-scope">Scope</label>
+				<input id="permission-scope" class="form-control" type="text" formControlName="scope" (blur)="normalizeScope()" />
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="permission-description">Description</label>
+			<textarea id="permission-description" class="form-control" rows="4" formControlName="description"></textarea>
+		</div>
+
+		<label class="status-control" for="permission-active">
+			<input id="permission-active" type="checkbox" formControlName="isActive" />
+			<span><strong>Active</strong><small>Inactive permissions cannot be assigned to roles.</small></span>
+		</label>
+	</form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+	<button type="button" class="btn btn-light" [disabled]="isSaving" (click)="cancel()">Cancel</button>
+	<button type="button" class="btn btn-primary" [disabled]="isSaving" (click)="save()">
+		<span *ngIf="isSaving" class="spinner-border spinner-border-sm"></span>
+		{{ isSaving ? 'Saving...' : 'Save' }}
+	</button>
+</mat-dialog-actions>

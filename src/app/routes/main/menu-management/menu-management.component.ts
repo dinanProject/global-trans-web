@@ -99,7 +99,6 @@ export class MenuManagementComponent implements OnInit, OnDestroy {
 				}),
 			)
 			.subscribe((menus: Menu[]) => {
-				console.log('menu management menus:', menus);
 				this.menus = menus ?? [];
 				this.refreshRows();
 			});

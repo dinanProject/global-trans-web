@@ -1,45 +1,33 @@
-<li
-	class="menu"
-	[ngClass]="isHeader ? menu.visibility : ''"
-	[class.menu-header]="isHeader"
-	[class.hidden]="isHidden"
-	[class.selected]="isMenuSelected"
->
-	@if (isHeader) {
-		<h4>{{ menu.menuName }}</h4>
-	}
+<li class="menu" [class.hidden]="isHidden" [class.selected]="isMenuSelected">
+	<a
+		class="anc"
+		[routerLink]="menu.route || null"
+		(click)="onMenuClick($event)"
+		[class.active]="isActive"
+		fxLayout
+		fxLayoutAlign="start center"
+	>
+		<span class="level" [style.width.px]="menuLevel * 27"></span>
 
-	@if (isLink) {
-		<a
-			class="anc"
-			[routerLink]="menu.route || null"
-			(click)="onMenuClick($event)"
-			[class.active]="isActive"
+		<i
+			[class]="menu.icon || 'fas fa-th-large'"
 			fxLayout
-			fxLayoutAlign="start center"
-		>
-			<span class="level" [style.width.px]="menuLevel * 27"></span>
+			fxLayoutAlign="center center"
+		></i>
 
+		<h5>{{ menu.menuName }}</h5>
+
+		@if (hasChildren) {
 			<i
-				[class]="menu.icon || 'fas fa-th-large'"
-				fxLayout
-				fxLayoutAlign="center center"
+				class="submenu-indicator"
+				[ngClass]="
+					menu.visibility === 'expanded'
+						? 'fas fa-caret-up'
+						: 'fas fa-caret-down'
+				"
 			></i>
-
-			<h5>{{ menu.menuName }}</h5>
-
-			@if (hasChildren) {
-				<i
-					class="submenu-indicator"
-					[ngClass]="
-						menu.visibility === 'expanded'
-							? 'fas fa-caret-up'
-							: 'fas fa-caret-down'
-					"
-				></i>
-			}
-		</a>
-	}
+		}
+	</a>
 
 	@if (hasChildren) {
 		<ul class="menus" [ngClass]="menu.visibility">

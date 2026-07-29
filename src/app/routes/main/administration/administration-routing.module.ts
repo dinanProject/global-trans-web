@@ -1,0 +1,48 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+import { AccessManagementComponent } from './access-management/access-management.component';
+import { PermissionComponent } from './permission-management/permission.component';
+import { RoleComponent } from './role-management/role.component';
+import { UserComponent } from './user/user.component';
+
+const routes: Routes = [
+	{
+		path: 'access-management',
+		component: AccessManagementComponent,
+		data: {
+			title: 'Administration',
+			subtitle: '',
+		},
+	},
+	{
+		path: 'role-management',
+		component: RoleComponent,
+		data: {
+			title: 'Administration',
+			subtitle: '',
+		},
+	},
+	{
+		path: 'permission-management',
+		component: PermissionComponent,
+		data: {
+			title: 'Administration',
+			subtitle: '',
+		},
+	},
+	{
+		path: 'users',
+		component: UserComponent,
+		data: {
+			title: 'Administration',
+			subtitle: '',
+		},
+	},
+];
+
+@NgModule({
+	imports: [RouterModule.forChild(routes)],
+	exports: [RouterModule],
+})
+export class AdministrationRoutingModule {}

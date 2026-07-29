@@ -1,0 +1,342 @@
+<div class="dialog-header">
+	<div>
+		<h2>{{ title }}</h2>
+		<p>
+			{{
+				data.mode === "create"
+					? "Create a new reservation request."
+					: "Update reservation request information."
+			}}
+		</p>
+	</div>
+	<button
+		type="button"
+		class="dialog-close"
+		[disabled]="isSaving"
+		(click)="cancel()"
+	>
+		<i class="fas fa-times"></i>
+	</button>
+</div>
+<mat-dialog-content>
+	<div *ngIf="errorMessage" class="error-message">
+		<i class="fas fa-exclamation-circle"></i>
+		<span>{{ errorMessage }}</span>
+	</div>
+
+	<form [formGroup]="form" novalidate>
+		<div class="dialog-layout">
+			<section class="request-information">
+				<div class="section-heading">
+					<h6>Request Information</h6>
+					<small>Complete the reservation request information.</small>
+				</div>
+
+				<div class="form-grid">
+					<div class="form-group">
+						<label>Company</label>
+
+						<input
+							type="text"
+							class="form-control"
+							[value]="
+								data.company
+									? data.company.name +
+										' (' +
+										data.company.code +
+										')'
+									: '—'
+							"
+							readonly
+						/>
+					</div>
+
+					<div class="form-group">
+						<label>Division</label>
+
+						<select
+							class="form-control"
+							formControlName="divisionUuid"
+						>
+							<option value="">Select division</option>
+
+							<option
+								*ngFor="let division of data.divisions"
+								[value]="division.uuid"
+							>
+								{{ division.name }} ({{ division.code }})
+							</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label>
+							Start Date
+							<span class="required">*</span>
+						</label>
+
+						<input
+							type="date"
+							class="form-control"
+							formControlName="startDate"
+						/>
+
+						<span
+							class="field-error"
+							*ngIf="
+								form.get('startDate')?.touched &&
+								form.get('startDate')?.hasError('required')
+							"
+						>
+							Start date wajib diisi.
+						</span>
+					</div>
+
+					<div class="form-group">
+						<label>
+							End Date
+							<span class="required">*</span>
+						</label>
+
+						<input
+							type="date"
+							class="form-control"
+							formControlName="endDate"
+							[min]="form.get('startDate')?.value"
+						/>
+
+						<span
+							class="field-error"
+							*ngIf="
+								form.get('endDate')?.touched &&
+								form.get('endDate')?.hasError('required')
+							"
+						>
+							End date wajib diisi.
+						</span>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label>Purpose</label>
+
+					<textarea
+						class="form-control"
+						rows="3"
+						formControlName="purpose"
+						placeholder="Describe the operational purpose..."
+					></textarea>
+				</div>
+
+				<div class="form-group">
+					<label>Notes</label>
+
+					<textarea
+						class="form-control"
+						rows="2"
+						formControlName="notes"
+						placeholder="Additional notes..."
+					></textarea>
+				</div>
+			</section>
+
+			<section class="equipment-section">
+				<div class="detail-header">
+					<div>
+						<h6>Equipment Details</h6>
+						<small>
+							Each row represents one equipment category request.
+						</small>
+					</div>
+
+					<button
+						type="button"
+						class="btn btn-sm btn-light"
+						(click)="addDetail()"
+					>
+						<i class="fas fa-plus mr-1"></i>
+						Add Row
+					</button>
+				</div>
+
+				<div formArrayName="details" class="detail-list">
+					<div
+						*ngFor="let detail of details.controls; let i = index"
+						[formGroupName]="i"
+						class="detail-card"
+					>
+						<div class="detail-card-header">
+							<div class="detail-title">
+								<span class="detail-index">
+									{{ i + 1 }}
+								</span>
+
+								<strong>Equipment Item</strong>
+							</div>
+
+							<button
+								type="button"
+								class="remove-detail"
+								[disabled]="details.length <= 1"
+								(click)="removeDetail(i)"
+							>
+								<i class="fas fa-trash-alt"></i>
+							</button>
+						</div>
+
+						<div class="detail-fields">
+							<!-- <div class="form-group category-field">
+								<label>
+									Equipment Category
+									<span class="required">*</span>
+								</label>
+
+								<select
+									class="form-control"
+									formControlName="equipmentCategoryId"
+								>
+									<option [ngValue]="null">
+										Select category
+									</option>
+
+									<option
+										*ngFor="let category of data.categories"
+										[ngValue]="category.id"
+									>
+										{{ category.name }}
+
+										<ng-container *ngIf="category.code">
+											({{ category.code }})
+										</ng-container>
+									</option>
+								</select>
+							</div> -->
+							<div class="form-group category-field">
+								<label>
+									Equipment Category
+									<span class="required">*</span>
+								</label>
+
+								<select
+									class="form-control"
+									formControlName="equipmentCategoryId"
+									(change)="onCategoryChange(i)"
+								>
+									<option [ngValue]="null">
+										Select category
+									</option>
+
+									<option
+										*ngFor="let category of data.categories"
+										[ngValue]="category.id"
+									>
+										{{ category.name }}
+										<ng-container *ngIf="category.code">
+											({{ category.code }})
+										</ng-container>
+									</option>
+								</select>
+							</div>
+
+							<div class="form-group unit-field">
+								<label>
+									Equipment Unit
+									<span class="required">*</span>
+								</label>
+
+								<select
+									class="form-control"
+									formControlName="equipmentUnitId"
+									[disabled]="
+										!detail.get('equipmentCategoryId')
+											?.value
+									"
+								>
+									<option [ngValue]="null">
+										{{
+											detail.get("equipmentCategoryId")
+												?.value
+												? "Select equipment unit"
+												: "Select category first"
+										}}
+									</option>
+
+									<option
+										*ngFor="
+											let unit of getUnitsByCategory(i)
+										"
+										[ngValue]="unit.id"
+									>
+										{{ unit.unitCode }} -
+										{{ unit.unitName }}
+										<ng-container *ngIf="unit.modelNumber">
+											({{ unit.modelNumber }})
+										</ng-container>
+									</option>
+								</select>
+							</div>
+							<div class="detail-row">
+								<div class="form-group quantity-field">
+									<label>
+										Qty
+										<span class="required">*</span>
+									</label>
+
+									<input
+										type="number"
+										min="1"
+										class="form-control"
+										formControlName="quantity"
+									/>
+								</div>
+
+								<div class="form-group rate-field">
+									<label>Rate</label>
+
+									<input
+										type="number"
+										min="0"
+										step="0.01"
+										class="form-control"
+										formControlName="rate"
+									/>
+								</div>
+							</div>
+
+							<div class="form-group remarks-field">
+								<label>Remarks</label>
+
+								<input
+									type="text"
+									class="form-control"
+									formControlName="remarks"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</form>
+</mat-dialog-content>
+<mat-dialog-actions
+	><button
+		type="button"
+		class="btn btn-light"
+		[disabled]="isSaving"
+		(click)="cancel()"
+	>
+		Cancel</button
+	><button
+		type="button"
+		class="btn btn-primary"
+		[disabled]="isSaving"
+		(click)="save()"
+	>
+		<span
+			*ngIf="isSaving"
+			class="spinner-border spinner-border-sm mr-1"
+		></span
+		>{{ isSaving ? "Saving..." : "Save" }}
+	</button></mat-dialog-actions
+>

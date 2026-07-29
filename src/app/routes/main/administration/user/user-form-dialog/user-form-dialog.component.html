@@ -1,0 +1,325 @@
+<div class="dialog-header">
+	<div>
+		<h2 mat-dialog-title>{{ title }}</h2>
+		<p class="dialog-subtitle">{{ subtitle }}</p>
+	</div>
+
+	<button
+		type="button"
+		class="dialog-close"
+		(click)="cancel()"
+		[disabled]="isSaving"
+		aria-label="Close dialog"
+	>
+		<i class="fas fa-times"></i>
+	</button>
+</div>
+
+<mat-dialog-content [formGroup]="form">
+	<div *ngIf="errorMessage" class="error-message">
+		<i class="fas fa-exclamation-circle"></i>
+		<span>{{ errorMessage }}</span>
+	</div>
+
+	<div class="dialog-layout">
+		<div class="left-column">
+			<section class="form-section">
+				<div class="section-heading">
+					<div class="section-icon"><i class="fas fa-user"></i></div>
+					<div>
+						<h3>User Information</h3>
+						<p>Identity and contact information.</p>
+					</div>
+				</div>
+
+				<div class="form-grid">
+					<div class="form-group span-2">
+						<label for="full-name">Full Name <span>*</span></label>
+						<input
+							id="full-name"
+							type="text"
+							class="form-control"
+							[class.is-invalid]="hasError('fullName')"
+							formControlName="fullName"
+							placeholder="Enter full name"
+							maxlength="150"
+							autocomplete="name"
+						/>
+						<div
+							*ngIf="hasError('fullName')"
+							class="invalid-feedback"
+						>
+							Full name is required and may contain up to 150
+							characters.
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="email">Email <span>*</span></label>
+						<input
+							id="email"
+							type="email"
+							class="form-control"
+							[class.is-invalid]="hasError('email')"
+							formControlName="email"
+							placeholder="name@company.com"
+							maxlength="150"
+							autocomplete="email"
+						/>
+						<div *ngIf="hasError('email')" class="invalid-feedback">
+							Enter a valid email address.
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="phone">Phone</label>
+						<input
+							id="phone"
+							type="text"
+							class="form-control"
+							[class.is-invalid]="hasError('phone')"
+							formControlName="phone"
+							placeholder="Optional phone number"
+							maxlength="30"
+							autocomplete="tel"
+						/>
+					</div>
+				</div>
+			</section>
+
+			<section class="form-section">
+				<div class="section-heading">
+					<div class="section-icon">
+						<i class="fas fa-building"></i>
+					</div>
+					<div>
+						<h3>Organization</h3>
+						<p>Company and optional division.</p>
+					</div>
+				</div>
+
+				<div class="form-grid">
+					<div class="form-group">
+						<label for="company">Company <span>*</span></label>
+						<select
+							class="form-control"
+							formControlName="companyUuid"
+							(change)="companyChanged()"
+						>
+							<option value="">Select company</option>
+
+							<option
+								*ngFor="let company of data.options.companies"
+								[value]="company.uuid"
+							>
+								{{ company.name }} ({{ company.code }})
+							</option>
+						</select>
+						<div
+							*ngIf="hasError('companyUuid')"
+							class="invalid-feedback"
+						>
+							Company is required.
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="division">Division</label>
+						<select
+							id="division"
+							class="form-control custom-select"
+							formControlName="divisionUuid"
+							[disabled]="!form.controls.companyUuid.value"
+						>
+							<option value="">None</option>
+							<option
+								*ngFor="let division of availableDivisions"
+								[value]="division.uuid"
+							>
+								{{ division.name }} ({{ division.code }})
+							</option>
+						</select>
+					</div>
+				</div>
+			</section>
+
+			<section
+				*ngIf="data.mode === 'create'"
+				class="form-section compact-section"
+			>
+				<div class="section-heading compact-heading">
+					<div class="section-icon"><i class="fas fa-key"></i></div>
+					<div>
+						<h3>Temporary Password</h3>
+						<p>Minimum 8 characters.</p>
+					</div>
+				</div>
+
+				<div class="form-group mb-0">
+					<label for="password">Password <span>*</span></label>
+					<input
+						id="password"
+						type="password"
+						class="form-control"
+						[class.is-invalid]="hasError('password')"
+						formControlName="password"
+						placeholder="Minimum 8 characters"
+						maxlength="100"
+						autocomplete="new-password"
+					/>
+					<div *ngIf="hasError('password')" class="invalid-feedback">
+						Password must contain at least 8 characters.
+					</div>
+				</div>
+			</section>
+
+			<div class="status-card">
+				<div>
+					<div class="status-title">Active User</div>
+					<div class="status-description">
+						Inactive users cannot log in.
+					</div>
+				</div>
+
+				<mat-slide-toggle
+					formControlName="isActive"
+					[disabled]="isSaving"
+					aria-label="Active user"
+				></mat-slide-toggle>
+			</div>
+		</div>
+
+		<section class="form-section roles-section">
+			<div class="section-heading roles-heading">
+				<div class="section-icon">
+					<i class="fas fa-user-shield"></i>
+				</div>
+				<div>
+					<h3>Roles</h3>
+					<p>Select role groups or individual roles.</p>
+				</div>
+				<span class="selection-badge">
+					{{ selectedRoleUuids.length }} selected
+				</span>
+			</div>
+
+			<div *ngIf="roleGroups.length === 0" class="role-empty">
+				<i class="fas fa-user-shield"></i>
+				<span>No active roles available.</span>
+			</div>
+
+			<div
+				class="role-tree"
+				[class.is-invalid-list]="hasError('roleUuids')"
+			>
+				<div
+					*ngFor="let group of roleGroups; trackBy: trackByRoleGroup"
+					class="role-group"
+				>
+					<label class="role-group-header">
+						<input
+							type="checkbox"
+							[checked]="isRoleGroupSelected(group)"
+							[indeterminate]="
+								isRoleGroupPartiallySelected(group)
+							"
+							[disabled]="isSaving"
+							(change)="
+								toggleRoleGroup(
+									group,
+									$any($event.target).checked
+								)
+							"
+						/>
+						<span class="tree-branch"
+							><i class="fas fa-sitemap"></i
+						></span>
+						<span class="group-copy">
+							<strong>{{ group.name }}</strong>
+							<small>{{ group.description }}</small>
+						</span>
+						<span class="group-count">{{
+							group.roles.length
+						}}</span>
+					</label>
+
+					<div class="role-children">
+						<label
+							*ngFor="
+								let role of group.roles;
+								trackBy: trackByRoleUuid
+							"
+							class="role-row"
+							[class.role-row-selected]="
+								isRoleSelected(role.uuid)
+							"
+						>
+							<input
+								type="checkbox"
+								[checked]="isRoleSelected(role.uuid)"
+								[disabled]="isSaving"
+								(change)="
+									toggleRole(
+										role.uuid,
+										$any($event.target).checked
+									)
+								"
+							/>
+							<span class="tree-line"></span>
+							<span class="role-copy">
+								<span class="role-title-row">
+									<strong>{{ role.name }}</strong>
+									<span
+										*ngIf="role.isSystem"
+										class="system-badge"
+										>System</span
+									>
+								</span>
+								<small>{{ role.code }}</small>
+								<span *ngIf="role.description">{{
+									role.description
+								}}</span>
+							</span>
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div *ngIf="hasError('roleUuids')" class="field-error">
+				Select at least one role.
+			</div>
+		</section>
+	</div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+	<button
+		type="button"
+		class="btn btn-light"
+		(click)="cancel()"
+		[disabled]="isSaving"
+	>
+		Cancel
+	</button>
+
+	<button
+		type="button"
+		class="btn btn-primary"
+		(click)="save()"
+		[disabled]="isSaving"
+	>
+		<span
+			*ngIf="isSaving"
+			class="spinner-border spinner-border-sm mr-2"
+			role="status"
+			aria-hidden="true"
+		></span>
+		{{
+			isSaving
+				? "Saving..."
+				: data.mode === "create"
+					? "Create User"
+					: "Save Changes"
+		}}
+	</button>
+</mat-dialog-actions>

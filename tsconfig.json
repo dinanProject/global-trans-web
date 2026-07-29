@@ -1,17 +1,21 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
     ],
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    },
     "lib": [
       "es2018",
       "dom"
@@ -22,7 +26,7 @@
     "esModuleInterop": true
   },
   "angularCompilerOptions": {
-    "fullTemplateTypeCheck": true,
-    "strictInjectionParameters": true
+  	"strictTemplates": true,
+  	"strictInjectionParameters": true
   }
 }
