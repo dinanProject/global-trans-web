@@ -208,16 +208,15 @@ body {
 			font-size: 12px;
 			margin-bottom: 2px;
 
-			&:before {
+			&::after {
 				content: ":";
-				float: right;
 				font-size: 12px;
-				margin-left: 4px;
+				margin-left: 1px;
 			}
 
-			&.no-colon:before {
-				content: "";
-				margin-left: 0px;
+			&.no-colon::after {
+				content: none;
+				margin-left: 0;
 			}
 		}
 

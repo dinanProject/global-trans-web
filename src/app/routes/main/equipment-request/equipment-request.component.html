@@ -1,7 +1,7 @@
 <page-header>
 	<div class="header-content">
 		<div>
-			<h5>Equipment Reservation Request</h5>
+			<h5>Reservation</h5>
 			<small class="text-secondary"
 				>Create, submit, approve, and monitor equipment reservation
 				requests.</small
@@ -38,41 +38,57 @@
 							</div>
 						</div>
 					</div>
-					<div class="form-group status-field">
+					<!-- <div class="form-group status-field">
 						<label>Status</label>
+
 						<select
 							class="form-control"
 							[formControl]="statusControl"
 						>
-							<option value="all">All Status</option>
-							<option value="DRAFT">Draft</option>
-							<option value="SUBMITTED">Submitted</option>
-							<option value="CLIENT_APPROVAL">
-								Client Approval
+							<option value="all">All Statuses</option>
+
+							@for (status of statuses; track status.id) {
+								<option [value]="status.code">
+									{{ status.name }}
+								</option>
+							}
+						</select>
+					</div> -->
+					<div class="form-group status-field">
+						<label>Status</label>
+
+						<select
+							class="form-control"
+							[formControl]="statusControl"
+						>
+							<option value="all">All Statuses</option>
+
+							<option
+								*ngFor="let status of statuses"
+								[value]="status.code"
+							>
+								{{ status.name }}
 							</option>
-							<option value="GTSI_REVIEW">GTSI Review</option>
-							<option value="GTSI_APPROVED">GTSI Approved</option>
-							<option value="ASSIGNED">Assigned</option>
-							<option value="IN_OPERATION">In Operation</option>
-							<option value="COMPLETED">Completed</option>
-							<option value="REJECTED">Rejected</option>
-							<option value="CANCELLED">Cancelled</option>
 						</select>
 					</div>
 					<div class="form-group date-field">
 						<label>From</label
 						><input
 							type="date"
-							class="form-control"
+							class="form-control date-input"
+							[class.has-value]="startDateControl.value"
 							[formControl]="startDateControl"
+							required
 						/>
 					</div>
 					<div class="form-group date-field">
 						<label>To</label
 						><input
 							type="date"
-							class="form-control"
+							class="form-control date-input"
+							[class.has-value]="endDateControl.value"
 							[formControl]="endDateControl"
+							required
 						/>
 					</div>
 				</div>
@@ -122,8 +138,7 @@
 									<h5>{{ request.requestByName || "—" }}</h5>
 									<h6>{{ request.requestNo }}</h6>
 									<small class="text-secondary">{{
-										request.requestDate
-											| date: "dd MMM yyyy"
+										request.requestDate | date: ""
 									}}</small>
 								</div>
 							</div>
@@ -134,10 +149,12 @@
 							Company / Division
 						</th>
 						<td mat-cell *matCellDef="let request">
-							<strong>{{ request.companyName || "—" }}</strong
-							><small class="d-block text-secondary">{{
+							<small class="d-block text-secondary">{{
 								request.divisionName || "No division"
 							}}</small>
+							<strong class="text-primary">{{
+								request.companyName || "—"
+							}}</strong>
 						</td></ng-container
 					>
 					<ng-container matColumnDef="equipment">

@@ -26,7 +26,7 @@
 			border-left: 1px solid #e6eaee;
 		}
 
-		.logo-raya {
+		.logo-gtsi {
 			height: 70px;
 			cursor: pointer;
 
@@ -127,27 +127,23 @@
 			.logo {
 				position: relative;
 				z-index: 1;
-				width: 40px;
-				height: 40px;
+				width: 48px;
+				height: 48px;
 				overflow: hidden;
 				border-radius: 3px;
-				line-height: 40px;
+				line-height: 48px;
 				text-align: center;
 
 				img {
 					display: block;
-					width: 40px;
-					height: 40px;
+					width: 48px;
+					height: 48px;
+					transform: scale(2);
 					object-fit: contain;
 				}
 
 				&::before {
-					position: absolute;
-					z-index: 2;
-					inset: 0;
-					background-color: rgba(0, 0, 0, 0.05);
-					content: "";
-					pointer-events: none;
+					display: none;
 				}
 			}
 

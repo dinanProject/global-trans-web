@@ -53,7 +53,6 @@ export class CompanyComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	readonly displayedColumns: string[] = [
 		'name',
-		'code',
 		'type',
 		'contact',
 		'location',

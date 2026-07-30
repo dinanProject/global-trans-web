@@ -195,15 +195,23 @@
 
 			<div class="col-12">
 				<div class="form-group active-field">
-					<label class="no-colon">Active</label>
+					<label>Active</label>
 
-					<mat-slide-toggle formControlName="isActive">
-						{{
-							formGroup.controls.isActive.value
-								? "Active"
-								: "Inactive"
-						}}
-					</mat-slide-toggle>
+					<label class="active-control no-colon">
+						<input type="checkbox" formControlName="isActive" />
+
+						<span class="toggle-track">
+							<span class="toggle-thumb"></span>
+						</span>
+
+						<span>
+							{{
+								formGroup.controls.isActive.value
+									? "Active"
+									: "Inactive"
+							}}
+						</span>
+					</label>
 				</div>
 			</div>
 		</div>

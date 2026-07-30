@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 
 import { ApiService } from 'src/app/core/services/api.service';
 
+export interface PermissionOption {
+	permissionId: number;
+	uuid: string;
+	code: string;
+	label: string;
+	isActive?: boolean;
+}
+
 export interface Menu {
 	menuId: number;
 	uuid: string;
@@ -38,6 +46,7 @@ export interface MenuDialogData {
 	menu?: Menu;
 	parentMenu?: Menu;
 	menus: Menu[];
+	permissions: PermissionOption[];
 }
 
 export interface MenuDialogResult {
@@ -61,6 +70,10 @@ export class MenuManagementService {
 
 	getMenu(uuid: string) {
 		return this.apiService.get(`/menu/${uuid}`);
+	}
+
+	getPermissions() {
+		return this.apiService.get('/permission');
 	}
 
 	createMenu(payload: MenuPayload) {

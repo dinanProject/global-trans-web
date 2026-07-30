@@ -4,11 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-
-import { UiModule } from '../../../shared/ui.module';
 
 import { EquipmentRoutingModule } from './equipment-routing.module';
 
@@ -17,6 +13,9 @@ import { CategoryDialogComponent } from './category/category-dialog/category-dia
 
 import { UnitComponent } from './unit/unit.component';
 import { UnitDialogComponent } from './unit/unit-dialog/unit-dialog.component';
+import { PageModule } from 'src/app/shared/page/page.module';
+import { PanelModule } from 'src/app/shared/panel/panel.module';
+import { LoadingModule } from 'src/app/shared/loading/loading.module';
 
 @NgModule({
 	declarations: [
@@ -28,13 +27,14 @@ import { UnitDialogComponent } from './unit/unit-dialog/unit-dialog.component';
 	imports: [
 		CommonModule,
 		ReactiveFormsModule,
-		UiModule,
 
 		MatDialogModule,
 		MatMenuModule,
-		MatSlideToggleModule,
-		MatSortModule,
 		MatTableModule,
+
+		PageModule,
+		PanelModule,
+		LoadingModule,
 
 		EquipmentRoutingModule,
 	],

@@ -23,10 +23,10 @@ import {
 import {
 	EquipmentCategoryOption,
 	EquipmentRequestCompanyOption,
-	EquipmentRequestDetail,
 	EquipmentRequestDivisionOption,
 	EquipmentRequestMaster,
 	EquipmentRequestService,
+	EquipmentRequestStatusOption,
 	EquipmentUnitOption,
 } from './equipment-request.service';
 
@@ -50,6 +50,7 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 	divisions: EquipmentRequestDivisionOption[] = [];
 	categories: EquipmentCategoryOption[] = [];
 	units: EquipmentUnitOption[] = [];
+	statuses: EquipmentRequestStatusOption[] = [];
 	isLoading = false;
 	deletingUuid = '';
 	actionUuid = '';
@@ -221,6 +222,8 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 						this.company = null;
 						this.divisions = [];
 						this.categories = [];
+						this.units = [];
+						this.statuses = [];
 						return;
 					}
 
@@ -233,6 +236,8 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 						categories:
 							this.equipmentRequestService.getEquipmentCategories(),
 						units: this.equipmentRequestService.getEquipmentUnits(),
+						statuses:
+							this.equipmentRequestService.getEquipmentRequestStatuses(),
 					})
 						.pipe(takeUntil(this.destroy$))
 						.subscribe({
@@ -245,10 +250,22 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 								this.divisions = result.divisions ?? [];
 								this.categories = result.categories ?? [];
 								this.units = result.units ?? [];
+								this.statuses = (result.statuses ?? [])
+									.filter(
+										(status) =>
+											Number(status.isActive) === 1,
+									)
+									.sort(
+										(a, b) =>
+											Number(a.sortOrder) -
+											Number(b.sortOrder),
+									);
 							},
 							error: () => {
 								this.divisions = [];
 								this.categories = [];
+								this.units = [];
+								this.statuses = [];
 							},
 						});
 				},

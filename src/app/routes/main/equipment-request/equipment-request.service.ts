@@ -1,6 +1,6 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 import { ApiService } from 'src/app/core/services/api.service';
 
@@ -149,6 +149,19 @@ export interface EquipmentRequestFormDialogData {
 	units: EquipmentUnitOption[];
 }
 
+export interface EquipmentRequestStatusOption {
+	id: number;
+	uuid: string;
+	code: string;
+	name: string;
+	description?: string | null;
+	stage: string;
+	sortOrder: number;
+	allowEdit: boolean;
+	isTerminal: boolean;
+	isActive: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class EquipmentRequestService {
 	private readonly baseUrl = '/equipment-request';
@@ -163,6 +176,10 @@ export class EquipmentRequestService {
 
 	getRequest(requestUuid: string): Observable<EquipmentRequestMaster> {
 		return this.apiService.get(`${this.baseUrl}/${requestUuid}`);
+	}
+
+	getEquipmentRequestStatuses(): Observable<EquipmentRequestStatusOption[]> {
+		return this.apiService.get(`${this.baseUrl}/request-statuses`);
 	}
 
 	createRequest(

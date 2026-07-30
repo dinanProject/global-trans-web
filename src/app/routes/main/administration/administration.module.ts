@@ -18,6 +18,11 @@ import { RoleFormDialogComponent } from './role-management/role-form-dialog/role
 import { PermissionFormDialogComponent } from './permission-management/permission-form-dialog/permission-form-dialog.component';
 import { UserComponent } from './user/user.component';
 import { UserFormDialogComponent } from './user/user-form-dialog/user-form-dialog.component';
+import { PageModule } from 'src/app/shared/page/page.module';
+import { PanelModule } from 'src/app/shared/panel/panel.module';
+import { LoadingModule } from 'src/app/shared/loading/loading.module';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
 	declarations: [
@@ -38,12 +43,17 @@ import { UserFormDialogComponent } from './user/user-form-dialog/user-form-dialo
 		ReactiveFormsModule,
 		FlexLayoutModule,
 
-		AdministrationRoutingModule,
-		UiModule,
+		PageModule,
+		PanelModule,
+		LoadingModule,
 
 		MatDialogModule,
 		MatProgressSpinnerModule,
 		MatTabsModule,
+		MatMenuModule,
+		MatTableModule,
+
+		AdministrationRoutingModule,
 	],
 })
 export class AdministrationModule {}
