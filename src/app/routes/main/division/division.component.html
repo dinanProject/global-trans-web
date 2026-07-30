@@ -123,9 +123,9 @@
 								<div>
 									<h6>{{ division.name }}</h6>
 
-									<small class="text-secondary">
+									<!-- <small class="text-secondary">
 										{{ division.code }}
-									</small>
+									</small> -->
 								</div>
 							</div>
 						</td>
@@ -135,7 +135,7 @@
 						<th mat-header-cell *matHeaderCellDef>Code</th>
 
 						<td mat-cell *matCellDef="let division">
-							<code>{{ division.code }}</code>
+							<div>{{ division.code }}</div>
 						</td>
 					</ng-container>
 
@@ -144,11 +144,10 @@
 
 						<td mat-cell *matCellDef="let division">
 							<div>
-								<h6>{{ division.companyName }}</h6>
-
 								<small class="text-secondary">
 									{{ division.companyCode }}
 								</small>
+								<h6>{{ division.companyName }}</h6>
 							</div>
 						</td>
 					</ng-container>

@@ -16,6 +16,7 @@ import {
 	Menu,
 	MenuDialogResult,
 	MenuManagementService,
+	PermissionOption,
 } from './menu-management.service';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import { MainService } from '../main.service';
@@ -40,6 +41,7 @@ export class MenuManagementComponent implements OnInit, OnDestroy {
 
 	menus: Menu[] = [];
 	menuRows: MenuRow[] = [];
+	permissions: PermissionOption[] = [];
 
 	expandedMenuIds = new Set<number>();
 
@@ -72,6 +74,7 @@ export class MenuManagementComponent implements OnInit, OnDestroy {
 			)
 			.subscribe(() => this.refreshRows());
 
+		this.loadPermissions();
 		this.loadMenus();
 	}
 
@@ -104,6 +107,25 @@ export class MenuManagementComponent implements OnInit, OnDestroy {
 			});
 	}
 
+	private loadPermissions(): void {
+		this.menuService
+			.getPermissions()
+			.pipe(
+				takeUntil(this.destroy$),
+				catchError(() => of([])),
+			)
+			.subscribe((permissions: PermissionOption[]) => {
+				this.permissions = (permissions ?? [])
+					.filter((permission) => {
+						return (
+							permission.isActive !== false &&
+							permission.code?.endsWith('.VIEW')
+						);
+					})
+					.sort((a, b) => a.code.localeCompare(b.code));
+			});
+	}
+
 	openCreateDialog(parentMenu?: Menu): void {
 		const dialogRef = this.dialog.open(MenuDialogComponent, {
 			width: '760px',
@@ -112,6 +134,7 @@ export class MenuManagementComponent implements OnInit, OnDestroy {
 				mode: 'create',
 				parentMenu,
 				menus: this.menus,
+				permissions: this.permissions,
 			},
 		});
 
@@ -135,6 +158,7 @@ export class MenuManagementComponent implements OnInit, OnDestroy {
 				mode: 'edit',
 				menu,
 				menus: this.menus,
+				permissions: this.permissions,
 			},
 		});
 

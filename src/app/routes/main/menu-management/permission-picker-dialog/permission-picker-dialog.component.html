@@ -1,0 +1,120 @@
+<div class="permission-dialog">
+	<div class="dialog-header">
+		<div>
+			<h5>Select Permission</h5>
+
+			<small class="text-secondary">
+				Choose the permission required to display this menu.
+			</small>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-sm btn-light close-button"
+			(click)="cancel()"
+		>
+			<i class="fas fa-times"></i>
+		</button>
+	</div>
+
+	<div class="dialog-body">
+		<div class="toolbar">
+			<div class="form-group search-field">
+				<label>Search</label>
+
+				<div class="input-group">
+					<input
+						type="text"
+						class="form-control"
+						[formControl]="search"
+						placeholder="Search permission code or label..."
+						autocomplete="off"
+					/>
+
+					<div class="input-group-append">
+						<span class="input-group-text">
+							<i class="fas fa-search"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<button
+				type="button"
+				class="btn btn-sm btn-light no-permission-button"
+				[class.selected]="selectedPermissionId === null"
+				(click)="selectNoPermission()"
+			>
+				<i class="fas fa-unlock mr-1"></i>
+				No Permission
+			</button>
+		</div>
+
+		<div class="permission-table-container">
+			<table class="permission-table">
+				<thead>
+					<tr>
+						<th class="select-column"></th>
+						<th>Code</th>
+						<th>Permission</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr
+						*ngFor="
+							let permission of filteredPermissions;
+							trackBy: trackByPermissionId
+						"
+						[class.selected-row]="isSelected(permission)"
+						(click)="selectPermission(permission)"
+						(dblclick)="selectPermission(permission); save()"
+					>
+						<td class="select-column">
+							<input
+								type="radio"
+								name="permission"
+								[checked]="isSelected(permission)"
+								(change)="selectPermission(permission)"
+								(click)="$event.stopPropagation()"
+							/>
+						</td>
+
+						<td class="code-column">
+							<code>{{ permission.code }}</code>
+						</td>
+
+						<td>
+							{{ permission.label }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div *ngIf="filteredPermissions.length === 0" class="empty-state">
+				<i class="fas fa-key"></i>
+
+				<h6>No permission found</h6>
+
+				<p>Try another search keyword.</p>
+			</div>
+		</div>
+
+		<div class="result-summary">
+			<small class="text-secondary">
+				{{ filteredPermissions.length }} permission(s) displayed
+			</small>
+		</div>
+	</div>
+
+	<div class="dialog-footer">
+		<button type="button" class="btn btn-light" (click)="cancel()">
+			Cancel
+		</button>
+
+		<button type="button" class="btn btn-primary" (click)="save()">
+			<i class="fas fa-check mr-1"></i>
+			Select
+		</button>
+	</div>
+</div>

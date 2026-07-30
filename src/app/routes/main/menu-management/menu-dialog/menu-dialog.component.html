@@ -1,76 +1,111 @@
-<h2 mat-dialog-title>
-	{{ isEdit ? "Edit Menu" : "Add Menu" }}
-</h2>
+<div class="menu-dialog">
+	<div class="dialog-header">
+		<div>
+			<h5>{{ dialogTitle }}</h5>
 
-<form [formGroup]="formGroup" (ngSubmit)="submit()">
-	<mat-dialog-content>
-		<div class="row">
-			<div class="col-12">
-				<div class="form-group">
-					<label>Parent Menu</label>
+			<small class="text-secondary">
+				Configure menu navigation and permission access.
+			</small>
+		</div>
 
-					@if (canSelectParent) {
-						<select
-							class="form-control"
-							formControlName="parentUuid"
-						>
-							<option [ngValue]="null">Root Menu</option>
-							@for (menu of parentMenus; track menu.menuId) {
-								<option [ngValue]="menu.uuid">
-									{{ menu.menuName }}
-								</option>
-							}
-						</select>
-					} @else {
-						<input
-							type="text"
-							class="form-control"
-							[value]="parentMenuName"
-							readonly
-						/>
-					}
-				</div>
+		<button
+			type="button"
+			class="dialog-close"
+			(click)="cancel()"
+			aria-label="Close dialog"
+		>
+			<i class="fas fa-times"></i>
+		</button>
+	</div>
+
+	<form [formGroup]="form" (ngSubmit)="save()">
+		<div class="dialog-body">
+			<div class="form-group">
+				<label>Parent Menu</label>
+
+				<select class="form-control" formControlName="parentUuid">
+					<option [ngValue]="null">Root Menu</option>
+
+					<option
+						*ngFor="let menu of availableParentMenus"
+						[ngValue]="menu.uuid"
+					>
+						{{ menu.menuName }} - {{ menu.code }}
+					</option>
+				</select>
 			</div>
 
-			<div class="col-md-6">
-				<div class="form-group required">
-					<label>Code</label>
+			<div class="form-grid">
+				<div class="form-group">
+					<label>
+						Code
+						<span class="required">*</span>
+					</label>
 
 					<input
 						type="text"
-						class="form-control uppercase"
+						class="form-control"
 						formControlName="code"
-						[class.is-invalid]="isInvalid('code')"
-						placeholder="SYSTEM.MANAGEMENT"
+						placeholder="Example: EQUIPMENT.REQUEST"
 						autocomplete="off"
 					/>
 
-					<div *ngIf="isInvalid('code')" class="invalid-feedback">
-						Code wajib diisi.
-					</div>
-				</div>
-			</div>
+					<small
+						*ngIf="
+							form.get('code')?.touched &&
+							form.get('code')?.hasError('required')
+						"
+						class="text-danger"
+					>
+						Code menu wajib diisi.
+					</small>
 
-			<div class="col-md-6">
-				<div class="form-group required">
-					<label>Menu Name</label>
+					<small
+						*ngIf="
+							form.get('code')?.touched &&
+							form.get('code')?.hasError('maxlength')
+						"
+						class="text-danger"
+					>
+						Code menu terlalu panjang.
+					</small>
+				</div>
+
+				<div class="form-group">
+					<label>
+						Menu Name
+						<span class="required">*</span>
+					</label>
 
 					<input
 						type="text"
 						class="form-control"
 						formControlName="menuName"
-						[class.is-invalid]="isInvalid('menuName')"
-						placeholder="Menu Management"
+						placeholder="Example: Equipment Request"
 						autocomplete="off"
 					/>
 
-					<div *ngIf="isInvalid('menuName')" class="invalid-feedback">
-						Menu name wajib diisi.
-					</div>
-				</div>
-			</div>
+					<small
+						*ngIf="
+							form.get('menuName')?.touched &&
+							form.get('menuName')?.hasError('required')
+						"
+						class="text-danger"
+					>
+						Nama menu wajib diisi.
+					</small>
 
-			<div class="col-md-6">
+					<small
+						*ngIf="
+							form.get('menuName')?.touched &&
+							form.get('menuName')?.hasError('maxlength')
+						"
+						class="text-danger"
+					>
+						Nama menu terlalu panjang.
+					</small>
+				</div>
+
 				<div class="form-group">
 					<label>Route</label>
 
@@ -78,98 +113,167 @@
 						type="text"
 						class="form-control"
 						formControlName="route"
-						placeholder="/main/menu-management"
+						placeholder="/main/example"
 						autocomplete="off"
 					/>
-				</div>
-			</div>
 
-			<div class="col-md-6">
+					<small
+						*ngIf="
+							form.get('route')?.touched &&
+							form.get('route')?.hasError('maxlength')
+						"
+						class="text-danger"
+					>
+						Route terlalu panjang.
+					</small>
+				</div>
+
 				<div class="form-group">
 					<label>Icon</label>
 
-					<div class="input-group">
-						<div
-							*ngIf="formGroup.controls.icon.value"
-							class="input-group-prepend"
-						>
-							<span class="input-group-text">
-								<i [class]="formGroup.controls.icon.value"></i>
-							</span>
-						</div>
-
-						<input
-							type="text"
-							class="form-control"
-							formControlName="icon"
-							placeholder="fas fa-bars"
-							autocomplete="off"
-						/>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-md-6">
-				<div class="form-group">
-					<label>Permission ID</label>
-
 					<input
-						type="number"
+						type="text"
 						class="form-control"
-						formControlName="permissionId"
-						placeholder="Optional"
-						min="1"
+						formControlName="icon"
+						placeholder="fas fa-bars"
+						autocomplete="off"
 					/>
 
-					<small class="text-secondary">
-						Sementara menggunakan ID sampai Permission Management
-						tersedia.
+					<small
+						*ngIf="
+							form.get('icon')?.touched &&
+							form.get('icon')?.hasError('maxlength')
+						"
+						class="text-danger"
+					>
+						Icon terlalu panjang.
 					</small>
 				</div>
-			</div>
 
-			<div class="col-md-3">
-				<div class="form-group required">
-					<label>Sequence</label>
+				<div class="form-group permission-group">
+					<label>Permission</label>
+
+					<div
+						class="permission-selector"
+						tabindex="0"
+						(click)="openPermissionDialog()"
+						(keydown.enter)="openPermissionDialog()"
+						(keydown.space)="openPermissionDialog()"
+					>
+						<div class="permission-value">
+							<ng-container
+								*ngIf="selectedPermission; else noPermission"
+							>
+								<strong>
+									{{ selectedPermission?.code }}
+								</strong>
+
+								<small>
+									{{ selectedPermission?.label }}
+								</small>
+							</ng-container>
+
+							<ng-template #noPermission>
+								<span class="placeholder"> No Permission </span>
+							</ng-template>
+						</div>
+
+						<div class="permission-actions">
+							<button
+								*ngIf="selectedPermission"
+								type="button"
+								class="selector-button"
+								title="Clear permission"
+								(click)="clearPermission($event)"
+							>
+								<i class="fas fa-times"></i>
+							</button>
+
+							<button
+								type="button"
+								class="selector-button"
+								title="Select permission"
+								(click)="
+									$event.stopPropagation();
+									openPermissionDialog()
+								"
+							>
+								<i class="fas fa-search"></i>
+							</button>
+						</div>
+					</div>
+
+					<small class="form-text text-secondary">
+						Leave empty for parent or public menu.
+					</small>
+				</div>
+
+				<div class="form-group sequence-group">
+					<label>
+						Sequence
+						<span class="required">*</span>
+					</label>
 
 					<input
 						type="number"
 						class="form-control"
 						formControlName="sequence"
-						[class.is-invalid]="isInvalid('sequence')"
 						min="0"
+						step="1"
 					/>
 
-					<div *ngIf="isInvalid('sequence')" class="invalid-feedback">
+					<small
+						*ngIf="
+							form.get('sequence')?.touched &&
+							form.get('sequence')?.hasError('required')
+						"
+						class="text-danger"
+					>
+						Sequence wajib diisi.
+					</small>
+
+					<small
+						*ngIf="
+							form.get('sequence')?.touched &&
+							form.get('sequence')?.hasError('min')
+						"
+						class="text-danger"
+					>
 						Sequence minimal 0.
-					</div>
+					</small>
 				</div>
-			</div>
 
-			<div class="col-md-3">
-				<div class="form-group active-field">
-					<label class="no-colon">Active</label>
+				<div class="form-group active-group">
+					<label>Active</label>
 
-					<mat-slide-toggle formControlName="isActive">
-						{{
-							formGroup.controls.isActive.value
-								? "Active"
-								: "Inactive"
-						}}
-					</mat-slide-toggle>
+					<label class="active-control no-colon">
+						<input type="checkbox" formControlName="isActive" />
+
+						<span class="toggle-track">
+							<span class="toggle-thumb"></span>
+						</span>
+
+						<span>
+							{{
+								form.get("isActive")?.value
+									? "Active"
+									: "Inactive"
+							}}
+						</span>
+					</label>
 				</div>
 			</div>
 		</div>
-	</mat-dialog-content>
 
-	<mat-dialog-actions align="end">
-		<button type="button" class="btn btn-light mr-2" (click)="close()">
-			Cancel
-		</button>
+		<div class="dialog-footer">
+			<button type="button" class="btn btn-light" (click)="cancel()">
+				Cancel
+			</button>
 
-		<button type="submit" class="btn btn-primary">
-			<i class="fas fa-save mr-1"></i>
-			Save
-		</button>
-	</mat-dialog-actions>
-</form>
+			<button type="submit" class="btn btn-primary">
+				<i class="fas fa-save mr-1"></i>
+				Save
+			</button>
+		</div>
+	</form>
+</div>

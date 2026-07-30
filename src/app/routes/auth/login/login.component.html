@@ -1,71 +1,272 @@
 <div class="login-page">
-	<div class="login-card">
-		<div class="login-header">
-			<h1>Global Trans</h1>
-			<p>Silakan masuk ke akun Anda</p>
-		</div>
+	<div class="background-overlay"></div>
 
-		<form
-			class="login-form"
-			[formGroup]="formGroup"
-			(ngSubmit)="submit()"
-			novalidate
-		>
-			<div class="form-group">
-				<label for="email" class="no-colon"> Email </label>
-
-				<input
-					id="email"
-					type="email"
-					formControlName="email"
-					autocomplete="username"
-					placeholder="Masukkan email"
-					[class.input-invalid]="email.touched && email.invalid"
+	<section class="brand-panel">
+		<div class="brand-content">
+			<header class="brand-header">
+				<img
+					src="/assets/images/logo-gtsi.webp"
+					alt="PT. Global Trans Servindo"
+					class="brand-logo"
 				/>
 
-				@if (email.touched && email.invalid) {
-					<div class="error-message">
-						@if (email.hasError("required")) {
-							Email wajib diisi.
-						} @else if (email.hasError("email")) {
-							Format email tidak valid.
+				<div class="brand-identity">
+					<strong>PT. Global Trans Servindo</strong>
+					<span>Your Global Network Solutions</span>
+				</div>
+			</header>
+
+			<div class="brand-main">
+				<div class="platform-label">
+					<span class="platform-dot"></span>
+					Integrated Reservation Platform
+				</div>
+
+				<h1>
+					Operations built
+					<br />
+					to move forward.
+				</h1>
+
+				<p>
+					A unified platform for managing equipment, reservations, and
+					daily operational activities securely and efficiently.
+				</p>
+
+				<div class="brand-features">
+					<div class="feature-item">
+						<span class="feature-icon">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								aria-hidden="true"
+							>
+								<path
+									d="M9 12.75 11.25 15 15 9.75"
+									stroke="currentColor"
+									stroke-width="1.8"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								/>
+								<path
+									d="M12 3.75 19.5 7.5v4.75c0 4.35-3.05 7.35-7.5 8.5-4.45-1.15-7.5-4.15-7.5-8.5V7.5L12 3.75Z"
+									stroke="currentColor"
+									stroke-width="1.5"
+								/>
+							</svg>
+						</span>
+
+						<div>
+							<strong>Secure access</strong>
+							<span>Protected operational environment</span>
+						</div>
+					</div>
+
+					<div class="feature-item">
+						<span class="feature-icon">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								aria-hidden="true"
+							>
+								<path
+									d="M4 17V9m5 8V5m6 12v-7m5 7V7"
+									stroke="currentColor"
+									stroke-width="1.7"
+									stroke-linecap="round"
+								/>
+							</svg>
+						</span>
+
+						<div>
+							<strong>Operational visibility</strong>
+							<span>Centralized activity monitoring</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<footer class="brand-footer">
+				<span>Reliable</span>
+				<span>Connected</span>
+				<span>Operational Excellence</span>
+			</footer>
+		</div>
+	</section>
+
+	<section class="login-panel">
+		<div class="login-wrapper">
+			<div class="mobile-brand">
+				<img
+					src="/assets/images/logo-gtsi.webp"
+					alt="PT. Global Trans Servindo"
+				/>
+
+				<div>
+					<strong>PT. Global Trans Servindo</strong>
+					<span>Your Global Network Solutions</span>
+				</div>
+			</div>
+
+			<div class="login-card">
+				<div class="card-accent"></div>
+
+				<header class="login-header">
+					<div class="login-eyebrow">Secure portal</div>
+
+					<h2>Welcome back</h2>
+
+					<p>
+						Enter your credentials to access the Global Trans
+						operational platform.
+					</p>
+				</header>
+
+				<form
+					class="login-form"
+					[formGroup]="formGroup"
+					(ngSubmit)="submit()"
+					novalidate
+				>
+					<div class="form-group">
+						<label for="email">Email address</label>
+
+						<div
+							class="input-wrapper"
+							[class.has-error]="email.touched && email.invalid"
+						>
+							<span class="input-icon">
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									aria-hidden="true"
+								>
+									<path
+										d="m4 7 8 5 8-5"
+										stroke="currentColor"
+										stroke-width="1.6"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+									<rect
+										x="3.5"
+										y="5.5"
+										width="17"
+										height="13"
+										rx="2"
+										stroke="currentColor"
+										stroke-width="1.5"
+									/>
+								</svg>
+							</span>
+
+							<input
+								id="email"
+								type="email"
+								formControlName="email"
+								autocomplete="username"
+								placeholder="name@company.com"
+							/>
+						</div>
+
+						@if (email.touched && email.invalid) {
+							<div class="error-message">
+								@if (email.hasError("required")) {
+									Email wajib diisi.
+								} @else if (email.hasError("email")) {
+									Format email tidak valid.
+								}
+							</div>
 						}
 					</div>
-				}
+
+					<div class="form-group">
+						<label for="password">Password</label>
+
+						<div
+							class="input-wrapper"
+							[class.has-error]="
+								password.touched && password.invalid
+							"
+						>
+							<span class="input-icon">
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									aria-hidden="true"
+								>
+									<rect
+										x="5"
+										y="10"
+										width="14"
+										height="10"
+										rx="2"
+										stroke="currentColor"
+										stroke-width="1.5"
+									/>
+									<path
+										d="M8.5 10V7.5a3.5 3.5 0 1 1 7 0V10"
+										stroke="currentColor"
+										stroke-width="1.5"
+										stroke-linecap="round"
+									/>
+									<path
+										d="M12 14v2.5"
+										stroke="currentColor"
+										stroke-width="1.7"
+										stroke-linecap="round"
+									/>
+								</svg>
+							</span>
+
+							<input
+								id="password"
+								type="password"
+								formControlName="password"
+								autocomplete="current-password"
+								placeholder="Enter your password"
+							/>
+						</div>
+
+						@if (password.touched && password.invalid) {
+							<div class="error-message">
+								Password wajib diisi.
+							</div>
+						}
+					</div>
+
+					@if (errorMessage()) {
+						<div class="server-error" role="alert">
+							<span class="server-error-icon">!</span>
+							<span>{{ errorMessage() }}</span>
+						</div>
+					}
+
+					<loading-button
+						type="submit"
+						className="btn btn-primary w-100"
+						[isLoading]="isSubmitting()"
+						[disabled]="formGroup.invalid"
+						loadingText="Memproses..."
+					>
+						Sign in to platform
+					</loading-button>
+				</form>
+
+				<footer class="login-footer">
+					<div class="security-note">
+						<span class="security-dot"></span>
+						Authorized personnel only
+					</div>
+
+					<span>© 2026 Global Trans</span>
+				</footer>
 			</div>
 
-			<div class="form-group">
-				<label for="password" class="no-colon"> Password </label>
-
-				<input
-					id="password"
-					type="password"
-					formControlName="password"
-					autocomplete="current-password"
-					placeholder="Masukkan password"
-					[class.input-invalid]="password.touched && password.invalid"
-				/>
-
-				@if (password.touched && password.invalid) {
-					<div class="error-message">Password wajib diisi.</div>
-				}
+			<div class="system-status">
+				<span class="status-indicator"></span>
+				All operational systems available
 			</div>
-
-			@if (errorMessage()) {
-				<div class="error-message server-error">
-					{{ errorMessage() }}
-				</div>
-			}
-
-			<loading-button
-				type="submit"
-				className="btn btn-primary w-100"
-				[isLoading]="isSubmitting()"
-				[disabled]="formGroup.invalid"
-				loadingText="Memproses..."
-			>
-				Login
-			</loading-button>
-		</form>
-	</div>
+		</div>
+	</section>
 </div>

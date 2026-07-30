@@ -2,11 +2,6 @@
 	display: block;
 }
 
-:host ::ng-deep label::before {
-	content: none !important;
-	display: none !important;
-}
-
 .mat-mdc-dialog-container .mat-mdc-dialog-content {
 	padding: 20px 20px 20px 20px !important;
 }
@@ -46,43 +41,57 @@
 	background: #f1f3f5;
 }
 
-mat-dialog-content {
-	padding: 0 !important;
-	overflow: hidden;
-}
-
-.error-message {
-	display: flex;
-	gap: 8px;
-	padding: 10px 12px;
-	margin: 18px 24px 0;
-	border: 1px solid #efc4c8;
-	border-radius: 6px;
-	background: #fff2f3;
-	color: #c53e49;
-	font-size: 12px;
-}
-
 .dialog-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(440px, 0.85fr);
-	min-height: 560px;
-	max-height: calc(94vh - 160px);
-}
 
-.request-information,
-.equipment-section {
-	min-width: 0;
-	padding: 22px 24px;
-	overflow-y: auto;
+	height: calc(94vh - 160px);
+	min-height: 0;
+	overflow: hidden;
 }
 
 .request-information {
+	min-width: 0;
+	min-height: 0;
+	padding: 22px 24px;
 	border-right: 1px solid #e2e6ea;
+	overflow-y: auto;
 }
 
 .equipment-section {
+	display: flex;
+	flex-direction: column;
+
+	min-width: 0;
+	min-height: 0;
+	height: 100%;
+
+	padding: 22px 24px;
 	background: #fafbfc;
+	overflow: hidden;
+}
+
+.detail-header {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 18px;
+}
+
+.detail-list {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 12px;
+
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	padding-right: 8px;
+	padding-bottom: 12px;
 }
 
 .section-heading,
@@ -103,11 +112,11 @@ mat-dialog-content {
 	color: #87909c;
 }
 
-.form-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0 16px;
-}
+// .form-grid {
+// 	display: grid;
+// 	grid-template-columns: repeat(2, minmax(0, 1fr));
+// 	gap: 0 16px;
+// }
 
 .form-group {
 	margin-bottom: 16px;
@@ -122,11 +131,6 @@ mat-dialog-content {
 	color: #354052;
 	font-size: 13px;
 	font-weight: 500;
-}
-
-.form-group label::after {
-	display: none !important;
-	content: none !important;
 }
 
 .label-colon {
@@ -160,8 +164,13 @@ mat-dialog-content {
 
 .detail-list {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
 	gap: 12px;
+	min-height: 0;
+	padding-right: 6px;
+	overflow-y: auto;
+	flex-shrink: 0;
 }
 
 .detail-card {
@@ -225,6 +234,14 @@ mat-dialog-content {
 	opacity: 0.35;
 }
 
+mat-dialog-content {
+	display: block;
+
+	min-height: 0;
+	padding: 0 !important;
+	overflow: hidden !important;
+}
+
 mat-dialog-actions {
 	display: flex;
 	justify-content: flex-end;
@@ -238,6 +255,27 @@ mat-dialog-actions .btn {
 	min-width: 100px;
 	height: 40px;
 	margin: 0 !important;
+}
+
+.detail-list::-webkit-scrollbar {
+	width: 6px;
+}
+
+.detail-list::-webkit-scrollbar-thumb {
+	border-radius: 8px;
+	background: #cbd2d9;
+}
+
+.error-message {
+	display: flex;
+	gap: 8px;
+	padding: 10px 12px;
+	margin: 18px 24px 0;
+	border: 1px solid #efc4c8;
+	border-radius: 6px;
+	background: #fff2f3;
+	color: #c53e49;
+	font-size: 12px;
 }
 
 @media (max-width: 1100px) {

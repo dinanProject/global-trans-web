@@ -46,7 +46,7 @@
 		align-items: center;
 		min-height: 26px;
 		padding: 4px 10px;
-		border-radius: 14px;
+		border-radius: 12px;
 		font-size: 12px;
 		font-weight: 600;
 		white-space: nowrap;
@@ -163,11 +163,28 @@
 }
 
 .mat-column-status {
-	width: 5%;
+	width: 8%;
+
+	padding-left: 8px;
+	padding-right: 8px;
 }
 
 .mat-column-actions {
 	width: 6%;
+}
+
+.date-input {
+	color: transparent;
+
+	&:focus,
+	&:valid {
+		color: #354052;
+	}
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+	opacity: 1;
+	cursor: pointer;
 }
 
 .request-table th,

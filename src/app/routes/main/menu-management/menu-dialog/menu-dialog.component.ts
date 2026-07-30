@@ -1,28 +1,25 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
-	FormBuilder,
-	FormControl,
-	FormGroup,
-	Validators,
-} from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+	MAT_DIALOG_DATA,
+	MatDialog,
+	MatDialogRef,
+} from '@angular/material/dialog';
+
 import {
 	Menu,
 	MenuDialogData,
 	MenuDialogResult,
 	MenuPayload,
+	PermissionOption,
 } from '../menu-management.service';
 
-interface MenuForm {
-	parentUuid: FormControl<string | null>;
-	code: FormControl<string>;
-	menuName: FormControl<string>;
-	route: FormControl<string | null>;
-	icon: FormControl<string | null>;
-	permissionId: FormControl<number | null>;
-	sequence: FormControl<number>;
-	isActive: FormControl<boolean>;
-}
+import {
+	PermissionPickerDialogComponent,
+	PermissionPickerDialogData,
+	PermissionPickerDialogResult,
+} from '../permission-picker-dialog/permission-picker-dialog.component';
+import { UtilityService } from 'src/app/shared/utility/utility.service';
 
 @Component({
 	selector: 'app-menu-dialog',
@@ -30,169 +27,256 @@ interface MenuForm {
 	styleUrls: ['./menu-dialog.component.scss'],
 	standalone: false,
 })
-export class MenuDialogComponent implements OnInit {
-	formGroup!: FormGroup<MenuForm>;
+export class MenuDialogComponent {
+	form: FormGroup;
 
-	formSubmitAttempt = false;
-	isEdit = false;
-
-	parentMenus: Menu[] = [];
+	isEditMode = false;
 
 	constructor(
 		private formBuilder: FormBuilder,
-		private dialogRef: MatDialogRef<MenuDialogComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: MenuDialogData,
-	) {}
+		private dialog: MatDialog,
+		private dialogRef: MatDialogRef<MenuDialogComponent, MenuDialogResult>,
+		@Inject(MAT_DIALOG_DATA)
+		public data: MenuDialogData,
+		private utilityService: UtilityService,
+	) {
+		this.isEditMode = data.mode === 'edit';
 
-	ngOnInit(): void {
-		this.isEdit = this.data.mode === 'edit';
-
-		this.parentMenus = this.getAllowedParentMenus();
-		const currentMenu = this.data.menu;
-
-		const currentParent =
-			currentMenu?.parentId != null
-				? this.data.menus.find(
-						(menu) => menu.menuId === currentMenu.parentId,
-					)
-				: null;
-
-		const parentUuid =
-			this.data.mode === 'create'
-				? (this.data.parentMenu?.uuid ?? null)
-				: (currentParent?.uuid ?? null);
-
-		this.formGroup = this.formBuilder.group<MenuForm>({
-			parentUuid: new FormControl(parentUuid),
-			code: new FormControl(this.data.menu?.code ?? '', {
-				nonNullable: true,
-				validators: [Validators.required, Validators.maxLength(100)],
-			}),
-			menuName: new FormControl(this.data.menu?.menuName ?? '', {
-				nonNullable: true,
-				validators: [Validators.required, Validators.maxLength(150)],
-			}),
-			route: new FormControl(this.data.menu?.route ?? null, [
-				Validators.maxLength(255),
-			]),
-			icon: new FormControl(this.data.menu?.icon ?? null, [
-				Validators.maxLength(100),
-			]),
-			permissionId: new FormControl(this.data.menu?.permissionId ?? null),
-			sequence: new FormControl(this.data.menu?.sequence ?? 0, {
-				nonNullable: true,
-				validators: [Validators.required, Validators.min(0)],
-			}),
-			isActive: new FormControl(this.data.menu?.isActive ?? true, {
-				nonNullable: true,
-			}),
+		this.form = this.formBuilder.group({
+			parentUuid: [this.getInitialParentUuid()],
+			code: [
+				data.menu?.code ?? '',
+				[Validators.required, Validators.maxLength(100)],
+			],
+			menuName: [
+				data.menu?.menuName ?? '',
+				[Validators.required, Validators.maxLength(150)],
+			],
+			route: [data.menu?.route ?? '', Validators.maxLength(255)],
+			icon: [data.menu?.icon ?? '', Validators.maxLength(100)],
+			permissionId: [data.menu?.permissionId ?? null],
+			sequence: [
+				data.menu?.sequence ?? 0,
+				[Validators.required, Validators.min(0)],
+			],
+			isActive: [data.menu?.isActive ?? true],
 		});
 	}
 
-	get canSelectParent(): boolean {
-		return this.data.mode === 'create' && !this.data.parentMenu;
+	get dialogTitle(): string {
+		return this.isEditMode ? 'Edit Menu' : 'Add Menu';
 	}
 
-	get parentMenuName(): string {
-		if (this.data.mode === 'create' && this.data.parentMenu) {
-			return this.data.parentMenu.menuName;
-		}
+	get availableParentMenus(): Menu[] {
+		const editedMenuId = this.data.menu?.menuId ?? null;
 
-		if (this.data.mode === 'edit') {
-			const currentMenu = this.data.menu;
+		return (this.data.menus ?? [])
+			.filter((menu) => {
+				if (editedMenuId === null) {
+					return true;
+				}
 
-			if (!currentMenu?.parentId) {
-				return 'Root Menu';
-			}
+				return menu.menuId !== editedMenuId;
+			})
+			.sort((a, b) => {
+				if (a.sequence !== b.sequence) {
+					return a.sequence - b.sequence;
+				}
 
-			const parentMenu = this.data.menus.find(
-				(menu) => menu.menuId === currentMenu.parentId,
-			);
-
-			return parentMenu?.menuName ?? 'Root Menu';
-		}
-
-		return 'Root Menu';
+				return a.menuName.localeCompare(b.menuName);
+			});
 	}
 
-	submit(): void {
-		this.formSubmitAttempt = true;
+	get selectedPermission(): PermissionOption | null {
+		const permissionId = this.form.get('permissionId')?.value ?? null;
 
-		if (this.formGroup.invalid) {
-			this.formGroup.markAllAsTouched();
-			return;
-		}
-
-		const value = this.formGroup.getRawValue();
-
-		const payload: MenuPayload = {
-			parentUuid: value.parentUuid || null,
-			code: value.code.trim().toUpperCase(),
-			menuName: value.menuName.trim(),
-			route: this.normalizeNullableString(value.route),
-			icon: this.normalizeNullableString(value.icon),
-			permissionId: value.permissionId,
-			sequence: Number(value.sequence),
-			isActive: value.isActive,
-		};
-
-		const result: MenuDialogResult = {
-			action: 'save',
-			payload,
-		};
-
-		this.dialogRef.close(result);
-	}
-
-	close(): void {
-		this.dialogRef.close();
-	}
-
-	isInvalid(controlName: keyof MenuForm): boolean {
-		const control = this.formGroup.controls[controlName];
-
-		return Boolean(
-			control.invalid && (control.touched || this.formSubmitAttempt),
-		);
-	}
-
-	private getAllowedParentMenus(): Menu[] {
-		const currentMenu = this.data.menu;
-
-		if (!currentMenu) {
-			return this.data.menus;
-		}
-
-		const excludedMenuIds = new Set<number>([
-			currentMenu.menuId,
-			...this.getDescendantIds(currentMenu.menuId, this.data.menus),
-		]);
-
-		return this.data.menus.filter(
-			(menu) => !excludedMenuIds.has(menu.menuId),
-		);
-	}
-
-	private getDescendantIds(parentId: number, menus: Menu[]): number[] {
-		const descendantIds: number[] = [];
-
-		const children = menus.filter((menu) => menu.parentId === parentId);
-
-		for (const child of children) {
-			descendantIds.push(child.menuId);
-
-			descendantIds.push(...this.getDescendantIds(child.menuId, menus));
-		}
-
-		return descendantIds;
-	}
-
-	private normalizeNullableString(value: string | null): string | null {
-		if (!value) {
+		if (permissionId === null) {
 			return null;
 		}
 
-		const normalizedValue = value.trim();
+		return (
+			(this.data.permissions ?? []).find(
+				(permission) => permission.permissionId === permissionId,
+			) ?? null
+		);
+	}
+
+	get selectedPermissionDisplay(): string {
+		const permission = this.selectedPermission;
+
+		if (!permission) {
+			return '';
+		}
+
+		return `${permission.code} - ${permission.label}`;
+	}
+
+	// openPermissionDialog(): void {
+	// 	const dialogRef = this.dialog.open<
+	// 		PermissionPickerDialogComponent,
+	// 		PermissionPickerDialogData,
+	// 		PermissionPickerDialogResult
+	// 	>(PermissionPickerDialogComponent, {
+	// 		width: '780px',
+	// 		maxWidth: '95vw',
+	// 		disableClose: true,
+	// 		data: {
+	// 			permissions: this.data.permissions ?? [],
+	// 			selectedPermissionId:
+	// 				this.form.get('permissionId')?.value ?? null,
+	// 		},
+	// 	});
+
+	// 	dialogRef.afterClosed().subscribe((result) => {
+	// 		if (!result) {
+	// 			return;
+	// 		}
+
+	// 		const permission = result.permission;
+
+	// 		if (permission) {
+	// 			const usedMenu = (this.data.menus ?? []).find((menu) => {
+	// 				const isCurrentMenu =
+	// 					this.data.mode === 'edit' &&
+	// 					menu.menuId === this.data.menu?.menuId;
+
+	// 				return (
+	// 					!isCurrentMenu &&
+	// 					menu.permissionId === permission.permissionId
+	// 				);
+	// 			});
+
+	// 			if (usedMenu) {
+	// 				this.utilityService.alert(
+	// 					'Permission Already Used',
+	// 					`Permission "${permission.code}" sudah digunakan oleh menu "${usedMenu.menuName}".`,
+	// 					'warning',
+	// 				);
+
+	// 				return;
+	// 			}
+	// 		}
+
+	// 		this.form.patchValue({
+	// 			permissionId: permission?.permissionId ?? null,
+	// 		});
+
+	// 		this.form.get('permissionId')?.markAsDirty();
+	// 		this.form.get('permissionId')?.markAsTouched();
+	// 	});
+	// }
+	openPermissionDialog(): void {
+		const currentMenuId = this.data.menu?.menuId ?? null;
+		const currentPermissionId =
+			this.form.get('permissionId')?.value ?? null;
+
+		const usedPermissionIds = new Set(
+			(this.data.menus ?? [])
+				.filter((menu) => menu.menuId !== currentMenuId)
+				.map((menu) => menu.permissionId)
+				.filter(
+					(permissionId): permissionId is number =>
+						permissionId !== null,
+				),
+		);
+
+		const availablePermissions = (this.data.permissions ?? []).filter(
+			(permission) =>
+				permission.permissionId === currentPermissionId ||
+				!usedPermissionIds.has(permission.permissionId),
+		);
+
+		const dialogRef = this.dialog.open<
+			PermissionPickerDialogComponent,
+			PermissionPickerDialogData,
+			PermissionPickerDialogResult
+		>(PermissionPickerDialogComponent, {
+			width: '780px',
+			maxWidth: '95vw',
+			disableClose: true,
+			data: {
+				permissions: availablePermissions,
+				selectedPermissionId: currentPermissionId,
+			},
+		});
+
+		dialogRef.afterClosed().subscribe((result) => {
+			if (!result) {
+				return;
+			}
+
+			this.form.patchValue({
+				permissionId: result.permission?.permissionId ?? null,
+			});
+
+			this.form.get('permissionId')?.markAsDirty();
+			this.form.get('permissionId')?.markAsTouched();
+		});
+	}
+
+	clearPermission(event?: Event): void {
+		event?.stopPropagation();
+
+		this.form.patchValue({
+			permissionId: null,
+		});
+
+		this.form.get('permissionId')?.markAsDirty();
+		this.form.get('permissionId')?.markAsTouched();
+	}
+
+	save(): void {
+		if (this.form.invalid) {
+			this.form.markAllAsTouched();
+			return;
+		}
+
+		const formValue = this.form.getRawValue();
+
+		const payload: MenuPayload = {
+			parentUuid: this.normalizeNullableString(formValue.parentUuid),
+			code: this.normalizeString(formValue.code).toUpperCase(),
+			menuName: this.normalizeString(formValue.menuName),
+			route: this.normalizeNullableString(formValue.route),
+			icon: this.normalizeNullableString(formValue.icon),
+			permissionId:
+				formValue.permissionId === null ||
+				formValue.permissionId === undefined ||
+				formValue.permissionId === ''
+					? null
+					: Number(formValue.permissionId),
+			sequence: Number(formValue.sequence),
+			isActive: Boolean(formValue.isActive),
+		};
+
+		this.dialogRef.close({
+			action: 'save',
+			payload,
+		});
+	}
+
+	cancel(): void {
+		this.dialogRef.close();
+	}
+
+	private getInitialParentUuid(): string | null {
+		if (this.data.mode === 'edit') {
+			return this.data.menu?.parentUuid ?? null;
+		}
+
+		return this.data.parentMenu?.uuid ?? null;
+	}
+
+	private normalizeString(value: unknown): string {
+		if (typeof value !== 'string') {
+			return '';
+		}
+
+		return value.trim();
+	}
+
+	private normalizeNullableString(value: unknown): string | null {
+		const normalizedValue = this.normalizeString(value);
 
 		return normalizedValue || null;
 	}
