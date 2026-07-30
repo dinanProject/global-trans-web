@@ -23,7 +23,7 @@ import { SessionService } from 'src/app/core/services/session.service';
 
 import { MenuComponent } from './menu/menu.component';
 import { Breadcrumb, MainService } from './main.service';
-import { MainBootstrapResponse } from 'src/app/core/models/main-bootstrap.model';
+import { UserSessionResponse } from 'src/app/core/models/user-session.model';
 import { Menu } from 'src/app/core/models/menu.model';
 
 @Component({
@@ -75,6 +75,31 @@ export class MainComponent implements OnInit, OnDestroy {
 	private initMenus(): void {
 		const subscription = this.mainService.menus$.subscribe((menus) => {
 			this.menus = this.normalizeMenus(menus ?? []);
+		});
+
+		this.subscriptions.add(subscription);
+	}
+
+	private loadMainData(): void {
+		const subscription = this.mainService.getUser().subscribe({
+			next: (response: UserSessionResponse) => {
+				this.user = response.user ?? this.user;
+
+				this.sessionService.setUser(response.user);
+
+				this.sessionService.setAccess(
+					response.roleCodes ?? [],
+					response.permissionCodes ?? [],
+				);
+
+				this.mainService.setMenus(response.menus ?? []);
+			},
+			error: (error: unknown) => {
+				console.error('Failed to load user and menu data', error);
+
+				this.mainService.setMenus([]);
+				this.sessionService.setAccess([], []);
+			},
 		});
 
 		this.subscriptions.add(subscription);
@@ -242,21 +267,6 @@ export class MainComponent implements OnInit, OnDestroy {
 		}
 
 		void this.router.navigateByUrl(route);
-	}
-
-	private loadMainData(): void {
-		const subscription = this.mainService.getUser().subscribe({
-			next: (response: MainBootstrapResponse) => {
-				this.user = response.user ?? this.user;
-				this.mainService.setMenus(response.menus ?? []);
-			},
-			error: (error: unknown) => {
-				console.error('Failed to load user and menu data', error);
-				this.mainService.setMenus([]);
-			},
-		});
-
-		this.subscriptions.add(subscription);
 	}
 
 	private normalizeMenus(menus: any[], level = 0): Menu[] {

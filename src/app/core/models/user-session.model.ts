@@ -1,8 +1,9 @@
 import { Menu } from './menu.model';
 import { User } from './user.model';
 
-export interface MainBootstrapResponse {
+export interface UserSessionResponse {
 	user: User;
-
 	menus: Menu[];
+	roleCodes: string[];
+	permissionCodes: string[];
 }

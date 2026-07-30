@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDrawerMode } from '@angular/material/sidenav';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { MainBootstrapResponse } from 'src/app/core/models/main-bootstrap.model';
+import { UserSessionResponse } from 'src/app/core/models/user-session.model';
 import { Menu } from 'src/app/core/models/menu.model';
 import { ApiService } from 'src/app/core/services/api.service';
 
@@ -34,7 +34,7 @@ export class MainService {
 
 	refreshMenus(): void {
 		this.getUser().subscribe({
-			next: (response: MainBootstrapResponse) => {
+			next: (response: UserSessionResponse) => {
 				this.setMenus(response.menus ?? []);
 			},
 			error: (error: unknown) => {
@@ -43,12 +43,16 @@ export class MainService {
 		});
 	}
 
-	getUser(): Observable<MainBootstrapResponse> {
-		return this.apiService.get('/backend');
+	getUser(): Observable<UserSessionResponse> {
+		return this.apiService.get('/user-session');
 	}
 
 	getMenus(): Observable<Menu[]> {
 		return this.apiService.get('/menu');
+	}
+
+	getUserSession(): Observable<UserSessionResponse> {
+		return this.apiService.get('/user-session');
 	}
 
 	toggleSidebar(): void {

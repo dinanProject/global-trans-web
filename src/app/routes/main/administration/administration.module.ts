@@ -23,6 +23,7 @@ import { PanelModule } from 'src/app/shared/panel/panel.module';
 import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @NgModule({
 	declarations: [
@@ -52,6 +53,7 @@ import { MatTableModule } from '@angular/material/table';
 		MatTabsModule,
 		MatMenuModule,
 		MatTableModule,
+		MatSlideToggleModule,
 
 		AdministrationRoutingModule,
 	],

@@ -207,6 +207,10 @@
 							<mat-menu #actionMenu="matMenu">
 								<button
 									mat-menu-item
+									[disabled]="
+										!canEditRole(role) ||
+										deletingUuid === role.uuid
+									"
 									(click)="openEditDialog(role)"
 								>
 									<i class="fas fa-edit mr-2"></i>
@@ -215,6 +219,10 @@
 
 								<button
 									mat-menu-item
+									[disabled]="
+										!canManagePermissions(role) ||
+										deletingUuid === role.uuid
+									"
 									(click)="openPermissionDialog(role)"
 								>
 									<i class="fas fa-key mr-2"></i>
@@ -225,7 +233,7 @@
 									mat-menu-item
 									class="menu-danger"
 									[disabled]="
-										role.isSystem ||
+										!canDeactivateRole(role) ||
 										deletingUuid === role.uuid
 									"
 									(click)="deleteRole(role)"

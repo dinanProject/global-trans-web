@@ -17,6 +17,7 @@ import {
 } from './role-form-dialog/role-form-dialog.component';
 import { RoleCompanyOption, RoleMaster, RoleService } from './role.service';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
+import { SessionService } from 'src/app/core/services/session.service';
 
 @Component({
 	selector: 'app-role',
@@ -45,6 +46,7 @@ export class RoleComponent implements OnInit, OnDestroy {
 	constructor(
 		private readonly roleService: RoleService,
 		private utilityService: UtilityService,
+		private sessionService: SessionService,
 		private readonly dialog: MatDialog,
 	) {}
 
@@ -103,6 +105,7 @@ export class RoleComponent implements OnInit, OnDestroy {
 			)
 			.subscribe({
 				next: (roles) => {
+					console.log(roles);
 					this.roles = roles ?? [];
 					this.applyFilters();
 				},
@@ -113,6 +116,22 @@ export class RoleComponent implements OnInit, OnDestroy {
 						error?.error?.meta?.message ?? 'Failed to load roles.';
 				},
 			});
+	}
+
+	get isSystemDeveloper(): boolean {
+		return this.sessionService.isSystemDeveloper();
+	}
+
+	canEditRole(role: RoleMaster): boolean {
+		return Number(role.isSystem) !== 1 || this.isSystemDeveloper;
+	}
+
+	canManagePermissions(role: RoleMaster): boolean {
+		return Number(role.isSystem) !== 1 || this.isSystemDeveloper;
+	}
+
+	canDeactivateRole(role: RoleMaster): boolean {
+		return Number(role.isSystem) !== 1;
 	}
 
 	resetFilters(): void {
