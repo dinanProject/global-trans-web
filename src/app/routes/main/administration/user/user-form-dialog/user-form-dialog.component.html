@@ -177,15 +177,28 @@
 				<div>
 					<div class="status-title">Active User</div>
 					<div class="status-description">
-						Inactive users cannot log in.
+						Allow this user to sign in to the system.
 					</div>
 				</div>
 
-				<mat-slide-toggle
-					formControlName="isActive"
-					[disabled]="isSaving"
-					aria-label="Active user"
-				></mat-slide-toggle>
+				<label class="active-control no-colon">
+					<input
+						type="checkbox"
+						formControlName="isActive"
+						[disabled]="isSaving"
+						aria-label="Active user"
+					/>
+
+					<span class="toggle-track" aria-hidden="true">
+						<span class="toggle-thumb"></span>
+					</span>
+
+					<span class="active-label">
+						{{
+							form.controls.isActive.value ? "Active" : "Inactive"
+						}}
+					</span>
+				</label>
 			</div>
 		</div>
 

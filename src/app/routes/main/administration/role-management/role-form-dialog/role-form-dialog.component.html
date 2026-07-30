@@ -1,6 +1,7 @@
 <div class="dialog-header">
 	<div>
 		<h2>{{ title }}</h2>
+
 		<p>
 			{{
 				data.mode === "create"
@@ -26,6 +27,24 @@
 		<span>{{ errorMessage }}</span>
 	</div>
 
+	<div *ngIf="isSystemRole" class="system-role-notice">
+		<div class="system-role-notice__icon">
+			<i class="fas fa-lock"></i>
+		</div>
+
+		<div class="system-role-notice__content">
+			<strong>System role</strong>
+
+			<span *ngIf="isSystemDeveloper">
+				You can edit this system role, but it cannot be deactivated.
+			</span>
+
+			<span *ngIf="!isSystemDeveloper">
+				This role cannot be edited or deactivated.
+			</span>
+		</div>
+	</div>
+
 	<form [formGroup]="form" novalidate>
 		<div class="form-group">
 			<label for="companyUuid">
@@ -37,6 +56,7 @@
 				id="companyUuid"
 				class="form-control"
 				formControlName="companyUuid"
+				[class.system-field]="isSystemRole && !canEditSystemRole"
 				[class.is-invalid]="
 					form.controls.companyUuid.touched &&
 					form.controls.companyUuid.invalid
@@ -62,14 +82,21 @@
 				Company wajib dipilih.
 			</div>
 		</div>
+
 		<div class="form-group">
-			<label for="role-name">Role Name <span>*</span></label>
+			<label for="role-name">
+				Role Name
+				<span>*</span>
+			</label>
+
 			<input
 				id="role-name"
 				class="form-control"
 				type="text"
 				formControlName="name"
+				[class.system-field]="isSystemRole && !canEditSystemRole"
 			/>
+
 			<small
 				*ngIf="
 					form.controls.name.touched &&
@@ -82,18 +109,24 @@
 		</div>
 
 		<div class="form-group">
-			<label for="role-code">Role Code <span>*</span></label>
+			<label for="role-code">
+				Role Code
+				<span>*</span>
+			</label>
+
 			<input
 				id="role-code"
 				class="form-control"
 				type="text"
 				formControlName="code"
-				[readonly]="isSystemRole"
+				[class.system-field]="isSystemRole && !canEditSystemRole"
 				(blur)="normalizeCode()"
 			/>
-			<small class="field-help"
-				>Uppercase letters, numbers, and underscores only.</small
-			>
+
+			<small class="field-help">
+				Uppercase letters, numbers, and underscores only.
+			</small>
+
 			<small
 				*ngIf="form.controls.code.touched && form.controls.code.invalid"
 				class="field-error"
@@ -103,24 +136,40 @@
 		</div>
 
 		<div class="form-group">
-			<label for="role-description">Description</label>
+			<label for="role-description"> Description </label>
+
 			<textarea
 				id="role-description"
 				class="form-control"
 				rows="4"
 				formControlName="description"
+				[class.system-field]="isSystemRole && !canEditSystemRole"
 			></textarea>
 		</div>
 
-		<label class="status-control" for="role-active">
+		<label
+			class="status-control"
+			for="role-active"
+			[class.status-control-disabled]="isSystemRole"
+		>
 			<input
 				id="role-active"
 				type="checkbox"
 				formControlName="isActive"
 			/>
+
 			<span>
-				<strong>Active</strong>
-				<small>Inactive roles cannot be assigned to users.</small>
+				<strong>
+					{{ form.controls.isActive.value ? "Active" : "Inactive" }}
+				</strong>
+
+				<small>
+					{{
+						isSystemRole
+							? "System roles cannot be deactivated."
+							: "Inactive roles cannot be assigned to users."
+					}}
+				</small>
 			</span>
 		</label>
 	</form>
@@ -135,13 +184,16 @@
 	>
 		Cancel
 	</button>
+
 	<button
 		type="button"
 		class="btn btn-primary"
-		[disabled]="isSaving"
+		*ngIf="canEditSystemRole"
+		[disabled]="isSaving || form.invalid"
 		(click)="save()"
 	>
 		<span *ngIf="isSaving" class="spinner-border spinner-border-sm"></span>
+
 		{{ isSaving ? "Saving..." : "Save" }}
 	</button>
 </mat-dialog-actions>

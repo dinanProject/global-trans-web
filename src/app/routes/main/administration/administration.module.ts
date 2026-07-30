@@ -46,6 +46,9 @@ import { MatTableModule } from '@angular/material/table';
 		PageModule,
 		PanelModule,
 		LoadingModule,
+		PageModule,
+		PanelModule,
+		LoadingModule,
 
 		MatDialogModule,
 		MatProgressSpinnerModule,

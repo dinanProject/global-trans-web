@@ -9,6 +9,7 @@ import {
 	RoleMaster,
 	RoleService,
 } from '../role.service';
+import { SessionService } from 'src/app/core/services/session.service';
 
 export interface RoleFormDialogData {
 	mode: 'create' | 'edit';
@@ -27,29 +28,38 @@ export class RoleFormDialogComponent {
 	errorMessage = '';
 
 	readonly form = this.formBuilder.nonNullable.group({
-		companyUuid: [this.data.role?.companyUuid ?? '', Validators.required],
+		companyUuid: [
+			{
+				value: this.data.role?.companyUuid ?? '',
+				disabled: !this.canEditSystemRole,
+			},
+			Validators.required,
+		],
 		name: [
-			this.data.role?.name ?? '',
+			{
+				value: this.data.role?.name ?? '',
+				disabled: !this.canEditSystemRole,
+			},
 			[Validators.required, Validators.maxLength(100)],
 		],
 		code: [
-			this.data.role?.code ?? '',
-			[
-				Validators.required,
-				Validators.maxLength(50),
-				Validators.pattern(/^[A-Z0-9_]+$/),
-			],
+			{
+				value: this.data.role?.code ?? '',
+				disabled: !this.canEditSystemRole,
+			},
+			[Validators.required, Validators.pattern(/^[A-Z0-9_]+$/)],
 		],
 		description: [
 			this.data.role?.description ?? '',
 			Validators.maxLength(255),
 		],
-		isActive: [Boolean(this.data.role?.isActive ?? true)],
+		isActive: Number(this.data.role?.isActive) === 1,
 	});
 
 	constructor(
 		private readonly formBuilder: FormBuilder,
 		private readonly roleService: RoleService,
+		private readonly sessionService: SessionService,
 		private readonly dialogRef: MatDialogRef<RoleFormDialogComponent>,
 		@Inject(MAT_DIALOG_DATA) public readonly data: RoleFormDialogData,
 	) {
@@ -71,6 +81,19 @@ export class RoleFormDialogComponent {
 				isActive: Boolean(this.data.role.isActive),
 			});
 		}
+		if (this.isSystemRole && !this.isSystemDeveloper) {
+			this.form.disable({ emitEvent: false });
+			return;
+		}
+		if (this.isSystemRole) {
+			this.form.enable({ emitEvent: false });
+			this.form.controls.isActive.setValue(true, {
+				emitEvent: false,
+			});
+			this.form.controls.isActive.disable({
+				emitEvent: false,
+			});
+		}
 	}
 
 	get title(): string {
@@ -79,6 +102,14 @@ export class RoleFormDialogComponent {
 
 	get isSystemRole(): boolean {
 		return Boolean(this.data.role?.isSystem);
+	}
+
+	get isSystemDeveloper(): boolean {
+		return this.sessionService.isSystemDeveloper();
+	}
+
+	get canEditSystemRole(): boolean {
+		return !this.isSystemRole || this.isSystemDeveloper;
 	}
 
 	normalizeCode(): void {
@@ -104,6 +135,11 @@ export class RoleFormDialogComponent {
 		this.isSaving = true;
 		this.errorMessage = '';
 
+		if (this.isSystemRole) {
+			this.errorMessage = 'System roles cannot be edited.';
+			return;
+		}
+
 		const value = this.form.getRawValue();
 
 		const payload: CreateRolePayload = {
@@ -111,7 +147,7 @@ export class RoleFormDialogComponent {
 			name: value.name.trim(),
 			code: value.code.trim().toUpperCase(),
 			description: value.description.trim() || null,
-			isActive: value.isActive,
+			isActive: this.isSystemRole ? 1 : value.isActive ? 1 : 0,
 		};
 
 		const request$ =

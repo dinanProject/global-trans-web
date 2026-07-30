@@ -34,7 +34,7 @@ export interface CreateRolePayload {
 	code: string;
 	name: string;
 	description?: string | null;
-	isActive: boolean;
+	isActive: number;
 }
 
 export interface UpdateRolePayload extends CreateRolePayload {}

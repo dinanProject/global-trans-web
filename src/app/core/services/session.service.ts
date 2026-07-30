@@ -149,6 +149,40 @@ export class SessionService {
 			);
 	}
 
+	setAccess(roleCodes: string[], permissionCodes: string[]): void {
+		const session = this.getSession();
+
+		if (!session) {
+			return;
+		}
+
+		this.setSession({
+			...session,
+			roleCodes,
+			permissionCodes,
+		});
+	}
+
+	getRoleCodes(): string[] {
+		return this.getSession()?.roleCodes ?? [];
+	}
+
+	getPermissionCodes(): string[] {
+		return this.getSession()?.permissionCodes ?? [];
+	}
+
+	hasRole(roleCode: string): boolean {
+		return this.getRoleCodes().includes(roleCode);
+	}
+
+	hasPermission(permissionCode: string): boolean {
+		return this.getPermissionCodes().includes(permissionCode);
+	}
+
+	isSystemDeveloper(): boolean {
+		return this.hasRole('SYSTEM_DEVELOPER');
+	}
+
 	clear(): void {
 		localStorage.removeItem(SESSION_NAME);
 	}
