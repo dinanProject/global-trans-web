@@ -192,6 +192,9 @@
 							<mat-menu #actionMenu="matMenu">
 								<button
 									mat-menu-item
+									[disabled]="
+										isProtectedSystemDeveloperAccount(user)
+									"
 									(click)="openEditDialog(user)"
 								>
 									<i class="fas fa-edit mr-2"></i>
@@ -203,7 +206,8 @@
 									class="menu-danger"
 									[disabled]="
 										!user.isActive ||
-										deletingUuid === user.uuid
+										deletingUuid === user.uuid ||
+										isProtectedSystemDeveloperAccount(user)
 									"
 									(click)="deleteUser(user)"
 								>

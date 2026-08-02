@@ -7,10 +7,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { AdministrationRoutingModule } from './administration-routing.module';
-import { AccessManagementComponent } from './access-management/access-management.component';
-import { AssignRoleDialogComponent } from './access-management/assign-role-dialog/assign-role-dialog.component';
-import { ManagePermissionDialogComponent } from './access-management/manage-permission-dialog/manage-permission-dialog.component';
-import { UiModule } from 'src/app/shared/ui.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RoleComponent } from './role-management/role.component';
 import { PermissionComponent } from './permission-management/permission.component';
@@ -24,16 +20,15 @@ import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { RolePermissionDialogComponent } from './role-management/role-permission-dialog/role-permission-dialog.component';
 
 @NgModule({
 	declarations: [
-		AccessManagementComponent,
-		AssignRoleDialogComponent,
-		ManagePermissionDialogComponent,
 		RoleComponent,
 		PermissionComponent,
 
 		RoleFormDialogComponent,
+		RolePermissionDialogComponent,
 		PermissionFormDialogComponent,
 		UserComponent,
 		UserFormDialogComponent,

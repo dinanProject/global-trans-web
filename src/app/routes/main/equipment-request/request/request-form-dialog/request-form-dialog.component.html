@@ -79,6 +79,7 @@
 							type="date"
 							class="form-control"
 							formControlName="startDate"
+							[min]="form.get('startDate')?.value || null"
 						/>
 
 						<span
@@ -102,7 +103,7 @@
 							type="date"
 							class="form-control"
 							formControlName="endDate"
-							[min]="form.get('startDate')?.value"
+							[min]="form.get('startDate')?.value || null"
 						/>
 
 						<span
@@ -261,18 +262,6 @@
 										min="1"
 										class="form-control"
 										formControlName="quantity"
-									/>
-								</div>
-
-								<div class="form-group rate-field">
-									<label>Rate</label>
-
-									<input
-										type="number"
-										min="0"
-										step="0.01"
-										class="form-control"
-										formControlName="rate"
 									/>
 								</div>
 							</div>

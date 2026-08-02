@@ -143,26 +143,9 @@ export class MenuComponent implements OnInit {
 	}
 
 	onMenuClick(event: MouseEvent): void {
-		/*
-		 * Parent tanpa route:
-		 * hanya expand/collapse dan jangan jalankan routerLink.
-		 */
-		if (this.hasChildren && !this.menu.route) {
-			event.preventDefault();
-
-			this.menu.visibility =
-				this.menu.visibility === 'expanded' ? 'collapsed' : 'expanded';
-
-			return;
-		}
-
-		/*
-		 * Parent yang juga punya route:
-		 * saat ini tetap toggle. Kalau nanti ingin sekaligus navigasi,
-		 * blok ini bisa diubah.
-		 */
 		if (this.hasChildren) {
 			event.preventDefault();
+			event.stopPropagation();
 
 			this.menu.visibility =
 				this.menu.visibility === 'expanded' ? 'collapsed' : 'expanded';
@@ -170,18 +153,12 @@ export class MenuComponent implements OnInit {
 			return;
 		}
 
-		/*
-		 * Menu tanpa child tetapi juga tanpa route tidak boleh navigasi.
-		 */
 		if (!this.menu.route) {
 			event.preventDefault();
+			event.stopPropagation();
 			return;
 		}
 
-		/*
-		 * Leaf dengan route:
-		 * jangan preventDefault supaya routerLink berjalan.
-		 */
 		this.clicked.emit(this.menu);
 	}
 

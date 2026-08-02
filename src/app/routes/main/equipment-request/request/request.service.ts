@@ -1,10 +1,10 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { ApiService } from 'src/app/core/services/api.service';
 
-export interface EquipmentRequestDetail {
+export interface RequestDetail {
 	uuid?: string | null;
 	equipmentCategoryId: number;
 	equipmentUnitId?: number | null;
@@ -13,7 +13,7 @@ export interface EquipmentRequestDetail {
 	remarks?: string | null;
 }
 
-export interface EquipmentRequestApproval {
+export interface RequestApproval {
 	uuid: string;
 	approvalLevel: number;
 	companyName?: string | null;
@@ -25,7 +25,7 @@ export interface EquipmentRequestApproval {
 	createdAt?: string | null;
 }
 
-export interface EquipmentRequestHistory {
+export interface RequestHistory {
 	uuid: string;
 	activity: string;
 	description: string;
@@ -33,7 +33,7 @@ export interface EquipmentRequestHistory {
 	createdAt: string;
 }
 
-export interface EquipmentRequestAction {
+export interface RequestAction {
 	uuid: string;
 	fromStatusCode: string;
 	toStatusCode: string;
@@ -49,7 +49,7 @@ export interface EquipmentRequestAction {
 	sortOrder: number;
 }
 
-export interface EquipmentRequestMaster {
+export interface RequestMaster {
 	uuid: string;
 	requestNo: string;
 	companyUuid?: string | null;
@@ -76,13 +76,13 @@ export interface EquipmentRequestMaster {
 	isActive: boolean;
 	createdAt?: string | null;
 	updatedAt?: string | null;
-	details?: EquipmentRequestDetail[];
-	approvals?: EquipmentRequestApproval[];
-	histories?: EquipmentRequestHistory[];
-	availableActions?: EquipmentRequestAction[];
+	details?: RequestDetail[];
+	approvals?: RequestApproval[];
+	histories?: RequestHistory[];
+	availableActions?: RequestAction[];
 }
 
-export interface EquipmentRequestFilter {
+export interface RequestFilter {
 	search?: string;
 	status?: string;
 	companyId?: number;
@@ -92,43 +92,46 @@ export interface EquipmentRequestFilter {
 	isActive?: boolean;
 }
 
-export interface EquipmentRequestPayload {
+export interface RequestPayload {
 	companyId: number;
 	divisionUuid: string | null;
 	startDate: string;
 	endDate: string;
 	purpose: string | null;
 	notes: string | null;
-	details: EquipmentRequestDetail[];
+	details: RequestDetail[];
 }
 
-export interface EquipmentRequestActionPayload {
+export interface RequestActionPayload {
 	actionCode: string;
 	remarks?: string | null;
+
+	startDate?: string | null;
+	endDate?: string | null;
 }
 
-export interface EquipmentRequestCompanyOption {
+export interface RequestCompanyOption {
 	id: number;
 	uuid: string;
 	code: string;
 	name: string;
 }
 
-export interface EquipmentRequestDivisionOption {
+export interface RequestDivisionOption {
 	uuid: string;
 	code: string;
 	name: string;
 	companyId?: number | null;
 }
 
-export interface EquipmentCategoryOption {
+export interface CategoryOption {
 	id: number;
 	uuid?: string | null;
 	code?: string | null;
 	name: string;
 }
 
-export interface EquipmentUnitOption {
+export interface UnitOption {
 	id: number;
 	uuid: string;
 	categoryId: number;
@@ -140,16 +143,16 @@ export interface EquipmentUnitOption {
 	remarks?: string | null;
 }
 
-export interface EquipmentRequestFormDialogData {
+export interface RequestFormDialogData {
 	mode: 'create' | 'edit';
-	request?: EquipmentRequestMaster;
-	company: EquipmentRequestCompanyOption | null;
-	divisions: EquipmentRequestDivisionOption[];
-	categories: EquipmentCategoryOption[];
-	units: EquipmentUnitOption[];
+	request?: RequestMaster;
+	company: RequestCompanyOption | null;
+	divisions: RequestDivisionOption[];
+	categories: CategoryOption[];
+	units: UnitOption[];
 }
 
-export interface EquipmentRequestStatusOption {
+export interface RequestStatusOption {
 	id: number;
 	uuid: string;
 	code: string;
@@ -163,35 +166,31 @@ export interface EquipmentRequestStatusOption {
 }
 
 @Injectable({ providedIn: 'root' })
-export class EquipmentRequestService {
-	private readonly baseUrl = '/equipment-request';
+export class RequestService {
+	private readonly baseUrl = '/equipment-request/request';
 
 	constructor(private readonly apiService: ApiService) {}
 
-	getRequests(
-		filter: EquipmentRequestFilter = {},
-	): Observable<EquipmentRequestMaster[]> {
+	getRequests(filter: RequestFilter = {}): Observable<RequestMaster[]> {
 		return this.apiService.get(this.baseUrl, this.compactParams(filter));
 	}
 
-	getRequest(requestUuid: string): Observable<EquipmentRequestMaster> {
+	getRequest(requestUuid: string): Observable<RequestMaster> {
 		return this.apiService.get(`${this.baseUrl}/${requestUuid}`);
 	}
 
-	getEquipmentRequestStatuses(): Observable<EquipmentRequestStatusOption[]> {
+	getRequestStatuses(): Observable<RequestStatusOption[]> {
 		return this.apiService.get(`${this.baseUrl}/request-statuses`);
 	}
 
-	createRequest(
-		payload: EquipmentRequestPayload,
-	): Observable<EquipmentRequestMaster> {
+	createRequest(payload: RequestPayload): Observable<RequestMaster> {
 		return this.apiService.post(this.baseUrl, payload);
 	}
 
 	updateRequest(
 		requestUuid: string,
-		payload: EquipmentRequestPayload,
-	): Observable<EquipmentRequestMaster> {
+		payload: RequestPayload,
+	): Observable<RequestMaster> {
 		return this.apiService.put(`${this.baseUrl}/${requestUuid}`, payload);
 	}
 
@@ -201,8 +200,8 @@ export class EquipmentRequestService {
 
 	executeAction(
 		requestUuid: string,
-		payload: EquipmentRequestActionPayload,
-	): Observable<EquipmentRequestMaster> {
+		payload: RequestActionPayload,
+	): Observable<RequestMaster> {
 		return this.apiService.post(
 			`${this.baseUrl}/${requestUuid}/action`,
 			payload,
@@ -210,30 +209,28 @@ export class EquipmentRequestService {
 	}
 
 	/* Existing master routes in the project. Mapping is deliberately isolated here. */
-	getCompanies(): Observable<EquipmentRequestCompanyOption[]> {
+	getCompanies(): Observable<RequestCompanyOption[]> {
 		return this.apiService.get(
 			'/company',
 			this.compactParams({ isActive: 1 }),
 		);
 	}
 
-	getDivisions(
-		companyId?: number,
-	): Observable<EquipmentRequestDivisionOption[]> {
+	getDivisions(companyId?: number): Observable<RequestDivisionOption[]> {
 		return this.apiService.get(
 			'/division',
 			this.compactParams({ companyId, isActive: 1 }),
 		);
 	}
 
-	getEquipmentCategories(): Observable<EquipmentCategoryOption[]> {
+	getCategories(): Observable<CategoryOption[]> {
 		return this.apiService.get(
 			'/equipment-category',
 			this.compactParams({ isActive: 1 }),
 		);
 	}
 
-	getEquipmentUnits(): Observable<EquipmentUnitOption[]> {
+	getUnits(): Observable<UnitOption[]> {
 		const params = new HttpParams().set('isActive', '1');
 		return this.apiService.get('/equipment-unit', params);
 	}

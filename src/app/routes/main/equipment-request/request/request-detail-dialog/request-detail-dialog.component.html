@@ -47,7 +47,10 @@
 				</button>
 			</div>
 		</div>
-		<mat-tab-group animationDuration="0ms">
+		<mat-tab-group
+			[(selectedIndex)]="selectedTabIndex"
+			animationDuration="0ms"
+		>
 			<mat-tab label="Information"
 				><div class="tab-content">
 					<div class="info-grid">

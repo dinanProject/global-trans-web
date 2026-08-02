@@ -122,7 +122,7 @@ export class SessionService {
 		const refreshToken = this.getRefreshToken();
 
 		if (!refreshToken) {
-			this.logoutLocal();
+			this.logoutLocal('session-expired');
 
 			return throwError(
 				() => new Error('Refresh token is not available'),
@@ -142,7 +142,7 @@ export class SessionService {
 					this.setTokens(response.accessToken, response.refreshToken);
 				}),
 				catchError((error) => {
-					this.logoutLocal();
+					this.logoutLocal('session-expired');
 
 					return throwError(() => error);
 				}),
@@ -187,11 +187,15 @@ export class SessionService {
 		localStorage.removeItem(SESSION_NAME);
 	}
 
-	logoutLocal(): void {
+	logoutLocal(reason?: string): void {
 		this.clear();
 
-		if (this.router.url !== '/auth/login') {
-			this.router.navigateByUrl('/auth/login');
-		}
+		void this.router.navigate(['/auth/login'], {
+			queryParams: reason
+				? {
+						reason,
+					}
+				: undefined,
+		});
 	}
 }

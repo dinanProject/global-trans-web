@@ -10,33 +10,33 @@ import {
 	takeUntil,
 } from 'rxjs';
 
-import { MainService } from '../main.service';
+import { MainService } from '../../main.service';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import {
-	EquipmentRequestDetailDialogComponent,
-	EquipmentRequestDetailDialogData,
-} from './equipment-request-detail-dialog/equipment-request-detail-dialog.component';
+	RequestDetailDialogComponent,
+	RequestDetailDialogData,
+} from './request-detail-dialog/request-detail-dialog.component';
 import {
-	EquipmentRequestFormDialogComponent,
-	EquipmentRequestFormDialogData,
-} from './equipment-request-form-dialog/equipment-request-form-dialog.component';
+	RequestFormDialogComponent,
+	RequestFormDialogData,
+} from './request-form-dialog/request-form-dialog.component';
 import {
-	EquipmentCategoryOption,
-	EquipmentRequestCompanyOption,
-	EquipmentRequestDivisionOption,
-	EquipmentRequestMaster,
-	EquipmentRequestService,
-	EquipmentRequestStatusOption,
-	EquipmentUnitOption,
-} from './equipment-request.service';
+	CategoryOption,
+	RequestCompanyOption,
+	RequestDivisionOption,
+	RequestMaster,
+	RequestService,
+	RequestStatusOption,
+	UnitOption,
+} from './request.service';
 
 @Component({
-	selector: 'app-equipment-request',
-	templateUrl: './equipment-request.component.html',
-	styleUrls: ['./equipment-request.component.scss'],
+	selector: 'app-request',
+	templateUrl: './request.component.html',
+	styleUrls: ['./request.component.scss'],
 	standalone: false,
 })
-export class EquipmentRequestComponent implements OnInit, OnDestroy {
+export class RequestComponent implements OnInit, OnDestroy {
 	private readonly destroy$ = new Subject<void>();
 
 	readonly searchControl = new FormControl('', { nonNullable: true });
@@ -44,20 +44,22 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 	readonly startDateControl = new FormControl('', { nonNullable: true });
 	readonly endDateControl = new FormControl('', { nonNullable: true });
 
-	requests: EquipmentRequestMaster[] = [];
-	filteredRequests: EquipmentRequestMaster[] = [];
-	company: EquipmentRequestCompanyOption | null = null;
-	divisions: EquipmentRequestDivisionOption[] = [];
-	categories: EquipmentCategoryOption[] = [];
-	units: EquipmentUnitOption[] = [];
-	statuses: EquipmentRequestStatusOption[] = [];
+	requests: RequestMaster[] = [];
+	filteredRequests: RequestMaster[] = [];
+	company: RequestCompanyOption | null = null;
+	divisions: RequestDivisionOption[] = [];
+	categories: CategoryOption[] = [];
+	units: UnitOption[] = [];
+	statuses: RequestStatusOption[] = [];
 	isLoading = false;
 	deletingUuid = '';
 	actionUuid = '';
 	errorMessage = '';
+	submittingUuid = '';
+	maxEquipmentPreview = 1;
 
 	constructor(
-		private readonly equipmentRequestService: EquipmentRequestService,
+		private readonly requestService: RequestService,
 		private readonly mainService: MainService,
 		private readonly utilityService: UtilityService,
 		private readonly dialog: MatDialog,
@@ -95,7 +97,7 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 		this.isLoading = true;
 		this.errorMessage = '';
 
-		this.equipmentRequestService
+		this.requestService
 			.getRequests()
 			.pipe(
 				takeUntil(this.destroy$),
@@ -124,12 +126,20 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 		this.applyFilters();
 	}
 
+	getEquipmentPreview(details: any[] | null | undefined): any[] {
+		return (details ?? []).slice(0, this.maxEquipmentPreview);
+	}
+
+	getRemainingEquipmentCount(details: any[] | null | undefined): number {
+		return Math.max((details ?? []).length - this.maxEquipmentPreview, 0);
+	}
+
 	openCreateDialog(): void {
 		this.openFormDialog({ mode: 'create' });
 	}
 
-	openEditDialog(request: EquipmentRequestMaster): void {
-		this.equipmentRequestService.getRequest(request.uuid).subscribe({
+	openEditDialog(request: RequestMaster): void {
+		this.requestService.getRequest(request.uuid).subscribe({
 			next: (detail) =>
 				this.openFormDialog({ mode: 'edit', request: detail }),
 			error: (error) =>
@@ -137,21 +147,19 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	openDetailDialog(request: EquipmentRequestMaster): void {
-		const dialogRef = this.dialog.open(
-			EquipmentRequestDetailDialogComponent,
-			{
-				width: '1180px',
-				maxWidth: '96vw',
-				maxHeight: '94vh',
-				disableClose: true,
-				autoFocus: false,
-				panelClass: 'equipment-request-detail-dialog-panel',
-				data: <EquipmentRequestDetailDialogData>{
-					requestUuid: request.uuid,
-				},
+	openDetailDialog(request: RequestMaster, initialTabIndex = 0): void {
+		const dialogRef = this.dialog.open(RequestDetailDialogComponent, {
+			width: '1180px',
+			maxWidth: '96vw',
+			maxHeight: '94vh',
+			disableClose: true,
+			autoFocus: false,
+			panelClass: 'equipment-request-detail-dialog-panel',
+			data: <RequestDetailDialogData>{
+				requestUuid: request.uuid,
+				initialTabIndex,
 			},
-		);
+		});
 
 		dialogRef
 			.afterClosed()
@@ -161,7 +169,7 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	async deleteRequest(request: EquipmentRequestMaster): Promise<void> {
+	async deleteRequest(request: RequestMaster): Promise<void> {
 		const confirmed = await this.utilityService.confirm(
 			'Delete Equipment Request',
 			`Delete draft request "${request.requestNo}"?`,
@@ -170,7 +178,7 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 		if (!confirmed) return;
 
 		this.deletingUuid = request.uuid;
-		this.equipmentRequestService
+		this.requestService
 			.deleteRequest(request.uuid)
 			.pipe(finalize(() => (this.deletingUuid = '')))
 			.subscribe({
@@ -190,14 +198,22 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	canEdit(request: EquipmentRequestMaster): boolean {
+	canEdit(request: RequestMaster): boolean {
 		return (
 			Boolean(request.statusAllowEdit) && !Boolean(request.approvalLocked)
 		);
 	}
 
-	canDelete(request: EquipmentRequestMaster): boolean {
+	canDelete(request: RequestMaster): boolean {
 		return request.status === 'DRAFT' && !Boolean(request.approvalLocked);
+	}
+
+	canSubmit(request: RequestMaster): boolean {
+		return (request.availableActions ?? []).some(
+			(action) =>
+				action.actionCode === 'SUBMIT' &&
+				action.permissionCode === 'EQUIPMENT_REQUEST.SUBMIT',
+		);
 	}
 
 	statusClass(status: string): string {
@@ -206,7 +222,7 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 			.replace(/_/g, '-');
 	}
 
-	trackByUuid(_: number, request: EquipmentRequestMaster): string {
+	trackByUuid(_: number, request: RequestMaster): string {
 		return request.uuid;
 	}
 
@@ -228,16 +244,11 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 					}
 
 					forkJoin({
-						companies: this.equipmentRequestService.getCompanies(),
-						divisions:
-							this.equipmentRequestService.getDivisions(
-								companyId,
-							),
-						categories:
-							this.equipmentRequestService.getEquipmentCategories(),
-						units: this.equipmentRequestService.getEquipmentUnits(),
-						statuses:
-							this.equipmentRequestService.getEquipmentRequestStatuses(),
+						companies: this.requestService.getCompanies(),
+						divisions: this.requestService.getDivisions(companyId),
+						categories: this.requestService.getCategories(),
+						units: this.requestService.getUnits(),
+						statuses: this.requestService.getRequestStatuses(),
 					})
 						.pipe(takeUntil(this.destroy$))
 						.subscribe({
@@ -280,28 +291,25 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 
 	private openFormDialog(
 		data: Omit<
-			EquipmentRequestFormDialogData,
+			RequestFormDialogData,
 			'company' | 'divisions' | 'categories' | 'units'
 		>,
 	): void {
-		const dialogRef = this.dialog.open(
-			EquipmentRequestFormDialogComponent,
-			{
-				width: '1280px',
-				maxWidth: '96vw',
-				maxHeight: '94vh',
-				disableClose: true,
-				autoFocus: false,
-				panelClass: 'equipment-request-form-dialog-panel',
-				data: {
-					...data,
-					company: this.company,
-					divisions: this.divisions,
-					categories: this.categories,
-					units: this.units,
-				},
+		const dialogRef = this.dialog.open(RequestFormDialogComponent, {
+			width: '1280px',
+			maxWidth: '96vw',
+			maxHeight: '94vh',
+			disableClose: true,
+			autoFocus: false,
+			panelClass: 'equipment-request-form-dialog-panel',
+			data: {
+				...data,
+				company: this.company,
+				divisions: this.divisions,
+				categories: this.categories,
+				units: this.units,
 			},
-		);
+		});
 
 		dialogRef
 			.afterClosed()
@@ -351,5 +359,60 @@ export class EquipmentRequestComponent implements OnInit, OnDestroy {
 			error?.error?.meta?.message ?? error?.error?.message ?? fallback,
 			'error',
 		);
+	}
+
+	getStatusDisplayName(request: RequestMaster): string {
+		if (request.status === 'CLIENT_REVIEW') {
+			return request.companyName
+				? `Waiting ${request.companyName} Approval`
+				: request.statusName || 'Waiting Client Approval';
+		}
+
+		return request.statusName || request.status;
+	}
+
+	submitRequest(request: RequestMaster): void {
+		if (!this.canSubmit(request)) {
+			this.utilityService.alert(
+				'Failed',
+				'Submit action tidak tersedia untuk request ini.',
+				'error',
+			);
+			return;
+		}
+
+		this.submittingUuid = request.uuid;
+
+		this.requestService
+			.executeAction(request.uuid, {
+				actionCode: 'SUBMIT',
+				remarks: null,
+			})
+			.pipe(
+				takeUntil(this.destroy$),
+				finalize(() => {
+					this.submittingUuid = '';
+				}),
+			)
+			.subscribe({
+				next: () => {
+					this.utilityService.alert(
+						'Success',
+						'Request berhasil disubmit untuk approval.',
+						'success',
+					);
+
+					this.loadRequests();
+				},
+				error: (error) => {
+					this.utilityService.alert(
+						'Failed',
+						error?.error?.meta?.message ??
+							error?.error?.message ??
+							'Failed to submit request.',
+						'error',
+					);
+				},
+			});
 	}
 }

@@ -4,40 +4,46 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 
 import {
-	EquipmentCategoryOption,
-	EquipmentRequestCompanyOption,
-	EquipmentRequestDetail,
-	EquipmentRequestDivisionOption,
-	EquipmentRequestMaster,
-	EquipmentRequestPayload,
-	EquipmentRequestService,
-	EquipmentUnitOption,
-} from '../equipment-request.service';
+	CategoryOption,
+	RequestCompanyOption,
+	RequestDetail,
+	RequestDivisionOption,
+	RequestMaster,
+	RequestPayload,
+	RequestService,
+	UnitOption,
+} from '../request.service';
 
-export interface EquipmentRequestFormDialogData {
+export interface RequestFormDialogData {
 	mode: 'create' | 'edit';
-	request?: EquipmentRequestMaster;
-	company: EquipmentRequestCompanyOption | null;
-	divisions: EquipmentRequestDivisionOption[];
-	categories: EquipmentCategoryOption[];
-	units: EquipmentUnitOption[];
+	request?: RequestMaster;
+	company: RequestCompanyOption | null;
+	divisions: RequestDivisionOption[];
+	categories: CategoryOption[];
+	units: UnitOption[];
 }
 
 @Component({
-	selector: 'app-equipment-request-form-dialog',
-	templateUrl: './equipment-request-form-dialog.component.html',
-	styleUrls: ['./equipment-request-form-dialog.component.scss'],
+	selector: 'app-request-form-dialog',
+	templateUrl: './request-form-dialog.component.html',
+	styleUrls: ['./request-form-dialog.component.scss'],
 	standalone: false,
 })
-export class EquipmentRequestFormDialogComponent implements OnInit {
+export class RequestFormDialogComponent implements OnInit {
 	isSaving = false;
 	errorMessage = '';
 
 	readonly form = this.formBuilder.group({
 		companyId: [this.data.company?.id ?? null, Validators.required],
 		divisionUuid: [this.data.request?.divisionUuid ?? ''],
-		startDate: this.parseDatabaseDate(this.data.request?.startDate),
-		endDate: this.parseDatabaseDate(this.data.request?.endDate),
+		startDate: [
+			this.toDateInputValue(this.data.request?.startDate),
+			Validators.required,
+		],
+		endDate: [
+			this.toDateInputValue(this.data.request?.endDate),
+			Validators.required,
+		],
 		purpose: [
 			this.data.request?.purpose ?? '',
 			Validators.maxLength(65535),
@@ -48,14 +54,17 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 
 	constructor(
 		private readonly formBuilder: FormBuilder,
-		private readonly equipmentRequestService: EquipmentRequestService,
-		private readonly dialogRef: MatDialogRef<EquipmentRequestFormDialogComponent>,
+		private readonly requestService: RequestService,
+		private readonly dialogRef: MatDialogRef<RequestFormDialogComponent>,
 		@Inject(MAT_DIALOG_DATA)
-		public readonly data: EquipmentRequestFormDialogData,
+		public readonly data: RequestFormDialogData,
 	) {}
 
 	ngOnInit(): void {
+		console.log('RequestFormDialogComponent data:', this.data);
+
 		const details = this.data.request?.details ?? [];
+
 		if (details.length) details.forEach((detail) => this.addDetail(detail));
 		else this.addDetail();
 	}
@@ -83,7 +92,6 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 					detail?.quantity ?? 1,
 					[Validators.required, Validators.min(1)],
 				],
-				rate: [detail?.rate ?? null, Validators.min(0)],
 				remarks: [detail?.remarks ?? '', Validators.maxLength(1000)],
 			}),
 		);
@@ -94,7 +102,7 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 		this.details.removeAt(index);
 	}
 
-	getUnitsByCategory(detailIndex: number): EquipmentUnitOption[] {
+	getUnitsByCategory(detailIndex: number): UnitOption[] {
 		const categoryId = Number(
 			this.details.at(detailIndex).get('equipmentCategoryId')?.value,
 		);
@@ -113,8 +121,10 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 	}
 
 	save(): void {
-		if (this.form.invalid || this.isSaving) {
+		if (this.form.invalid) {
 			this.form.markAllAsTouched();
+			this.markDetailsAsTouched();
+			this.errorMessage = 'Mohon lengkapi data request yang wajib diisi.';
 			return;
 		}
 
@@ -133,7 +143,7 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 			return;
 		}
 
-		const payload: EquipmentRequestPayload = {
+		const payload: RequestPayload = {
 			companyId: Number(value.companyId),
 			divisionUuid: value.divisionUuid || null,
 			startDate,
@@ -147,10 +157,6 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 					? Number(detail.equipmentUnitId)
 					: null,
 				quantity: Number(detail.quantity),
-				rate:
-					detail.rate === null || detail.rate === ''
-						? null
-						: Number(detail.rate),
 				remarks: detail.remarks?.trim() || null,
 			})),
 		};
@@ -160,8 +166,8 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 
 		const request$ =
 			this.data.mode === 'create'
-				? this.equipmentRequestService.createRequest(payload)
-				: this.equipmentRequestService.updateRequest(
+				? this.requestService.createRequest(payload)
+				: this.requestService.updateRequest(
 						this.data.request!.uuid,
 						payload,
 					);
@@ -180,49 +186,40 @@ export class EquipmentRequestFormDialogComponent implements OnInit {
 		if (!this.isSaving) this.dialogRef.close();
 	}
 
-	private createDetailForm(detail?: EquipmentRequestDetail): FormGroup {
-		return this.formBuilder.group({
-			equipmentCategoryId: [
-				detail?.equipmentCategoryId ?? null,
-				Validators.required,
-			],
-			equipmentUnitId: [
-				detail?.equipmentUnitId ?? null,
-				Validators.required,
-			],
-			quantity: [
-				detail?.quantity ?? 1,
-				[Validators.required, Validators.min(1)],
-			],
-			rate: [detail?.rate ?? null],
-			remarks: [detail?.remarks ?? ''],
+	private markDetailsAsTouched(): void {
+		this.details.controls.forEach((control) => {
+			control.markAllAsTouched();
+			control.updateValueAndValidity();
 		});
 	}
 
-	private formatDatabaseDate(value: Date | string | null): string | null {
+	private formatDatabaseDate(value: string | Date | null): string | null {
 		if (!value) return null;
+
+		if (typeof value === 'string') {
+			return value.trim() || null;
+		}
+
+		if (Number.isNaN(value.getTime())) return null;
+
+		const year = value.getFullYear();
+		const month = String(value.getMonth() + 1).padStart(2, '0');
+		const day = String(value.getDate()).padStart(2, '0');
+
+		return `${year}-${month}-${day}`;
+	}
+
+	private toDateInputValue(value: string | Date | null | undefined): string {
+		if (!value) return '';
 
 		const date = value instanceof Date ? value : new Date(value);
 
-		if (Number.isNaN(date.getTime())) return null;
+		if (Number.isNaN(date.getTime())) return '';
 
 		const year = date.getFullYear();
 		const month = String(date.getMonth() + 1).padStart(2, '0');
 		const day = String(date.getDate()).padStart(2, '0');
 
 		return `${year}-${month}-${day}`;
-	}
-
-	private parseDatabaseDate(value: string | null | undefined): Date | null {
-		if (!value) return null;
-
-		const [year, month, day] = value
-			.substring(0, 10)
-			.split('-')
-			.map(Number);
-
-		if (!year || !month || !day) return null;
-
-		return new Date(year, month - 1, day);
 	}
 }

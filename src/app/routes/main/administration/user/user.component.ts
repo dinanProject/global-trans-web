@@ -14,6 +14,7 @@ import {
 	UserFormDialogData,
 } from './user-form-dialog/user-form-dialog.component';
 import { UserMaster, UserOptions, UserService } from './user.service';
+import { SessionService } from 'src/app/core/services/session.service';
 
 @Component({
 	selector: 'app-user',
@@ -37,6 +38,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private readonly userService: UserService,
+		private readonly sessionService: SessionService,
 		private readonly dialog: MatDialog,
 		private readonly utilityService: UtilityService,
 	) {}
@@ -116,6 +118,17 @@ export class UserComponent implements OnInit, OnDestroy {
 					);
 				},
 			});
+	}
+
+	isProtectedSystemDeveloperAccount(user: UserMaster): boolean {
+		const targetIsSystemDeveloper = String(user.roleNames ?? '')
+			.toUpperCase()
+			.includes('SYSTEM_DEVELOPER');
+
+		const currentUserIsSystemDeveloper =
+			this.sessionService.isSystemDeveloper();
+
+		return targetIsSystemDeveloper && !currentUserIsSystemDeveloper;
 	}
 
 	async deleteUser(user: UserMaster): Promise<void> {

@@ -1,7 +1,7 @@
 <li class="menu" [class.hidden]="isHidden" [class.selected]="isMenuSelected">
 	<a
 		class="anc"
-		[routerLink]="menu.route || null"
+		[routerLink]="isLeaf && menu.route ? menu.route : null"
 		(click)="onMenuClick($event)"
 		[class.active]="isActive"
 		fxLayout
@@ -31,7 +31,7 @@
 
 	@if (hasChildren) {
 		<ul class="menus" [ngClass]="menu.visibility">
-			@for (subMenu of children; track subMenu) {
+			@for (subMenu of children; track subMenu.menuId) {
 				<app-menu
 					[menu]="subMenu"
 					[menuLevel]="menuLevel + 1"

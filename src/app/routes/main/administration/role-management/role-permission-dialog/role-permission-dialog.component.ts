@@ -3,29 +3,34 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject, finalize, takeUntil } from 'rxjs';
 
-import {
-	AccessManagementService,
-	AccessPermission,
-	RolePermissionDetail,
-	RoleSummary,
-} from '../access-management.service';
+import { PermissionMaster } from '../../permission-management/permission.service';
+import { RoleMaster } from '../role.service';
+import { RolePermissionService } from '../role-permission.service';
 
-export interface ManagePermissionDialogData {
-	role: RoleSummary;
+export interface RolePermissionDialogData {
+	role: RoleMaster;
+}
+
+export interface RolePermissionDialogResult {
+	action: 'save';
+}
+
+interface PermissionWithAssignment extends PermissionMaster {
+	assigned?: boolean;
 }
 
 interface PermissionGroup {
 	module: string;
-	permissions: AccessPermission[];
+	permissions: PermissionWithAssignment[];
 }
 
 @Component({
-	selector: 'app-manage-permission-dialog',
-	templateUrl: './manage-permission-dialog.component.html',
-	styleUrls: ['./manage-permission-dialog.component.scss'],
+	selector: 'app-role-permission-dialog',
+	templateUrl: './role-permission-dialog.component.html',
+	styleUrls: ['./role-permission-dialog.component.scss'],
 	standalone: false,
 })
-export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
+export class RolePermissionDialogComponent implements OnInit, OnDestroy {
 	private readonly destroy$ = new Subject<void>();
 	private readonly expandedModules = new Set<string>();
 
@@ -37,7 +42,7 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 		nonNullable: true,
 	});
 
-	permissions: AccessPermission[] = [];
+	permissions: PermissionWithAssignment[] = [];
 
 	isLoading = false;
 	isSaving = false;
@@ -45,10 +50,13 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private readonly formBuilder: FormBuilder,
-		private readonly accessManagementService: AccessManagementService,
-		private readonly dialogRef: MatDialogRef<ManagePermissionDialogComponent>,
+		private readonly rolePermissionService: RolePermissionService,
+		private readonly dialogRef: MatDialogRef<
+			RolePermissionDialogComponent,
+			RolePermissionDialogResult | undefined
+		>,
 		@Inject(MAT_DIALOG_DATA)
-		public readonly data: ManagePermissionDialogData,
+		public readonly data: RolePermissionDialogData,
 	) {
 		this.form = this.formBuilder.nonNullable.group({
 			permissionUuids: [[] as string[]],
@@ -97,7 +105,7 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 				})
 			: this.permissions;
 
-		const groupedPermissions = new Map<string, AccessPermission[]>();
+		const groupedPermissions = new Map<string, PermissionWithAssignment[]>();
 
 		for (const permission of filteredPermissions) {
 			const moduleName =
@@ -114,7 +122,6 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 				module,
 				permissions: [...permissions].sort((first, second) => {
 					const firstLabel = first.label || first.code || '';
-
 					const secondLabel = second.label || second.code || '';
 
 					return firstLabel.localeCompare(secondLabel);
@@ -143,6 +150,14 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 		return (
 			this.selectedPermissionCount > 0 && !this.isAllPermissionsSelected
 		);
+	}
+
+	get roleIsSystem(): boolean {
+		return this.toBoolean(this.data.role.isSystem);
+	}
+
+	get roleIsActive(): boolean {
+		return this.toBoolean(this.data.role.isActive);
 	}
 
 	isSelected(permissionUuid: string): boolean {
@@ -250,7 +265,7 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 		this.isLoading = true;
 		this.errorMessage = '';
 
-		this.accessManagementService
+		this.rolePermissionService
 			.getRolePermissions(this.data.role.uuid)
 			.pipe(
 				takeUntil(this.destroy$),
@@ -259,8 +274,8 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 				}),
 			)
 			.subscribe({
-				next: (result: RolePermissionDetail) => {
-					const permissions = result?.permissions ?? [];
+				next: (result) => {
+					const permissions = (result?.permissions ?? []) as PermissionWithAssignment[];
 
 					this.permissions =
 						this.data.role.code === 'SYSTEM_DEVELOPER'
@@ -272,14 +287,12 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 											.toUpperCase() !== 'PERMISSION',
 								);
 
-					const assignedPermissionUuids = this.permissions
+					const assignedPermissionUuids = this.resolveSelectedPermissionUuids({
+						...result,
+						permissions: this.permissions,
+					});
 
-						.filter((permission) => permission.assigned)
-						.map((permission) => permission.uuid);
-					this.form.controls.permissionUuids.setValue(
-						assignedPermissionUuids,
-					);
-
+					this.form.controls.permissionUuids.setValue(assignedPermissionUuids);
 					this.form.markAsPristine();
 					this.expandedModules.clear();
 
@@ -291,12 +304,12 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 				},
 				error: (error) => {
 					this.permissions = [];
-
 					this.form.controls.permissionUuids.setValue([]);
 					this.form.markAsPristine();
 
 					this.errorMessage =
 						error?.error?.meta?.message ??
+						error?.error?.message ??
 						'Failed to load permissions.';
 				},
 			});
@@ -310,7 +323,7 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 		this.isSaving = true;
 		this.errorMessage = '';
 
-		this.accessManagementService
+		this.rolePermissionService
 			.updateRolePermissions(this.data.role.uuid, {
 				permissionUuids: this.selectedPermissionUuids,
 			})
@@ -329,6 +342,7 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 				error: (error) => {
 					this.errorMessage =
 						error?.error?.meta?.message ??
+						error?.error?.message ??
 						'Failed to update role permissions.';
 				},
 			});
@@ -346,12 +360,29 @@ export class ManagePermissionDialogComponent implements OnInit, OnDestroy {
 		return group.module;
 	}
 
-	trackByPermissionUuid(index: number, permission: AccessPermission): string {
+	trackByPermissionUuid(index: number, permission: PermissionWithAssignment): string {
 		return permission.uuid;
 	}
 
 	private updateSelectedPermissions(permissionUuids: string[]): void {
 		this.form.controls.permissionUuids.setValue(permissionUuids);
 		this.form.controls.permissionUuids.markAsDirty();
+	}
+
+	private resolveSelectedPermissionUuids(result: {
+		permissions?: PermissionWithAssignment[];
+		selectedPermissionUuids?: string[];
+	} | null | undefined): string[] {
+		if (Array.isArray(result?.selectedPermissionUuids)) {
+			return result.selectedPermissionUuids;
+		}
+
+		return (result?.permissions ?? [])
+			.filter((permission) => Boolean(permission.assigned))
+			.map((permission) => permission.uuid);
+	}
+
+	private toBoolean(value: boolean | number | null | undefined): boolean {
+		return value === true || value === 1;
 	}
 }
