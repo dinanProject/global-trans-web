@@ -19,7 +19,6 @@ import { PanelModule } from 'src/app/shared/panel/panel.module';
 import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RolePermissionDialogComponent } from './role-management/role-permission-dialog/role-permission-dialog.component';
 
 @NgModule({
@@ -48,8 +47,6 @@ import { RolePermissionDialogComponent } from './role-management/role-permission
 		MatTabsModule,
 		MatMenuModule,
 		MatTableModule,
-		MatSlideToggleModule,
-
 		AdministrationRoutingModule,
 	],
 })
