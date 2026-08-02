@@ -41,14 +41,8 @@ export class PermissionFormDialogComponent {
 			this.data.permission?.module ?? '',
 			[Validators.required, Validators.maxLength(100)],
 		],
-		action: [
-			this.data.permission?.action ?? '',
-			Validators.maxLength(100),
-		],
-		scope: [
-			this.data.permission?.scope ?? '',
-			Validators.maxLength(100),
-		],
+		action: [this.data.permission?.action ?? '', Validators.maxLength(100)],
+		scope: [this.data.permission?.scope ?? '', Validators.maxLength(100)],
 		description: [
 			this.data.permission?.description ?? '',
 			Validators.maxLength(500),
@@ -157,16 +151,13 @@ export class PermissionFormDialogComponent {
 						payload,
 					);
 
-		request$
-			.pipe(finalize(() => (this.isSaving = false)))
-			.subscribe({
-				next: () => this.dialogRef.close({ action: 'save' }),
-				error: (error) => {
-					this.errorMessage =
-						error?.error?.meta?.message ??
-						'Failed to save permission.';
-				},
-			});
+		request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
+			next: () => this.dialogRef.close({ action: 'save' }),
+			error: (error) => {
+				this.errorMessage =
+					error?.error?.meta?.message ?? 'Failed to save permission.';
+			},
+		});
 	}
 
 	cancel(): void {

@@ -5,11 +5,6 @@ import { MainGuard } from './routes/main/main-guard';
 
 const routes: Routes = [
 	{
-		path: '',
-		redirectTo: 'auth',
-		pathMatch: 'full',
-	},
-	{
 		path: 'auth',
 		loadChildren: () =>
 			import('./routes/auth/auth.module').then(
@@ -17,7 +12,7 @@ const routes: Routes = [
 			),
 	},
 	{
-		path: 'main',
+		path: '',
 		loadChildren: () =>
 			import('./routes/main/main.module').then(
 				(module) => module.MainModule,
@@ -30,7 +25,7 @@ const routes: Routes = [
 	},
 	{
 		path: '**',
-		redirectTo: 'auth',
+		redirectTo: 'home',
 	},
 ];
 

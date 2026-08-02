@@ -288,7 +288,7 @@ export class MainComponent implements OnInit, OnDestroy {
 					parentId: menu.parentId ?? null,
 					code: menu.code ?? '',
 					sequence: Number(menu.sequence ?? 0),
-					route: menu.route ?? null,
+					route: this.normalizeMenuRoute(menu.route),
 					icon: menu.icon ?? null,
 					level: menu.level ?? level,
 					child: children,
@@ -297,6 +297,36 @@ export class MainComponent implements OnInit, OnDestroy {
 						(children.length > 0 ? 'collapsed' : 'no-child'),
 				};
 			});
+	}
+
+	private normalizeMenuRoute(
+		route: string | null | undefined,
+	): string | null {
+		if (!route) {
+			return null;
+		}
+
+		const normalizedRoute = route.trim();
+
+		if (!normalizedRoute) {
+			return null;
+		}
+
+		if (normalizedRoute === '/main' || normalizedRoute === 'main') {
+			return '/home';
+		}
+
+		if (normalizedRoute.startsWith('/main/')) {
+			return normalizedRoute.replace(/^\/main/, '');
+		}
+
+		if (normalizedRoute.startsWith('main/')) {
+			return `/${normalizedRoute.replace(/^main\//, '')}`;
+		}
+
+		return normalizedRoute.startsWith('/')
+			? normalizedRoute
+			: `/${normalizedRoute}`;
 	}
 
 	private initSidebarEvents(): void {

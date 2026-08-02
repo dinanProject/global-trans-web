@@ -52,6 +52,13 @@ export class LoginComponent implements OnInit {
 			this.activatedRoute.snapshot.queryParamMap.get('returnUrl');
 
 		this.returnUrl = this.getSafeReturnUrl(requestedReturnUrl);
+		const reason = this.activatedRoute.snapshot.queryParamMap.get('reason');
+
+		if (reason === 'session-expired') {
+			this.errorMessage.set(
+				'Sesi Anda sudah berakhir. Silakan login kembali.',
+			);
+		}
 
 		if (this.sessionService.isAuth()) {
 			void this.router.navigateByUrl(this.returnUrl);

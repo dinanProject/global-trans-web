@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import {
+	HttpErrorResponse,
+	HttpEvent,
+	HttpHandler,
+	HttpInterceptor,
+	HttpRequest,
+} from '@angular/common/http';
+import { Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 
@@ -18,7 +25,10 @@ export class AuthInterceptor implements HttpInterceptor {
 		null,
 	);
 
-	constructor(private sessionService: SessionService) {}
+	constructor(
+		private sessionService: SessionService,
+		private router: Router,
+	) {}
 
 	intercept(
 		request: HttpRequest<unknown>,
@@ -29,7 +39,16 @@ export class AuthInterceptor implements HttpInterceptor {
 
 		return next.handle(authenticatedRequest).pipe(
 			catchError((error: HttpErrorResponse) => {
-				if (error.status !== 401 || this.isPublicAuthRequest(request)) {
+				console.log('[AuthInterceptor] error:', {
+					url: request.url,
+					status: error.status,
+					error: error.error,
+				});
+				if (this.isPublicAuthRequest(request)) {
+					return throwError(() => error);
+				}
+
+				if (!this.isUnauthorizedError(error)) {
 					return throwError(() => error);
 				}
 
@@ -54,8 +73,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
 					return next.handle(this.addToken(request, accessToken));
 				}),
-				catchError((error) => {
-					this.sessionService.logoutLocal();
+				catchError((error: HttpErrorResponse) => {
+					this.sessionService.logoutLocal('session-expired');
 
 					return throwError(() => error);
 				}),
@@ -69,6 +88,24 @@ export class AuthInterceptor implements HttpInterceptor {
 			filter((token): token is string => token !== null),
 			take(1),
 			switchMap((token) => next.handle(this.addToken(request, token))),
+		);
+	}
+
+	private isUnauthorizedError(error: HttpErrorResponse): boolean {
+		const code =
+			error?.error?.code ??
+			error?.error?.meta?.code ??
+			error?.error?.meta?.errorCode;
+
+		const message =
+			error?.error?.message ?? error?.error?.meta?.message ?? '';
+
+		return (
+			error.status === 401 ||
+			code === 'TOKEN_EXPIRED' ||
+			String(message)
+				.toLowerCase()
+				.includes('access token sudah kedaluwarsa')
 		);
 	}
 

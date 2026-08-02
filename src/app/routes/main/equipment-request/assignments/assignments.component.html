@@ -1,0 +1,509 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<div class="eyebrow">Equipment Reservation</div>
+			<h5>Equipment Assignment</h5>
+			<small class="text-secondary">
+				Kelola alokasi unit untuk request yang sudah mendapat final
+				approval
+			</small>
+		</div>
+		<button
+			type="button"
+			class="btn btn-light refresh-button"
+			(click)="loadWorklist(true)"
+			[disabled]="loadingWorklist || loadingDetail || saving"
+		>
+			<i
+				class="fas fa-sync-alt"
+				[class.fa-spin]="loadingWorklist || loadingDetail"
+			></i>
+			Refresh
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<div class="alert alert-danger" *ngIf="errorMessage">
+		<i class="fas fa-exclamation-circle"></i>
+		{{ errorMessage }}
+	</div>
+
+	<div class="alert alert-success" *ngIf="successMessage">
+		<i class="fas fa-check-circle"></i>
+		{{ successMessage }}
+	</div>
+
+	<div class="assignment-layout">
+		<panel class="worklist-panel">
+			<panel-body>
+				<div class="section-header">
+					<div>
+						<div class="section-title">Assignment Worklist</div>
+						<div class="section-subtitle">
+							Approved hingga completed request
+						</div>
+					</div>
+					<span class="counter">{{ filteredRequests.length }}</span>
+				</div>
+
+				<div class="filters">
+					<div class="search-box">
+						<i class="fas fa-search"></i>
+						<input
+							type="text"
+							class="form-control"
+							[value]="search"
+							(input)="updateSearch($any($event.target).value)"
+							placeholder="Search request..."
+						/>
+					</div>
+					<select
+						class="form-control"
+						[value]="statusFilter"
+						(change)="updateStatusFilter($any($event.target).value)"
+					>
+						<option value="">All status</option>
+						<option
+							*ngFor="let status of workflowStatuses"
+							[value]="status"
+						>
+							{{ statusLabel(status) }}
+						</option>
+					</select>
+				</div>
+
+				<div class="loading-state compact" *ngIf="loadingWorklist">
+					<i class="fas fa-spinner fa-spin"></i>
+					<span>Memuat worklist...</span>
+				</div>
+
+				<div
+					class="empty-state compact"
+					*ngIf="!loadingWorklist && filteredRequests.length === 0"
+				>
+					<i class="fas fa-inbox"></i>
+					<span>Tidak ada request assignment.</span>
+				</div>
+
+				<div
+					class="request-list"
+					*ngIf="!loadingWorklist && filteredRequests.length > 0"
+				>
+					<button
+						type="button"
+						class="request-card"
+						*ngFor="
+							let request of filteredRequests;
+							trackBy: trackByRequestUuid
+						"
+						[class.active]="selectedRequest?.uuid === request.uuid"
+						(click)="selectRequest(request)"
+					>
+						<div class="request-card-top">
+							<strong>{{ request.requestNo }}</strong>
+							<span
+								class="status-badge"
+								[ngClass]="statusClass(request.status)"
+							>
+								{{ statusLabel(request.status) }}
+							</span>
+						</div>
+						<div class="request-company">
+							{{ request.companyName || "-" }}
+						</div>
+						<div class="request-meta">
+							<span
+								><i class="far fa-calendar-alt"></i>
+								{{ formatDate(request.startDate) }}</span
+							>
+							<span>{{ request.divisionName || "-" }}</span>
+						</div>
+					</button>
+				</div>
+			</panel-body>
+		</panel>
+
+		<div class="detail-column">
+			<div class="loading-state" *ngIf="loadingDetail">
+				<i class="fas fa-spinner fa-spin"></i>
+				<span>Memuat detail assignment...</span>
+			</div>
+
+			<panel *ngIf="!loadingDetail && !selectedRequest">
+				<panel-body>
+					<div class="empty-state">
+						<i class="fas fa-hand-pointer"></i>
+						<h5>Pilih equipment request</h5>
+						<p>
+							Pilih request pada worklist untuk melihat dan
+							memproses assignment.
+						</p>
+					</div>
+				</panel-body>
+			</panel>
+
+			<ng-container *ngIf="!loadingDetail && selectedRequest">
+				<panel>
+					<panel-body>
+						<div class="section-header">
+							<div>
+								<div class="eyebrow">
+									{{ selectedRequest.requestNo }}
+								</div>
+								<div class="section-title">Request Summary</div>
+							</div>
+							<span
+								class="status-badge"
+								[ngClass]="statusClass(requestStatus)"
+							>
+								{{ statusLabel(requestStatus) }}
+							</span>
+						</div>
+
+						<div class="workflow">
+							<ng-container
+								*ngFor="
+									let status of workflowStatuses;
+									let last = last
+								"
+							>
+								<div
+									class="workflow-step"
+									[class.active]="
+										isWorkflowStatusActive(status)
+									"
+									[class.current]="
+										isWorkflowStatusCurrent(status)
+									"
+								>
+									<div class="workflow-dot">
+										<i
+											class="fas"
+											[class.fa-check]="
+												isWorkflowStatusActive(status)
+											"
+											[class.fa-circle]="
+												!isWorkflowStatusActive(status)
+											"
+										></i>
+									</div>
+									<div>{{ statusLabel(status) }}</div>
+								</div>
+								<div
+									class="workflow-line"
+									*ngIf="!last"
+									[class.active]="
+										isWorkflowStatusActive(
+											workflowStatuses[
+												workflowStatuses.indexOf(
+													status
+												) + 1
+											]
+										)
+									"
+								></div>
+							</ng-container>
+						</div>
+
+						<div
+							class="lock-banner"
+							[class.locked]="selectedRequest.approvalLocked"
+						>
+							<i
+								class="fas"
+								[class.fa-lock]="selectedRequest.approvalLocked"
+								[class.fa-unlock]="
+									!selectedRequest.approvalLocked
+								"
+							></i>
+							<div>
+								<strong>{{
+									selectedRequest.approvalLocked
+										? "Permintaan telah disetujui"
+										: "Permintaan belum disetujui"
+								}}</strong>
+								<div>
+									{{
+										selectedRequest.approvalLocked
+											? "Data permintaan tidak dapat diubah lagi. Silakan lanjutkan proses assign unit."
+											: "Permintaan masih menunggu proses persetujuan."
+									}}
+								</div>
+							</div>
+						</div>
+
+						<div class="summary-grid">
+							<div>
+								<span>Company</span
+								><strong>{{
+									selectedRequest.companyName || "-"
+								}}</strong>
+							</div>
+							<div>
+								<span>Division</span
+								><strong>{{
+									selectedRequest.divisionName || "-"
+								}}</strong>
+							</div>
+							<div class="schedule-summary">
+								<span>Schedule</span>
+								<div class="schedule-range">
+									<div>
+										<small>Start</small
+										><strong>{{
+											formatDate(
+												selectedRequest.startDate
+											)
+										}}</strong>
+									</div>
+									<i class="fas fa-arrow-right"></i>
+									<div>
+										<small>End</small
+										><strong>{{
+											formatDate(selectedRequest.endDate)
+										}}</strong>
+									</div>
+								</div>
+							</div>
+							<div>
+								<span>Fulfillment</span
+								><strong
+									>{{ totalActiveAssigned }} /
+									{{ totalRequested }}</strong
+								>
+							</div>
+						</div>
+					</panel-body>
+				</panel>
+
+				<panel>
+					<panel-body>
+						<div class="section-header">
+							<div>
+								<div class="section-title">
+									Approved Request Detail
+								</div>
+								<div class="section-subtitle">
+									{{ requestDetailSubtitle }}
+								</div>
+							</div>
+						</div>
+
+						<div class="detail-list" *ngIf="detailViews.length > 0">
+							<div
+								class="detail-card approved-unit-card"
+								*ngFor="let detail of detailViews"
+							>
+								<div class="detail-header">
+									<div>
+										<div class="eyebrow">
+											Approved Equipment
+										</div>
+										<h6>{{ detail.categoryName }}</h6>
+									</div>
+									<span
+										class="fulfilled"
+										*ngIf="detail.remainingQuantity === 0"
+										><i class="fas fa-check-circle"></i>
+										Assigned</span
+									>
+								</div>
+
+								<ng-container
+									*ngIf="
+										approvedUnit(detail) as unit;
+										else missingApprovedUnit
+									"
+								>
+									<div class="approved-unit-info">
+										<div class="approved-unit-icon">
+											<img
+												[src]="
+													getEquipmentIcon(
+														detail.categoryCode
+													)
+												"
+												[alt]="detail.categoryName"
+											/>
+										</div>
+										<div class="approved-unit-primary">
+											<strong
+												>{{ unit.unitCode }} -
+												{{ unit.unitName }}</strong
+											>
+											<span>{{
+												unit.assetNumber ||
+													"Asset number belum tersedia"
+											}}</span>
+										</div>
+										<div class="approved-unit-fields">
+											<div>
+												<span>Model</span
+												><strong>{{
+													unit.modelNumber || "-"
+												}}</strong>
+											</div>
+											<div>
+												<span>Plate Number</span
+												><strong>{{
+													unit.plateNumber || "-"
+												}}</strong>
+											</div>
+											<div>
+												<span>Period</span
+												><strong
+													>{{
+														formatDate(
+															selectedRequest.startDate
+														)
+													}}
+													–
+													{{
+														formatDate(
+															selectedRequest.endDate
+														)
+													}}</strong
+												>
+											</div>
+											<div>
+												<span>Quantity</span
+												><strong>{{
+													detail.quantity
+												}}</strong>
+											</div>
+										</div>
+									</div>
+
+									<div class="approved-unit-footer">
+										<div class="unit-remarks">
+											<span>Remarks</span>
+											<strong>
+												{{
+													detail.remarks ||
+														unit.remarks ||
+														"-"
+												}}
+											</strong>
+										</div>
+
+										<ng-container
+											*ngFor="
+												let assignment of detail.assignments
+											"
+										>
+											<button
+												type="button"
+												class="btn btn-sm btn-success complete-button"
+												(click)="
+													completeAssignment(
+														assignment
+													)
+												"
+												*ngIf="canComplete(assignment)"
+											>
+												<i
+													class="fas fa-check mr-1"
+												></i>
+												Complete
+											</button>
+										</ng-container>
+									</div>
+								</ng-container>
+
+								<ng-template #missingApprovedUnit>
+									<div class="missing-unit">
+										<i
+											class="fas fa-exclamation-triangle"
+										></i>
+										Unit yang disetujui tidak ditemukan pada
+										master equipment unit.
+									</div>
+								</ng-template>
+							</div>
+						</div>
+						<div
+							class="start-all-actions"
+							*ngIf="
+								detailViews.length > 0 &&
+								requestStatus === STATUS_ASSIGNED
+							"
+						>
+							<div class="start-all-info">
+								<strong>
+									{{ pendingStartAssignments.length }} unit
+									siap beroperasi
+								</strong>
+
+								<span>
+									Seluruh unit akan mulai beroperasi dalam
+									satu proses.
+								</span>
+							</div>
+
+							<button
+								type="button"
+								class="btn btn-primary start-all-button"
+								(click)="startAllOperations()"
+								[disabled]="!canStartAll"
+							>
+								<i
+									class="fas"
+									[class.fa-spinner]="saving"
+									[class.fa-spin]="saving"
+									[class.fa-play]="!saving"
+								></i>
+
+								{{ saving ? "Starting..." : "START OPERATION" }}
+							</button>
+						</div>
+						<div
+							class="assign-all-actions"
+							*ngIf="
+								detailViews.length > 0 &&
+								requestStatus === STATUS_APPROVED
+							"
+						>
+							<div class="assign-all-info">
+								<strong
+									>{{ pendingAssignableDetails.length }} unit
+									siap ditugaskan</strong
+								>
+								<span
+									>Semua unit akan ditugaskan sesuai periode
+									permintaan yang telah disetujui.</span
+								>
+							</div>
+							<button
+								type="button"
+								class="btn btn-primary assign-all-button"
+								(click)="assignAllEquipment()"
+								[disabled]="!canAssignAll"
+							>
+								<i
+									class="fas"
+									[class.fa-spinner]="saving"
+									[class.fa-spin]="saving"
+									[class.fa-check]="!saving"
+								></i>
+								{{
+									saving ? "Assigning..." : "ASSIGN EQUIPMENT"
+								}}
+							</button>
+						</div>
+
+						<div
+							class="empty-state compact"
+							*ngIf="detailViews.length === 0"
+						>
+							<i class="fas fa-list"></i>
+							<span
+								>Request ini tidak memiliki detail aktif.</span
+							>
+						</div>
+					</panel-body>
+				</panel>
+			</ng-container>
+		</div>
+	</div>
+</page-body>

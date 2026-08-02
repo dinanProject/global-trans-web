@@ -9,13 +9,15 @@ import {
 	takeUntil,
 } from 'rxjs';
 
-import { ManagePermissionDialogComponent } from '../access-management/manage-permission-dialog/manage-permission-dialog.component';
-import { RoleSummary } from '../access-management/access-management.service';
 import {
 	RoleFormDialogComponent,
 	RoleFormDialogData,
 } from './role-form-dialog/role-form-dialog.component';
 import { RoleCompanyOption, RoleMaster, RoleService } from './role.service';
+import {
+	RolePermissionDialogComponent,
+	RolePermissionDialogResult,
+} from './role-permission-dialog/role-permission-dialog.component';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import { SessionService } from 'src/app/core/services/session.service';
 
@@ -154,26 +156,20 @@ export class RoleComponent implements OnInit, OnDestroy {
 	}
 
 	openPermissionDialog(role: RoleMaster): void {
-		const roleSummary: RoleSummary = {
-			...role,
-			permissionCount: role.permissionCount ?? 0,
-			userCount: role.userCount ?? 0,
-		};
-
-		const dialogRef = this.dialog.open(ManagePermissionDialogComponent, {
+		const dialogRef = this.dialog.open(RolePermissionDialogComponent, {
 			width: '1180px',
 			maxWidth: '96vw',
 			maxHeight: '94vh',
 			disableClose: true,
 			autoFocus: false,
-			panelClass: 'manage-permission-dialog-panel',
-			data: { role: roleSummary },
+			panelClass: 'role-permission-dialog-panel',
+			data: { role },
 		});
 
 		dialogRef
 			.afterClosed()
 			.pipe(takeUntil(this.destroy$))
-			.subscribe((result) => {
+			.subscribe((result?: RolePermissionDialogResult) => {
 				if (result?.action === 'save') {
 					this.loadRoles();
 				}

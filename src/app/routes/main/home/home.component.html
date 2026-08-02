@@ -1,0 +1,145 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<div class="page-eyebrow">
+				<i class="fas fa-chart-pie"></i>
+				<span>Executive Analytics</span>
+			</div>
+
+			<h5>Operations Dashboard</h5>
+
+			<small class="text-secondary">
+				Equipment utilization, operational trends, and SLA performance
+				across the organization.
+			</small>
+		</div>
+
+		<div class="header-filter">
+			<label for="dashboardPeriod">Reporting Period</label>
+
+			<select
+				id="dashboardPeriod"
+				class="form-control"
+				[(ngModel)]="selectedPeriod"
+				(ngModelChange)="onPeriodChange()"
+			>
+				<option
+					*ngFor="let period of periodOptions"
+					[value]="period.value"
+				>
+					{{ period.label }}
+				</option>
+			</select>
+		</div>
+	</div>
+</page-header>
+
+<page-body>
+	<div class="dashboard-grid">
+		<section class="chart-card chart-card-wide">
+			<div class="chart-header">
+				<div>
+					<h6>Operations Trend</h6>
+					<p>
+						Monthly movement of assigned, started, and completed
+						equipment operations.
+					</p>
+				</div>
+
+				<span class="chart-context">
+					<i class="fas fa-calendar-alt"></i>
+					{{ selectedPeriodLabel }}
+				</span>
+			</div>
+
+			<div class="chart-body chart-body-large">
+				<canvas
+					baseChart
+					[type]="'line'"
+					[data]="operationsTrendData"
+					[options]="operationsTrendOptions"
+				></canvas>
+			</div>
+		</section>
+
+		<section class="chart-card">
+			<div class="chart-header">
+				<div>
+					<h6>Equipment Utilization</h6>
+					<p>Current allocation of the equipment fleet.</p>
+				</div>
+			</div>
+
+			<div class="chart-body chart-body-doughnut">
+				<canvas
+					baseChart
+					[type]="'doughnut'"
+					[data]="utilizationData"
+					[options]="utilizationOptions"
+				></canvas>
+
+				<div class="doughnut-center">
+					<strong>{{ totalEquipmentUnits }}</strong>
+					<span>Total Units</span>
+				</div>
+			</div>
+		</section>
+
+		<section class="chart-card">
+			<div class="chart-header">
+				<div>
+					<h6>SLA Performance</h6>
+					<p>Distribution of operational SLA outcomes.</p>
+				</div>
+			</div>
+
+			<div class="chart-body">
+				<canvas
+					baseChart
+					[type]="'bar'"
+					[data]="slaData"
+					[options]="slaOptions"
+				></canvas>
+			</div>
+		</section>
+
+		<section class="chart-card">
+			<div class="chart-header">
+				<div>
+					<h6>Top Equipment Categories</h6>
+					<p>Most frequently assigned equipment categories.</p>
+				</div>
+			</div>
+
+			<div class="chart-body">
+				<canvas
+					baseChart
+					[type]="'bar'"
+					[data]="categoryData"
+					[options]="categoryOptions"
+				></canvas>
+			</div>
+		</section>
+
+		<section class="chart-card">
+			<div class="chart-header">
+				<div>
+					<h6>Operations by Company</h6>
+					<p>
+						Companies with the highest number of equipment
+						operations.
+					</p>
+				</div>
+			</div>
+
+			<div class="chart-body">
+				<canvas
+					baseChart
+					[type]="'bar'"
+					[data]="companyOperationsData"
+					[options]="companyOperationsOptions"
+				></canvas>
+			</div>
+		</section>
+	</div>
+</page-body>

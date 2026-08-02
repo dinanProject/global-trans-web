@@ -1,0 +1,348 @@
+:host {
+	display: block;
+	height: 100%;
+}
+
+:host ::ng-deep .panel-body-no-padding {
+	padding: 0;
+}
+
+.header-content,
+.filter-content {
+	width: 100%;
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.filter-fields,
+.filter-actions {
+	display: flex;
+	align-items: flex-end;
+	gap: 12px;
+}
+
+.search-field {
+	width: 360px;
+	max-width: 100%;
+	margin-bottom: 0;
+}
+
+.stage-field {
+	width: 190px;
+	margin-bottom: 0;
+}
+
+.loading-container {
+	min-height: 400px;
+}
+
+.approval-table {
+	width: 100%;
+	table-layout: fixed;
+
+	th {
+		font-weight: 500;
+		color: #354052;
+		white-space: nowrap;
+	}
+
+	td {
+		vertical-align: middle;
+	}
+}
+:host ::ng-deep .approval-table .mat-column-request {
+	width: 27%;
+}
+
+:host ::ng-deep .approval-table .mat-column-companyEquipment {
+	width: 33%;
+}
+
+:host ::ng-deep .approval-table .mat-column-period {
+	width: 15%;
+}
+
+:host ::ng-deep .approval-table .mat-column-status {
+	width: 12%;
+}
+
+:host ::ng-deep .approval-table .mat-column-actions {
+	width: 13%;
+	min-width: 220px;
+	padding-right: 24px !important;
+	text-align: right;
+}
+
+.request-cell {
+	min-height: 54px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+
+	h5,
+	h6 {
+		margin: 0;
+		line-height: 1.35;
+		overflow-wrap: anywhere;
+	}
+}
+
+.request-icon {
+	width: 32px;
+	height: 32px;
+	flex: 0 0 32px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--border-radius);
+	background: var(--blue1);
+	color: var(--blue8);
+}
+
+.request-info {
+	min-width: 0;
+}
+
+.request-no {
+	font-weight: 600;
+	line-height: 1.25;
+	color: #354052;
+	overflow-wrap: anywhere;
+}
+
+.request-meta {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 3px;
+	font-size: 12px;
+	color: var(--text-light);
+}
+
+.badge-line {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.company-name {
+	font-weight: 600;
+	color: var(--blue8);
+	line-height: 1.25;
+}
+
+.division-name {
+	margin-top: 2px;
+	font-size: 12px;
+	color: var(--text-light);
+}
+
+.equipment-summary {
+	margin-top: 8px;
+}
+
+.equipment-line {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	min-width: 0;
+	line-height: 1.3;
+}
+
+.equipment-category,
+.equipment-unit {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.equipment-category {
+	font-weight: 500;
+	color: #354052;
+}
+
+.equipment-unit {
+	color: #5f6878;
+}
+
+.equipment-more-button {
+	margin-top: 4px;
+	border: 0;
+	background: #eef2ff;
+	color: #2563eb;
+	border-radius: 999px;
+	padding: 2px 8px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.period-stack {
+	display: grid;
+	gap: 8px;
+
+	small {
+		display: block;
+		color: var(--text-light);
+		font-size: 11px;
+		line-height: 1.1;
+	}
+
+	strong {
+		display: block;
+		margin-top: 2px;
+		color: #354052;
+		font-size: 13px;
+		line-height: 1.2;
+	}
+}
+
+.period-cell {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	line-height: 1.35;
+
+	i {
+		color: var(--gray4);
+	}
+}
+
+.stage-badge,
+.status-badge {
+	display: inline-flex;
+	align-items: center;
+	min-height: 26px;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.stage-badge {
+	background: #eef6ff;
+	color: #1e74c6;
+}
+
+.status-badge {
+	background: var(--gray2);
+	color: var(--gray6);
+}
+
+.client-review,
+.client-approved,
+.gtsi-review,
+.gtsi-reviewed {
+	background: #fff4d8;
+	color: #916b00;
+}
+
+.gtsi-approved,
+.assigned {
+	background: var(--blue1);
+	color: var(--blue8);
+}
+
+.rejected,
+.cancelled {
+	background: #fff0f1;
+	color: #c53e49;
+}
+
+.completed {
+	background: #eaf8ed;
+	color: #249533;
+}
+
+.action-column {
+	text-align: right;
+	padding-left: 6px !important;
+	padding-right: 12px !important;
+}
+
+:host ::ng-deep .approval-table .mat-column-actions {
+	width: 300px;
+	min-width: 300px;
+	padding-right: 24px !important;
+	text-align: right;
+}
+.approval-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.action-button,
+.detail-button {
+	height: 34px;
+	padding: 6px 12px;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.action-button {
+	min-width: 96px;
+}
+
+.detail-button {
+	min-width: 92px;
+}
+
+.empty-state {
+	min-height: 280px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-light);
+
+	i {
+		margin-bottom: 12px;
+		font-size: 34px;
+		color: var(--gray4);
+	}
+
+	h5 {
+		margin-bottom: 6px;
+	}
+}
+
+@media (max-width: 900px) {
+	.header-content,
+	.filter-content,
+	.filter-fields {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.search-field,
+	.stage-field {
+		width: 100%;
+	}
+}
+
+:host ::ng-deep .approval-table .mat-mdc-header-cell,
+:host ::ng-deep .approval-table .mat-mdc-cell {
+	padding: 12px 18px;
+}
+
+:host ::ng-deep .approval-table .mat-mdc-header-cell:first-child,
+:host ::ng-deep .approval-table .mat-mdc-cell:first-child {
+	padding-left: 28px;
+}
+
+:host ::ng-deep .approval-table .mat-mdc-header-cell:last-child,
+:host ::ng-deep .approval-table .mat-mdc-cell:last-child {
+	padding-right: 28px !important;
+}

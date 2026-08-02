@@ -88,26 +88,44 @@
 									"maximumError": "200kb"
 								}
 							]
-						}
+						},
+						 "development": {
+							"optimization": false,
+							"sourceMap": true,
+							"extractLicenses": false
+					    },
+					    "local": {
+					      "optimization": false,
+					      "sourceMap": true,
+					      "extractLicenses": false
+					    }
 					},
-					"defaultConfiguration": ""
+					"defaultConfiguration": "production"
 				},
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "global-trans:build"
-					},
+        			"options":
+						{
+        			    	"buildTarget": "global-trans:build"
+						},
 					"configurations": {
-            "production": {
-              "buildTarget": "global-trans:build:production"
-						}
+        			    "production":{
+        			    	"buildTarget": "global-trans:build:production"
+						},
+						"development": {
+     						"buildTarget": "global-trans:build:development"
+    					},
+    					"local": {
+    					  "buildTarget": "global-trans:build:local"
+    					}
 					}
 				},
 				"extract-i18n": {
-					"builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "buildTarget": "global-trans:build"
-					}
+				"builder": "@angular-devkit/build-angular:extract-i18n",
+        			"options":
+						{
+        			    "buildTarget": "global-trans:build"
+						}
 				},
 				"test": {
 					"builder": "@angular-devkit/build-angular:karma",

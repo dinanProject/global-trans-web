@@ -124,6 +124,16 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 		return category.id ?? category.uuid ?? index;
 	}
 
+	getCategoryIcon(icon?: string | null): string {
+		const normalizedIcon = icon?.trim();
+
+		if (!normalizedIcon || normalizedIcon.startsWith('fas ')) {
+			return 'assets/icons/equipment/equipment.svg';
+		}
+
+		return `assets/icons/equipment/${normalizedIcon}`;
+	}
+
 	openCreateDialog(): void {
 		const dialogRef = this.dialog.open(CategoryDialogComponent, {
 			width: '700px',

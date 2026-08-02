@@ -104,12 +104,10 @@
 						<td mat-cell *matCellDef="let category">
 							<div class="category-name-cell">
 								<span class="category-icon">
-									<i
-										[class]="
-											category.icon ||
-											'fas fa-layer-group'
-										"
-									></i>
+									<img
+										[src]="getCategoryIcon(category.icon)"
+										[alt]="category.name"
+									/>
 								</span>
 
 								<div>

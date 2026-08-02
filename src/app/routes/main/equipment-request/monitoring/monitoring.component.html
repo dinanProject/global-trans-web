@@ -1,0 +1,666 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<div class="page-eyebrow">
+				<i class="fas fa-chart-line"></i>
+				<span>Equipment Operations</span>
+			</div>
+
+			<h5>Monitoring</h5>
+
+			<small class="text-secondary">
+				Monitor active equipment assignments, operational progress, and
+				SLA performance across registered companies.
+			</small>
+		</div>
+
+		<div class="header-actions">
+			<div class="last-updated" *ngIf="lastUpdatedAt">
+				<span>Last updated</span>
+				<strong>{{
+					lastUpdatedAt | date: "dd MMM yyyy, HH:mm"
+				}}</strong>
+			</div>
+
+			<button
+				type="button"
+				class="btn btn-outline-primary"
+				[disabled]="loading"
+				(click)="refresh()"
+			>
+				<i
+					class="fas"
+					[ngClass]="
+						loading ? 'fa-circle-notch fa-spin' : 'fa-sync-alt'
+					"
+				></i>
+				Refresh
+			</button>
+		</div>
+	</div>
+</page-header>
+
+<page-body>
+	<div class="monitoring-page">
+		<div class="alert alert-danger error-alert" *ngIf="errorMessage">
+			<div>
+				<i class="fas fa-exclamation-circle"></i>
+				<span>{{ errorMessage }}</span>
+			</div>
+
+			<button
+				type="button"
+				class="btn btn-sm btn-light"
+				(click)="refresh()"
+			>
+				Try Again
+			</button>
+		</div>
+
+		<section class="kpi-grid" aria-label="Monitoring summary">
+			<article class="kpi-card kpi-primary">
+				<div class="kpi-icon">
+					<i class="fas fa-play-circle"></i>
+				</div>
+
+				<div class="kpi-content">
+					<span class="kpi-label">Active Operation</span>
+
+					<div class="kpi-value">
+						<span *ngIf="!loadingSummary">{{
+							summary.activeOperation
+						}}</span>
+						<span
+							class="skeleton skeleton-value"
+							*ngIf="loadingSummary"
+						></span>
+					</div>
+
+					<small>Equipment currently in operation</small>
+				</div>
+			</article>
+
+			<article class="kpi-card kpi-warning">
+				<div class="kpi-icon">
+					<i class="fas fa-hourglass-half"></i>
+				</div>
+
+				<div class="kpi-content">
+					<span class="kpi-label">Waiting Start</span>
+
+					<div class="kpi-value">
+						<span *ngIf="!loadingSummary">
+							{{ summary.assignedWaitingStart }}
+						</span>
+						<span
+							class="skeleton skeleton-value"
+							*ngIf="loadingSummary"
+						></span>
+					</div>
+
+					<small>Assigned units not yet started</small>
+				</div>
+			</article>
+
+			<article class="kpi-card kpi-danger">
+				<div class="kpi-icon">
+					<i class="fas fa-exclamation-triangle"></i>
+				</div>
+
+				<div class="kpi-content">
+					<span class="kpi-label">Overdue</span>
+
+					<div class="kpi-value">
+						<span *ngIf="!loadingSummary">{{
+							summary.overdue
+						}}</span>
+						<span
+							class="skeleton skeleton-value"
+							*ngIf="loadingSummary"
+						></span>
+					</div>
+
+					<small>Operations exceeding planned end</small>
+				</div>
+			</article>
+
+			<article class="kpi-card kpi-orange">
+				<div class="kpi-icon">
+					<i class="fas fa-clock"></i>
+				</div>
+
+				<div class="kpi-content">
+					<span class="kpi-label">Late Start</span>
+
+					<div class="kpi-value">
+						<span *ngIf="!loadingSummary">{{
+							summary.lateStart
+						}}</span>
+						<span
+							class="skeleton skeleton-value"
+							*ngIf="loadingSummary"
+						></span>
+					</div>
+
+					<small>Started after planned schedule</small>
+				</div>
+			</article>
+
+			<article class="kpi-card kpi-success">
+				<div class="kpi-icon">
+					<i class="fas fa-check-circle"></i>
+				</div>
+
+				<div class="kpi-content">
+					<span class="kpi-label">Completed Today</span>
+
+					<div class="kpi-value">
+						<span *ngIf="!loadingSummary">
+							{{ summary.completedToday }}
+						</span>
+						<span
+							class="skeleton skeleton-value"
+							*ngIf="loadingSummary"
+						></span>
+					</div>
+
+					<small>Operations completed today</small>
+				</div>
+			</article>
+
+			<article class="kpi-card kpi-neutral">
+				<div class="kpi-icon">
+					<i class="fas fa-dolly-flatbed"></i>
+				</div>
+
+				<div class="kpi-content">
+					<span class="kpi-label">Available Unit</span>
+
+					<div class="kpi-value">
+						<span *ngIf="!loadingSummary">{{
+							summary.availableUnit
+						}}</span>
+						<span
+							class="skeleton skeleton-value"
+							*ngIf="loadingSummary"
+						></span>
+					</div>
+
+					<small>Units without active assignment</small>
+				</div>
+			</article>
+		</section>
+
+		<panel>
+			<panel-body>
+				<div class="filter-section">
+					<div class="section-heading">
+						<div>
+							<h6>Monitoring Filters</h6>
+							<p>
+								Refine the operational worklist by organization,
+								equipment, status, and schedule.
+							</p>
+						</div>
+
+						<button
+							type="button"
+							class="btn btn-link btn-sm reset-button"
+							[disabled]="!hasActiveFilters || loadingAssignments"
+							(click)="resetFilters()"
+						>
+							<i class="fas fa-rotate-left"></i>
+							Reset Filters
+						</button>
+					</div>
+
+					<div class="filter-grid">
+						<div class="form-group search-field">
+							<label for="monitoringSearch">Search</label>
+
+							<div class="input-icon">
+								<i class="fas fa-search"></i>
+
+								<input
+									id="monitoringSearch"
+									type="text"
+									class="form-control"
+									[(ngModel)]="filters.search"
+									(ngModelChange)="onSearchChange($event)"
+									placeholder="Equipment, request no, company, asset number..."
+								/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="monitoringCompany">Company</label>
+
+							<select
+								id="monitoringCompany"
+								class="form-control"
+								[(ngModel)]="filters.companyUuid"
+								(ngModelChange)="onCompanyChange()"
+							>
+								<option value="">All Companies</option>
+
+								<option
+									*ngFor="let company of companyOptions"
+									[value]="company.uuid"
+								>
+									{{ company.code }} — {{ company.name }}
+								</option>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="monitoringDivision">Division</label>
+
+							<select
+								id="monitoringDivision"
+								class="form-control"
+								[(ngModel)]="filters.divisionUuid"
+							>
+								<option value="">All Divisions</option>
+
+								<option
+									*ngFor="
+										let division of filteredDivisionOptions
+									"
+									[value]="division.uuid"
+								>
+									{{ division.code }} — {{ division.name }}
+								</option>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="monitoringEquipment">Equipment</label>
+
+							<select
+								id="monitoringEquipment"
+								class="form-control"
+								[(ngModel)]="filters.equipmentUuid"
+							>
+								<option value="">All Equipment</option>
+
+								<option
+									*ngFor="let equipment of equipmentOptions"
+									[value]="equipment.uuid"
+								>
+									{{ equipment.code }} — {{ equipment.name }}
+								</option>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="monitoringStatus">Status</label>
+
+							<select
+								id="monitoringStatus"
+								class="form-control"
+								(ngModelChange)="onFilterChange()"
+							>
+								<option value="">All Statuses</option>
+
+								<optgroup label="Operation">
+									<option value="ASSIGNED">Assigned</option>
+									<option value="RUNNING">Running</option>
+									<option value="COMPLETED">Completed</option>
+								</optgroup>
+
+								<optgroup label="SLA">
+									<option value="OVERDUE">Overdue</option>
+									<option value="LATE_START">
+										Late Start
+									</option>
+									<option value="ON_TIME_START">
+										On Time Start
+									</option>
+									<option value="COMPLETED_ON_TIME">
+										Completed On Time
+									</option>
+									<option value="COMPLETED_LATE">
+										Completed Late
+									</option>
+								</optgroup>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="monitoringStartDate">Start Date</label>
+
+							<input
+								id="monitoringStartDate"
+								type="date"
+								class="form-control"
+								[(ngModel)]="filters.startDate"
+							/>
+						</div>
+
+						<div class="form-group">
+							<label for="monitoringEndDate">End Date</label>
+
+							<input
+								id="monitoringEndDate"
+								type="date"
+								class="form-control"
+								[(ngModel)]="filters.endDate"
+							/>
+						</div>
+
+						<div class="form-group overdue-filter">
+							<div class="filter-label">SLA Filter</div>
+
+							<label class="overdue-toggle label-no-colon">
+								<input
+									type="checkbox"
+									[(ngModel)]="filters.overdueOnly"
+									(ngModelChange)="onFilterChange()"
+								/>
+
+								<span class="toggle-control"></span>
+
+								<span class="toggle-label">
+									<strong>Overdue Only</strong>
+									<small>Show overdue assignments only</small>
+								</span>
+							</label>
+						</div>
+					</div>
+				</div>
+			</panel-body>
+		</panel>
+
+		<panel>
+			<panel-body>
+				<div class="worklist-header">
+					<div>
+						<div class="title-row">
+							<h6>Equipment Assignment Worklist</h6>
+
+							<span
+								class="record-count"
+								*ngIf="!loadingAssignments"
+							>
+								{{ assignments.length }}
+								{{
+									assignments.length === 1
+										? "record"
+										: "records"
+								}}
+							</span>
+						</div>
+
+						<p>
+							Assignment-level operational visibility and SLA
+							monitoring.
+						</p>
+					</div>
+
+					<div class="legend">
+						<span>
+							<i class="legend-dot legend-running"></i>
+							Running
+						</span>
+
+						<span>
+							<i class="legend-dot legend-overdue"></i>
+							Overdue
+						</span>
+
+						<span>
+							<i class="legend-dot legend-completed"></i>
+							Completed
+						</span>
+					</div>
+				</div>
+
+				<div class="table-loading" *ngIf="loadingAssignments">
+					<div class="loading-row" *ngFor="let item of loadingRows">
+						<span class="skeleton skeleton-equipment"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton skeleton-status"></span>
+					</div>
+				</div>
+
+				<div
+					class="empty-state"
+					*ngIf="!loadingAssignments && assignments.length === 0"
+				>
+					<div class="empty-icon">
+						<i class="fas fa-clipboard-check"></i>
+					</div>
+
+					<h5>No monitoring records found</h5>
+
+					<p>
+						There are no equipment assignments matching the current
+						filters.
+					</p>
+
+					<button
+						type="button"
+						class="btn btn-outline-primary"
+						*ngIf="hasActiveFilters"
+						(click)="resetFilters()"
+					>
+						Clear Filters
+					</button>
+				</div>
+
+				<div
+					class="worklist-table-wrapper"
+					*ngIf="!loadingAssignments && assignments.length > 0"
+				>
+					<table class="worklist-table">
+						<thead>
+							<tr>
+								<th>Equipment</th>
+								<th>Organization</th>
+								<th>Request</th>
+								<th>Operation Status</th>
+								<th>Schedule</th>
+								<th>SLA</th>
+								<th class="action-column"></th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr
+								*ngFor="
+									let assignment of assignments;
+									trackBy: trackByUuid
+								"
+								tabindex="0"
+								(click)="openDetail(assignment)"
+								(keydown.enter)="openDetail(assignment)"
+							>
+								<td>
+									<div class="equipment-cell">
+										<div class="equipment-icon">
+											<img
+												[src]="
+													getEquipmentIcon(
+														assignment.equipmentCategoryCode
+													)
+												"
+												[alt]="
+													assignment.equipmentCategoryName ||
+													assignment.equipmentUnitName
+												"
+											/>
+										</div>
+
+										<div>
+											<strong>{{
+												assignment.equipmentUnitName
+											}}</strong>
+
+											<div class="equipment-meta">
+												<span>{{
+													assignment.equipmentUnitCode
+												}}</span>
+
+												<span
+													*ngIf="
+														assignment.assetNumber
+													"
+												>
+													Asset
+													{{ assignment.assetNumber }}
+												</span>
+											</div>
+
+											<small
+												*ngIf="
+													assignment.equipmentCategoryName
+												"
+											>
+												{{
+													assignment.equipmentCategoryName
+												}}
+											</small>
+										</div>
+									</div>
+								</td>
+
+								<td>
+									<div class="primary-text">
+										{{ assignment.companyName || "—" }}
+									</div>
+
+									<small>
+										{{
+											assignment.divisionName ||
+												"No division"
+										}}
+									</small>
+								</td>
+
+								<td>
+									<div class="request-number">
+										{{ assignment.requestNo }}
+									</div>
+
+									<small>
+										{{
+											assignment.requestDate
+												| date: "dd MMM yyyy"
+										}}
+									</small>
+								</td>
+
+								<td>
+									<span
+										class="status-badge"
+										[ngClass]="
+											getOperationStatusClass(
+												assignment.operationStatus
+											)
+										"
+									>
+										<i
+											class="fas"
+											[ngClass]="
+												getOperationStatusIcon(
+													assignment.operationStatus
+												)
+											"
+										></i>
+
+										{{
+											getOperationStatusLabel(
+												assignment.operationStatus
+											)
+										}}
+									</span>
+								</td>
+
+								<td>
+									<div class="schedule-cell">
+										<div>
+											<span>Start</span>
+											<strong>
+												{{
+													assignment.plannedStartDate
+														| date: "dd MMM yyyy"
+												}}
+											</strong>
+										</div>
+
+										<i class="fas fa-arrow-right"></i>
+
+										<div>
+											<span>End</span>
+											<strong>
+												{{
+													assignment.plannedEndDate
+														| date: "dd MMM yyyy"
+												}}
+											</strong>
+										</div>
+									</div>
+								</td>
+
+								<td>
+									<div class="sla-cell">
+										<span
+											class="sla-badge"
+											[ngClass]="
+												getSlaStatusClass(
+													assignment.slaStatus
+												)
+											"
+										>
+											{{
+												getSlaStatusLabel(
+													assignment.slaStatus
+												)
+											}}
+										</span>
+
+										<small
+											[ngClass]="{
+												'text-danger':
+													assignment.remainingDays !==
+														null &&
+													assignment.remainingDays <
+														0,
+												'text-warning':
+													assignment.remainingDays ===
+													0,
+											}"
+										>
+											{{
+												getRemainingDaysLabel(
+													assignment
+												)
+											}}
+										</small>
+									</div>
+								</td>
+
+								<td class="action-column">
+									<button
+										type="button"
+										class="row-action"
+										title="Open monitoring detail"
+										(click)="
+											openDetail(assignment);
+											$event.stopPropagation()
+										"
+									>
+										<i class="fas fa-chevron-right"></i>
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</panel-body>
+		</panel>
+	</div>
+</page-body>
