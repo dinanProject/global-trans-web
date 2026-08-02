@@ -17,7 +17,6 @@ interface CategoryForm {
 	code: FormControl<string>;
 	name: FormControl<string>;
 	description: FormControl<string | null>;
-	icon: FormControl<string | null>;
 	isActive: FormControl<boolean>;
 }
 
@@ -60,9 +59,6 @@ export class CategoryDialogComponent implements OnInit {
 				this.data.category?.description ?? null,
 				[Validators.maxLength(500)],
 			),
-			icon: new FormControl(this.data.category?.icon ?? null, [
-				Validators.maxLength(100),
-			]),
 			isActive: new FormControl(
 				this.data.category
 					? this.data.category.isActive === true ||
@@ -86,6 +82,28 @@ export class CategoryDialogComponent implements OnInit {
 		});
 	}
 
+	getIconFileName(): string {
+		const code = this.formGroup?.controls.code.value.trim().toUpperCase();
+
+		return this.iconByCode[code] || 'equipment.svg';
+	}
+
+	getIconPath(): string {
+		return `assets/icons/equipment/${this.getIconFileName()}`;
+	}
+
+	private readonly iconByCode: Record<string, string> = {
+		FORKLIFT: 'forklift.svg',
+		MANLIFT: 'manlift.svg',
+		TELEHANDLER: 'telehandler.svg',
+		CRANE: 'crane.svg',
+		SERVICE_TRUCK: 'service-truck.svg',
+		TRUCK_MOUNTED_CRANE: 'truck-mounted-crane.svg',
+		SKYLIFT: 'skylift.svg',
+		FLATBED: 'flatbed.svg',
+		TRAILER: 'trailer.svg',
+	};
+
 	submit(): void {
 		this.formSubmitAttempt = true;
 
@@ -100,7 +118,7 @@ export class CategoryDialogComponent implements OnInit {
 			code: value.code.trim().toUpperCase(),
 			name: value.name.trim(),
 			description: this.normalizeNullableString(value.description),
-			icon: this.normalizeNullableString(value.icon),
+			icon: this.getIconFileName(),
 			isActive: value.isActive,
 		};
 

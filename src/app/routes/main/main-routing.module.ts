@@ -16,6 +16,14 @@ const routes: Routes = [
 				redirectTo: 'home',
 			},
 
+			{
+				path: 'home',
+				loadChildren: () =>
+					import('./home/home.module').then(
+						(module) => module.HomeModule,
+					),
+			},
+
 			/*
 			 * Route lama tetap dipertahankan sementara
 			 * supaya bookmark atau link lama tidak rusak.

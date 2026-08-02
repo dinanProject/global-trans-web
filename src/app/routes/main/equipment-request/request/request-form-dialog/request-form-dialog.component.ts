@@ -61,7 +61,10 @@ export class RequestFormDialogComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		console.log('RequestFormDialogComponent data:', this.data);
+		console.log(
+			'RequestFormDialogComponent categories:',
+			this.data.categories,
+		);
 
 		const details = this.data.request?.details ?? [];
 
@@ -184,6 +187,29 @@ export class RequestFormDialogComponent implements OnInit {
 
 	cancel(): void {
 		if (!this.isSaving) this.dialogRef.close();
+	}
+
+	getCategoryByDetail(index: number): CategoryOption | null {
+		const categoryId = Number(
+			this.details.at(index).get('equipmentCategoryId')?.value,
+		);
+
+		if (!categoryId) {
+			return null;
+		}
+
+		return (
+			this.data.categories.find(
+				(category) => Number(category.id) === categoryId,
+			) ?? null
+		);
+	}
+
+	getCategoryIcon(index: number): string {
+		const category = this.getCategoryByDetail(index);
+		const icon = category?.icon?.trim() || 'equipment.svg';
+
+		return `assets/icons/equipment/${icon}`;
 	}
 
 	private markDetailsAsTouched(): void {

@@ -129,6 +129,7 @@ export interface CategoryOption {
 	uuid?: string | null;
 	code?: string | null;
 	name: string;
+	icon?: string | null;
 }
 
 export interface UnitOption {

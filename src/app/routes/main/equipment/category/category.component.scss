@@ -145,6 +145,12 @@
 		color: inherit;
 	}
 }
+.category-icon img {
+	width: 28px;
+	height: 28px;
+	display: block;
+	object-fit: contain;
+}
 
 .action-column {
 	width: 90px;

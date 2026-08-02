@@ -5,31 +5,49 @@
 <form [formGroup]="formGroup" (ngSubmit)="submit()">
 	<mat-dialog-content>
 		<div class="row">
-			<div class="col-md-4">
+			<div class="col-md-5">
 				<div class="form-group required">
 					<label>Code</label>
 
-					<input
-						type="text"
-						class="form-control uppercase"
-						formControlName="code"
-						[class.is-invalid]="isInvalid('code')"
-						placeholder="FORKLIFT"
-						autocomplete="off"
-						(input)="onCodeInput($event)"
-					/>
+					<div class="code-field">
+						<span class="category-icon-preview">
+							<img
+								[src]="getIconPath()"
+								[alt]="
+									formGroup.controls.name.value ||
+									'Equipment category'
+								"
+							/>
+						</span>
 
-					@if (isInvalid("code")) {
-						<div class="invalid-feedback">
-							Code wajib diisi, maksimal 50 karakter, dan hanya
-							boleh berisi huruf, angka, underscore, atau tanda
-							minus.
+						<div class="code-input">
+							<input
+								type="text"
+								class="form-control uppercase"
+								formControlName="code"
+								[class.is-invalid]="isInvalid('code')"
+								placeholder="FORKLIFT"
+								autocomplete="off"
+								(input)="onCodeInput($event)"
+							/>
+
+							@if (isInvalid("code")) {
+								<div class="invalid-feedback">
+									Code wajib diisi, maksimal 50 karakter, dan
+									hanya boleh berisi huruf, angka, underscore,
+									atau tanda minus.
+								</div>
+							}
 						</div>
-					}
+					</div>
+
+					<small class="text-secondary icon-hint">
+						Icon ditentukan otomatis berdasarkan code.
+					</small>
 				</div>
 			</div>
 
-			<div class="col-md-8">
+			<div class="col-md-7">
 				<div class="form-group required">
 					<label>Category Name</label>
 
@@ -74,42 +92,6 @@
 							formGroup.controls.description.value?.length ?? 0
 						}}/500
 					</div>
-				</div>
-			</div>
-
-			<div class="col-12">
-				<div class="form-group">
-					<label>Icon Class</label>
-
-					<div class="icon-field">
-						<span class="icon-preview">
-							<i
-								[class]="
-									formGroup.controls.icon.value ||
-									'fas fa-layer-group'
-								"
-							></i>
-						</span>
-
-						<input
-							type="text"
-							class="form-control"
-							formControlName="icon"
-							[class.is-invalid]="isInvalid('icon')"
-							placeholder="fas fa-layer-group"
-							autocomplete="off"
-						/>
-					</div>
-
-					@if (isInvalid("icon")) {
-						<div class="invalid-feedback d-block">
-							Icon class maksimal 100 karakter.
-						</div>
-					}
-
-					<small class="text-secondary">
-						Use a Font Awesome 5 icon class.
-					</small>
 				</div>
 			</div>
 

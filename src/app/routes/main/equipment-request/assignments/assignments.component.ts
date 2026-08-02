@@ -7,15 +7,17 @@ import {
 	RequestMaster,
 	RequestService,
 	UnitOption,
-} from '../request/request.service'; // sesuaikan path bila RequestService berada di folder lain
+} from '../request/request.service';
 import {
 	AssignmentPayload,
 	AssignmentService,
 	EquipmentAssignment,
 	ReplacementPayload,
 } from './assignment.service';
+import { UtilityService } from 'src/app/shared/utility/utility.service';
 
 interface AssignmentDetailView extends RequestDetail {
+	categoryCode: string;
 	categoryName: string;
 	assignments: EquipmentAssignment[];
 	activeCount: number;
@@ -62,14 +64,13 @@ export class AssignmentsComponent implements OnInit {
 	errorMessage = '';
 	successMessage = '';
 
-	selectedDetail: AssignmentDetailView | null = null;
 	replacingAssignment: EquipmentAssignment | null = null;
-	assignmentForm: AssignmentPayload = this.emptyAssignmentForm();
 	replacementForm: ReplacementPayload = this.emptyReplacementForm();
 
 	constructor(
 		private readonly requestService: RequestService,
 		private readonly assignmentService: AssignmentService,
+		private readonly utilityService: UtilityService,
 	) {}
 
 	ngOnInit(): void {
@@ -96,7 +97,8 @@ export class AssignmentsComponent implements OnInit {
 
 				if (keepSelection && this.selectedRequest) {
 					const selected = this.requests.find(
-						(request) => request.uuid === this.selectedRequest?.uuid,
+						(request) =>
+							request.uuid === this.selectedRequest?.uuid,
 					);
 					if (selected) {
 						this.selectRequest(selected);
@@ -191,74 +193,67 @@ export class AssignmentsComponent implements OnInit {
 		});
 	}
 
-	openAssignment(detail: AssignmentDetailView): void {
-		if (!this.canAssignDetail(detail)) {
-			return;
-		}
-
-		this.selectedDetail = detail;
-		this.replacingAssignment = null;
-		this.assignmentForm = {
-			...this.emptyAssignmentForm(),
-			requestDetailUuid: detail.uuid || '',
-			plannedStartDate: this.selectedRequest?.startDate || '',
-			plannedEndDate: this.selectedRequest?.endDate || '',
-		};
-		this.clearMessages();
-	}
-
 	openReplacement(assignment: EquipmentAssignment): void {
 		if (!this.canReplace(assignment)) {
 			return;
 		}
 
 		this.replacingAssignment = assignment;
-		this.selectedDetail = null;
 		this.replacementForm = this.emptyReplacementForm();
 		this.clearMessages();
 	}
 
 	closeForms(): void {
-		this.selectedDetail = null;
 		this.replacingAssignment = null;
-		this.assignmentForm = this.emptyAssignmentForm();
 		this.replacementForm = this.emptyReplacementForm();
 	}
 
-	updateAssignmentField(field: keyof AssignmentPayload, value: string): void {
-		this.assignmentForm = { ...this.assignmentForm, [field]: value };
-	}
-
-	updateReplacementField(field: keyof ReplacementPayload, value: string): void {
+	updateReplacementField(
+		field: keyof ReplacementPayload,
+		value: string,
+	): void {
 		this.replacementForm = { ...this.replacementForm, [field]: value };
 	}
 
-	createAssignment(): void {
-		if (!this.selectedRequest || !this.selectedDetail) {
+	async assignAllEquipment(): Promise<void> {
+		if (!this.selectedRequest || !this.canAssignAll) {
 			return;
 		}
 
-		if (!this.canAssignDetail(this.selectedDetail)) {
-			this.errorMessage =
-				'Detail sudah terpenuhi atau request tidak berstatus APPROVED.';
+		const pendingDetails = this.pendingAssignableDetails;
+
+		const confirmed = await this.utilityService.confirm(
+			'Assign Equipment',
+			`Assign ${pendingDetails.length} equipment unit yang sudah disetujui?`,
+			'warning',
+		);
+
+		if (!confirmed) {
 			return;
 		}
 
-		if (
-			!this.assignmentForm.equipmentUnitUuid ||
-			!this.assignmentForm.plannedStartDate ||
-			!this.assignmentForm.plannedEndDate
-		) {
-			this.errorMessage = 'Equipment unit dan periode assignment wajib diisi.';
-			return;
-		}
+		const requests = pendingDetails.map((detail) => {
+			const unit = this.approvedUnit(detail)!;
+
+			const payload: AssignmentPayload = {
+				requestDetailUuid: detail.uuid || '',
+				equipmentUnitUuid: unit.uuid,
+				plannedStartDate: this.toDateOnly(
+					this.selectedRequest!.startDate,
+				),
+				plannedEndDate: this.toDateOnly(this.selectedRequest!.endDate),
+				notes: detail.remarks || null,
+			};
+
+			return this.assignmentService.createAssignment(
+				this.selectedRequest!.uuid,
+				payload,
+			);
+		});
 
 		this.runAction(
-			this.assignmentService.createAssignment(
-				this.selectedRequest.uuid,
-				this.assignmentForm,
-			),
-			'Equipment unit berhasil di-assign.',
+			forkJoin(requests),
+			'Seluruh equipment unit berhasil di-assign.',
 		);
 	}
 
@@ -286,20 +281,6 @@ export class AssignmentsComponent implements OnInit {
 		);
 	}
 
-	startOperation(assignment: EquipmentAssignment): void {
-		if (!this.selectedRequest || !window.confirm('Mulai operasi equipment ini?')) {
-			return;
-		}
-
-		this.runAction(
-			this.assignmentService.startOperation(
-				this.selectedRequest.uuid,
-				assignment.uuid,
-			),
-			'Operasi equipment berhasil dimulai.',
-		);
-	}
-
 	completeAssignment(assignment: EquipmentAssignment): void {
 		if (
 			!this.selectedRequest ||
@@ -314,6 +295,36 @@ export class AssignmentsComponent implements OnInit {
 				assignment.uuid,
 			),
 			'Operasi equipment berhasil diselesaikan.',
+		);
+	}
+
+	async startAllOperations(): Promise<void> {
+		if (!this.selectedRequest || !this.canStartAll) {
+			return;
+		}
+
+		const assignments = this.pendingStartAssignments;
+
+		const confirmed = await this.utilityService.confirm(
+			'Start Operation',
+			`Mulai operasi untuk ${assignments.length} equipment unit?`,
+			'warning',
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		const requests = assignments.map((assignment) =>
+			this.assignmentService.startOperation(
+				this.selectedRequest!.uuid,
+				assignment.uuid,
+			),
+		);
+
+		this.runAction(
+			forkJoin(requests),
+			'Seluruh equipment unit berhasil mulai beroperasi.',
 		);
 	}
 
@@ -335,11 +346,74 @@ export class AssignmentsComponent implements OnInit {
 		);
 	}
 
+	get pendingAssignableDetails(): AssignmentDetailView[] {
+		return this.detailViews.filter(
+			(detail) =>
+				Boolean(detail.uuid) &&
+				Boolean(this.approvedUnit(detail)) &&
+				detail.remainingQuantity > 0 &&
+				detail.activeCount === 0,
+		);
+	}
+
+	get pendingStartAssignments(): EquipmentAssignment[] {
+		return this.detailViews.reduce<EquipmentAssignment[]>(
+			(result, detail) =>
+				result.concat(
+					detail.assignments.filter(
+						(assignment) =>
+							assignment.statusCode ===
+							this.ASSIGNMENT_STATUS_ASSIGNED,
+					),
+				),
+			[],
+		);
+	}
+
+	get canStartAll(): boolean {
+		return (
+			this.requestStatus === this.STATUS_ASSIGNED &&
+			this.pendingStartAssignments.length > 0 &&
+			!this.saving
+		);
+	}
+
+	get canAssignAll(): boolean {
+		return (
+			this.requestStatus === this.STATUS_APPROVED &&
+			Boolean(this.selectedRequest?.approvalLocked) &&
+			this.pendingAssignableDetails.length > 0 &&
+			!this.saving
+		);
+	}
+
+	getEquipmentIcon(code?: string): string {
+		const fileByCode: Record<string, string> = {
+			FORKLIFT: 'forklift.svg',
+			MANLIFT: 'manlift.svg',
+			TELEHANDLER: 'telehandler.svg',
+			CRANE: 'crane.svg',
+			SERVICE_TRUCK: 'service-truck.svg',
+			TRUCK_MOUNTED_CRANE: 'truck-mounted-crane.svg',
+			SKYLIFT: 'skylift.svg',
+			FLATBED: 'flatbed.svg',
+			TRAILER: 'trailer.svg',
+			TES: 'tes.svg',
+		};
+
+		const fileName =
+			fileByCode[(code || '').toUpperCase()] || 'equipment.svg';
+
+		return `assets/icons/equipment/${fileName}`;
+	}
+
 	canAssignDetail(detail: AssignmentDetailView): boolean {
 		return (
 			this.requestStatus === this.STATUS_APPROVED &&
 			Boolean(this.selectedRequest?.approvalLocked) &&
+			Boolean(this.approvedUnit(detail)) &&
 			detail.remainingQuantity > 0 &&
+			detail.activeCount === 0 &&
 			!this.saving
 		);
 	}
@@ -354,16 +428,6 @@ export class AssignmentsComponent implements OnInit {
 				this.ASSIGNMENT_STATUS_REPLACED,
 				this.ASSIGNMENT_STATUS_CANCELLED,
 			].includes(assignment.statusCode) &&
-			!this.saving
-		);
-	}
-
-	canStart(assignment: EquipmentAssignment): boolean {
-		return (
-			[this.STATUS_ASSIGNED, this.STATUS_IN_PROGRESS].includes(
-				this.requestStatus,
-			) &&
-			assignment.statusCode === this.ASSIGNMENT_STATUS_ASSIGNED &&
 			!this.saving
 		);
 	}
@@ -401,6 +465,17 @@ export class AssignmentsComponent implements OnInit {
 		);
 	}
 
+	approvedUnit(detail: AssignmentDetailView): UnitOption | null {
+		if (!detail.equipmentUnitId) {
+			return null;
+		}
+
+		return (
+			this.units.find((unit) => unit.id === detail.equipmentUnitId) ||
+			null
+		);
+	}
+
 	categoryIdForAssignment(assignment: EquipmentAssignment): number {
 		const detail = this.detailViews.find(
 			(item) => item.uuid === assignment.requestDetailUuid,
@@ -415,21 +490,25 @@ export class AssignmentsComponent implements OnInit {
 
 	statusLabel(status: string): string {
 		return (
-			({
-				APPROVED: 'Approved',
-				ASSIGNED: 'Assigned',
-				IN_PROGRESS: 'In Progress',
-				IN_OPERATION: 'In Operation',
-				COMPLETED: 'Completed',
-				REPLACED: 'Replaced',
-				CANCELLED: 'Cancelled',
-				REJECTED: 'Rejected',
-			} as Record<string, string>)[status] || status
+			(
+				{
+					APPROVED: 'Approved',
+					ASSIGNED: 'Assigned',
+					IN_PROGRESS: 'In Progress',
+					IN_OPERATION: 'In Operation',
+					COMPLETED: 'Completed',
+					REPLACED: 'Replaced',
+					CANCELLED: 'Cancelled',
+					REJECTED: 'Rejected',
+				} as Record<string, string>
+			)[status] || status
 		);
 	}
 
 	statusClass(status: string): string {
-		return `status-${String(status || '').toLowerCase().replace(/_/g, '-')}`;
+		return `status-${String(status || '')
+			.toLowerCase()
+			.replace(/_/g, '-')}`;
 	}
 
 	formatDate(value?: string | null): string {
@@ -489,7 +568,9 @@ export class AssignmentsComponent implements OnInit {
 
 			return {
 				...detail,
-				categoryName: category?.name || `Category #${detail.equipmentCategoryId}`,
+				categoryCode: category?.code || '',
+				categoryName:
+					category?.name || `Category #${detail.equipmentCategoryId}`,
 				assignments: detailAssignments,
 				activeCount,
 				remainingQuantity: Math.max(
@@ -500,8 +581,20 @@ export class AssignmentsComponent implements OnInit {
 		});
 	}
 
+	private toDateOnly(value: string | Date): string {
+		if (typeof value === 'string') {
+			return value.slice(0, 10);
+		}
+
+		const year = value.getFullYear();
+		const month = String(value.getMonth() + 1).padStart(2, '0');
+		const day = String(value.getDate()).padStart(2, '0');
+
+		return `${year}-${month}-${day}`;
+	}
+
 	private runAction(
-		request$: Observable<EquipmentAssignment>,
+		request$: Observable<unknown>,
 		successMessage: string,
 	): void {
 		this.clearMessages();
@@ -511,6 +604,8 @@ export class AssignmentsComponent implements OnInit {
 			next: () => {
 				this.saving = false;
 				this.successMessage = successMessage;
+				this.utilityService.alert('Success', successMessage, 'success');
+
 				this.closeForms();
 				this.loadWorklist(true);
 			},
@@ -522,16 +617,6 @@ export class AssignmentsComponent implements OnInit {
 				);
 			},
 		});
-	}
-
-	private emptyAssignmentForm(): AssignmentPayload {
-		return {
-			requestDetailUuid: '',
-			equipmentUnitUuid: '',
-			plannedStartDate: '',
-			plannedEndDate: '',
-			notes: null,
-		};
 	}
 
 	private emptyReplacementForm(): ReplacementPayload {
@@ -548,10 +633,25 @@ export class AssignmentsComponent implements OnInit {
 	}
 
 	private getErrorMessage(error: any, fallback: string): string {
-		return (
-			error?.error?.message ||
-			error?.message ||
-			fallback
-		);
+		return error?.error?.message || error?.message || fallback;
+	}
+
+	get requestDetailSubtitle(): string {
+		switch (this.requestStatus) {
+			case this.STATUS_APPROVED:
+				return 'Periksa unit yang telah disetujui sebelum melanjutkan penugasan.';
+
+			case this.STATUS_ASSIGNED:
+				return 'Seluruh unit telah ditugaskan dan siap memulai operasi.';
+
+			case this.STATUS_IN_PROGRESS:
+				return 'Seluruh unit sedang beroperasi.';
+
+			case this.STATUS_COMPLETED:
+				return 'Seluruh unit telah menyelesaikan operasi.';
+
+			default:
+				return 'Informasi unit equipment request.';
+		}
 	}
 }

@@ -168,11 +168,32 @@
 					>
 						<div class="detail-card-header">
 							<div class="detail-title">
-								<span class="detail-index">
-									{{ i + 1 }}
+								<span class="detail-category-icon">
+									<img
+										[src]="getCategoryIcon(i)"
+										[alt]="
+											getCategoryByDetail(i)?.name ||
+											'Equipment category'
+										"
+									/>
 								</span>
 
-								<strong>Equipment Item</strong>
+								<div>
+									<small class="detail-item-label"
+										>Equipment Item {{ i + 1 }}</small
+									>
+
+									<strong>
+										{{
+											getCategoryByDetail(i)?.name ||
+												"Select Equipment"
+										}}
+									</strong>
+
+									<small *ngIf="getCategoryByDetail(i)?.code">
+										{{ getCategoryByDetail(i)?.code }}
+									</small>
+								</div>
 							</div>
 
 							<button
@@ -206,9 +227,6 @@
 										[ngValue]="category.id"
 									>
 										{{ category.name }}
-										<ng-container *ngIf="category.code">
-											({{ category.code }})
-										</ng-container>
 									</option>
 								</select>
 							</div>

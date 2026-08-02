@@ -4,16 +4,20 @@
 			<div class="eyebrow">Equipment Reservation</div>
 			<h5>Equipment Assignment</h5>
 			<small class="text-secondary">
-				Kelola alokasi unit untuk request yang sudah mendapat final approval
+				Kelola alokasi unit untuk request yang sudah mendapat final
+				approval
 			</small>
 		</div>
 		<button
 			type="button"
-			class="btn btn-light"
+			class="btn btn-light refresh-button"
 			(click)="loadWorklist(true)"
 			[disabled]="loadingWorklist || loadingDetail || saving"
 		>
-			<i class="fas fa-sync-alt" [class.fa-spin]="loadingWorklist || loadingDetail"></i>
+			<i
+				class="fas fa-sync-alt"
+				[class.fa-spin]="loadingWorklist || loadingDetail"
+			></i>
 			Refresh
 		</button>
 	</div>
@@ -36,7 +40,9 @@
 				<div class="section-header">
 					<div>
 						<div class="section-title">Assignment Worklist</div>
-						<div class="section-subtitle">Approved hingga completed request</div>
+						<div class="section-subtitle">
+							Approved hingga completed request
+						</div>
 					</div>
 					<span class="counter">{{ filteredRequests.length }}</span>
 				</div>
@@ -58,7 +64,10 @@
 						(change)="updateStatusFilter($any($event.target).value)"
 					>
 						<option value="">All status</option>
-						<option *ngFor="let status of workflowStatuses" [value]="status">
+						<option
+							*ngFor="let status of workflowStatuses"
+							[value]="status"
+						>
 							{{ statusLabel(status) }}
 						</option>
 					</select>
@@ -69,29 +78,46 @@
 					<span>Memuat worklist...</span>
 				</div>
 
-				<div class="empty-state compact" *ngIf="!loadingWorklist && filteredRequests.length === 0">
+				<div
+					class="empty-state compact"
+					*ngIf="!loadingWorklist && filteredRequests.length === 0"
+				>
 					<i class="fas fa-inbox"></i>
 					<span>Tidak ada request assignment.</span>
 				</div>
 
-				<div class="request-list" *ngIf="!loadingWorklist && filteredRequests.length > 0">
+				<div
+					class="request-list"
+					*ngIf="!loadingWorklist && filteredRequests.length > 0"
+				>
 					<button
 						type="button"
 						class="request-card"
-						*ngFor="let request of filteredRequests; trackBy: trackByRequestUuid"
+						*ngFor="
+							let request of filteredRequests;
+							trackBy: trackByRequestUuid
+						"
 						[class.active]="selectedRequest?.uuid === request.uuid"
 						(click)="selectRequest(request)"
 					>
 						<div class="request-card-top">
 							<strong>{{ request.requestNo }}</strong>
-							<span class="status-badge" [ngClass]="statusClass(request.status)">
+							<span
+								class="status-badge"
+								[ngClass]="statusClass(request.status)"
+							>
 								{{ statusLabel(request.status) }}
 							</span>
 						</div>
-						<div class="request-company">{{ request.companyName || '-' }}</div>
+						<div class="request-company">
+							{{ request.companyName || "-" }}
+						</div>
 						<div class="request-meta">
-							<span><i class="far fa-calendar-alt"></i> {{ formatDate(request.startDate) }}</span>
-							<span>{{ request.divisionName || '-' }}</span>
+							<span
+								><i class="far fa-calendar-alt"></i>
+								{{ formatDate(request.startDate) }}</span
+							>
+							<span>{{ request.divisionName || "-" }}</span>
 						</div>
 					</button>
 				</div>
@@ -109,7 +135,10 @@
 					<div class="empty-state">
 						<i class="fas fa-hand-pointer"></i>
 						<h5>Pilih equipment request</h5>
-						<p>Pilih request pada worklist untuk melihat dan memproses assignment.</p>
+						<p>
+							Pilih request pada worklist untuk melihat dan
+							memproses assignment.
+						</p>
 					</div>
 				</panel-body>
 			</panel>
@@ -119,133 +148,131 @@
 					<panel-body>
 						<div class="section-header">
 							<div>
-								<div class="eyebrow">{{ selectedRequest.requestNo }}</div>
+								<div class="eyebrow">
+									{{ selectedRequest.requestNo }}
+								</div>
 								<div class="section-title">Request Summary</div>
 							</div>
-							<span class="status-badge" [ngClass]="statusClass(requestStatus)">
+							<span
+								class="status-badge"
+								[ngClass]="statusClass(requestStatus)"
+							>
 								{{ statusLabel(requestStatus) }}
 							</span>
 						</div>
 
 						<div class="workflow">
-							<ng-container *ngFor="let status of workflowStatuses; let last = last">
+							<ng-container
+								*ngFor="
+									let status of workflowStatuses;
+									let last = last
+								"
+							>
 								<div
 									class="workflow-step"
-									[class.active]="isWorkflowStatusActive(status)"
-									[class.current]="isWorkflowStatusCurrent(status)"
+									[class.active]="
+										isWorkflowStatusActive(status)
+									"
+									[class.current]="
+										isWorkflowStatusCurrent(status)
+									"
 								>
 									<div class="workflow-dot">
-										<i class="fas" [class.fa-check]="isWorkflowStatusActive(status)" [class.fa-circle]="!isWorkflowStatusActive(status)"></i>
+										<i
+											class="fas"
+											[class.fa-check]="
+												isWorkflowStatusActive(status)
+											"
+											[class.fa-circle]="
+												!isWorkflowStatusActive(status)
+											"
+										></i>
 									</div>
 									<div>{{ statusLabel(status) }}</div>
 								</div>
-								<div class="workflow-line" *ngIf="!last" [class.active]="isWorkflowStatusActive(workflowStatuses[workflowStatuses.indexOf(status) + 1])"></div>
+								<div
+									class="workflow-line"
+									*ngIf="!last"
+									[class.active]="
+										isWorkflowStatusActive(
+											workflowStatuses[
+												workflowStatuses.indexOf(
+													status
+												) + 1
+											]
+										)
+									"
+								></div>
 							</ng-container>
 						</div>
 
-						<div class="lock-banner" [class.locked]="selectedRequest.approvalLocked">
-							<i class="fas" [class.fa-lock]="selectedRequest.approvalLocked" [class.fa-unlock]="!selectedRequest.approvalLocked"></i>
+						<div
+							class="lock-banner"
+							[class.locked]="selectedRequest.approvalLocked"
+						>
+							<i
+								class="fas"
+								[class.fa-lock]="selectedRequest.approvalLocked"
+								[class.fa-unlock]="
+									!selectedRequest.approvalLocked
+								"
+							></i>
 							<div>
-								<strong>Request detail {{ selectedRequest.approvalLocked ? 'terkunci' : 'belum terkunci' }}</strong>
-								<div>Kebutuhan alat bersifat read-only. Assignment hanya memasangkan unit fisik ke detail yang sudah disetujui.</div>
+								<strong>{{
+									selectedRequest.approvalLocked
+										? "Permintaan telah disetujui"
+										: "Permintaan belum disetujui"
+								}}</strong>
+								<div>
+									{{
+										selectedRequest.approvalLocked
+											? "Data permintaan tidak dapat diubah lagi. Silakan lanjutkan proses assign unit."
+											: "Permintaan masih menunggu proses persetujuan."
+									}}
+								</div>
 							</div>
 						</div>
 
 						<div class="summary-grid">
-							<div><span>Company</span><strong>{{ selectedRequest.companyName || '-' }}</strong></div>
-							<div><span>Division</span><strong>{{ selectedRequest.divisionName || '-' }}</strong></div>
-							<div><span>Schedule</span><strong>{{ formatDate(selectedRequest.startDate) }} – {{ formatDate(selectedRequest.endDate) }}</strong></div>
-							<div><span>Fulfillment</span><strong>{{ totalActiveAssigned }} / {{ totalRequested }}</strong></div>
-						</div>
-					</panel-body>
-				</panel>
-
-				<panel *ngIf="selectedDetail">
-					<panel-body>
-						<div class="form-header">
 							<div>
-								<div class="section-title">Assign Equipment Unit</div>
-								<div class="section-subtitle">{{ selectedDetail.categoryName }} · remaining {{ selectedDetail.remainingQuantity }}</div>
+								<span>Company</span
+								><strong>{{
+									selectedRequest.companyName || "-"
+								}}</strong>
 							</div>
-							<button type="button" class="icon-button" (click)="closeForms()"><i class="fas fa-times"></i></button>
-						</div>
-
-						<div class="form-grid">
-							<div class="form-group full-width">
-								<label>Equipment Unit <span>*</span></label>
-								<select
-									class="form-control"
-									[value]="assignmentForm.equipmentUnitUuid"
-									(change)="updateAssignmentField('equipmentUnitUuid', $any($event.target).value)"
-								>
-									<option value="">Pilih equipment unit</option>
-									<option *ngFor="let unit of availableUnits(selectedDetail.equipmentCategoryId)" [value]="unit.uuid">
-										{{ unit.unitCode }} - {{ unit.unitName }}
-									</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label>Planned Start Date <span>*</span></label>
-								<input type="date" class="form-control" [value]="assignmentForm.plannedStartDate" (input)="updateAssignmentField('plannedStartDate', $any($event.target).value)" />
-							</div>
-							<div class="form-group">
-								<label>Planned End Date <span>*</span></label>
-								<input type="date" class="form-control" [value]="assignmentForm.plannedEndDate" (input)="updateAssignmentField('plannedEndDate', $any($event.target).value)" />
-							</div>
-							<div class="form-group full-width">
-								<label>Notes</label>
-								<textarea class="form-control" rows="3" [value]="assignmentForm.notes || ''" (input)="updateAssignmentField('notes', $any($event.target).value)"></textarea>
-							</div>
-						</div>
-
-						<div class="form-actions">
-							<button type="button" class="btn btn-light" (click)="closeForms()" [disabled]="saving">Cancel</button>
-							<button type="button" class="btn btn-primary" (click)="createAssignment()" [disabled]="saving">
-								<i class="fas fa-plus"></i> Assign Unit
-							</button>
-						</div>
-					</panel-body>
-				</panel>
-
-				<panel *ngIf="replacingAssignment">
-					<panel-body>
-						<div class="form-header">
 							<div>
-								<div class="section-title">Replace Equipment Unit</div>
-								<div class="section-subtitle">{{ unitLabel(replacingAssignment.equipmentUnitUuid) }}</div>
+								<span>Division</span
+								><strong>{{
+									selectedRequest.divisionName || "-"
+								}}</strong>
 							</div>
-							<button type="button" class="icon-button" (click)="closeForms()"><i class="fas fa-times"></i></button>
-						</div>
-
-						<div class="form-grid">
-							<div class="form-group full-width">
-								<label>New Equipment Unit <span>*</span></label>
-								<select
-									class="form-control"
-									[value]="replacementForm.equipmentUnitUuid"
-									(change)="updateReplacementField('equipmentUnitUuid', $any($event.target).value)"
+							<div class="schedule-summary">
+								<span>Schedule</span>
+								<div class="schedule-range">
+									<div>
+										<small>Start</small
+										><strong>{{
+											formatDate(
+												selectedRequest.startDate
+											)
+										}}</strong>
+									</div>
+									<i class="fas fa-arrow-right"></i>
+									<div>
+										<small>End</small
+										><strong>{{
+											formatDate(selectedRequest.endDate)
+										}}</strong>
+									</div>
+								</div>
+							</div>
+							<div>
+								<span>Fulfillment</span
+								><strong
+									>{{ totalActiveAssigned }} /
+									{{ totalRequested }}</strong
 								>
-									<option value="">Pilih equipment unit pengganti</option>
-									<option *ngFor="let unit of availableUnits(categoryIdForAssignment(replacingAssignment), replacingAssignment.equipmentUnitUuid)" [value]="unit.uuid">
-										{{ unit.unitCode }} - {{ unit.unitName }}
-									</option>
-								</select>
 							</div>
-							<div class="form-group full-width">
-								<label>Replacement Reason <span>*</span></label>
-								<input type="text" class="form-control" [value]="replacementForm.replacementReason" (input)="updateReplacementField('replacementReason', $any($event.target).value)" />
-							</div>
-							<div class="form-group full-width">
-								<label>Notes</label>
-								<textarea class="form-control" rows="3" [value]="replacementForm.notes || ''" (input)="updateReplacementField('notes', $any($event.target).value)"></textarea>
-							</div>
-						</div>
-
-						<div class="form-actions">
-							<button type="button" class="btn btn-light" (click)="closeForms()" [disabled]="saving">Cancel</button>
-							<button type="button" class="btn btn-warning" (click)="replaceAssignment()" [disabled]="saving">
-								<i class="fas fa-exchange-alt"></i> Replace Unit
-							</button>
 						</div>
 					</panel-body>
 				</panel>
@@ -254,53 +281,225 @@
 					<panel-body>
 						<div class="section-header">
 							<div>
-								<div class="section-title">Approved Request Detail</div>
-								<div class="section-subtitle">Read-only kebutuhan alat dan unit assignment</div>
+								<div class="section-title">
+									Approved Request Detail
+								</div>
+								<div class="section-subtitle">
+									{{ requestDetailSubtitle }}
+								</div>
 							</div>
 						</div>
 
 						<div class="detail-list" *ngIf="detailViews.length > 0">
-							<div class="detail-card" *ngFor="let detail of detailViews">
+							<div
+								class="detail-card approved-unit-card"
+								*ngFor="let detail of detailViews"
+							>
 								<div class="detail-header">
 									<div>
+										<div class="eyebrow">
+											Approved Equipment
+										</div>
 										<h6>{{ detail.categoryName }}</h6>
-										<div class="detail-meta">Requested {{ detail.quantity }} · Assigned {{ detail.activeCount }} · Remaining {{ detail.remainingQuantity }}</div>
 									</div>
-									<button type="button" class="btn btn-sm btn-primary" (click)="openAssignment(detail)" *ngIf="canAssignDetail(detail)">
-										<i class="fas fa-plus"></i> Assign Unit
-									</button>
-									<span class="fulfilled" *ngIf="detail.remainingQuantity === 0"><i class="fas fa-check-circle"></i> Fulfilled</span>
+									<span
+										class="fulfilled"
+										*ngIf="detail.remainingQuantity === 0"
+										><i class="fas fa-check-circle"></i>
+										Assigned</span
+									>
 								</div>
 
-								<div class="readonly-detail" *ngIf="detail.remarks">
-									<span>Remarks</span><strong>{{ detail.remarks }}</strong>
-								</div>
-
-								<div class="empty-assignment" *ngIf="detail.assignments.length === 0">
-									Belum ada equipment unit untuk detail ini.
-								</div>
-
-								<div class="assignment-row" *ngFor="let assignment of detail.assignments; trackBy: trackByAssignmentUuid">
-									<div class="unit-info">
-										<i class="fas fa-truck"></i>
-										<div>
-											<strong>{{ unitLabel(assignment.equipmentUnitUuid) }}</strong>
-											<small>{{ formatDate(assignment.plannedStartDate) }} – {{ formatDate(assignment.plannedEndDate) }}</small>
+								<ng-container
+									*ngIf="
+										approvedUnit(detail) as unit;
+										else missingApprovedUnit
+									"
+								>
+									<div class="approved-unit-info">
+										<div class="approved-unit-icon">
+											<img
+												[src]="
+													getEquipmentIcon(
+														detail.categoryCode
+													)
+												"
+												[alt]="detail.categoryName"
+											/>
+										</div>
+										<div class="approved-unit-primary">
+											<strong
+												>{{ unit.unitCode }} -
+												{{ unit.unitName }}</strong
+											>
+											<span>{{
+												unit.assetNumber ||
+													"Asset number belum tersedia"
+											}}</span>
+										</div>
+										<div class="approved-unit-fields">
+											<div>
+												<span>Model</span
+												><strong>{{
+													unit.modelNumber || "-"
+												}}</strong>
+											</div>
+											<div>
+												<span>Plate Number</span
+												><strong>{{
+													unit.plateNumber || "-"
+												}}</strong>
+											</div>
+											<div>
+												<span>Period</span
+												><strong
+													>{{
+														formatDate(
+															selectedRequest.startDate
+														)
+													}}
+													–
+													{{
+														formatDate(
+															selectedRequest.endDate
+														)
+													}}</strong
+												>
+											</div>
+											<div>
+												<span>Quantity</span
+												><strong>{{
+													detail.quantity
+												}}</strong>
+											</div>
 										</div>
 									</div>
-									<div class="assignment-actions">
-										<span class="status-badge" [ngClass]="statusClass(assignment.statusCode)">{{ statusLabel(assignment.statusCode) }}</span>
-										<button type="button" class="btn btn-sm btn-light" (click)="openReplacement(assignment)" *ngIf="canReplace(assignment)"><i class="fas fa-exchange-alt"></i> Replace</button>
-										<button type="button" class="btn btn-sm btn-primary" (click)="startOperation(assignment)" *ngIf="canStart(assignment)"><i class="fas fa-play"></i> Start</button>
-										<button type="button" class="btn btn-sm btn-success" (click)="completeAssignment(assignment)" *ngIf="canComplete(assignment)"><i class="fas fa-check"></i> Complete</button>
+
+									<div class="approved-unit-footer">
+										<div class="unit-remarks">
+											<span>Remarks</span>
+											<strong>
+												{{
+													detail.remarks ||
+														unit.remarks ||
+														"-"
+												}}
+											</strong>
+										</div>
+
+										<ng-container
+											*ngFor="
+												let assignment of detail.assignments
+											"
+										>
+											<button
+												type="button"
+												class="btn btn-sm btn-success complete-button"
+												(click)="
+													completeAssignment(
+														assignment
+													)
+												"
+												*ngIf="canComplete(assignment)"
+											>
+												<i
+													class="fas fa-check mr-1"
+												></i>
+												Complete
+											</button>
+										</ng-container>
 									</div>
-								</div>
+								</ng-container>
+
+								<ng-template #missingApprovedUnit>
+									<div class="missing-unit">
+										<i
+											class="fas fa-exclamation-triangle"
+										></i>
+										Unit yang disetujui tidak ditemukan pada
+										master equipment unit.
+									</div>
+								</ng-template>
 							</div>
 						</div>
+						<div
+							class="start-all-actions"
+							*ngIf="
+								detailViews.length > 0 &&
+								requestStatus === STATUS_ASSIGNED
+							"
+						>
+							<div class="start-all-info">
+								<strong>
+									{{ pendingStartAssignments.length }} unit
+									siap beroperasi
+								</strong>
 
-						<div class="empty-state compact" *ngIf="detailViews.length === 0">
+								<span>
+									Seluruh unit akan mulai beroperasi dalam
+									satu proses.
+								</span>
+							</div>
+
+							<button
+								type="button"
+								class="btn btn-primary start-all-button"
+								(click)="startAllOperations()"
+								[disabled]="!canStartAll"
+							>
+								<i
+									class="fas"
+									[class.fa-spinner]="saving"
+									[class.fa-spin]="saving"
+									[class.fa-play]="!saving"
+								></i>
+
+								{{ saving ? "Starting..." : "START OPERATION" }}
+							</button>
+						</div>
+						<div
+							class="assign-all-actions"
+							*ngIf="
+								detailViews.length > 0 &&
+								requestStatus === STATUS_APPROVED
+							"
+						>
+							<div class="assign-all-info">
+								<strong
+									>{{ pendingAssignableDetails.length }} unit
+									siap ditugaskan</strong
+								>
+								<span
+									>Semua unit akan ditugaskan sesuai periode
+									permintaan yang telah disetujui.</span
+								>
+							</div>
+							<button
+								type="button"
+								class="btn btn-primary assign-all-button"
+								(click)="assignAllEquipment()"
+								[disabled]="!canAssignAll"
+							>
+								<i
+									class="fas"
+									[class.fa-spinner]="saving"
+									[class.fa-spin]="saving"
+									[class.fa-check]="!saving"
+								></i>
+								{{
+									saving ? "Assigning..." : "ASSIGN EQUIPMENT"
+								}}
+							</button>
+						</div>
+
+						<div
+							class="empty-state compact"
+							*ngIf="detailViews.length === 0"
+						>
 							<i class="fas fa-list"></i>
-							<span>Request ini tidak memiliki detail aktif.</span>
+							<span
+								>Request ini tidak memiliki detail aktif.</span
+							>
 						</div>
 					</panel-body>
 				</panel>
