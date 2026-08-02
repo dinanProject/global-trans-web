@@ -50,7 +50,6 @@ import { RolePermissionDialogComponent } from './role-management/role-permission
 		MatTabsModule,
 		MatMenuModule,
 		MatTableModule,
-
 		AdministrationRoutingModule,
 	],
 })
