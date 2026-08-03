@@ -20,6 +20,7 @@ import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { RolePermissionDialogComponent } from './role-management/role-permission-dialog/role-permission-dialog.component';
+import { UserPasswordDialogComponent } from './user/user-password-dialog/user-password-dialog.component';
 
 @NgModule({
 	declarations: [
@@ -31,6 +32,7 @@ import { RolePermissionDialogComponent } from './role-management/role-permission
 		PermissionFormDialogComponent,
 		UserComponent,
 		UserFormDialogComponent,
+		UserPasswordDialogComponent,
 	],
 	imports: [
 		CommonModule,

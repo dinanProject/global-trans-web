@@ -11,6 +11,12 @@ export interface Breadcrumb {
 	path: string;
 }
 
+export interface ChangePasswordPayload {
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
+}
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -53,6 +59,10 @@ export class MainService {
 
 	getUserSession(): Observable<UserSessionResponse> {
 		return this.apiService.get('/user-session');
+	}
+
+	changePassword(payload: ChangePasswordPayload): Observable<void> {
+		return this.apiService.put('/auth/change-password', payload);
 	}
 
 	toggleSidebar(): void {

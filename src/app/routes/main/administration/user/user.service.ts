@@ -85,6 +85,12 @@ export class UserService {
 			password,
 		});
 	}
+	resetDefaultPassword(uuid: string): Observable<void> {
+		return this.apiService.put(
+			`${this.baseUrl}/${uuid}/reset-default-password`,
+			{},
+		);
+	}
 	deactivateUser(uuid: string): Observable<void> {
 		return this.apiService.delete(`${this.baseUrl}/${uuid}`);
 	}

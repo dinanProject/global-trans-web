@@ -11,12 +11,20 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MainRoutingModule } from './main-routing.module';
 import { MainComponent } from './main.component';
 import { MenuComponent } from './menu/menu.component';
+import { ChangePasswordDialogComponent } from './header-bar/change-password-dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-	declarations: [MainComponent, MenuComponent],
+	declarations: [MainComponent, MenuComponent, ChangePasswordDialogComponent],
 	imports: [
 		CommonModule,
 		RouterModule,
+
+		ReactiveFormsModule,
+
+		FlexLayoutModule,
+		MatDialogModule,
 		FlexLayoutModule,
 		MatMenuModule,
 		MatSidenavModule,

@@ -125,12 +125,14 @@
 						<td mat-cell *matCellDef="let unit">
 							<div class="unit-name-cell">
 								<span class="unit-icon">
-									<i
-										[class]="
-											unit.categoryIcon ||
-											'fas fa-truck-monster'
+									<img
+										[src]="
+											getCategoryIcon(unit.categoryIcon)
 										"
-									></i>
+										[alt]="
+											unit.categoryName || unit.unitName
+										"
+									/>
 								</span>
 
 								<div class="unit-name-content">
@@ -164,9 +166,9 @@
 						</th>
 
 						<td mat-cell *matCellDef="let unit">
-							<code *ngIf="unit.assetNumber">
+							<div *ngIf="unit.assetNumber">
 								{{ unit.assetNumber }}
-							</code>
+							</div>
 
 							<span
 								*ngIf="!unit.assetNumber"

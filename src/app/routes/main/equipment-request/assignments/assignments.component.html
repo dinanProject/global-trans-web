@@ -2,10 +2,9 @@
 	<div class="header-content">
 		<div>
 			<div class="eyebrow">Equipment Reservation</div>
-			<h5>Equipment Assignment</h5>
+			<h5>Assignment Unit</h5>
 			<small class="text-secondary">
-				Kelola alokasi unit untuk request yang sudah mendapat final
-				approval
+				Kelola alokasi unit untuk request approved
 			</small>
 		</div>
 		<button
@@ -41,7 +40,7 @@
 					<div>
 						<div class="section-title">Assignment Worklist</div>
 						<div class="section-subtitle">
-							Approved hingga completed request
+							Approved completed request
 						</div>
 					</div>
 					<span class="counter">{{ filteredRequests.length }}</span>
@@ -144,7 +143,7 @@
 			</panel>
 
 			<ng-container *ngIf="!loadingDetail && selectedRequest">
-				<panel>
+				<panel class="request-summary-panel">
 					<panel-body>
 						<div class="section-header">
 							<div>
@@ -207,6 +206,7 @@
 						</div>
 
 						<div
+							*ngIf="selectedRequest.status === 'APPROVED'"
 							class="lock-banner"
 							[class.locked]="selectedRequest.approvalLocked"
 						>
@@ -304,10 +304,20 @@
 									</div>
 									<span
 										class="fulfilled"
-										*ngIf="detail.remainingQuantity === 0"
-										><i class="fas fa-check-circle"></i>
-										Assigned</span
+										*ngIf="detail.assignments.length > 0"
+										[ngClass]="
+											statusClass(
+												detail.assignments[0].statusCode
+											)
+										"
 									>
+										<i class="fas fa-check-circle"></i>
+										{{
+											statusLabel(
+												detail.assignments[0].statusCode
+											)
+										}}
+									</span>
 								</div>
 
 								<ng-container

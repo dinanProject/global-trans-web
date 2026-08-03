@@ -178,6 +178,16 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 		return unit.id ?? unit.uuid ?? index;
 	}
 
+	getCategoryIcon(icon?: string | null): string {
+		const normalizedIcon = icon?.trim();
+
+		if (!normalizedIcon || normalizedIcon.startsWith('fas ')) {
+			return 'assets/icons/equipment/equipment.svg';
+		}
+
+		return `assets/icons/equipment/${normalizedIcon}`;
+	}
+
 	openCreateDialog(): void {
 		const dialogRef = this.dialog.open(UnitDialogComponent, {
 			width: '800px',

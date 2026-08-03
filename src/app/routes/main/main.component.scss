@@ -235,3 +235,16 @@
 		}
 	}
 }
+
+:host ::ng-deep .user-menu {
+	.mat-mdc-menu-item {
+		min-width: 190px;
+	}
+
+	.mat-mdc-menu-item i {
+		width: 20px;
+		margin-right: 10px;
+		color: #697386;
+		text-align: center;
+	}
+}
