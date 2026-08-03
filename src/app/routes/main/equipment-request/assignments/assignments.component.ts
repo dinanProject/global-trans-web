@@ -12,7 +12,6 @@ import {
 	AssignmentPayload,
 	AssignmentService,
 	EquipmentAssignment,
-	ReplacementPayload,
 } from './assignment.service';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 
@@ -63,9 +62,6 @@ export class AssignmentsComponent implements OnInit {
 	saving = false;
 	errorMessage = '';
 	successMessage = '';
-
-	replacingAssignment: EquipmentAssignment | null = null;
-	replacementForm: ReplacementPayload = this.emptyReplacementForm();
 
 	constructor(
 		private readonly requestService: RequestService,
@@ -158,7 +154,6 @@ export class AssignmentsComponent implements OnInit {
 		}
 
 		this.selectedRequest = request;
-		this.closeForms();
 		this.loadSelectedRequest();
 	}
 
@@ -191,28 +186,6 @@ export class AssignmentsComponent implements OnInit {
 				);
 			},
 		});
-	}
-
-	openReplacement(assignment: EquipmentAssignment): void {
-		if (!this.canReplace(assignment)) {
-			return;
-		}
-
-		this.replacingAssignment = assignment;
-		this.replacementForm = this.emptyReplacementForm();
-		this.clearMessages();
-	}
-
-	closeForms(): void {
-		this.replacingAssignment = null;
-		this.replacementForm = this.emptyReplacementForm();
-	}
-
-	updateReplacementField(
-		field: keyof ReplacementPayload,
-		value: string,
-	): void {
-		this.replacementForm = { ...this.replacementForm, [field]: value };
 	}
 
 	async assignAllEquipment(): Promise<void> {
@@ -257,35 +230,17 @@ export class AssignmentsComponent implements OnInit {
 		);
 	}
 
-	replaceAssignment(): void {
-		if (!this.selectedRequest || !this.replacingAssignment) {
+	async completeAssignment(assignment: EquipmentAssignment): Promise<void> {
+		if (!this.selectedRequest || !this.canComplete(assignment)) {
 			return;
 		}
-
-		if (
-			!this.replacementForm.equipmentUnitUuid ||
-			!this.replacementForm.replacementReason
-		) {
-			this.errorMessage =
-				'Equipment unit pengganti dan alasan penggantian wajib diisi.';
-			return;
-		}
-
-		this.runAction(
-			this.assignmentService.replaceAssignment(
-				this.selectedRequest.uuid,
-				this.replacingAssignment.uuid,
-				this.replacementForm,
-			),
-			'Equipment assignment berhasil diganti.',
+		const confirmed = await this.utilityService.confirm(
+			'Complete Operation',
+			'Tandai operasi equipment ini sebagai selesai?',
+			'warning',
 		);
-	}
 
-	completeAssignment(assignment: EquipmentAssignment): void {
-		if (
-			!this.selectedRequest ||
-			!window.confirm('Tandai operasi equipment ini sebagai selesai?')
-		) {
+		if (!confirmed) {
 			return;
 		}
 
@@ -414,20 +369,6 @@ export class AssignmentsComponent implements OnInit {
 			Boolean(this.approvedUnit(detail)) &&
 			detail.remainingQuantity > 0 &&
 			detail.activeCount === 0 &&
-			!this.saving
-		);
-	}
-
-	canReplace(assignment: EquipmentAssignment): boolean {
-		return (
-			[this.STATUS_ASSIGNED, this.STATUS_IN_PROGRESS].includes(
-				this.requestStatus,
-			) &&
-			![
-				this.ASSIGNMENT_STATUS_COMPLETED,
-				this.ASSIGNMENT_STATUS_REPLACED,
-				this.ASSIGNMENT_STATUS_CANCELLED,
-			].includes(assignment.statusCode) &&
 			!this.saving
 		);
 	}
@@ -606,7 +547,6 @@ export class AssignmentsComponent implements OnInit {
 				this.successMessage = successMessage;
 				this.utilityService.alert('Success', successMessage, 'success');
 
-				this.closeForms();
 				this.loadWorklist(true);
 			},
 			error: (error) => {
@@ -617,14 +557,6 @@ export class AssignmentsComponent implements OnInit {
 				);
 			},
 		});
-	}
-
-	private emptyReplacementForm(): ReplacementPayload {
-		return {
-			equipmentUnitUuid: '',
-			replacementReason: '',
-			notes: null,
-		};
 	}
 
 	private clearMessages(): void {

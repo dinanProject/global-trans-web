@@ -28,12 +28,6 @@ export interface AssignmentPayload {
 	notes?: string | null;
 }
 
-export interface ReplacementPayload {
-	equipmentUnitUuid: string;
-	replacementReason: string;
-	notes?: string | null;
-}
-
 @Injectable({ providedIn: 'root' })
 export class AssignmentService {
 	private readonly baseUrl = '/equipment-request/assignment';
@@ -49,17 +43,6 @@ export class AssignmentService {
 		payload: AssignmentPayload,
 	): Observable<EquipmentAssignment> {
 		return this.apiService.post(`${this.baseUrl}/${requestUuid}`, payload);
-	}
-
-	replaceAssignment(
-		requestUuid: string,
-		assignmentUuid: string,
-		payload: ReplacementPayload,
-	): Observable<EquipmentAssignment> {
-		return this.apiService.post(
-			`${this.baseUrl}/${requestUuid}/${assignmentUuid}/replace`,
-			payload,
-		);
 	}
 
 	startOperation(

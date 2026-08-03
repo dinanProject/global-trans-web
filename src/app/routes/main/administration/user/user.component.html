@@ -203,6 +203,38 @@
 
 								<button
 									mat-menu-item
+									[disabled]="
+										!user.isActive ||
+										isProtectedSystemDeveloperAccount(user)
+									"
+									(click)="openPasswordDialog(user)"
+								>
+									<i class="fas fa-key mr-2"></i>
+									<span>Change Password</span>
+								</button>
+
+								<button
+									mat-menu-item
+									[disabled]="
+										!user.isActive ||
+										resettingPasswordUuid === user.uuid ||
+										isProtectedSystemDeveloperAccount(user)
+									"
+									(click)="resetPasswordToDefault(user)"
+								>
+									<i class="fas fa-undo-alt mr-2"></i>
+
+									<span>
+										{{
+											resettingPasswordUuid === user.uuid
+												? "Resetting..."
+												: "Reset Password"
+										}}
+									</span>
+								</button>
+
+								<button
+									mat-menu-item
 									class="menu-danger"
 									[disabled]="
 										!user.isActive ||

@@ -15,6 +15,10 @@ import {
 } from './user-form-dialog/user-form-dialog.component';
 import { UserMaster, UserOptions, UserService } from './user.service';
 import { SessionService } from 'src/app/core/services/session.service';
+import {
+	UserPasswordDialogComponent,
+	UserPasswordDialogData,
+} from './user-password-dialog/user-password-dialog.component';
 
 @Component({
 	selector: 'app-user',
@@ -34,6 +38,7 @@ export class UserComponent implements OnInit, OnDestroy {
 	options: UserOptions = { companies: [], divisions: [], roles: [] };
 	isLoading = false;
 	deletingUuid = '';
+	resettingPasswordUuid = '';
 	errorMessage = '';
 
 	constructor(
@@ -114,6 +119,76 @@ export class UserComponent implements OnInit, OnDestroy {
 					this.utilityService.alert(
 						'Failed',
 						error?.error?.meta?.message ?? 'Failed to load user.',
+						'error',
+					);
+				},
+			});
+	}
+
+	openPasswordDialog(user: UserMaster): void {
+		const data: UserPasswordDialogData = {
+			uuid: user.uuid,
+			fullName: user.fullName,
+			email: user.email,
+		};
+
+		this.dialog
+			.open(UserPasswordDialogComponent, {
+				width: '520px',
+				maxWidth: '95vw',
+				disableClose: true,
+				autoFocus: false,
+				data,
+			})
+			.afterClosed()
+			.pipe(takeUntil(this.destroy$))
+			.subscribe((result) => {
+				if (result?.action !== 'save') {
+					return;
+				}
+
+				this.utilityService.alert(
+					'Success',
+					`Password user "${user.fullName}" berhasil diubah.`,
+					'success',
+				);
+			});
+	}
+
+	async resetPasswordToDefault(user: UserMaster): Promise<void> {
+		const confirmed = await this.utilityService.confirm(
+			'Reset User Password',
+			`Reset password user "${user.fullName}" ke password default? User akan diminta login kembali.`,
+			'warning',
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		this.resettingPasswordUuid = user.uuid;
+
+		this.userService
+			.resetDefaultPassword(user.uuid)
+			.pipe(
+				takeUntil(this.destroy$),
+				finalize(() => {
+					this.resettingPasswordUuid = '';
+				}),
+			)
+			.subscribe({
+				next: () => {
+					this.utilityService.alert(
+						'Success',
+						`Password user "${user.fullName}" berhasil dikembalikan ke default.`,
+						'success',
+					);
+				},
+				error: (error) => {
+					this.utilityService.alert(
+						'Failed',
+						error?.error?.meta?.message ??
+							'Failed to reset user password.',
 						'error',
 					);
 				},
