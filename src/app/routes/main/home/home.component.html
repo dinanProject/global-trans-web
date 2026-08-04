@@ -2,19 +2,37 @@
 	<div class="header-content">
 		<div>
 			<div class="page-eyebrow">
-				<i class="fas fa-chart-pie"></i>
-				<span>Executive Analytics</span>
+				<i
+					class="fas"
+					[ngClass]="showDashboardCharts ? 'fa-chart-pie' : 'fa-lock'"
+				></i>
+				<span>
+					{{
+						showDashboardCharts
+							? "Executive Analytics"
+							: "Premium Analytics"
+					}}
+				</span>
 			</div>
 
-			<h5>Operations Dashboard</h5>
+			<h5>
+				{{
+					showDashboardCharts
+						? "Operations Dashboard"
+						: "Analytics Dashboard"
+				}}
+			</h5>
 
 			<small class="text-secondary">
-				Equipment utilization, operational trends, and SLA performance
-				across the organization.
+				{{
+					showDashboardCharts
+						? "Equipment utilization, operational trends, and SLA performance across the organization."
+						: "Advanced operational insights are available as an additional premium module."
+				}}
 			</small>
 		</div>
 
-		<div class="header-filter">
+		<div *ngIf="showDashboardCharts" class="header-filter">
 			<label for="dashboardPeriod">Reporting Period</label>
 
 			<select
@@ -35,7 +53,7 @@
 </page-header>
 
 <page-body>
-	<div class="dashboard-grid">
+	<div *ngIf="showDashboardCharts" class="dashboard-grid">
 		<section class="chart-card chart-card-wide">
 			<div class="chart-header">
 				<div>
@@ -141,5 +159,16 @@
 				></canvas>
 			</div>
 		</section>
+	</div>
+	<div *ngIf="!showDashboardCharts" class="dashboard-coming-soon">
+		<div class="coming-soon-icon">
+			<i class="fas fa-chart-line"></i>
+		</div>
+		<h6>Advanced Analytics</h6>
+		<p>
+			Operational analytics and executive reporting are available as an
+			additional module.
+		</p>
+		<span class="coming-soon-badge"> Premium Module </span>
 	</div>
 </page-body>
