@@ -21,6 +21,27 @@ interface PeriodOption {
 	standalone: false,
 })
 export class HomeComponent implements OnInit, OnDestroy {
+	readonly showDashboardCharts = false;
+
+	private readonly chartColors = {
+		blue: '#5B7DBE',
+		blueSoft: 'rgba(91, 125, 190, 0.12)',
+
+		green: '#4F9A82',
+		greenSoft: 'rgba(79, 154, 130, 0.12)',
+
+		amber: '#D5A24A',
+		amberSoft: 'rgba(213, 162, 74, 0.12)',
+
+		orange: '#D58A5C',
+		red: '#C97A7A',
+		redDark: '#B96870',
+
+		text: '#667085',
+		grid: 'rgba(148, 163, 184, 0.14)',
+		white: '#FFFFFF',
+	};
+
 	selectedPeriod = '12_MONTHS';
 
 	periodOptions: PeriodOption[] = [];
@@ -39,31 +60,37 @@ export class HomeComponent implements OnInit, OnDestroy {
 			{
 				label: 'Assigned',
 				data: [],
-				borderColor: '#d99a19',
-				backgroundColor: 'rgba(217, 154, 25, 0.08)',
+				borderColor: this.chartColors.amber,
+				backgroundColor: this.chartColors.amberSoft,
 				tension: 0.35,
 				pointRadius: 3,
 				pointHoverRadius: 5,
+				pointBackgroundColor: this.chartColors.white,
+				pointBorderWidth: 2,
 				fill: false,
 			},
 			{
 				label: 'Started',
 				data: [],
-				borderColor: '#3568d4',
-				backgroundColor: 'rgba(53, 104, 212, 0.08)',
+				borderColor: this.chartColors.blue,
+				backgroundColor: this.chartColors.blueSoft,
 				tension: 0.35,
 				pointRadius: 3,
 				pointHoverRadius: 5,
+				pointBackgroundColor: this.chartColors.white,
+				pointBorderWidth: 2,
 				fill: false,
 			},
 			{
 				label: 'Completed',
 				data: [],
-				borderColor: '#32936f',
-				backgroundColor: 'rgba(50, 147, 111, 0.08)',
+				borderColor: this.chartColors.green,
+				backgroundColor: this.chartColors.greenSoft,
 				tension: 0.35,
 				pointRadius: 3,
 				pointHoverRadius: 5,
+				pointBackgroundColor: this.chartColors.white,
+				pointBorderWidth: 2,
 				fill: false,
 			},
 		],
@@ -86,10 +113,21 @@ export class HomeComponent implements OnInit, OnDestroy {
 					boxWidth: 8,
 					boxHeight: 8,
 					padding: 18,
+					color: this.chartColors.text,
+					font: {
+						size: 11,
+						weight: 500,
+					},
 				},
 			},
 			tooltip: {
 				padding: 12,
+				titleColor: '#344054',
+				bodyColor: '#667085',
+				backgroundColor: 'rgba(255, 255, 255, 0.96)',
+				borderColor: '#E4E7EC',
+				borderWidth: 1,
+				displayColors: true,
 			},
 		},
 		scales: {
@@ -100,14 +138,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 				border: {
 					display: false,
 				},
+				ticks: {
+					color: this.chartColors.text,
+					font: {
+						size: 11,
+					},
+				},
 			},
 			y: {
 				beginAtZero: true,
 				ticks: {
 					precision: 0,
+					color: this.chartColors.text,
+					font: {
+						size: 11,
+					},
 				},
 				grid: {
-					color: 'rgba(120, 130, 150, 0.12)',
+					color: this.chartColors.grid,
 				},
 				border: {
 					display: false,
@@ -121,8 +169,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 		datasets: [
 			{
 				data: [0, 0, 0],
-				backgroundColor: ['#32936f', '#d99a19', '#3568d4'],
-				borderWidth: 0,
+				backgroundColor: [
+					this.chartColors.green,
+					this.chartColors.amber,
+					this.chartColors.blue,
+				],
+				borderColor: this.chartColors.white,
+				borderWidth: 3,
 				hoverOffset: 6,
 			},
 		],
@@ -150,9 +203,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 			{
 				label: 'Assignments',
 				data: [0, 0, 0, 0],
-				backgroundColor: ['#32936f', '#e27531', '#d84b55', '#b83541'],
-				borderRadius: 6,
+				backgroundColor: [
+					this.chartColors.green,
+					this.chartColors.orange,
+					this.chartColors.red,
+					this.chartColors.redDark,
+				],
+				borderRadius: 7,
 				borderSkipped: false,
+				barThickness: 28,
 			},
 		],
 	};
@@ -196,9 +255,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 			{
 				label: 'Assignments',
 				data: [],
-				backgroundColor: '#3568d4',
-				borderRadius: 6,
+				backgroundColor: this.chartColors.blue,
+				hoverBackgroundColor: '#4E70B2',
+				borderRadius: 7,
 				borderSkipped: false,
+				barThickness: 28,
 			},
 		],
 	};
@@ -250,9 +311,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 			{
 				label: 'Operations',
 				data: [],
-				backgroundColor: '#32936f',
-				borderRadius: 6,
+				backgroundColor: this.chartColors.green,
+				hoverBackgroundColor: '#438A74',
+				borderRadius: 7,
 				borderSkipped: false,
+				barThickness: 28,
 			},
 		],
 	};
@@ -296,6 +359,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 	) {}
 
 	ngOnInit(): void {
+		if (!this.showDashboardCharts) {
+			return;
+		}
 		this.loadPeriodOptions();
 	}
 
@@ -416,31 +482,37 @@ export class HomeComponent implements OnInit, OnDestroy {
 				{
 					label: 'Assigned',
 					data: trend.map((item) => Number(item.assigned || 0)),
-					borderColor: '#d99a19',
-					backgroundColor: 'rgba(217, 154, 25, 0.08)',
+					borderColor: this.chartColors.amber,
+					backgroundColor: this.chartColors.amberSoft,
 					tension: 0.35,
 					pointRadius: 3,
 					pointHoverRadius: 5,
+					pointBackgroundColor: this.chartColors.white,
+					pointBorderWidth: 2,
 					fill: false,
 				},
 				{
 					label: 'Started',
 					data: trend.map((item) => Number(item.started || 0)),
-					borderColor: '#3568d4',
-					backgroundColor: 'rgba(53, 104, 212, 0.08)',
+					borderColor: this.chartColors.blue,
+					backgroundColor: this.chartColors.blueSoft,
 					tension: 0.35,
 					pointRadius: 3,
 					pointHoverRadius: 5,
+					pointBackgroundColor: this.chartColors.white,
+					pointBorderWidth: 2,
 					fill: false,
 				},
 				{
 					label: 'Completed',
 					data: trend.map((item) => Number(item.completed || 0)),
-					borderColor: '#32936f',
-					backgroundColor: 'rgba(50, 147, 111, 0.08)',
+					borderColor: this.chartColors.green,
+					backgroundColor: this.chartColors.greenSoft,
 					tension: 0.35,
 					pointRadius: 3,
 					pointHoverRadius: 5,
+					pointBackgroundColor: this.chartColors.white,
+					pointBorderWidth: 2,
 					fill: false,
 				},
 			],
@@ -459,8 +531,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 						Number(utilization?.waitingStart || 0),
 						Number(utilization?.inOperation || 0),
 					],
-					backgroundColor: ['#32936f', '#d99a19', '#3568d4'],
-					borderWidth: 0,
+					backgroundColor: [
+						this.chartColors.green,
+						this.chartColors.amber,
+						this.chartColors.blue,
+					],
+					borderColor: this.chartColors.white,
+					borderWidth: 3,
 					hoverOffset: 6,
 				},
 			],
@@ -480,13 +557,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 						Number(sla?.completedLate || 0),
 					],
 					backgroundColor: [
-						'#32936f',
-						'#e27531',
-						'#d84b55',
-						'#b83541',
+						this.chartColors.green,
+						this.chartColors.orange,
+						this.chartColors.red,
+						this.chartColors.redDark,
 					],
-					borderRadius: 6,
+					borderRadius: 7,
 					borderSkipped: false,
+					barThickness: 28,
 				},
 			],
 		};
@@ -501,9 +579,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 				{
 					label: 'Assignments',
 					data: categories.map((item) => Number(item.total || 0)),
-					backgroundColor: '#3568d4',
-					borderRadius: 6,
+					backgroundColor: this.chartColors.blue,
+					hoverBackgroundColor: '#4E70B2',
+					borderRadius: 7,
 					borderSkipped: false,
+					barThickness: 28,
 				},
 			],
 		};
@@ -518,9 +598,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 				{
 					label: 'Operations',
 					data: companies.map((item) => Number(item.total || 0)),
-					backgroundColor: '#32936f',
-					borderRadius: 6,
+					backgroundColor: this.chartColors.green,
+					hoverBackgroundColor: '#438A74',
+					borderRadius: 7,
 					borderSkipped: false,
+					barThickness: 28,
 				},
 			],
 		};
