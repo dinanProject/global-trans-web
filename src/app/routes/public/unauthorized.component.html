@@ -1,19 +1,100 @@
-<div class="container-fluid h-100">
-	<div class="row h-100 justify-content-center align-items-center">
-		<div class="col-6 text-center">
-			<!-- <div><i class="fa fa-bug"></i><span>404</span></div>
-				<h1>Page not found</h1>
-				<h2>We're sorry, the page you requested could not be found. Please go back to the <a href="/">homepage</a> or
-					contact us at <a href="mailto:it.helpdesk@sahabatproperti.id">it.helpdesk@sahabatproperti.id</a>.</h2> -->
-			<div class="row justify-content-center">
-				<div class="col-10">
-					<thumb [src]="apiUrl + '/images/error-401.jpg'" height="450px"></thumb>
+<div class="unauthorized-page">
+	<div class="unauthorized-card">
+		<div class="unauthorized-visual" aria-hidden="true">
+			<div class="visual-grid"></div>
+
+			<div class="security-illustration">
+				<div class="security-ring security-ring-outer"></div>
+				<div class="security-ring security-ring-inner"></div>
+
+				<div class="security-icon">
+					<i class="fas fa-shield-alt"></i>
+
+					<span class="security-lock">
+						<i class="fas fa-lock"></i>
+					</span>
 				</div>
 			</div>
-			<h1>Unauthorized Access</h1>
-			<h2>We're sorry, you are not allowed to access this page. <br>Please go back to <a href="/">homepage</a>
-				<br>or contact us at <a href="mailto:it.helpdesk@sahabatproperti.id">it.helpdesk&#64;sahabatproperti.id</a>.
-			</h2>
+
+			<div class="error-code">403</div>
+		</div>
+
+		<div class="unauthorized-content">
+			<div class="eyebrow">
+				<span class="eyebrow-dot"></span>
+				Access Control
+			</div>
+
+			<h1>Access denied</h1>
+
+			<p class="description">
+				Your account does not have permission to access this page or
+				perform the requested action.
+			</p>
+
+			<div class="access-details">
+				<div class="access-detail-row">
+					<div class="detail-icon">
+						<i class="fas fa-link"></i>
+					</div>
+
+					<div class="detail-content">
+						<span>Requested resource</span>
+
+						<strong>{{ requestedUrl }}</strong>
+					</div>
+				</div>
+
+				<div class="access-detail-row" *ngIf="requiredPermission">
+					<div class="detail-icon">
+						<i class="fas fa-key"></i>
+					</div>
+
+					<div class="detail-content">
+						<span>Required permission</span>
+
+						<strong>{{ requiredPermission }}</strong>
+					</div>
+				</div>
+			</div>
+
+			<div class="security-message">
+				<i class="fas fa-info-circle"></i>
+
+				<span>
+					If you believe you should have access, contact your system
+					administrator or request the appropriate role.
+				</span>
+			</div>
+
+			<div class="unauthorized-actions">
+				<button
+					type="button"
+					class="btn btn-light action-button"
+					(click)="goBack()"
+				>
+					<i class="fas fa-arrow-left"></i>
+					Back
+				</button>
+
+				<button
+					type="button"
+					class="btn btn-primary action-button"
+					(click)="goHome()"
+				>
+					<i class="fas fa-home"></i>
+					Go to Home
+				</button>
+			</div>
+
+			<div class="support-note">
+				<span>Need access assistance?</span>
+
+				<a href="mailto:it.helpdesk@sahabatproperti.id">
+					<i class="far fa-envelope"></i>
+					it.helpdesk&#64;sahabatproperti.id
+				</a>
+			</div>
 		</div>
 	</div>
 </div>

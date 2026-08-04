@@ -14,6 +14,7 @@ import { MenuComponent } from './menu/menu.component';
 import { ChangePasswordDialogComponent } from './header-bar/change-password-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
+import { PublicModule } from '../public/public.module';
 
 @NgModule({
 	declarations: [MainComponent, MenuComponent, ChangePasswordDialogComponent],
@@ -31,6 +32,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 		MatToolbarModule,
 
 		MainRoutingModule,
+		PublicModule,
 	],
 })
 export class MainModule {}

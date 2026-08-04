@@ -227,14 +227,11 @@
 						"
 					></tr>
 				</table>
-
-				<div *ngIf="filteredRequests.length === 0" class="empty-state">
-					<i class="fas fa-check-circle"></i>
-					<h5>No approval task found</h5>
-					<p>
-						There is no request waiting for your approval or review.
-					</p>
-				</div>
+			</div>
+			<div *ngIf="filteredRequests.length === 0" class="empty-state">
+				<i class="fas fa-check-circle"></i>
+				<h5>No approval task found</h5>
+				<p>There is no request waiting for your approval or review.</p>
 			</div>
 		</panel-body>
 

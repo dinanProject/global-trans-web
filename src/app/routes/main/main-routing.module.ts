@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { MainGuard } from './main-guard';
 import { MainComponent } from './main.component';
+import { NotFoundComponent } from '../public/not-found.component';
+import { UnauthorizedComponent } from '../public/unauthorized.component';
 
 const routes: Routes = [
 	{
@@ -94,18 +96,33 @@ const routes: Routes = [
 					),
 			},
 
-			/*
-			 * Module yang belum dibuat.
-			 * Jangan redirect ke /main karena akan terlihat seperti menu gagal.
-			 * Untuk sementara route-nya belum didaftarkan.
-			 */
+			{
+				path: 'unauthorized',
+				component: UnauthorizedComponent,
+				data: {
+					title: 'Access Denied',
+				},
+			},
+
+			{
+				path: 'not-found',
+				component: NotFoundComponent,
+				data: {
+					title: 'Page Not Found',
+				},
+			},
 
 			/*
-			 * Fallback harus paling terakhir.
+			 * Harus selalu paling terakhir.
+			 * Gunakan component langsung supaya URL asli tetap terlihat.
 			 */
+
 			{
 				path: '**',
-				redirectTo: 'home',
+				component: NotFoundComponent,
+				data: {
+					title: 'Page Not Found',
+				},
 			},
 		],
 	},

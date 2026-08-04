@@ -1,11 +1,81 @@
-<div class="container h-100">
-	<div class="row h-100 justify-content-center align-items-center">
-		<div class="col-8 text-center">
-			<div><i class="fa fa-bug"></i><span>404</span></div>
+<div class="not-found-page">
+	<div class="not-found-card">
+		<div class="not-found-visual" aria-hidden="true">
+			<div class="visual-grid"></div>
+
+			<div class="error-symbol">
+				<div class="symbol-orbit symbol-orbit-large"></div>
+				<div class="symbol-orbit symbol-orbit-small"></div>
+
+				<div class="symbol-icon">
+					<i class="fas fa-map-signs"></i>
+				</div>
+			</div>
+
+			<div class="error-code">404</div>
+		</div>
+
+		<div class="not-found-content">
+			<div class="eyebrow">
+				<span class="eyebrow-dot"></span>
+				Navigation Error
+			</div>
+
 			<h1>Page not found</h1>
-			<h2>We're sorry, the page you requested could not be found. Please go back to the <a href="/">homepage</a>
-				or
-				contact us at <a href="mailto:it.helpdesk@sahabatproperti.id">it.helpdesk@sahabatproperti.id</a>.</h2>
+
+			<p class="description">
+				The page you are looking for may have been moved, renamed, or is
+				no longer available.
+			</p>
+
+			<div class="requested-path">
+				<div class="path-icon">
+					<i class="fas fa-link"></i>
+				</div>
+
+				<div class="path-content">
+					<span>Requested address</span>
+					<strong>{{ requestedUrl }}</strong>
+				</div>
+			</div>
+
+			<div class="help-message">
+				<i class="fas fa-info-circle"></i>
+
+				<span>
+					Check the address or return to a page you previously
+					visited.
+				</span>
+			</div>
+
+			<div class="not-found-actions">
+				<button
+					type="button"
+					class="btn btn-light action-button"
+					(click)="goBack()"
+				>
+					<i class="fas fa-arrow-left"></i>
+					Back
+				</button>
+
+				<button
+					type="button"
+					class="btn btn-primary action-button"
+					(click)="goHome()"
+				>
+					<i class="fas fa-home"></i>
+					Go to Home
+				</button>
+			</div>
+
+			<div class="support-note">
+				<span>Need assistance?</span>
+
+				<a href="mailto:it.helpdesk@sahabatproperti.id">
+					<i class="far fa-envelope"></i>
+					support&#64;administrator@globaltransgroup.id
+				</a>
+			</div>
 		</div>
 	</div>
 </div>

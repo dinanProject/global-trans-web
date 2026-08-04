@@ -115,6 +115,49 @@
 	.mat-mdc-header-row {
 		height: 48px;
 	}
+
+	.mat-column-request {
+		width: 270px;
+		min-width: 270px;
+		padding-left: 24px;
+		padding-right: 20px;
+	}
+
+	.mat-column-company {
+		width: 210px;
+		min-width: 210px;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	.mat-column-equipment {
+		width: auto;
+		min-width: 300px;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	.mat-column-period {
+		width: 175px;
+		min-width: 175px;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	.mat-column-status {
+		width: 190px;
+		min-width: 190px;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	.mat-column-actions {
+		width: 90px;
+		min-width: 90px;
+		padding-left: 8px;
+		padding-right: 16px;
+		text-align: center;
+	}
 }
 
 .request-icon {
@@ -172,12 +215,6 @@
 	text-align: center;
 }
 
-.request-table th.action-column,
-.request-table td.action-column {
-	padding-left: 12px;
-	padding-right: 12px;
-}
-
 .empty-state {
 	min-height: 280px;
 	display: flex;
@@ -195,30 +232,6 @@
 	}
 }
 
-.mat-column-request {
-	width: 20%;
-}
-
-.mat-column-company {
-	width: 18%;
-}
-
-.mat-column-equipment {
-	width: 24%;
-}
-
-.mat-column-period {
-	width: 14%;
-}
-
-.mat-column-status {
-	width: 12%;
-}
-
-.mat-column-actions {
-	width: 8%;
-}
-
 .date-input {
 	color: transparent;
 
@@ -231,13 +244,6 @@
 .date-input::-webkit-calendar-picker-indicator {
 	opacity: 1;
 	cursor: pointer;
-}
-
-.request-table th,
-.request-table td {
-	padding-left: 24px;
-	padding-right: 24px;
-	vertical-align: middle;
 }
 
 .request-cell {
@@ -378,43 +384,77 @@
 	flex-shrink: 0;
 	white-space: nowrap;
 }
+
+.date-field {
+	width: 150px;
+	max-width: 100%;
+	margin-bottom: 0;
+}
+
+@media (max-width: 1199px) {
+	.request-table {
+		min-width: 1235px;
+	}
+}
+
 @media (max-width: 1100px) {
 	.filter-content {
 		align-items: stretch;
 		flex-direction: column;
 	}
+
+	.filter-fields {
+		width: 100%;
+		flex-wrap: wrap;
+	}
+
 	.filter-actions {
 		justify-content: flex-end;
 	}
 }
 
 @media (max-width: 767px) {
-	.request-table {
-		min-width: 960px;
-		table-layout: fixed;
+	.header-content,
+	.filter-fields,
+	.filter-actions {
+		align-items: stretch;
+		flex-direction: column;
 	}
 
-	.request-table th,
-	.request-table td {
-		white-space: normal;
+	.search-field,
+	.status-field,
+	.date-field {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.filter-actions {
+		width: 100%;
+	}
+
+	.header-content .btn,
+	.filter-actions .btn {
+		width: 100%;
 	}
 
 	.request-table .action-column {
 		position: sticky;
 		right: 0;
 		z-index: 2;
-		background: #fff;
+		background-color: #ffffff;
+		box-shadow: -1px 0 0 #eaecf0;
 	}
 
 	.request-table th.action-column {
 		z-index: 3;
-		background: #f5f7fa;
+		background-color: #f5f7fa;
 	}
 
 	.request-table tr:hover td.action-column {
-		background: #f8fafc;
+		background-color: #f8fafc;
 	}
 }
+
 :host ::ng-deep .panel-body-no-padding {
 	padding: 0;
 }
