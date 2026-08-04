@@ -17,8 +17,7 @@ import {
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UiModule } from './shared/ui.module';
-
-import { UnauthorizedComponent } from './routes/public/unauthorized.component';
+import { PublicModule } from './routes/public/public.module';
 import { AuthInterceptor } from './core/interceptors/auth-interceptor';
 
 registerLocaleData(localeId, 'id');
@@ -39,8 +38,8 @@ const currencyConfig = {
 };
 
 @NgModule({
-	declarations: [AppComponent, UnauthorizedComponent],
-	imports: [BrowserModule, AppRoutingModule, UiModule],
+	declarations: [AppComponent],
+	imports: [BrowserModule, AppRoutingModule, UiModule, PublicModule],
 	providers: [
 		provideAnimations(),
 		provideHttpClient(withInterceptorsFromDi()),

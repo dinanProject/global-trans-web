@@ -292,16 +292,18 @@
 
 						<div class="detail-list" *ngIf="detailViews.length > 0">
 							<div
-								class="detail-card approved-unit-card"
+								class="approved-unit-card"
 								*ngFor="let detail of detailViews"
 							>
-								<div class="detail-header">
-									<div>
+								<div class="approved-unit-header">
+									<div class="approved-unit-heading">
 										<div class="eyebrow">
 											Approved Equipment
 										</div>
+
 										<h6>{{ detail.categoryName }}</h6>
 									</div>
+
 									<span
 										class="fulfilled"
 										*ngIf="detail.assignments.length > 0"
@@ -312,6 +314,7 @@
 										"
 									>
 										<i class="fas fa-check-circle"></i>
+
 										{{
 											statusLabel(
 												detail.assignments[0].statusCode
@@ -326,44 +329,62 @@
 										else missingApprovedUnit
 									"
 								>
-									<div class="approved-unit-info">
-										<div class="approved-unit-icon">
-											<img
-												[src]="
-													getEquipmentIcon(
-														detail.categoryCode
-													)
-												"
-												[alt]="detail.categoryName"
-											/>
+									<div class="approved-unit-body">
+										<div class="approved-unit-identity">
+											<div class="approved-unit-icon">
+												<img
+													[src]="
+														getEquipmentIcon(
+															detail.categoryCode
+														)
+													"
+													[alt]="detail.categoryName"
+												/>
+											</div>
+
+											<div class="approved-unit-primary">
+												<strong>
+													{{ unit.unitCode }} -
+													{{ unit.unitName }}
+												</strong>
+
+												<span>
+													{{
+														unit.assetNumber ||
+															"Asset number belum tersedia"
+													}}
+												</span>
+											</div>
 										</div>
-										<div class="approved-unit-primary">
-											<strong
-												>{{ unit.unitCode }} -
-												{{ unit.unitName }}</strong
-											>
-											<span>{{
-												unit.assetNumber ||
-													"Asset number belum tersedia"
-											}}</span>
-										</div>
+
 										<div class="approved-unit-fields">
-											<div>
-												<span>Model</span
-												><strong>{{
-													unit.modelNumber || "-"
-												}}</strong>
+											<div class="approved-unit-field">
+												<span>Model</span>
+
+												<strong>
+													{{
+														unit.modelNumber || "—"
+													}}
+												</strong>
 											</div>
-											<div>
-												<span>Plate Number</span
-												><strong>{{
-													unit.plateNumber || "-"
-												}}</strong>
+
+											<div class="approved-unit-field">
+												<span>Plate Number</span>
+
+												<strong>
+													{{
+														unit.plateNumber || "—"
+													}}
+												</strong>
 											</div>
-											<div>
-												<span>Period</span
-												><strong
-													>{{
+
+											<div
+												class="approved-unit-field approved-period-field"
+											>
+												<span>Period</span>
+
+												<strong>
+													{{
 														formatDate(
 															selectedRequest.startDate
 														)
@@ -373,12 +394,14 @@
 														formatDate(
 															selectedRequest.endDate
 														)
-													}}</strong
-												>
+													}}
+												</strong>
 											</div>
-											<div>
-												<span>Quantity</span
-												><strong>{{
+
+											<div class="approved-unit-field">
+												<span>Quantity</span>
+
+												<strong>{{
 													detail.quantity
 												}}</strong>
 											</div>
@@ -388,36 +411,41 @@
 									<div class="approved-unit-footer">
 										<div class="unit-remarks">
 											<span>Remarks</span>
+
 											<strong>
 												{{
 													detail.remarks ||
 														unit.remarks ||
-														"-"
+														"—"
 												}}
 											</strong>
 										</div>
 
-										<ng-container
-											*ngFor="
-												let assignment of detail.assignments
-											"
-										>
-											<button
-												type="button"
-												class="btn btn-sm btn-success complete-button"
-												(click)="
-													completeAssignment(
-														assignment
-													)
+										<div class="approved-unit-actions">
+											<ng-container
+												*ngFor="
+													let assignment of detail.assignments
 												"
-												*ngIf="canComplete(assignment)"
 											>
-												<i
-													class="fas fa-check mr-1"
-												></i>
-												Complete
-											</button>
-										</ng-container>
+												<button
+													type="button"
+													class="btn btn-sm btn-success complete-button"
+													(click)="
+														completeAssignment(
+															assignment
+														)
+													"
+													*ngIf="
+														canComplete(assignment)
+													"
+												>
+													<i
+														class="fas fa-check mr-1"
+													></i>
+													Complete
+												</button>
+											</ng-container>
+										</div>
 									</div>
 								</ng-container>
 
@@ -426,6 +454,7 @@
 										<i
 											class="fas fa-exclamation-triangle"
 										></i>
+
 										Unit yang disetujui tidak ditemukan pada
 										master equipment unit.
 									</div>

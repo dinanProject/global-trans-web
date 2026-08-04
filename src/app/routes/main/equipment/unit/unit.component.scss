@@ -20,13 +20,13 @@
 }
 
 .search-field {
-	width: 300px;
+	width: 320px;
 	max-width: 100%;
 	margin-bottom: 0;
 }
 
 .category-field {
-	width: 220px;
+	width: 240px;
 	margin-bottom: 0;
 }
 
@@ -40,29 +40,8 @@
 }
 
 .unit-table {
+	width: 100%;
 	table-layout: fixed;
-
-	.mat-column-unit {
-		width: 25%;
-	}
-	.mat-column-category {
-		width: 15%;
-	}
-	.mat-column-assetNumber {
-		width: 15%;
-	}
-	.mat-column-modelNumber {
-		width: 12%;
-	}
-	.mat-column-plateNumber {
-		width: 14%;
-	}
-	.mat-column-status {
-		width: 9%;
-	}
-	.mat-column-actions {
-		width: 64px;
-	}
 
 	th {
 		font-weight: 500;
@@ -74,27 +53,52 @@
 		vertical-align: middle;
 	}
 
-	th.mat-header-cell,
-	td.mat-cell {
-		padding-left: 16px;
-		padding-right: 16px;
-		vertical-align: middle;
-	}
-	th.mat-header-cell:first-child,
-	td.mat-cell:first-child {
-		padding-left: 30px;
-	}
-	th.mat-header-cell:last-child,
-	td.mat-cell:last-child {
+	/*
+	 * Unit mengambil sisa ruang.
+	 * Jangan pakai persentase karena akan terlalu sempit di mobile.
+	 */
+	.mat-column-unit {
+		width: auto;
+		min-width: 280px;
+		padding-left: 24px;
 		padding-right: 24px;
 	}
 
-	code {
-		padding: 4px 7px;
-		border-radius: 4px;
-		background-color: var(--gray2);
-		color: var(--gray5);
-		white-space: nowrap;
+	.mat-column-category {
+		width: 170px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.mat-column-assetNumber {
+		width: 170px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.mat-column-modelNumber {
+		width: 150px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.mat-column-plateNumber {
+		width: 180px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.mat-column-status {
+		width: 140px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.mat-column-actions {
+		width: 90px;
+		padding-left: 8px;
+		padding-right: 16px;
+		text-align: center;
 	}
 
 	.status-indicator {
@@ -144,23 +148,6 @@
 			}
 		}
 	}
-
-	@keyframes status-pulse {
-		0% {
-			transform: scale(1);
-			opacity: 0.65;
-		}
-
-		70% {
-			transform: scale(2.4);
-			opacity: 0;
-		}
-
-		100% {
-			transform: scale(2.4);
-			opacity: 0;
-		}
-	}
 }
 
 .unit-name-cell {
@@ -171,22 +158,32 @@
 }
 
 .unit-name-content {
-	min-width: 150px;
+	min-width: 0;
 
 	h6 {
 		margin-bottom: 2px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	small {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 }
 
 .unit-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	width: 40px;
 	height: 40px;
 	flex: 0 0 40px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	border-radius: 8px;
-	background: #eef6ff;
+	background-color: #eef6ff;
 
 	img {
 		width: 24px;
@@ -196,14 +193,17 @@
 }
 
 .category-cell {
-	display: flex;
-	flex-direction: column;
-	min-width: 130px;
+	min-width: 0;
 }
 
 .category-name {
-	font-weight: 500;
+	display: block;
+	min-width: 0;
+	overflow: hidden;
 	color: #354052;
+	font-weight: 500;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .plate-number {
@@ -244,7 +244,35 @@
 	}
 }
 
+@keyframes status-pulse {
+	0% {
+		transform: scale(1);
+		opacity: 0.65;
+	}
+
+	70% {
+		transform: scale(2.4);
+		opacity: 0;
+	}
+
+	100% {
+		transform: scale(2.4);
+		opacity: 0;
+	}
+}
+
+/*
+ * Sama persis dengan Companies:
+ * saat viewport mengecil, tabel mempertahankan lebar,
+ * lalu .table-responsive menghasilkan horizontal scroll.
+ */
 @media (max-width: 1199px) {
+	.unit-table {
+		min-width: 1180px;
+	}
+}
+
+@media (max-width: 991px) {
 	.filter-content {
 		align-items: stretch;
 		flex-direction: column;
