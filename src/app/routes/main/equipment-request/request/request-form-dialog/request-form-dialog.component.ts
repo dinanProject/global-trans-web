@@ -37,11 +37,11 @@ export class RequestFormDialogComponent implements OnInit {
 		companyId: [this.data.company?.id ?? null, Validators.required],
 		divisionUuid: [this.data.request?.divisionUuid ?? ''],
 		startDate: [
-			this.toDateInputValue(this.data.request?.startDate),
+			this.toDateTimeInputValue(this.data.request?.startDate),
 			Validators.required,
 		],
 		endDate: [
-			this.toDateInputValue(this.data.request?.endDate),
+			this.toDateTimeInputValue(this.data.request?.endDate),
 			Validators.required,
 		],
 		purpose: [
@@ -91,10 +91,6 @@ export class RequestFormDialogComponent implements OnInit {
 					[Validators.required, Validators.min(1)],
 				],
 				equipmentUnitId: [detail?.equipmentUnitId ?? null],
-				quantity: [
-					detail?.quantity ?? 1,
-					[Validators.required, Validators.min(1)],
-				],
 				remarks: [detail?.remarks ?? '', Validators.maxLength(1000)],
 			}),
 		);
@@ -132,14 +128,24 @@ export class RequestFormDialogComponent implements OnInit {
 		}
 
 		const value = this.form.getRawValue();
-		const startDate = this.formatDatabaseDate(value.startDate);
-		const endDate = this.formatDatabaseDate(value.endDate);
 
-		if (!startDate || !endDate) {
-			this.errorMessage = 'Format tanggal harus dd/mm/yyyy.';
+		const selectedUnitIds = (value.details ?? [])
+			.map((detail: any) => Number(detail.equipmentUnitId))
+			.filter((unitId: number) => Number.isInteger(unitId) && unitId > 0);
+
+		if (new Set(selectedUnitIds).size !== selectedUnitIds.length) {
+			this.errorMessage =
+				'Equipment unit yang sama tidak boleh dipilih lebih dari satu kali.';
 			return;
 		}
 
+		const startDate = this.formatDatabaseDateTime(value.startDate);
+		const endDate = this.formatDatabaseDateTime(value.endDate);
+
+		if (!startDate || !endDate) {
+			this.errorMessage = 'Format tanggal dan waktu tidak valid.';
+			return;
+		}
 		if (startDate > endDate) {
 			this.errorMessage =
 				'End date tidak boleh lebih kecil dari start date.';
@@ -159,7 +165,6 @@ export class RequestFormDialogComponent implements OnInit {
 				equipmentUnitId: detail.equipmentUnitId
 					? Number(detail.equipmentUnitId)
 					: null,
-				quantity: Number(detail.quantity),
 				remarks: detail.remarks?.trim() || null,
 			})),
 		};
@@ -219,33 +224,70 @@ export class RequestFormDialogComponent implements OnInit {
 		});
 	}
 
-	private formatDatabaseDate(value: string | Date | null): string | null {
+	private formatDatabaseDateTime(value: string | Date | null): string | null {
 		if (!value) return null;
 
 		if (typeof value === 'string') {
-			return value.trim() || null;
+			const normalizedValue = value.trim();
+
+			if (!normalizedValue) return null;
+
+			const match = normalizedValue.match(
+				/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/,
+			);
+
+			if (!match) return null;
+
+			const [, year, month, day, hour, minute] = match;
+
+			return `${year}-${month}-${day} ${hour}:${minute}:00`;
 		}
 
 		if (Number.isNaN(value.getTime())) return null;
 
-		const year = value.getFullYear();
-		const month = String(value.getMonth() + 1).padStart(2, '0');
-		const day = String(value.getDate()).padStart(2, '0');
-
-		return `${year}-${month}-${day}`;
+		return this.formatLocalDateTime(value, 'database');
 	}
 
-	private toDateInputValue(value: string | Date | null | undefined): string {
+	private toDateTimeInputValue(
+		value: string | Date | null | undefined,
+	): string {
 		if (!value) return '';
+
+		if (typeof value === 'string') {
+			const normalizedValue = value.trim();
+
+			const localDateTimeMatch = normalizedValue.match(
+				/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/,
+			);
+
+			if (localDateTimeMatch) {
+				const [, year, month, day, hour, minute] = localDateTimeMatch;
+
+				return `${year}-${month}-${day}T${hour}:${minute}`;
+			}
+		}
 
 		const date = value instanceof Date ? value : new Date(value);
 
 		if (Number.isNaN(date.getTime())) return '';
 
+		return this.formatLocalDateTime(date, 'input');
+	}
+
+	private formatLocalDateTime(
+		date: Date,
+		target: 'input' | 'database',
+	): string {
 		const year = date.getFullYear();
 		const month = String(date.getMonth() + 1).padStart(2, '0');
 		const day = String(date.getDate()).padStart(2, '0');
+		const hour = String(date.getHours()).padStart(2, '0');
+		const minute = String(date.getMinutes()).padStart(2, '0');
 
-		return `${year}-${month}-${day}`;
+		if (target === 'input') {
+			return `${year}-${month}-${day}T${hour}:${minute}`;
+		}
+
+		return `${year}-${month}-${day} ${hour}:${minute}:00`;
 	}
 }

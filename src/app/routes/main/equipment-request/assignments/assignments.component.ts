@@ -20,7 +20,6 @@ interface AssignmentDetailView extends RequestDetail {
 	categoryName: string;
 	assignments: EquipmentAssignment[];
 	activeCount: number;
-	remainingQuantity: number;
 }
 
 @Component({
@@ -225,10 +224,12 @@ export class AssignmentsComponent implements OnInit {
 			const payload: AssignmentPayload = {
 				requestDetailUuid: detail.uuid || '',
 				equipmentUnitUuid: unit.uuid,
-				plannedStartDate: this.toDateOnly(
+				plannedStartDate: this.toDateTimeValue(
 					this.selectedRequest!.startDate,
 				),
-				plannedEndDate: this.toDateOnly(this.selectedRequest!.endDate),
+				plannedEndDate: this.toDateTimeValue(
+					this.selectedRequest!.endDate,
+				),
 				notes: detail.remarks || null,
 			};
 
@@ -304,15 +305,12 @@ export class AssignmentsComponent implements OnInit {
 	get visibleWorkflowStatuses(): string[] {
 		return this.totalRequested > 1 ||
 			this.requestStatus === this.STATUS_PARTIALLY_COMPLETED
-				? this.multiUnitWorkflowStatuses
-				: this.workflowStatuses;
+			? this.multiUnitWorkflowStatuses
+			: this.workflowStatuses;
 	}
 
 	get totalRequested(): number {
-		return this.detailViews.reduce(
-			(total, detail) => total + Number(detail.quantity || 0),
-			0,
-		);
+		return this.detailViews.length;
 	}
 
 	get totalCompleted(): number {
@@ -340,7 +338,6 @@ export class AssignmentsComponent implements OnInit {
 			(detail) =>
 				Boolean(detail.uuid) &&
 				Boolean(this.approvedUnit(detail)) &&
-				detail.remainingQuantity > 0 &&
 				detail.activeCount === 0,
 		);
 	}
@@ -401,7 +398,6 @@ export class AssignmentsComponent implements OnInit {
 			this.requestStatus === this.STATUS_APPROVED &&
 			Boolean(this.selectedRequest?.approvalLocked) &&
 			Boolean(this.approvedUnit(detail)) &&
-			detail.remainingQuantity > 0 &&
 			detail.activeCount === 0 &&
 			!this.saving
 		);
@@ -409,10 +405,9 @@ export class AssignmentsComponent implements OnInit {
 
 	canComplete(assignment: EquipmentAssignment): boolean {
 		return (
-			[
-				this.STATUS_IN_PROGRESS,
-				this.STATUS_PARTIALLY_COMPLETED,
-			].includes(this.requestStatus) &&
+			[this.STATUS_IN_PROGRESS, this.STATUS_PARTIALLY_COMPLETED].includes(
+				this.requestStatus,
+			) &&
 			assignment.statusCode === this.ASSIGNMENT_STATUS_IN_OPERATION &&
 			!this.saving
 		);
@@ -572,24 +567,39 @@ export class AssignmentsComponent implements OnInit {
 					category?.name || `Category #${detail.equipmentCategoryId}`,
 				assignments: detailAssignments,
 				activeCount,
-				remainingQuantity: Math.max(
-					Number(detail.quantity || 0) - activeCount,
-					0,
-				),
 			};
 		});
 	}
 
-	private toDateOnly(value: string | Date): string {
+	private toDateTimeValue(value: string | Date): string {
 		if (typeof value === 'string') {
-			return value.slice(0, 10);
+			const normalizedValue = value.trim();
+
+			const match = normalizedValue.match(
+				/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/,
+			);
+
+			if (match) {
+				const [, year, month, day, hour, minute, second = '00'] = match;
+
+				return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+			}
 		}
 
-		const year = value.getFullYear();
-		const month = String(value.getMonth() + 1).padStart(2, '0');
-		const day = String(value.getDate()).padStart(2, '0');
+		const date = value instanceof Date ? value : new Date(value);
 
-		return `${year}-${month}-${day}`;
+		if (Number.isNaN(date.getTime())) {
+			return '';
+		}
+
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		const hour = String(date.getHours()).padStart(2, '0');
+		const minute = String(date.getMinutes()).padStart(2, '0');
+		const second = String(date.getSeconds()).padStart(2, '0');
+
+		return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 	}
 
 	private runAction(

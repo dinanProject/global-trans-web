@@ -268,11 +268,17 @@
 							</div>
 							<div>
 								<span>Assigned</span>
-								<strong>{{ totalActiveAssigned }} / {{ totalRequested }}</strong>
+								<strong
+									>{{ totalActiveAssigned }} /
+									{{ totalRequested }}</strong
+								>
 							</div>
 							<div>
 								<span>Completed</span>
-								<strong>{{ totalCompleted }} / {{ totalRequested }}</strong>
+								<strong
+									>{{ totalCompleted }} /
+									{{ totalRequested }}</strong
+								>
 							</div>
 						</div>
 					</panel-body>
@@ -398,14 +404,6 @@
 													}}
 												</strong>
 											</div>
-
-											<div class="approved-unit-field">
-												<span>Quantity</span>
-
-												<strong>{{
-													detail.quantity
-												}}</strong>
-											</div>
 										</div>
 									</div>
 
@@ -424,11 +422,17 @@
 
 										<div
 											class="completion-time"
-											*ngIf="detail.assignments[0]?.actualEndDate"
+											*ngIf="
+												detail.assignments[0]
+													?.actualEndDate
+											"
 										>
 											<span>Completed At</span>
 											<strong>{{
-												formatDateTime(detail.assignments[0].actualEndDate)
+												formatDateTime(
+													detail.assignments[0]
+														.actualEndDate
+												)
 											}}</strong>
 										</div>
 

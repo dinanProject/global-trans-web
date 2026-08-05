@@ -11,7 +11,6 @@ export interface RequestDetail {
 	equipmentCategoryCode?: string | null;
 	categoryName?: string | null;
 	equipmentUnitId?: number | null;
-	quantity: number;
 	rate?: number | null;
 	remarks?: string | null;
 }

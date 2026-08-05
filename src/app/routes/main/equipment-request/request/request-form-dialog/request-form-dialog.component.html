@@ -76,10 +76,9 @@
 						</label>
 
 						<input
-							type="date"
+							type="datetime-local"
 							class="form-control"
 							formControlName="startDate"
-							[min]="form.get('startDate')?.value || null"
 						/>
 
 						<span
@@ -100,7 +99,7 @@
 						</label>
 
 						<input
-							type="date"
+							type="datetime-local"
 							class="form-control"
 							formControlName="endDate"
 							[min]="form.get('startDate')?.value || null"
@@ -267,21 +266,6 @@
 										</ng-container>
 									</option>
 								</select>
-							</div>
-							<div class="detail-row">
-								<div class="form-group quantity-field">
-									<label>
-										Qty
-										<span class="required">*</span>
-									</label>
-
-									<input
-										type="number"
-										min="1"
-										class="form-control"
-										formControlName="quantity"
-									/>
-								</div>
 							</div>
 
 							<div class="form-group remarks-field">
