@@ -1,6 +1,5 @@
 :host {
 	display: block;
-	width: 100%;
 	height: 100%;
 }
 
@@ -14,35 +13,42 @@
 	gap: 16px;
 }
 
-.header-content {
-	align-items: center;
-
-	h5 {
-		margin: 0 0 4px;
-
-		color: #263247;
-		font-size: 18px;
-		font-weight: 600;
-		line-height: 1.3;
-	}
-
-	small {
-		display: block;
-	}
-}
-
-.filter-fields {
+.filter-fields,
+.filter-actions {
 	display: flex;
 	align-items: flex-end;
-	flex-wrap: wrap;
+	justify-content: flex-start;
+
 	gap: 12px;
 }
 
-.filter-actions {
-	display: flex;
-	align-items: center;
-	gap: 8px;
+.search-field {
+	width: 320px;
+	max-width: 100%;
+	margin-bottom: 0;
+}
+
+.status-field {
+	width: 180px;
+	margin-bottom: 0;
+}
+
+.date-field {
+	width: 180px;
+	margin-bottom: 0;
+}
+
+.form-group {
 	flex: 0 0 auto;
+	margin-bottom: 0;
+}
+
+.filter-actions {
+	flex: 0 0 auto;
+}
+
+.loading-container {
+	min-height: 400px;
 }
 
 .form-group {
@@ -55,19 +61,6 @@
 		font-size: 12px;
 		font-weight: 600;
 	}
-}
-
-.search-field {
-	width: 300px;
-	max-width: 100%;
-}
-
-.status-field {
-	width: 170px;
-}
-
-.date-field {
-	width: 165px;
 }
 
 .form-control {
@@ -356,11 +349,17 @@
 	border-top: 1px solid #e8ecf2;
 	background-color: #ffffff;
 }
-
-@media (max-width: 1200px) {
+@media (max-width: 991px) {
 	.filter-content {
 		align-items: stretch;
 		flex-direction: column;
+		justify-content: flex-start;
+	}
+
+	.filter-fields {
+		width: 100%;
+		flex-wrap: wrap;
+		justify-content: flex-start;
 	}
 
 	.filter-actions {
@@ -368,48 +367,43 @@
 	}
 }
 
-@media (max-width: 900px) {
-	.header-content {
-		align-items: flex-start;
-		flex-direction: column;
-	}
-
-	.filter-fields {
-		width: 100%;
-	}
-
-	.search-field {
-		width: 100%;
-	}
-
-	.status-field,
-	.date-field {
-		flex: 1 1 180px;
-	}
-}
-
-@media (max-width: 600px) {
+@media (max-width: 767px) {
+	.header-content,
 	.filter-fields,
 	.filter-actions {
 		align-items: stretch;
 		flex-direction: column;
+		justify-content: flex-start;
+	}
+
+	.filter-fields {
+		flex: 0 0 auto;
+		width: 100%;
+		gap: 12px;
 	}
 
 	.search-field,
 	.status-field,
 	.date-field {
+		flex: 0 0 auto;
 		width: 100%;
+		margin: 0;
 	}
 
 	.filter-actions {
+		flex: 0 0 auto;
 		width: 100%;
+		margin-top: 4px;
 
 		.btn {
 			width: 100%;
 		}
 	}
 
-	.user-agent {
-		max-width: 220px;
+	@media (max-width: 767px) {
+		:host ::ng-deep .mat-mdc-paginator-page-size,
+		:host ::ng-deep .mat-paginator-page-size {
+			margin-top: 12px;
+		}
 	}
 }
