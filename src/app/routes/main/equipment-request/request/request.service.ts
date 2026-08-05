@@ -7,6 +7,9 @@ import { ApiService } from 'src/app/core/services/api.service';
 export interface RequestDetail {
 	uuid?: string | null;
 	equipmentCategoryId: number;
+	equipmentCategoryName?: string | null;
+	equipmentCategoryCode?: string | null;
+	categoryName?: string | null;
 	equipmentUnitId?: number | null;
 	quantity: number;
 	rate?: number | null;

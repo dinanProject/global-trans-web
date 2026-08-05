@@ -33,6 +33,7 @@ export class AssignmentsComponent implements OnInit {
 	readonly STATUS_APPROVED = 'APPROVED';
 	readonly STATUS_ASSIGNED = 'ASSIGNED';
 	readonly STATUS_IN_PROGRESS = 'IN_PROGRESS';
+	readonly STATUS_PARTIALLY_COMPLETED = 'PARTIALLY_COMPLETED';
 	readonly STATUS_COMPLETED = 'COMPLETED';
 
 	readonly ASSIGNMENT_STATUS_ASSIGNED = 'ASSIGNED';
@@ -46,6 +47,19 @@ export class AssignmentsComponent implements OnInit {
 		this.STATUS_ASSIGNED,
 		this.STATUS_IN_PROGRESS,
 		this.STATUS_COMPLETED,
+	];
+
+	readonly multiUnitWorkflowStatuses = [
+		this.STATUS_APPROVED,
+		this.STATUS_ASSIGNED,
+		this.STATUS_IN_PROGRESS,
+		this.STATUS_PARTIALLY_COMPLETED,
+		this.STATUS_COMPLETED,
+	];
+
+	readonly worklistStatuses = [
+		...this.workflowStatuses,
+		this.STATUS_PARTIALLY_COMPLETED,
 	];
 
 	requests: RequestMaster[] = [];
@@ -84,7 +98,7 @@ export class AssignmentsComponent implements OnInit {
 		}).subscribe({
 			next: ({ requests, categories, units }) => {
 				this.requests = (requests || []).filter((request) =>
-					this.workflowStatuses.includes(request.status),
+					this.worklistStatuses.includes(request.status),
 				);
 				this.categories = categories || [];
 				this.units = units || [];
@@ -287,9 +301,29 @@ export class AssignmentsComponent implements OnInit {
 		return this.selectedRequest?.status || '';
 	}
 
+	get visibleWorkflowStatuses(): string[] {
+		return this.totalRequested > 1 ||
+			this.requestStatus === this.STATUS_PARTIALLY_COMPLETED
+				? this.multiUnitWorkflowStatuses
+				: this.workflowStatuses;
+	}
+
 	get totalRequested(): number {
 		return this.detailViews.reduce(
 			(total, detail) => total + Number(detail.quantity || 0),
+			0,
+		);
+	}
+
+	get totalCompleted(): number {
+		return this.detailViews.reduce(
+			(total, detail) =>
+				total +
+				detail.assignments.filter(
+					(assignment) =>
+						assignment.statusCode ===
+						this.ASSIGNMENT_STATUS_COMPLETED,
+				).length,
 			0,
 		);
 	}
@@ -375,7 +409,10 @@ export class AssignmentsComponent implements OnInit {
 
 	canComplete(assignment: EquipmentAssignment): boolean {
 		return (
-			this.requestStatus === this.STATUS_IN_PROGRESS &&
+			[
+				this.STATUS_IN_PROGRESS,
+				this.STATUS_PARTIALLY_COMPLETED,
+			].includes(this.requestStatus) &&
 			assignment.statusCode === this.ASSIGNMENT_STATUS_IN_OPERATION &&
 			!this.saving
 		);
@@ -436,6 +473,7 @@ export class AssignmentsComponent implements OnInit {
 					APPROVED: 'Approved',
 					ASSIGNED: 'Assigned',
 					IN_PROGRESS: 'In Progress',
+					PARTIALLY_COMPLETED: 'Partially Completed',
 					IN_OPERATION: 'In Operation',
 					COMPLETED: 'Completed',
 					REPLACED: 'Replaced',
@@ -450,6 +488,24 @@ export class AssignmentsComponent implements OnInit {
 		return `status-${String(status || '')
 			.toLowerCase()
 			.replace(/_/g, '-')}`;
+	}
+
+	formatDateTime(value?: string | null): string {
+		if (!value) {
+			return '-';
+		}
+		const date = new Date(value);
+		if (Number.isNaN(date.getTime())) {
+			return value;
+		}
+		return new Intl.DateTimeFormat('id-ID', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+		}).format(date);
 	}
 
 	formatDate(value?: string | null): string {
@@ -468,8 +524,10 @@ export class AssignmentsComponent implements OnInit {
 	}
 
 	isWorkflowStatusActive(status: string): boolean {
-		const currentIndex = this.workflowStatuses.indexOf(this.requestStatus);
-		const statusIndex = this.workflowStatuses.indexOf(status);
+		const currentIndex = this.visibleWorkflowStatuses.indexOf(
+			this.requestStatus,
+		);
+		const statusIndex = this.visibleWorkflowStatuses.indexOf(status);
 		return currentIndex >= 0 && statusIndex <= currentIndex;
 	}
 
@@ -578,6 +636,9 @@ export class AssignmentsComponent implements OnInit {
 
 			case this.STATUS_IN_PROGRESS:
 				return 'Seluruh unit sedang beroperasi.';
+
+			case this.STATUS_PARTIALLY_COMPLETED:
+				return 'Sebagian unit telah selesai dan unit lainnya masih beroperasi.';
 
 			case this.STATUS_COMPLETED:
 				return 'Seluruh unit telah menyelesaikan operasi.';

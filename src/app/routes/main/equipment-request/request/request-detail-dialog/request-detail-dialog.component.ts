@@ -5,6 +5,7 @@ import { Subject, finalize, takeUntil } from 'rxjs';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import {
 	RequestAction,
+	RequestHistory,
 	RequestMaster,
 	RequestService,
 } from '../request.service';
@@ -24,11 +25,20 @@ export interface RequestDetailDialogData {
 })
 export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 	private readonly destroy$ = new Subject<void>();
+	private readonly uuidPattern =
+		/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi;
+
 	request?: RequestMaster;
 	isLoading = false;
 	actionCode = '';
 	errorMessage = '';
 	selectedTabIndex = 0;
+	readonly tabs = [
+		{ label: 'Information', icon: 'far fa-file-alt' },
+		{ label: 'Equipment Details', icon: 'fas fa-tools' },
+		{ label: 'Approval History', icon: 'fas fa-user-check' },
+		{ label: 'Activity', icon: 'fas fa-history' },
+	];
 
 	constructor(
 		private readonly requestService: RequestService,
@@ -43,6 +53,7 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 		this.selectedTabIndex = this.data.initialTabIndex ?? 0;
 		this.loadRequest();
 	}
+
 	ngOnDestroy(): void {
 		this.destroy$.next();
 		this.destroy$.complete();
@@ -126,7 +137,73 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 			.toLowerCase()
 			.replace(/_/g, '-');
 	}
+
+	getCategoryName(detail: {
+		equipmentCategoryName?: string | null;
+		categoryName?: string | null;
+		equipmentCategoryCode?: string | null;
+		equipmentCategoryId?: number | null;
+	}): string {
+		return (
+			detail.equipmentCategoryName ||
+			detail.categoryName ||
+			detail.equipmentCategoryCode ||
+			(detail.equipmentCategoryId != null
+				? `Category ${detail.equipmentCategoryId}`
+				: '—')
+		);
+	}
+
+	selectTab(index: number): void {
+		this.selectedTabIndex = index;
+	}
+
+	formatHistoryDescription(history: RequestHistory): string {
+		if (!history?.description || !this.request) {
+			return history?.description || '—';
+		}
+
+		let description = history.description;
+		const requestNo = this.request.requestNo;
+
+		// Presentation-only normalization. API payloads and workflow functions remain unchanged.
+		description = description.replace(
+			/request detail\s+[0-9a-f-]{36}/gi,
+			`request ${requestNo}`,
+		);
+		description = description.replace(
+			/equipment request\s+[0-9a-f-]{36}/gi,
+			`equipment request ${requestNo}`,
+		);
+		if (this.request.uuid) {
+			description = description.replace(
+				new RegExp(this.escapeRegExp(this.request.uuid), 'gi'),
+				requestNo,
+			);
+		}
+
+		return description;
+	}
+
+	formatActivityLabel(activity: string): string {
+		return String(activity || 'Activity')
+			.replace(/_/g, ' ')
+			.toLowerCase()
+			.replace(/\b\w/g, (character) => character.toUpperCase());
+	}
+
+	trackByUuid(
+		index: number,
+		item: { uuid?: string | null },
+	): string | number {
+		return item?.uuid || index;
+	}
+
 	close(): void {
 		this.dialogRef.close({ action: 'refresh' });
+	}
+
+	private escapeRegExp(value: string): string {
+		return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 	}
 }
