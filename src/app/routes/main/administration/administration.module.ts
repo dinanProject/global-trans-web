@@ -21,6 +21,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { RolePermissionDialogComponent } from './role-management/role-permission-dialog/role-permission-dialog.component';
 import { UserPasswordDialogComponent } from './user/user-password-dialog/user-password-dialog.component';
+import { LoginLogComponent } from './login-log/login-log.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
 	declarations: [
@@ -33,6 +35,7 @@ import { UserPasswordDialogComponent } from './user/user-password-dialog/user-pa
 		UserComponent,
 		UserFormDialogComponent,
 		UserPasswordDialogComponent,
+		LoginLogComponent,
 	],
 	imports: [
 		CommonModule,
@@ -49,6 +52,8 @@ import { UserPasswordDialogComponent } from './user/user-password-dialog/user-pa
 		MatTabsModule,
 		MatMenuModule,
 		MatTableModule,
+		MatPaginatorModule,
+
 		AdministrationRoutingModule,
 	],
 })

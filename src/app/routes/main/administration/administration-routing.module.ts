@@ -4,8 +4,16 @@ import { RouterModule, Routes } from '@angular/router';
 import { PermissionComponent } from './permission-management/permission.component';
 import { RoleComponent } from './role-management/role.component';
 import { UserComponent } from './user/user.component';
+import { LoginLogComponent } from './login-log/login-log.component';
 
 const routes: Routes = [
+	{
+		path: 'login-log',
+		component: LoginLogComponent,
+		data: {
+			title: 'Administration',
+		},
+	},
 	{
 		path: 'role-management',
 		component: RoleComponent,

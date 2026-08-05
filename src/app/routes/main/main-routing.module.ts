@@ -3,14 +3,11 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { MainGuard } from './main-guard';
 import { MainComponent } from './main.component';
-import { NotFoundComponent } from '../public/not-found.component';
-import { UnauthorizedComponent } from '../public/unauthorized.component';
 
 const routes: Routes = [
 	{
 		path: '',
 		component: MainComponent,
-		canActivate: [MainGuard],
 		children: [
 			{
 				path: '',
@@ -96,22 +93,6 @@ const routes: Routes = [
 					),
 			},
 
-			{
-				path: 'unauthorized',
-				component: UnauthorizedComponent,
-				data: {
-					title: 'Access Denied',
-				},
-			},
-
-			{
-				path: 'not-found',
-				component: NotFoundComponent,
-				data: {
-					title: 'Page Not Found',
-				},
-			},
-
 			/*
 			 * Harus selalu paling terakhir.
 			 * Gunakan component langsung supaya URL asli tetap terlihat.
@@ -119,10 +100,7 @@ const routes: Routes = [
 
 			{
 				path: '**',
-				component: NotFoundComponent,
-				data: {
-					title: 'Page Not Found',
-				},
+				redirectTo: '/not-found',
 			},
 		],
 	},

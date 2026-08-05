@@ -37,7 +37,7 @@ export class LoginComponent implements OnInit {
 	readonly isSubmitting = signal(false);
 	readonly errorMessage = signal('');
 
-	private returnUrl = '/main';
+	private returnUrl = '/home';
 
 	get email() {
 		return this.formGroup.controls.email;
@@ -108,9 +108,21 @@ export class LoginComponent implements OnInit {
 			!returnUrl.startsWith('/') ||
 			returnUrl.startsWith('//')
 		) {
-			return '/main';
+			return '/home';
 		}
-
+		if (returnUrl === '/main') {
+			return '/home';
+		}
+		if (returnUrl.startsWith('/main/')) {
+			return returnUrl.replace(/^\/main/, '');
+		}
+		if (
+			returnUrl === '/not-found' ||
+			returnUrl === '/unauthorized' ||
+			returnUrl.startsWith('/auth')
+		) {
+			return '/home';
+		}
 		return returnUrl;
 	}
 
