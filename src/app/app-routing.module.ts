@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { MainGuard } from './routes/main/main-guard';
+import { UnauthorizedComponent } from './routes/public/unauthorized.component';
+import { NotFoundComponent } from './routes/public/not-found.component';
 
 const routes: Routes = [
 	{
@@ -12,20 +14,33 @@ const routes: Routes = [
 			),
 	},
 	{
+		path: 'unauthorized',
+		component: UnauthorizedComponent,
+		data: {
+			title: 'Access Denied',
+		},
+	},
+	{
+		path: 'not-found',
+		component: NotFoundComponent,
+		data: {
+			title: 'Page Not Found',
+		},
+	},
+	{
 		path: '',
 		loadChildren: () =>
 			import('./routes/main/main.module').then(
 				(module) => module.MainModule,
 			),
 		canActivate: [MainGuard],
-		canLoad: [MainGuard],
 		data: {
 			title: 'Main App',
 		},
 	},
 	{
 		path: '**',
-		redirectTo: 'home',
+		redirectTo: 'not-found',
 	},
 ];
 
