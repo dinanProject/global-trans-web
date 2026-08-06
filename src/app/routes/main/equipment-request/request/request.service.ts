@@ -11,6 +11,8 @@ export interface RequestDetail {
 	equipmentCategoryCode?: string | null;
 	categoryName?: string | null;
 	equipmentUnitId?: number | null;
+	requiredCapacityValue: number;
+	requiredCapacityUnit: string;
 	rate?: number | null;
 	remarks?: string | null;
 }
@@ -140,6 +142,8 @@ export interface UnitOption {
 	categoryId: number;
 	unitCode: string;
 	unitName: string;
+	capacityValue?: number | null;
+	capacityUnit?: string | null;
 	assetNumber?: string | null;
 	modelNumber?: string | null;
 	plateNumber?: string | null;
