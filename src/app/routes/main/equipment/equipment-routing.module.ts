@@ -8,6 +8,10 @@ const routes: Routes = [
 	{
 		path: 'categories',
 		component: CategoryComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_CATEGORY.VIEW',
+		},
 	},
 	{
 		path: 'units',
