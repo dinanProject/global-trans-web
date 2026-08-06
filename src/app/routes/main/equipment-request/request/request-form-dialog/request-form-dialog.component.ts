@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 
 import {
+	CapacityUnitOption,
 	CategoryOption,
 	RequestCompanyOption,
 	RequestDetail,
@@ -21,6 +22,7 @@ export interface RequestFormDialogData {
 	divisions: RequestDivisionOption[];
 	categories: CategoryOption[];
 	units: UnitOption[];
+	capacityUnits: CapacityUnitOption[];
 }
 
 @Component({
@@ -180,7 +182,7 @@ export class RequestFormDialogComponent implements OnInit {
 		}
 
 		const payload: RequestPayload = {
-			companyId: Number(value.companyId),
+			companyUuid: this.data.company?.uuid ?? null,
 			divisionUuid: value.divisionUuid || null,
 			startDate,
 			endDate,

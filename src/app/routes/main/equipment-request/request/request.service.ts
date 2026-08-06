@@ -97,7 +97,7 @@ export interface RequestFilter {
 }
 
 export interface RequestPayload {
-	companyId: number;
+	companyUuid: string | null;
 	divisionUuid: string | null;
 	startDate: string;
 	endDate: string;
@@ -172,6 +172,15 @@ export interface RequestStatusOption {
 	isActive: number;
 }
 
+export interface CapacityUnitOption {
+	lookupId: number;
+	lookupCode: string;
+	lookupValue: string;
+	lookupAlias?: string | null;
+	lookupGroup: string;
+	isActive: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RequestService {
 	private readonly baseUrl = '/equipment-request/request';
@@ -240,6 +249,16 @@ export class RequestService {
 	getUnits(): Observable<UnitOption[]> {
 		const params = new HttpParams().set('isActive', '1');
 		return this.apiService.get('/equipment-unit', params);
+	}
+
+	getCapacityUnits(): Observable<CapacityUnitOption[]> {
+		return this.apiService.get(
+			'/lookup',
+			this.compactParams({
+				lookupGroup: 'equipment_capacity_unit',
+				isActive: 1,
+			}),
+		);
 	}
 
 	private compactParams<T extends object>(source: T): HttpParams {
