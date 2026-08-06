@@ -14,6 +14,7 @@ import { catchError, finalize, forkJoin, of, Subject, takeUntil } from 'rxjs';
 import { UtilityService } from '../../../../shared/utility/utility.service';
 
 import {
+	CapacityUnitOption,
 	Unit,
 	UnitCategory,
 	UnitDialogResult,
@@ -59,6 +60,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	units: Unit[] = [];
 	categories: UnitCategory[] = [];
+	capacityUnits: CapacityUnitOption[] = [];
 
 	dataSource = new MatTableDataSource<Unit>([]);
 
@@ -134,6 +136,17 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					return of([]);
 				}),
 			),
+			capacityUnits: this.unitService.getCapacityUnits().pipe(
+				catchError((error) => {
+					if (!this.errorMessage) {
+						this.errorMessage =
+							error?.error?.meta?.message ??
+							'Failed to load equipment capacity units.';
+					}
+
+					return of([]);
+				}),
+			),
 		})
 			.pipe(
 				takeUntil(this.destroy$),
@@ -141,9 +154,10 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					this.isLoading = false;
 				}),
 			)
-			.subscribe(({ units, categories }) => {
+			.subscribe(({ units, categories, capacityUnits }) => {
 				this.units = units ?? [];
 				this.categories = categories ?? [];
+				this.capacityUnits = capacityUnits ?? [];
 
 				this.applyFilters();
 			});
@@ -196,6 +210,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			data: {
 				mode: 'create',
 				categories: this.activeCategories,
+				capacityUnits: this.capacityUnits,
 			},
 		});
 
@@ -222,6 +237,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 				mode: 'edit',
 				unit,
 				categories,
+				capacityUnits: this.capacityUnits,
 			},
 		});
 

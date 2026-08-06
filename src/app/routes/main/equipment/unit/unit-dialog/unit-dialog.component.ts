@@ -21,6 +21,8 @@ interface UnitForm {
 	assetNumber: FormControl<string | null>;
 	modelNumber: FormControl<string | null>;
 	plateNumber: FormControl<string | null>;
+	capacityValue: FormControl<number | null>;
+	capacityUnit: FormControl<string>;
 	remarks: FormControl<string | null>;
 	isActive: FormControl<boolean>;
 }
@@ -73,6 +75,15 @@ export class UnitDialogComponent implements OnInit {
 			plateNumber: new FormControl(this.data.unit?.plateNumber ?? null, [
 				Validators.maxLength(50),
 			]),
+
+			capacityValue: new FormControl(
+				this.data.unit?.capacityValue ?? null,
+				[Validators.required, Validators.min(0.01)],
+			),
+			capacityUnit: new FormControl(this.data.unit?.capacityUnit ?? '', {
+				nonNullable: true,
+				validators: [Validators.required, Validators.maxLength(50)],
+			}),
 			remarks: new FormControl(this.data.unit?.remarks ?? null, [
 				Validators.maxLength(500),
 			]),
@@ -121,6 +132,8 @@ export class UnitDialogComponent implements OnInit {
 			plateNumber: this.normalizeNullableUppercaseString(
 				value.plateNumber,
 			),
+			capacityValue: Number(value.capacityValue),
+			capacityUnit: value.capacityUnit.trim().toUpperCase(),
 			remarks: this.normalizeNullableString(value.remarks),
 			isActive: value.isActive,
 		};

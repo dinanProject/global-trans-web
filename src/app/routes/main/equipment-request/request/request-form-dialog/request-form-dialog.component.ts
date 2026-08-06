@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 
 import {
+	CapacityUnitOption,
 	CategoryOption,
 	RequestCompanyOption,
 	RequestDetail,
@@ -21,6 +22,7 @@ export interface RequestFormDialogData {
 	divisions: RequestDivisionOption[];
 	categories: CategoryOption[];
 	units: UnitOption[];
+	capacityUnits: CapacityUnitOption[];
 }
 
 @Component({
@@ -90,7 +92,18 @@ export class RequestFormDialogComponent implements OnInit {
 					detail?.equipmentCategoryId ?? null,
 					[Validators.required, Validators.min(1)],
 				],
-				equipmentUnitId: [detail?.equipmentUnitId ?? null],
+				equipmentUnitId: [
+					detail?.equipmentUnitId ?? null,
+					Validators.required,
+				],
+				requiredCapacityValue: [
+					detail?.requiredCapacityValue ?? null,
+					[Validators.required, Validators.min(0.01)],
+				],
+				requiredCapacityUnit: [
+					detail?.requiredCapacityUnit ?? '',
+					[Validators.required, Validators.maxLength(50)],
+				],
 				remarks: [detail?.remarks ?? '', Validators.maxLength(1000)],
 			}),
 		);
@@ -116,6 +129,23 @@ export class RequestFormDialogComponent implements OnInit {
 	onCategoryChange(detailIndex: number): void {
 		this.details.at(detailIndex).patchValue({
 			equipmentUnitId: null,
+			requiredCapacityValue: null,
+			requiredCapacityUnit: '',
+		});
+	}
+
+	onUnitChange(detailIndex: number): void {
+		const detail = this.details.at(detailIndex);
+		const equipmentUnitId = Number(detail.get('equipmentUnitId')?.value);
+
+		const selectedUnit =
+			this.data.units.find(
+				(unit) => Number(unit.id) === equipmentUnitId,
+			) ?? null;
+
+		detail.patchValue({
+			requiredCapacityUnit:
+				selectedUnit?.capacityUnit?.trim().toUpperCase() ?? '',
 		});
 	}
 
@@ -146,14 +176,13 @@ export class RequestFormDialogComponent implements OnInit {
 			this.errorMessage = 'Format tanggal dan waktu tidak valid.';
 			return;
 		}
-		if (startDate > endDate) {
-			this.errorMessage =
-				'End date tidak boleh lebih kecil dari start date.';
+		if (startDate >= endDate) {
+			this.errorMessage = 'End date harus lebih besar dari start date.';
 			return;
 		}
 
 		const payload: RequestPayload = {
-			companyId: Number(value.companyId),
+			companyUuid: this.data.company?.uuid ?? null,
 			divisionUuid: value.divisionUuid || null,
 			startDate,
 			endDate,
@@ -162,9 +191,10 @@ export class RequestFormDialogComponent implements OnInit {
 			details: (value.details ?? []).map((detail: any) => ({
 				uuid: detail.uuid || null,
 				equipmentCategoryId: Number(detail.equipmentCategoryId),
-				equipmentUnitId: detail.equipmentUnitId
-					? Number(detail.equipmentUnitId)
-					: null,
+				equipmentUnitId: Number(detail.equipmentUnitId),
+				requiredCapacityValue: Number(detail.requiredCapacityValue),
+				requiredCapacityUnit:
+					detail.requiredCapacityUnit?.trim().toUpperCase() || '',
 				remarks: detail.remarks?.trim() || null,
 			})),
 		};

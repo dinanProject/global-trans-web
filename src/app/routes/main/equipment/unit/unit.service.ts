@@ -1,4 +1,6 @@
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { ApiService } from 'src/app/core/services/api.service';
 
@@ -27,12 +29,25 @@ export interface Unit {
 	assetNumber?: string | null;
 	modelNumber?: string | null;
 	plateNumber?: string | null;
+	capacityValue?: number | null;
+	capacityUnit?: string | null;
+	capacityUnitName?: string | null;
+	capacityUnitAlias?: string | null;
 	remarks?: string | null;
 
 	isActive: boolean | number;
 
 	createdAt?: string;
 	updatedAt?: string;
+}
+
+export interface CapacityUnitOption {
+	lookupId: number;
+	lookupCode: string;
+	lookupValue: string;
+	lookupAlias?: string | null;
+	lookupGroup: string;
+	isActive: number;
 }
 
 export interface UnitPayload {
@@ -44,6 +59,8 @@ export interface UnitPayload {
 	assetNumber: string | null;
 	modelNumber: string | null;
 	plateNumber: string | null;
+	capacityValue: number;
+	capacityUnit: string;
 	remarks: string | null;
 
 	isActive: boolean;
@@ -53,6 +70,7 @@ export interface UnitDialogData {
 	mode: 'create' | 'edit';
 	unit?: Unit;
 	categories: UnitCategory[];
+	capacityUnits: CapacityUnitOption[];
 }
 
 export interface UnitDialogResult {
@@ -102,6 +120,15 @@ export class UnitService {
 
 	getCategories() {
 		return this.apiService.get('/equipment-category');
+	}
+
+	getCapacityUnits(): Observable<CapacityUnitOption[]> {
+		return this.apiService.get(
+			'/lookup',
+			new HttpParams()
+				.set('lookupGroup', 'equipment_capacity_unit')
+				.set('isActive', '1'),
+		);
 	}
 
 	createUnit(payload: UnitPayload) {
