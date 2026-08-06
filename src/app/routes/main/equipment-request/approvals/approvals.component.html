@@ -111,6 +111,7 @@
 						<th mat-header-cell *matHeaderCellDef>
 							Company / Equipment
 						</th>
+
 						<td mat-cell *matCellDef="let request">
 							<div class="company-equipment-cell">
 								<div class="company-name">
@@ -121,8 +122,61 @@
 									{{ request.divisionName || "No division" }}
 								</div>
 
+								<ng-container
+									*ngIf="
+										request.details?.length;
+										else noEquipment
+									"
+								>
+									<div
+										class="equipment-preview-item"
+										*ngFor="
+											let detail of getEquipmentPreview(
+												request.details
+											)
+										"
+									>
+										<span class="equipment-code">
+											{{
+												detail.equipmentUnitCode ||
+													"Unit belum dipilih"
+											}}
+										</span>
+
+										<span class="equipment-separator"
+											>•</span
+										>
+
+										<span class="equipment-name">
+											{{
+												detail.equipmentUnitName ||
+													detail.equipmentCategoryName ||
+													"—"
+											}}
+										</span>
+									</div>
+
+									<div
+										class="equipment-more"
+										*ngIf="
+											getRemainingEquipmentCount(
+												request.details
+											) > 0
+										"
+									>
+										+{{
+											getRemainingEquipmentCount(
+												request.details
+											)
+										}}
+										equipment lainnya
+									</div>
+								</ng-container>
+
 								<ng-template #noEquipment>
-									<span class="text-muted">No equipment</span>
+									<span class="no-equipment">
+										No equipment
+									</span>
 								</ng-template>
 							</div>
 						</td>
@@ -134,15 +188,21 @@
 							<div class="period-stack">
 								<div>
 									<small>Start</small>
-									<strong>{{
-										request.startDate | date: "dd MMM yyyy"
-									}}</strong>
+									<strong>
+										{{
+											request.startDate
+												| date: "dd MMM yyyy, HH:mm"
+										}}
+									</strong>
 								</div>
 								<div>
 									<small>End</small>
-									<strong>{{
-										request.endDate | date: "dd MMM yyyy"
-									}}</strong>
+									<strong>
+										{{
+											request.endDate
+												| date: "dd MMM yyyy, HH:mm"
+										}}
+									</strong>
 								</div>
 							</div>
 						</td>

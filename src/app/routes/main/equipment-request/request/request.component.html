@@ -236,14 +236,16 @@
 								<div class="period-item">
 									<span class="period-label">Start</span>
 									<strong>{{
-										request.startDate | date: "dd MMM yyyy"
+										request.startDate
+											| date: "dd MMM yyyy , HH:mm"
 									}}</strong>
 								</div>
 
 								<div class="period-item">
 									<span class="period-label">End</span>
 									<strong>{{
-										request.endDate | date: "dd MMM yyyy"
+										request.endDate
+											| date: "dd MMM yyyy, HH:mm"
 									}}</strong>
 								</div>
 							</div>

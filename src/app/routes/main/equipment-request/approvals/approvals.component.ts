@@ -153,54 +153,83 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 	openReviewDialog(request: RequestMaster): void {
 		if (this.actionUuid) return;
 
-		const action =
-			this.getPrimaryReviewAction(request) ??
-			this.approvalActions(request)[0];
+		this.actionUuid = request.uuid;
+		this.errorMessage = '';
 
-		if (!action) {
-			this.utilityService.alert(
-				'Unavailable',
-				'Tidak ada approval action yang tersedia untuk request ini.',
-				'warning',
-			);
-			return;
-		}
+		this.approvalService
+			.getApproval(request.uuid)
+			.pipe(
+				takeUntil(this.destroy$),
+				finalize(() => {
+					this.actionUuid = '';
+				}),
+			)
+			.subscribe({
+				next: (approvalDetail: RequestMaster) => {
+					const actions = this.approvalActions(approvalDetail);
+					const approveActions = actions.filter((action) =>
+						this.isApproveAction(action),
+					);
+					const rejectActions = actions.filter((action) =>
+						this.isRejectAction(action),
+					);
 
-		const reviewRequest: RequestMaster = {
-			...request,
-			startDate: this.toDateInputValue(request.startDate) as any,
-			endDate: this.toDateInputValue(request.endDate) as any,
-		};
+					const action =
+						this.getPrimaryReviewAction(approvalDetail) ??
+						actions[0];
 
-		console.log('[review actions]', {
-			all: this.approvalActions(request),
-			approve: this.approveActions(request),
-			reject: this.rejectActions(request),
-		});
+					if (!action) {
+						this.utilityService.alert(
+							'Unavailable',
+							'Tidak ada approval action yang tersedia untuk request ini.',
+							'warning',
+						);
+						return;
+					}
 
-		const dialogRef = this.dialog.open(ReviewDialogComponent, {
-			width: '920px',
-			maxWidth: '94vw',
-			maxHeight: '94vh',
-			disableClose: true,
-			autoFocus: false,
-			panelClass: 'equipment-request-review-dialog-panel',
-			data: {
-				request: reviewRequest,
-				action,
-				actions: this.approvalActions(request),
-				approveActions: this.approveActions(request),
-				rejectActions: this.rejectActions(request),
-			},
-		});
+					console.log('[approval detail]', approvalDetail);
+					console.log('[approval details]', approvalDetail.details);
+					console.log('[review actions]', {
+						all: actions,
+						approve: approveActions,
+						reject: rejectActions,
+					});
 
-		dialogRef
-			.afterClosed()
-			.pipe(takeUntil(this.destroy$))
-			.subscribe((result?: ReviewDialogResult) => {
-				if (!result) return;
+					const dialogRef = this.dialog.open(ReviewDialogComponent, {
+						width: '920px',
+						maxWidth: '94vw',
+						maxHeight: '94vh',
+						disableClose: true,
+						autoFocus: false,
+						panelClass: 'equipment-request-review-dialog-panel',
+						data: {
+							request: approvalDetail,
+							action,
+							actions,
+							approveActions,
+							rejectActions,
+						},
+					});
 
-				this.submitReview(request, result);
+					dialogRef
+						.afterClosed()
+						.pipe(takeUntil(this.destroy$))
+						.subscribe((result?: ReviewDialogResult) => {
+							if (!result) return;
+
+							this.submitReview(approvalDetail, result);
+						});
+				},
+
+				error: (error: HttpErrorResponse) => {
+					this.utilityService.alert(
+						'Failed',
+						error?.error?.meta?.message ??
+							error?.error?.message ??
+							'Failed to load approval detail.',
+						'error',
+					);
+				},
 			});
 	}
 
@@ -380,67 +409,24 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 		);
 	}
 
-	private toDateInputValue(value: string | Date | null | undefined): string {
-		if (!value) return '';
-
-		if (typeof value === 'string') {
-			const text = value.trim();
-
-			if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-				return text;
-			}
-
-			const date = new Date(text);
-
-			if (Number.isNaN(date.getTime())) {
-				return '';
-			}
-
-			return this.formatLocalDate(date);
+	formatPeriodDateTime(value?: string | null): string {
+		if (!value) {
+			return '—';
 		}
 
-		if (Number.isNaN(value.getTime())) {
-			return '';
+		const date = new Date(value);
+
+		if (Number.isNaN(date.getTime())) {
+			return value;
 		}
 
-		return this.formatLocalDate(value);
-	}
-
-	private formatLocalDate(date: Date): string {
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const day = String(date.getDate()).padStart(2, '0');
-
-		return `${year}-${month}-${day}`;
-	}
-
-	private formatDatabaseDate(
-		value: string | Date | null | undefined,
-	): string | null {
-		if (!value) return null;
-
-		if (typeof value === 'string') {
-			const text = value.trim();
-
-			if (!text) return null;
-
-			if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-				return text;
-			}
-
-			const date = new Date(text);
-
-			if (Number.isNaN(date.getTime())) {
-				return null;
-			}
-
-			return this.formatLocalDate(date);
-		}
-
-		if (Number.isNaN(value.getTime())) {
-			return null;
-		}
-
-		return this.formatLocalDate(value);
+		return new Intl.DateTimeFormat('id-ID', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+		}).format(date);
 	}
 }

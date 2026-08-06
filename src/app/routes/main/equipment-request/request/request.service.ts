@@ -4,17 +4,45 @@ import { Observable } from 'rxjs';
 
 import { ApiService } from 'src/app/core/services/api.service';
 
+export interface EquipmentAvailability {
+	isAvailableForRequestedPeriod: boolean;
+	status: string;
+	statusName?: string | null;
+	lastUsageStartDate: string | null;
+	lastUsageEndDate: string | null;
+	availableFrom: string | null;
+	conflictRequestNo: string | null;
+	conflictCompanyUuid?: string | null;
+	conflictCompanyCode?: string | null;
+	conflictCompanyName?: string | null;
+	conflictRequesterUuid?: string | null;
+	conflictRequesterName?: string | null;
+	conflictStartDate: string | null;
+	conflictEndDate: string | null;
+}
+
 export interface RequestDetail {
 	uuid?: string | null;
 	equipmentCategoryId: number;
 	equipmentCategoryName?: string | null;
 	equipmentCategoryCode?: string | null;
 	categoryName?: string | null;
+
 	equipmentUnitId?: number | null;
+	equipmentUnitUuid?: string | null;
+	equipmentUnitCode?: string | null;
+	equipmentUnitName?: string | null;
+	equipmentUnitAssetNumber?: string | null;
+	equipmentUnitCapacityValue?: number | null;
+	equipmentUnitCapacityUnit?: string | null;
+
 	requiredCapacityValue: number;
 	requiredCapacityUnit: string;
+	quantity?: number;
 	rate?: number | null;
 	remarks?: string | null;
+
+	availability?: EquipmentAvailability | null;
 }
 
 export interface RequestApproval {

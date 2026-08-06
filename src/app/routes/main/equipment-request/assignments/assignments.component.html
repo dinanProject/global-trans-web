@@ -7,6 +7,7 @@
 				Kelola alokasi unit untuk request approved
 			</small>
 		</div>
+
 		<button
 			type="button"
 			class="btn btn-light refresh-button"
@@ -43,12 +44,16 @@
 							Approved completed request
 						</div>
 					</div>
-					<span class="counter">{{ filteredRequests.length }}</span>
+
+					<span class="counter">
+						{{ filteredRequests.length }}
+					</span>
 				</div>
 
 				<div class="filters">
 					<div class="search-box">
 						<i class="fas fa-search"></i>
+
 						<input
 							type="text"
 							class="form-control"
@@ -57,12 +62,14 @@
 							placeholder="Search request..."
 						/>
 					</div>
+
 					<select
 						class="form-control"
 						[value]="statusFilter"
 						(change)="updateStatusFilter($any($event.target).value)"
 					>
 						<option value="">All status</option>
+
 						<option
 							*ngFor="let status of worklistStatuses"
 							[value]="status"
@@ -101,6 +108,7 @@
 					>
 						<div class="request-card-top">
 							<strong>{{ request.requestNo }}</strong>
+
 							<span
 								class="status-badge"
 								[ngClass]="statusClass(request.status)"
@@ -108,15 +116,20 @@
 								{{ statusLabel(request.status) }}
 							</span>
 						</div>
+
 						<div class="request-company">
 							{{ request.companyName || "-" }}
 						</div>
+
 						<div class="request-meta">
-							<span
-								><i class="far fa-calendar-alt"></i>
-								{{ formatDate(request.startDate) }}</span
-							>
-							<span>{{ request.divisionName || "-" }}</span>
+							<span>
+								<i class="far fa-calendar-alt"></i>
+								{{ formatDateTime(request.startDate) }}
+							</span>
+
+							<span>
+								{{ request.divisionName || "-" }}
+							</span>
 						</div>
 					</button>
 				</div>
@@ -150,8 +163,10 @@
 								<div class="eyebrow">
 									{{ selectedRequest.requestNo }}
 								</div>
+
 								<div class="section-title">Request Summary</div>
 							</div>
+
 							<span
 								class="status-badge"
 								[ngClass]="statusClass(requestStatus)"
@@ -187,8 +202,12 @@
 											"
 										></i>
 									</div>
-									<div>{{ statusLabel(status) }}</div>
+
+									<div>
+										{{ statusLabel(status) }}
+									</div>
 								</div>
+
 								<div
 									class="workflow-line"
 									*ngIf="!last"
@@ -206,7 +225,7 @@
 						</div>
 
 						<div
-							*ngIf="selectedRequest.status === 'APPROVED'"
+							*ngIf="selectedRequest.status === STATUS_APPROVED"
 							class="lock-banner"
 							[class.locked]="selectedRequest.approvalLocked"
 						>
@@ -217,12 +236,16 @@
 									!selectedRequest.approvalLocked
 								"
 							></i>
+
 							<div>
-								<strong>{{
-									selectedRequest.approvalLocked
-										? "Permintaan telah disetujui"
-										: "Permintaan belum disetujui"
-								}}</strong>
+								<strong>
+									{{
+										selectedRequest.approvalLocked
+											? "Permintaan telah disetujui"
+											: "Permintaan belum disetujui"
+									}}
+								</strong>
+
 								<div>
 									{{
 										selectedRequest.approvalLocked
@@ -234,51 +257,74 @@
 						</div>
 
 						<div class="summary-grid">
-							<div>
-								<span>Company</span
-								><strong>{{
-									selectedRequest.companyName || "-"
-								}}</strong>
+							<div class="company-summary">
+								<span>Company</span>
+
+								<strong>
+									{{ selectedRequest.companyName || "-" }}
+								</strong>
+
+								<small>
+									<i class="fas fa-sitemap"></i>
+									{{
+										selectedRequest.divisionName ||
+											"No division"
+									}}
+								</small>
 							</div>
-							<div>
-								<span>Division</span
-								><strong>{{
-									selectedRequest.divisionName || "-"
-								}}</strong>
-							</div>
+
 							<div class="schedule-summary">
 								<span>Schedule</span>
+
 								<div class="schedule-range">
 									<div>
-										<small>Start</small
-										><strong>{{
-											formatDate(
-												selectedRequest.startDate
-											)
-										}}</strong>
+										<small>Start</small>
+
+										<strong>
+											{{
+												formatDateTime(
+													selectedRequest.startDate
+												)
+											}}
+										</strong>
 									</div>
+
 									<i class="fas fa-arrow-right"></i>
+
 									<div>
-										<small>End</small
-										><strong>{{
-											formatDate(selectedRequest.endDate)
-										}}</strong>
+										<small>End</small>
+
+										<strong>
+											{{
+												formatDateTime(
+													selectedRequest.endDate
+												)
+											}}
+										</strong>
 									</div>
 								</div>
 							</div>
-							<div>
-								<span>Assigned</span>
-								<strong
-									>{{ totalActiveAssigned }} /
-									{{ totalRequested }}</strong
-								>
-							</div>
-							<div>
-								<span>Completed</span>
-								<strong
-									>{{ totalCompleted }} /
-									{{ totalRequested }}</strong
-								>
+
+							<div class="assignment-progress-summary">
+								<div class="progress-summary-row">
+									<span>Assigned</span>
+
+									<strong>
+										{{ totalActiveAssigned }} /
+										{{ totalRequested }}
+									</strong>
+								</div>
+
+								<div class="progress-summary-divider"></div>
+
+								<div class="progress-summary-row">
+									<span>Completed</span>
+
+									<strong>
+										{{ totalCompleted }} /
+										{{ totalRequested }}
+									</strong>
+								</div>
 							</div>
 						</div>
 					</panel-body>
@@ -291,6 +337,7 @@
 								<div class="section-title">
 									Approved Request Detail
 								</div>
+
 								<div class="section-subtitle">
 									{{ requestDetailSubtitle }}
 								</div>
@@ -304,10 +351,6 @@
 							>
 								<div class="approved-unit-header">
 									<div class="approved-unit-heading">
-										<!-- <div class="eyebrow">
-											Approved Equipment
-										</div> -->
-
 										<h6>{{ detail.categoryName }}</h6>
 									</div>
 
@@ -375,34 +418,42 @@
 												</strong>
 											</div>
 
-											<div class="approved-unit-field">
-												<span>Plate Number</span>
-
-												<strong>
-													{{
-														unit.plateNumber || "—"
-													}}
-												</strong>
-											</div>
-
 											<div
 												class="approved-unit-field approved-period-field"
 											>
 												<span>Period</span>
 
-												<strong>
-													{{
-														formatDate(
-															selectedRequest.startDate
-														)
-													}}
-													–
-													{{
-														formatDate(
-															selectedRequest.endDate
-														)
-													}}
-												</strong>
+												<div
+													class="approved-period-range"
+												>
+													<div>
+														<small>Start</small>
+
+														<strong>
+															{{
+																formatDateTime(
+																	selectedRequest.startDate
+																)
+															}}
+														</strong>
+													</div>
+
+													<i
+														class="fas fa-arrow-right"
+													></i>
+
+													<div>
+														<small>End</small>
+
+														<strong>
+															{{
+																formatDateTime(
+																	selectedRequest.endDate
+																)
+															}}
+														</strong>
+													</div>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -428,12 +479,15 @@
 											"
 										>
 											<span>Completed At</span>
-											<strong>{{
-												formatDateTime(
-													detail.assignments[0]
-														.actualEndDate
-												)
-											}}</strong>
+
+											<strong>
+												{{
+													formatDateTime(
+														detail.assignments[0]
+															.actualEndDate
+													)
+												}}
+											</strong>
 										</div>
 
 										<div class="approved-unit-actions">
@@ -476,6 +530,7 @@
 								</ng-template>
 							</div>
 						</div>
+
 						<div
 							class="start-all-actions"
 							*ngIf="
@@ -511,6 +566,7 @@
 								{{ saving ? "Starting..." : "START OPERATION" }}
 							</button>
 						</div>
+
 						<div
 							class="assign-all-actions"
 							*ngIf="
@@ -519,15 +575,17 @@
 							"
 						>
 							<div class="assign-all-info">
-								<strong
-									>{{ pendingAssignableDetails.length }} unit
-									siap ditugaskan</strong
-								>
-								<span
-									>Semua unit akan ditugaskan sesuai periode
-									permintaan yang telah disetujui.</span
-								>
+								<strong>
+									{{ pendingAssignableDetails.length }} unit
+									siap ditugaskan
+								</strong>
+
+								<span>
+									Semua unit akan ditugaskan sesuai periode
+									permintaan yang telah disetujui.
+								</span>
 							</div>
+
 							<button
 								type="button"
 								class="btn btn-primary assign-all-button"
@@ -540,6 +598,7 @@
 									[class.fa-spin]="saving"
 									[class.fa-check]="!saving"
 								></i>
+
 								{{
 									saving ? "Assigning..." : "ASSIGN EQUIPMENT"
 								}}
@@ -551,9 +610,9 @@
 							*ngIf="detailViews.length === 0"
 						>
 							<i class="fas fa-list"></i>
-							<span
-								>Request ini tidak memiliki detail aktif.</span
-							>
+							<span>
+								Request ini tidak memiliki detail aktif.
+							</span>
 						</div>
 					</panel-body>
 				</panel>
