@@ -23,6 +23,8 @@ import { RolePermissionDialogComponent } from './role-management/role-permission
 import { UserPasswordDialogComponent } from './user/user-password-dialog/user-password-dialog.component';
 import { LoginLogComponent } from './login-log/login-log.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { EmailComponent } from './email/email.component';
+import { EmailRetryDialogComponent } from './email/email-retry-dialog/email-retry-dialog.component';
 
 @NgModule({
 	declarations: [
@@ -36,6 +38,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 		UserFormDialogComponent,
 		UserPasswordDialogComponent,
 		LoginLogComponent,
+		EmailComponent,
+		EmailRetryDialogComponent,
 	],
 	imports: [
 		CommonModule,

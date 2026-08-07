@@ -7,6 +7,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { environment as env } from 'src/environments/environment';
 import { Session } from '../models/session.model';
+import { Menu } from '../models/menu.model';
 import { User } from '../models/user.model';
 
 export interface RefreshTokenResponse {
@@ -76,6 +77,23 @@ export class SessionService {
 
 	getUser(): User | null {
 		return this.getSession()?.user ?? null;
+	}
+
+	setMenus(menus: Menu[]): void {
+		const session = this.getSession();
+
+		if (!session) {
+			return;
+		}
+
+		this.setSession({
+			...session,
+			menus,
+		});
+	}
+
+	getMenus(): Menu[] {
+		return this.getSession()?.menus ?? [];
 	}
 
 	setTokens(accessToken: string, refreshToken: string): void {

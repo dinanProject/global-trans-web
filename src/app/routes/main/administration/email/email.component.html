@@ -1,0 +1,240 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<h5>Email</h5>
+			<small class="text-secondary">
+				Monitor outgoing emails, correct recipients, retry failures, and
+				cancel queued emails.
+			</small>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-light"
+			[disabled]="isLoading"
+			(click)="loadEmails()"
+		>
+			<i class="fas fa-sync-alt mr-1"></i>
+			Refresh
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<panel>
+		<panel-filter>
+			<div class="filter-content">
+				<div class="filter-fields">
+					<div class="form-group search-field">
+						<label>Search</label>
+						<div class="input-group">
+							<input
+								type="text"
+								class="form-control"
+								[formControl]="searchControl"
+								placeholder="Email, subject, module, reference, error..."
+							/>
+							<div class="input-group-append">
+								<span class="input-group-text">
+									<i class="fas fa-search"></i>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group status-field">
+						<label>Status</label>
+						<select
+							class="form-control"
+							[formControl]="statusControl"
+						>
+							<option value="">All Statuses</option>
+							<option
+								*ngFor="let status of statuses"
+								[value]="status"
+							>
+								{{ status }}
+							</option>
+						</select>
+					</div>
+
+					<div class="form-group date-field">
+						<label>Date From</label>
+						<input
+							type="date"
+							class="form-control"
+							[formControl]="dateFromControl"
+						/>
+					</div>
+
+					<div class="form-group date-field">
+						<label>Date To</label>
+						<input
+							type="date"
+							class="form-control"
+							[formControl]="dateToControl"
+						/>
+					</div>
+				</div>
+
+				<div class="filter-actions">
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isLoading"
+						(click)="resetFilters()"
+					>
+						<i class="fas fa-undo mr-1"></i>
+						Reset
+					</button>
+				</div>
+			</div>
+		</panel-filter>
+
+		<panel-body class="panel-body-no-padding">
+			<div *ngIf="errorMessage" class="error-message">
+				{{ errorMessage }}
+			</div>
+
+			<div *ngIf="isLoading" class="loading-container">
+				<loading text="Loading emails..."></loading>
+			</div>
+
+			<div
+				*ngIf="!isLoading && emails.length > 0"
+				class="table-responsive"
+			>
+				<table
+					mat-table
+					[dataSource]="emails"
+					[trackBy]="trackByUuid"
+					class="w-100 email-table"
+				>
+					<ng-container matColumnDef="createdAt">
+						<th mat-header-cell *matHeaderCellDef>Created</th>
+						<td mat-cell *matCellDef="let email">
+							<div class="date-cell">
+								<strong>{{
+									email.createdAt | date: "dd MMM yyyy"
+								}}</strong>
+								<small class="text-secondary">{{
+									email.createdAt | date: "HH:mm:ss"
+								}}</small>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="recipient">
+						<th mat-header-cell *matHeaderCellDef>Recipient</th>
+						<td mat-cell *matCellDef="let email">
+							<div class="recipient-cell">
+								<strong>{{ email.toEmail }}</strong>
+								<small
+									*ngIf="email.ccEmail"
+									class="text-secondary"
+									>CC: {{ email.ccEmail }}</small
+								>
+								<small
+									*ngIf="email.bccEmail"
+									class="text-secondary"
+									>BCC: {{ email.bccEmail }}</small
+								>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="subject">
+						<th mat-header-cell *matHeaderCellDef>
+							Subject / Reference
+						</th>
+						<td mat-cell *matCellDef="let email">
+							<div class="subject-cell">
+								<strong [title]="email.subject">{{
+									email.subject
+								}}</strong>
+								<small class="text-secondary">
+									{{ email.moduleCode || "—" }}
+									<span *ngIf="email.referenceUuid"
+										>• {{ email.referenceUuid }}</span
+									>
+								</small>
+							</div>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="status">
+						<th mat-header-cell *matHeaderCellDef>Status</th>
+						<td mat-cell *matCellDef="let email">
+							<span
+								class="status-badge"
+								[ngClass]="getStatusClass(email.statusCode)"
+							>
+								<span class="status-dot"></span>
+								{{ email.statusCode }}
+							</span>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="attempt">
+						<th mat-header-cell *matHeaderCellDef>Attempt</th>
+						<td mat-cell *matCellDef="let email">
+							<strong
+								>{{ email.attemptCount }} /
+								{{ email.maxAttempt }}</strong
+							>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<th
+							mat-header-cell
+							*matHeaderCellDef
+							class="text-right"
+						>
+							Actions
+						</th>
+						<td mat-cell *matCellDef="let email" class="text-right">
+							<button
+								*ngIf="canRetry(email)"
+								type="button"
+								class="btn btn-sm email-retry-button mr-2"
+								[disabled]="actionUuid === email.uuid"
+								(click)="openRetryDialog(email)"
+							>
+								<i class="fas fa-redo mr-1"></i>
+								Retry
+							</button>
+						</td>
+					</ng-container>
+
+					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+					<tr
+						mat-row
+						*matRowDef="let row; columns: displayedColumns"
+					></tr>
+				</table>
+			</div>
+
+			<div
+				*ngIf="!isLoading && emails.length === 0 && !errorMessage"
+				class="empty-state"
+			>
+				<i class="fas fa-envelope-open-text"></i>
+				<h5>No email transactions found</h5>
+				<p>
+					Try changing the filters or refresh the email outbox data.
+				</p>
+			</div>
+
+			<mat-paginator
+				*ngIf="!isLoading && total > 0"
+				[length]="total"
+				[pageIndex]="page - 1"
+				[pageSize]="limit"
+				[pageSizeOptions]="pageSizeOptions"
+				[showFirstLastButtons]="true"
+				(page)="onPageChange($event)"
+			></mat-paginator>
+		</panel-body>
+	</panel>
+</page-body>
