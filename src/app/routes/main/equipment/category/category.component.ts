@@ -54,6 +54,14 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	dataSource = new MatTableDataSource<Category>([]);
 
+	private initialEditValue: {
+		code: string;
+		name: string;
+		description: string | null;
+		icon: string | null;
+		isActive: boolean;
+	} | null = null;
+
 	isLoading = false;
 	errorMessage = '';
 
@@ -157,6 +165,14 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	openEditDialog(category: Category): void {
+		this.initialEditValue = {
+			code: (category.code ?? '').trim().toUpperCase(),
+			name: (category.name ?? '').trim(),
+			description: category.description?.trim() || null,
+			icon: category.icon?.trim() || null,
+			isActive: this.isActive(category),
+		};
+
 		const dialogRef = this.dialog.open(CategoryDialogComponent, {
 			width: '700px',
 			maxWidth: '95vw',
@@ -319,6 +335,25 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 		uuid: string,
 		payload: CategoryDialogResult['payload'],
 	): void {
+		const currentValue = {
+			code: (payload.code ?? '').trim().toUpperCase(),
+			name: (payload.name ?? '').trim(),
+			description: payload.description?.trim() || null,
+			icon: payload.icon?.trim() || null,
+			isActive: Boolean(payload.isActive),
+		};
+
+		const hasChanges =
+			!this.initialEditValue ||
+			currentValue.code !== this.initialEditValue.code ||
+			currentValue.name !== this.initialEditValue.name ||
+			currentValue.description !== this.initialEditValue.description ||
+			currentValue.icon !== this.initialEditValue.icon ||
+			currentValue.isActive !== this.initialEditValue.isActive;
+
+		if (!hasChanges) {
+			return;
+		}
 		this.isLoading = true;
 
 		this.categoryService

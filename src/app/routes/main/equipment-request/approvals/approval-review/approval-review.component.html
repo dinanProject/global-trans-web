@@ -1,0 +1,674 @@
+<page-header>
+	<div class="review-page-header">
+		<div class="review-page-heading">
+			<div class="review-page-icon">
+				<i class="fas fa-clipboard-check"></i>
+			</div>
+
+			<div class="review-page-title">
+				<!-- <small class="review-page-eyebrow">
+					EQUIPMENT RESERVATION
+				</small> -->
+
+				<h5>{{ pageTitle }}</h5>
+
+				<div class="review-page-meta" *ngIf="request">
+					<span>{{ request.requestNo }}</span>
+
+					<span class="meta-separator"></span>
+
+					<span>
+						{{ request.companyName || "—" }}
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<button
+			type="button"
+			class="btn btn-light review-back-button"
+			(click)="backToApprovals()"
+		>
+			<i class="fas fa-arrow-left"></i>
+			<span>Back to Approvals</span>
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<div class="review-page-shell">
+		<div *ngIf="isLoading" class="loading-container">
+			<loading text="Loading approval review..."></loading>
+		</div>
+
+		<div
+			*ngIf="!isLoading && !request && errorMessage"
+			class="review-alert review-alert-danger"
+			role="alert"
+		>
+			<i class="fas fa-exclamation-circle"></i>
+
+			<div>
+				<strong>Unable to load approval review</strong>
+				<span>{{ errorMessage }}</span>
+			</div>
+		</div>
+
+		<ng-container *ngIf="!isLoading && request">
+			<!-- =====================================================
+			     REVIEW HERO
+			     ===================================================== -->
+			<section class="review-hero">
+				<div class="review-hero-main">
+					<div class="review-hero-icon">
+						<i class="fas fa-calendar-check"></i>
+					</div>
+
+					<div class="review-hero-copy">
+						<span class="review-hero-label"> Approval Review </span>
+
+						<h2>{{ getInfoTitle() }}</h2>
+
+						<p>
+							{{ getInfoDescription() }}
+						</p>
+					</div>
+				</div>
+
+				<div class="review-hero-status">
+					<span class="hero-status-label"> Current Status </span>
+
+					<span class="hero-status-pill">
+						{{ request.statusName || request.status || "—" }}
+					</span>
+				</div>
+			</section>
+
+			<!-- =====================================================
+			     REQUEST SUMMARY
+			     ===================================================== -->
+			<section class="request-overview">
+				<div class="overview-item">
+					<div class="overview-icon">
+						<i class="far fa-building"></i>
+					</div>
+
+					<div>
+						<span>Company</span>
+						<strong>
+							{{ request.companyName || "—" }}
+						</strong>
+					</div>
+				</div>
+
+				<div class="overview-item">
+					<div class="overview-icon">
+						<i class="fas fa-sitemap"></i>
+					</div>
+
+					<div>
+						<span>Division</span>
+						<strong>
+							{{ request.divisionName || "—" }}
+						</strong>
+					</div>
+				</div>
+
+				<div class="overview-item">
+					<div class="overview-icon">
+						<i class="far fa-user"></i>
+					</div>
+
+					<div>
+						<span>Requester</span>
+						<strong>
+							{{ request.requestByName || "—" }}
+						</strong>
+					</div>
+				</div>
+
+				<div class="overview-item">
+					<div class="overview-icon">
+						<i class="far fa-calendar-alt"></i>
+					</div>
+
+					<div>
+						<span>Current Period</span>
+
+						<strong class="date-value">
+							{{ formatDateTime(request.startDate) }}
+							<span class="date-arrow">→</span>
+							{{ formatDateTime(request.endDate) }}
+						</strong>
+					</div>
+				</div>
+			</section>
+
+			<!-- =====================================================
+			     VALIDATION MESSAGE
+			     ===================================================== -->
+			<div
+				*ngIf="errorMessage"
+				class="review-alert review-alert-danger"
+				role="alert"
+			>
+				<i class="fas fa-exclamation-circle"></i>
+
+				<div>
+					<strong>Review requires attention</strong>
+					<span>{{ errorMessage }}</span>
+				</div>
+			</div>
+
+			<form [formGroup]="form" class="review-form">
+				<!-- =================================================
+				     EQUIPMENT
+				     ================================================= -->
+				<section
+					class="review-section equipment-section"
+					*ngIf="request.details?.length"
+				>
+					<div class="section-header">
+						<div>
+							<span class="section-kicker">
+								Requested Resources
+							</span>
+
+							<h3>Equipment Details</h3>
+
+							<!-- <p>
+								Review equipment availability against the
+								reservation period before approval.
+							</p> -->
+						</div>
+
+						<div class="section-counter">
+							<i class="fas fa-tools"></i>
+
+							<span>
+								{{ request.details?.length || 0 }}
+								unit(s)
+							</span>
+						</div>
+					</div>
+
+					<div class="equipment-table">
+						<div class="equipment-table-header">
+							<div>Equipment</div>
+							<div>Requirement</div>
+							<div>Availability</div>
+						</div>
+
+						<div
+							class="equipment-row"
+							*ngFor="
+								let detail of request.details;
+								let i = index
+							"
+						>
+							<!-- EQUIPMENT -->
+							<div class="equipment-column">
+								<div class="equipment-sequence">
+									{{ i + 1 }}
+								</div>
+
+								<div class="equipment-primary">
+									<div class="equipment-code">
+										{{
+											detail.equipmentUnitCode ||
+												"Unit belum dipilih"
+										}}
+									</div>
+
+									<div class="equipment-name">
+										{{ detail.equipmentUnitName || "—" }}
+									</div>
+
+									<div class="equipment-category">
+										{{
+											detail.equipmentCategoryName || "—"
+										}}
+									</div>
+								</div>
+							</div>
+
+							<!-- REQUIREMENT -->
+							<div class="requirement-column">
+								<span class="data-label">
+									Required Capacity
+								</span>
+
+								<strong>
+									{{ detail.requiredCapacityValue || "—" }}
+									{{ detail.requiredCapacityUnit || "" }}
+								</strong>
+							</div>
+
+							<!-- AVAILABILITY -->
+							<div class="availability-column">
+								<ng-container
+									*ngIf="
+										$any(detail)
+											.availability as availability
+									"
+								>
+									<div class="availability-heading">
+										<span
+											class="availability-status"
+											[class.is-available]="
+												availability.isAvailableForRequestedPeriod
+											"
+											[class.is-unavailable]="
+												!availability.isAvailableForRequestedPeriod
+											"
+										>
+											<i
+												[class]="
+													availability.isAvailableForRequestedPeriod
+														? 'fas fa-check-circle'
+														: 'fas fa-exclamation-circle'
+												"
+											></i>
+
+											{{
+												getAvailabilityLabel(
+													availability.status,
+													availability.statusName
+												)
+											}}
+										</span>
+
+										<span
+											class="conflict-reference"
+											*ngIf="
+												availability.conflictRequestNo
+											"
+										>
+											{{ availability.conflictRequestNo }}
+										</span>
+									</div>
+
+									<div class="availability-details">
+										<div class="availability-detail">
+											<span>Available From</span>
+
+											<strong class="date-value">
+												{{
+													availability.availableFrom
+														? formatDateTime(
+																availability.availableFrom
+															)
+														: availability.isAvailableForRequestedPeriod
+															? "Now"
+															: "—"
+												}}
+											</strong>
+										</div>
+
+										<div
+											class="availability-detail"
+											*ngIf="
+												availability.lastUsageStartDate ||
+												availability.lastUsageEndDate
+											"
+										>
+											<span>Last Usage</span>
+
+											<strong class="date-value">
+												{{
+													formatDateTime(
+														availability.lastUsageStartDate
+													)
+												}}
+
+												<span class="date-arrow">
+													→
+												</span>
+
+												{{
+													formatDateTime(
+														availability.lastUsageEndDate
+													)
+												}}
+											</strong>
+										</div>
+
+										<div
+											class="availability-detail conflict-detail"
+											*ngIf="
+												availability.conflictStartDate ||
+												availability.conflictEndDate
+											"
+										>
+											<span>Conflict Period</span>
+
+											<strong class="date-value">
+												{{
+													formatDateTime(
+														availability.conflictStartDate
+													)
+												}}
+
+												<span class="date-arrow">
+													→
+												</span>
+
+												{{
+													formatDateTime(
+														availability.conflictEndDate
+													)
+												}}
+											</strong>
+										</div>
+
+										<div
+											class="availability-detail"
+											*ngIf="
+												availability.conflictCompanyName
+											"
+										>
+											<span>Conflict Company</span>
+
+											<strong>
+												{{
+													availability.conflictCompanyName
+												}}
+
+												<small
+													*ngIf="
+														availability.conflictCompanyCode
+													"
+												>
+													{{
+														availability.conflictCompanyCode
+													}}
+												</small>
+											</strong>
+										</div>
+
+										<div
+											class="availability-detail requested-detail"
+										>
+											<span>Requested Period</span>
+
+											<strong class="date-value">
+												{{
+													formatInputDisplay(
+														form.controls.startDate
+															.value
+													)
+												}}
+
+												<span class="date-arrow">
+													→
+												</span>
+
+												{{
+													formatInputDisplay(
+														form.controls.endDate
+															.value
+													)
+												}}
+											</strong>
+										</div>
+									</div>
+								</ng-container>
+
+								<div
+									class="availability-status is-unavailable"
+									*ngIf="!$any(detail).availability"
+								>
+									<i class="fas fa-question-circle"></i>
+
+									Availability unknown
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- =================================================
+				     LOWER SECTION
+				     ================================================= -->
+				<div class="review-lower-grid">
+					<!-- SCHEDULE -->
+					<section class="review-section schedule-section">
+						<div class="section-header compact">
+							<div>
+								<span class="section-kicker">
+									Reservation
+								</span>
+
+								<h3>Schedule</h3>
+
+								<p>
+									Applies to all
+									{{ request.details?.length || 0 }}
+									equipment unit(s).
+								</p>
+							</div>
+
+							<div class="section-header-icon">
+								<i class="far fa-calendar-alt"></i>
+							</div>
+						</div>
+
+						<div class="schedule-fields">
+							<div class="form-group">
+								<label for="review-start-date">
+									Start Date
+								</label>
+
+								<div class="date-field">
+									<i
+										class="far fa-calendar-alt"
+										aria-hidden="true"
+									></i>
+
+									<input
+										type="text"
+										class="form-control date-display"
+										[value]="
+											formatInputDisplay(
+												form.controls.startDate.value
+											)
+										"
+										readonly
+										(click)="
+											openDatePicker(startDatePicker)
+										"
+										(focus)="
+											openDatePicker(startDatePicker)
+										"
+									/>
+
+									<input
+										#startDatePicker
+										id="review-start-date"
+										type="datetime-local"
+										class="native-date-picker"
+										formControlName="startDate"
+									/>
+
+									<button
+										type="button"
+										class="date-picker-button"
+										aria-label="
+											Open start date picker
+										"
+										(click)="
+											openDatePicker(startDatePicker)
+										"
+									>
+										<i class="far fa-calendar"></i>
+									</button>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="review-end-date"> End Date </label>
+
+								<div class="date-field">
+									<i
+										class="far fa-calendar-alt"
+										aria-hidden="true"
+									></i>
+
+									<input
+										type="text"
+										class="form-control date-display"
+										[value]="
+											formatInputDisplay(
+												form.controls.endDate.value
+											)
+										"
+										readonly
+										(click)="openDatePicker(endDatePicker)"
+										(focus)="openDatePicker(endDatePicker)"
+									/>
+
+									<input
+										#endDatePicker
+										id="review-end-date"
+										type="datetime-local"
+										class="native-date-picker"
+										formControlName="endDate"
+										[min]="
+											form.controls.startDate.value ||
+											null
+										"
+									/>
+
+									<button
+										type="button"
+										class="date-picker-button"
+										aria-label="
+											Open end date picker
+										"
+										(click)="openDatePicker(endDatePicker)"
+									>
+										<i class="far fa-calendar"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<!-- NOTES -->
+					<section class="review-section notes-section">
+						<div class="section-header compact">
+							<div>
+								<span class="section-kicker"> Approval </span>
+
+								<h3>Review Notes</h3>
+
+								<p>
+									Optional unless the selected action requires
+									remarks.
+								</p>
+							</div>
+
+							<div class="section-header-icon">
+								<i class="far fa-comment-alt"></i>
+							</div>
+						</div>
+
+						<textarea
+							class="form-control remarks-input"
+							formControlName="remarks"
+							[placeholder]="getRemarksPlaceholder()"
+							maxlength="2000"
+						></textarea>
+
+						<div class="textarea-helper">
+							<span> Supporting notes for this approval. </span>
+
+							<span>
+								{{
+									form.controls.remarks.value?.length || 0
+								}}/2000
+							</span>
+						</div>
+					</section>
+				</div>
+			</form>
+
+			<!-- =====================================================
+			     ACTION BAR
+			     ===================================================== -->
+			<section class="review-action-bar">
+				<div class="review-action-left">
+					<div class="action-progress" *ngIf="isCheckingAvailability">
+						<i class="fas fa-circle-notch fa-spin"></i>
+
+						<div>
+							<strong> Checking availability </strong>
+
+							<span>
+								Validating equipment against the updated
+								reservation period.
+							</span>
+						</div>
+					</div>
+
+					<div class="action-progress" *ngIf="isProcessingAction">
+						<i class="fas fa-circle-notch fa-spin"></i>
+
+						<div>
+							<strong> Processing approval </strong>
+
+							<span>
+								Please wait while the request is being
+								processed.
+							</span>
+						</div>
+					</div>
+
+					<div class="action-hint" *ngIf="!isActionBusy">
+						<i class="fas fa-shield-alt"></i>
+
+						<span>
+							Availability will be validated again before
+							approval.
+						</span>
+					</div>
+				</div>
+
+				<div class="review-action-buttons">
+					<button
+						type="button"
+						class="btn btn-light"
+						[disabled]="isActionBusy"
+						(click)="backToApprovals()"
+					>
+						Cancel
+					</button>
+
+					<button
+						*ngFor="let action of rejectActions"
+						type="button"
+						class="btn btn-outline-danger"
+						[disabled]="isActionBusy"
+						(click)="submitAction(action)"
+					>
+						<i class="fas fa-times-circle"></i>
+
+						{{ action.actionName }}
+					</button>
+
+					<button
+						*ngFor="let action of approveActions"
+						type="button"
+						class="btn btn-primary"
+						[disabled]="isActionBusy"
+						(click)="submitAction(action)"
+					>
+						<i class="fas fa-check-circle"></i>
+
+						{{ action.actionName }}
+					</button>
+				</div>
+			</section>
+		</ng-container>
+	</div>
+</page-body>

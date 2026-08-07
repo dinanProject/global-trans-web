@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RequestComponent } from './request/request.component';
 import { ApprovalsComponent } from './approvals/approvals.component';
+import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ReportsComponent } from './reports/reports.component';
@@ -20,6 +21,14 @@ const routes: Routes = [
 		canActivate: [PermissionGuard],
 		data: {
 			permission: 'EQUIPMENT_REQUEST.VIEW',
+		},
+	},
+	{
+		path: 'approvals/:uuid/review',
+		component: ApprovalReviewComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_APPROVAL.VIEW',
 		},
 	},
 	{

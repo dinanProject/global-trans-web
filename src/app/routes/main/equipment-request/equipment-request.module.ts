@@ -17,6 +17,7 @@ import { ApprovalsComponent } from './approvals/approvals.component';
 import { RequestComponent } from './request/request.component';
 import { ReviewDialogComponent } from './approvals/review-dialog/review-dialog.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
+import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 
 @NgModule({
 	declarations: [
@@ -25,6 +26,7 @@ import { AssignmentsComponent } from './assignments/assignments.component';
 		RequestDetailDialogComponent,
 		ReviewDialogComponent,
 		ApprovalsComponent,
+		ApprovalReviewComponent,
 		AssignmentsComponent,
 		MonitoringComponent,
 		ReportsComponent,

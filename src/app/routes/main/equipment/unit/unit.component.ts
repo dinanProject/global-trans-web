@@ -67,6 +67,19 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 	isLoading = false;
 	errorMessage = '';
 
+	private initialEditValue: {
+		categoryUuid: string;
+		unitCode: string;
+		unitName: string;
+		assetNumber: string | null;
+		modelNumber: string | null;
+		plateNumber: string | null;
+		capacityValue: number;
+		capacityUnit: string;
+		remarks: string | null;
+		isActive: boolean;
+	} | null = null;
+
 	constructor(
 		private unitService: UnitService,
 		private dialog: MatDialog,
@@ -136,17 +149,6 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					return of([]);
 				}),
 			),
-			capacityUnits: this.unitService.getCapacityUnits().pipe(
-				catchError((error) => {
-					if (!this.errorMessage) {
-						this.errorMessage =
-							error?.error?.meta?.message ??
-							'Failed to load equipment capacity units.';
-					}
-
-					return of([]);
-				}),
-			),
 		})
 			.pipe(
 				takeUntil(this.destroy$),
@@ -154,10 +156,9 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					this.isLoading = false;
 				}),
 			)
-			.subscribe(({ units, categories, capacityUnits }) => {
+			.subscribe(({ units, categories }) => {
 				this.units = units ?? [];
 				this.categories = categories ?? [];
-				this.capacityUnits = capacityUnits ?? [];
 
 				this.applyFilters();
 			});
@@ -202,7 +203,38 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 		return `assets/icons/equipment/${normalizedIcon}`;
 	}
 
+	private loadCapacityUnitsForDialog(callback: () => void): void {
+		if (this.capacityUnits.length > 0) {
+			callback();
+			return;
+		}
+
+		this.unitService
+			.getCapacityUnits()
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (capacityUnits) => {
+					this.capacityUnits = capacityUnits ?? [];
+					callback();
+				},
+				error: (error) => {
+					this.utilityService.alert(
+						'Failed',
+						error?.error?.meta?.message ??
+							'Failed to load equipment capacity units.',
+						'error',
+					);
+				},
+			});
+	}
+
 	openCreateDialog(): void {
+		this.loadCapacityUnitsForDialog(() => {
+			this.openCreateUnitDialog();
+		});
+	}
+
+	private openCreateUnitDialog(): void {
 		const dialogRef = this.dialog.open(UnitDialogComponent, {
 			width: '800px',
 			maxWidth: '95vw',
@@ -227,7 +259,26 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	openEditDialog(unit: Unit): void {
+		this.loadCapacityUnitsForDialog(() => {
+			this.openEditUnitDialog(unit);
+		});
+	}
+
+	private openEditUnitDialog(unit: Unit): void {
 		const categories = this.getDialogCategories(unit);
+
+		this.initialEditValue = {
+			categoryUuid: unit.categoryUuid,
+			unitCode: (unit.unitCode ?? '').trim().toUpperCase(),
+			unitName: (unit.unitName ?? '').trim(),
+			assetNumber: unit.assetNumber?.trim().toUpperCase() || null,
+			modelNumber: unit.modelNumber?.trim() || null,
+			plateNumber: unit.plateNumber?.trim().toUpperCase() || null,
+			capacityValue: Number(unit.capacityValue),
+			capacityUnit: (unit.capacityUnit ?? '').trim().toUpperCase(),
+			remarks: unit.remarks?.trim() || null,
+			isActive: this.isActive(unit),
+		};
 
 		const dialogRef = this.dialog.open(UnitDialogComponent, {
 			width: '800px',
@@ -443,6 +494,37 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 		uuid: string,
 		payload: UnitDialogResult['payload'],
 	): void {
+		const currentValue = {
+			categoryUuid: payload.categoryUuid,
+			unitCode: (payload.unitCode ?? '').trim().toUpperCase(),
+			unitName: (payload.unitName ?? '').trim(),
+			assetNumber: payload.assetNumber?.trim().toUpperCase() || null,
+			modelNumber: payload.modelNumber?.trim() || null,
+			plateNumber: payload.plateNumber?.trim().toUpperCase() || null,
+			capacityValue: Number(payload.capacityValue),
+			capacityUnit: (payload.capacityUnit ?? '').trim().toUpperCase(),
+			remarks: payload.remarks?.trim() || null,
+			isActive: Boolean(payload.isActive),
+		};
+
+		const hasChanges =
+			!this.initialEditValue ||
+			currentValue.categoryUuid !== this.initialEditValue.categoryUuid ||
+			currentValue.unitCode !== this.initialEditValue.unitCode ||
+			currentValue.unitName !== this.initialEditValue.unitName ||
+			currentValue.assetNumber !== this.initialEditValue.assetNumber ||
+			currentValue.modelNumber !== this.initialEditValue.modelNumber ||
+			currentValue.plateNumber !== this.initialEditValue.plateNumber ||
+			currentValue.capacityValue !==
+				this.initialEditValue.capacityValue ||
+			currentValue.capacityUnit !== this.initialEditValue.capacityUnit ||
+			currentValue.remarks !== this.initialEditValue.remarks ||
+			currentValue.isActive !== this.initialEditValue.isActive;
+
+		if (!hasChanges) {
+			return;
+		}
+
 		this.isLoading = true;
 
 		this.unitService

@@ -59,7 +59,7 @@ export class UserComponent implements OnInit, OnDestroy {
 		this.statusControl.valueChanges
 			.pipe(takeUntil(this.destroy$))
 			.subscribe(() => this.applyFilters());
-		this.loadOptions();
+
 		this.loadUsers();
 	}
 	ngOnDestroy(): void {
@@ -89,30 +89,67 @@ export class UserComponent implements OnInit, OnDestroy {
 				},
 			});
 	}
-	loadOptions(): void {
+	private loadOptionsForDialog(callback: () => void): void {
+		if (
+			this.options.companies.length > 0 &&
+			this.options.divisions.length > 0 &&
+			this.options.roles.length > 0
+		) {
+			callback();
+			return;
+		}
+
 		this.userService
 			.getOptions()
 			.pipe(takeUntil(this.destroy$))
-			.subscribe({ next: (value) => (this.options = value) });
+			.subscribe({
+				next: (value) => {
+					this.options = value ?? {
+						companies: [],
+						divisions: [],
+						roles: [],
+					};
+
+					callback();
+				},
+				error: (error) => {
+					this.utilityService.alert(
+						'Failed',
+						error?.error?.meta?.message ??
+							'Failed to load user options.',
+						'error',
+					);
+				},
+			});
 	}
+
 	resetFilters(): void {
 		this.searchControl.setValue('', { emitEvent: false });
 		this.statusControl.setValue('all', { emitEvent: false });
 		this.applyFilters();
 	}
+
 	openCreateDialog(): void {
-		this.openDialog({ mode: 'create', options: this.options });
+		this.loadOptionsForDialog(() => {
+			this.openDialog({
+				mode: 'create',
+				options: this.options,
+			});
+		});
 	}
+
 	openEditDialog(user: UserMaster): void {
 		this.userService
 			.getUser(user.uuid)
 			.pipe(takeUntil(this.destroy$))
 			.subscribe({
 				next: (detail) => {
-					this.openDialog({
-						mode: 'edit',
-						user: detail,
-						options: this.options,
+					this.loadOptionsForDialog(() => {
+						this.openDialog({
+							mode: 'edit',
+							user: detail,
+							options: this.options,
+						});
 					});
 				},
 				error: (error) => {

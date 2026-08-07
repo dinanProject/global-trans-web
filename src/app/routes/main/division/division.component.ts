@@ -34,6 +34,14 @@ type DivisionStatusFilter = 'all' | 'active' | 'inactive';
 export class DivisionComponent implements OnInit, OnDestroy {
 	private readonly destroy$ = new Subject<void>();
 
+	private initialEditValue: {
+		companyUuid: string;
+		name: string;
+		code: string;
+		description: string;
+		isActive: boolean;
+	} | null = null;
+
 	search = new FormControl('', {
 		nonNullable: true,
 	});
@@ -139,6 +147,23 @@ export class DivisionComponent implements OnInit, OnDestroy {
 			});
 	}
 
+	private loadDivisions(): void {
+		this.divisionService
+			.getDivisions()
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (divisions) => {
+					this.divisions = divisions ?? [];
+					this.applyFilters();
+				},
+				error: (error) => {
+					this.errorMessage =
+						error?.error?.meta?.message ??
+						'Failed to load divisions.';
+				},
+			});
+	}
+
 	openCreateDialog(): void {
 		const dialogRef = this.dialog.open(DivisionDialogComponent, {
 			width: '720px',
@@ -163,6 +188,14 @@ export class DivisionComponent implements OnInit, OnDestroy {
 
 	openEditDialog(division: Division): void {
 		const companies = this.getDialogCompanies(division);
+
+		this.initialEditValue = {
+			companyUuid: division.companyUuid,
+			name: (division.name ?? '').trim(),
+			code: (division.code ?? '').trim(),
+			description: (division.description ?? '').trim(),
+			isActive: Boolean(division.isActive),
+		};
 
 		const dialogRef = this.dialog.open(DivisionDialogComponent, {
 			width: '720px',
@@ -216,7 +249,7 @@ export class DivisionComponent implements OnInit, OnDestroy {
 						'success',
 					);
 
-					this.loadData();
+					this.loadDivisions();
 				},
 				error: (error) => {
 					this.utilityService.alert(
@@ -269,7 +302,7 @@ export class DivisionComponent implements OnInit, OnDestroy {
 						'success',
 					);
 
-					this.loadData();
+					this.loadDivisions();
 				},
 				error: (error) => {
 					this.utilityService.alert(
@@ -286,6 +319,26 @@ export class DivisionComponent implements OnInit, OnDestroy {
 		division: Division,
 		result: DivisionDialogResult,
 	): void {
+		const currentValue = {
+			companyUuid: result.payload.companyUuid,
+			name: (result.payload.name ?? '').trim(),
+			code: (result.payload.code ?? '').trim(),
+			description: (result.payload.description ?? '').trim(),
+			isActive: Boolean(result.payload.isActive),
+		};
+
+		const hasChanges =
+			!this.initialEditValue ||
+			currentValue.companyUuid !== this.initialEditValue.companyUuid ||
+			currentValue.name !== this.initialEditValue.name ||
+			currentValue.code !== this.initialEditValue.code ||
+			currentValue.description !== this.initialEditValue.description ||
+			currentValue.isActive !== this.initialEditValue.isActive;
+
+		if (!hasChanges) {
+			return;
+		}
+
 		this.isLoading = true;
 		this.errorMessage = '';
 
@@ -305,7 +358,7 @@ export class DivisionComponent implements OnInit, OnDestroy {
 						'success',
 					);
 
-					this.loadData();
+					this.loadDivisions();
 				},
 				error: (error) => {
 					this.utilityService.alert(

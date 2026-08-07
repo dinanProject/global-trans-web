@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -54,6 +55,7 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 		private readonly approvalService: ApprovalService,
 		private readonly utilityService: UtilityService,
 		private readonly dialog: MatDialog,
+		private readonly router: Router,
 	) {}
 
 	ngOnInit(): void {
@@ -119,8 +121,12 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 		return (details ?? []).slice(0, this.maxEquipmentPreview);
 	}
 
-	getRemainingEquipmentCount(details: any[] | null | undefined): number {
-		return Math.max((details ?? []).length - this.maxEquipmentPreview, 0);
+	getRemainingEquipmentCount(request: RequestMaster): number {
+		const detailCount = Number(
+			request.detailCount ?? request.details?.length ?? 0,
+		);
+
+		return Math.max(detailCount - this.maxEquipmentPreview, 0);
 	}
 
 	approvalActions(request: RequestMaster): RequestAction[] {
@@ -146,6 +152,22 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	openReviewPage(request: RequestMaster): void {
+		if (!this.canReview(request)) {
+			return;
+		}
+
+		const url = this.router.serializeUrl(
+			this.router.createUrlTree([
+				'/equipment-request/approvals',
+				request.uuid,
+				'review',
+			]),
+		);
+
+		window.open(url, '_blank', 'noopener,noreferrer');
+	}
+
 	canReview(request: RequestMaster): boolean {
 		return this.approvalActions(request).length > 0;
 	}
@@ -157,7 +179,7 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 		this.errorMessage = '';
 
 		this.approvalService
-			.getApproval(request.uuid)
+			.getApprovalReview(request.uuid)
 			.pipe(
 				takeUntil(this.destroy$),
 				finalize(() => {
@@ -186,14 +208,6 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 						);
 						return;
 					}
-
-					console.log('[approval detail]', approvalDetail);
-					console.log('[approval details]', approvalDetail.details);
-					console.log('[review actions]', {
-						all: actions,
-						approve: approveActions,
-						reject: rejectActions,
-					});
 
 					const dialogRef = this.dialog.open(ReviewDialogComponent, {
 						width: '920px',

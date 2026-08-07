@@ -52,25 +52,29 @@
 		vertical-align: middle;
 	}
 }
+
 :host ::ng-deep .approval-table .mat-column-request {
-	width: 27%;
+	width: 25%;
 }
 
-:host ::ng-deep .approval-table .mat-column-companyEquipment {
-	width: 33%;
+:host ::ng-deep .approval-table .mat-column-company {
+	width: 16%;
+}
+
+:host ::ng-deep .approval-table .mat-column-equipment {
+	width: 20%;
 }
 
 :host ::ng-deep .approval-table .mat-column-period {
-	width: 15%;
+	width: 17%;
 }
 
 :host ::ng-deep .approval-table .mat-column-status {
-	width: 12%;
+	width: 13%;
 }
 
 :host ::ng-deep .approval-table .mat-column-actions {
-	width: 13%;
-	min-width: 220px;
+	width: 12%;
 	padding-right: 24px !important;
 	text-align: right;
 }
@@ -130,6 +134,12 @@
 	margin-top: 8px;
 }
 
+.company-cell {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
 .company-name {
 	font-weight: 600;
 	color: var(--blue8);
@@ -142,67 +152,87 @@
 	color: var(--text-light);
 }
 
-.equipment-summary {
-	margin-top: 8px;
+.equipment-cell {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
-.equipment-line {
-	display: flex;
-	align-items: center;
-	gap: 4px;
+.equipment-preview-item {
 	min-width: 0;
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
 	line-height: 1.3;
 }
 
-.equipment-category,
-.equipment-unit {
+.equipment-code {
+	flex: 0 0 auto;
+	color: #354052;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.equipment-separator {
+	flex: 0 0 auto;
+	color: var(--gray4);
+}
+
+.equipment-name {
 	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
 
-.equipment-category {
-	font-weight: 500;
-	color: #354052;
-}
-
-.equipment-unit {
 	color: #5f6878;
+	font-size: 12px;
 }
 
-.equipment-more-button {
-	margin-top: 4px;
-	border: 0;
-	background: #eef2ff;
-	color: #2563eb;
+.equipment-more {
+	width: fit-content;
+	margin-top: 3px;
+	padding: 2px 7px;
+
 	border-radius: 999px;
-	padding: 2px 8px;
-	font-size: 12px;
+
+	background: var(--blue1);
+	color: var(--blue8);
+
+	font-size: 10px;
 	font-weight: 600;
-	cursor: pointer;
+	line-height: 1.4;
+}
+
+.no-equipment {
+	color: var(--text-light);
+	font-size: 12px;
 }
 
 .period-stack {
 	display: grid;
-	gap: 8px;
+	gap: 6px;
 
 	small {
 		display: block;
 		color: var(--text-light);
-		font-size: 11px;
+		font-size: 10px;
 		line-height: 1.1;
 	}
 
 	strong {
 		display: block;
 		margin-top: 2px;
+
 		color: #354052;
-		font-size: 13px;
-		line-height: 1.2;
+
+		font-size: 12px;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+		line-height: 1.25;
+		white-space: nowrap;
 	}
 }
-
 .period-cell {
 	display: flex;
 	align-items: center;
@@ -273,12 +303,6 @@
 	padding-right: 12px !important;
 }
 
-:host ::ng-deep .approval-table .mat-column-actions {
-	width: 300px;
-	min-width: 300px;
-	padding-right: 24px !important;
-	text-align: right;
-}
 .approval-actions {
 	display: flex;
 	align-items: center;
@@ -287,21 +311,16 @@
 	white-space: nowrap;
 }
 
-.action-button,
-.detail-button {
+.action-button {
 	height: 34px;
+	min-width: 96px;
+
 	padding: 6px 12px;
+
 	border-radius: 8px;
+
 	font-size: 13px;
 	font-weight: 500;
-}
-
-.action-button {
-	min-width: 96px;
-}
-
-.detail-button {
-	min-width: 92px;
 }
 
 .empty-state {

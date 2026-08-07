@@ -27,6 +27,16 @@ export class RoleFormDialogComponent {
 	isSaving = false;
 	errorMessage = '';
 
+	private readonly initialEditValue = this.data.role
+		? {
+				companyUuid: this.data.role.companyUuid ?? '',
+				name: (this.data.role.name ?? '').trim(),
+				code: (this.data.role.code ?? '').trim().toUpperCase(),
+				description: this.data.role.description?.trim() || null,
+				isActive: Boolean(this.data.role.isActive),
+			}
+		: null;
+
 	readonly form = this.formBuilder.nonNullable.group({
 		companyUuid: [
 			{
@@ -132,9 +142,6 @@ export class RoleFormDialogComponent {
 			return;
 		}
 
-		this.isSaving = true;
-		this.errorMessage = '';
-
 		if (this.isSystemRole) {
 			this.errorMessage = 'System roles cannot be edited.';
 			return;
@@ -147,8 +154,25 @@ export class RoleFormDialogComponent {
 			name: value.name.trim(),
 			code: value.code.trim().toUpperCase(),
 			description: value.description.trim() || null,
-			isActive: this.isSystemRole ? 1 : value.isActive ? 1 : 0,
+			isActive: value.isActive ? 1 : 0,
 		};
+
+		if (this.data.mode === 'edit' && this.initialEditValue) {
+			const hasChanges =
+				payload.companyUuid !== this.initialEditValue.companyUuid ||
+				payload.name !== this.initialEditValue.name ||
+				payload.code !== this.initialEditValue.code ||
+				payload.description !== this.initialEditValue.description ||
+				Boolean(payload.isActive) !== this.initialEditValue.isActive;
+
+			if (!hasChanges) {
+				this.dialogRef.close();
+				return;
+			}
+		}
+
+		this.isSaving = true;
+		this.errorMessage = '';
 
 		const request$ =
 			this.data.mode === 'create'

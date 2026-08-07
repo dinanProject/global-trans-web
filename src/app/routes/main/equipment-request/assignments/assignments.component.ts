@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import {
-	CategoryOption,
 	RequestDetail,
 	RequestMaster,
 	RequestService,
@@ -65,7 +64,6 @@ export class AssignmentsComponent implements OnInit {
 	filteredRequests: RequestMaster[] = [];
 	selectedRequest: RequestMaster | null = null;
 	detailViews: AssignmentDetailView[] = [];
-	categories: CategoryOption[] = [];
 	units: UnitOption[] = [];
 
 	search = '';
@@ -90,17 +88,12 @@ export class AssignmentsComponent implements OnInit {
 		this.clearMessages();
 		this.loadingWorklist = true;
 
-		forkJoin({
-			requests: this.requestService.getRequests(),
-			categories: this.requestService.getCategories(),
-			units: this.requestService.getUnits(),
-		}).subscribe({
-			next: ({ requests, categories, units }) => {
+		this.requestService.getRequests().subscribe({
+			next: (requests) => {
 				this.requests = (requests || []).filter((request) =>
 					this.worklistStatuses.includes(request.status),
 				);
-				this.categories = categories || [];
-				this.units = units || [];
+
 				this.applyFilters();
 				this.loadingWorklist = false;
 
@@ -109,6 +102,7 @@ export class AssignmentsComponent implements OnInit {
 						(request) =>
 							request.uuid === this.selectedRequest?.uuid,
 					);
+
 					if (selected) {
 						this.selectRequest(selected);
 						return;
@@ -133,7 +127,11 @@ export class AssignmentsComponent implements OnInit {
 		const keyword = this.search.trim().toLowerCase();
 		this.filteredRequests = this.requests.filter((request) => {
 			const matchesStatus =
-				!this.statusFilter || request.status === this.statusFilter;
+				this.statusFilter === 'ALL'
+					? true
+					: this.statusFilter
+						? request.status === this.statusFilter
+						: request.status !== this.STATUS_COMPLETED;
 			const searchable = [
 				request.requestNo,
 				request.companyCode,
@@ -170,6 +168,27 @@ export class AssignmentsComponent implements OnInit {
 		this.loadSelectedRequest();
 	}
 
+	private loadUnitsForDetail(callback: () => void): void {
+		if (this.units.length > 0) {
+			callback();
+			return;
+		}
+
+		this.requestService.getUnits().subscribe({
+			next: (units) => {
+				this.units = units || [];
+				callback();
+			},
+			error: (error) => {
+				this.loadingDetail = false;
+				this.errorMessage = this.getErrorMessage(
+					error,
+					'Gagal memuat equipment unit.',
+				);
+			},
+		});
+	}
+
 	loadSelectedRequest(): void {
 		if (!this.selectedRequest) {
 			return;
@@ -179,25 +198,26 @@ export class AssignmentsComponent implements OnInit {
 		this.clearMessages();
 		this.loadingDetail = true;
 
-		forkJoin({
-			request: this.requestService.getRequest(requestUuid),
-			assignments: this.assignmentService.getAssignments(requestUuid),
-		}).subscribe({
-			next: ({ request, assignments }) => {
-				this.selectedRequest = request;
-				this.detailViews = this.buildDetailViews(
-					request.details || [],
-					assignments || [],
-				);
-				this.loadingDetail = false;
-			},
-			error: (error) => {
-				this.loadingDetail = false;
-				this.errorMessage = this.getErrorMessage(
-					error,
-					'Gagal memuat detail assignment.',
-				);
-			},
+		this.loadUnitsForDetail(() => {
+			this.assignmentService.getWorkspace(requestUuid).subscribe({
+				next: ({ request, assignments }) => {
+					this.selectedRequest = request;
+
+					this.detailViews = this.buildDetailViews(
+						request.details || [],
+						assignments || [],
+					);
+
+					this.loadingDetail = false;
+				},
+				error: (error) => {
+					this.loadingDetail = false;
+					this.errorMessage = this.getErrorMessage(
+						error,
+						'Gagal memuat detail assignment.',
+					);
+				},
+			});
 		});
 	}
 
@@ -218,29 +238,29 @@ export class AssignmentsComponent implements OnInit {
 			return;
 		}
 
-		const requests = pendingDetails.map((detail) => {
-			const unit = this.approvedUnit(detail)!;
+		const assignments: AssignmentPayload[] = pendingDetails.map(
+			(detail) => {
+				const unit = this.approvedUnit(detail)!;
 
-			const payload: AssignmentPayload = {
-				requestDetailUuid: detail.uuid || '',
-				equipmentUnitUuid: unit.uuid,
-				plannedStartDate: this.toDateTimeValue(
-					this.selectedRequest!.startDate,
-				),
-				plannedEndDate: this.toDateTimeValue(
-					this.selectedRequest!.endDate,
-				),
-				notes: detail.remarks || null,
-			};
-
-			return this.assignmentService.createAssignment(
-				this.selectedRequest!.uuid,
-				payload,
-			);
-		});
+				return {
+					requestDetailUuid: detail.uuid || '',
+					equipmentUnitUuid: unit.uuid,
+					plannedStartDate: this.toDateTimeValue(
+						this.selectedRequest!.startDate,
+					),
+					plannedEndDate: this.toDateTimeValue(
+						this.selectedRequest!.endDate,
+					),
+					notes: detail.remarks || null,
+				};
+			},
+		);
 
 		this.runAction(
-			forkJoin(requests),
+			this.assignmentService.createAssignments(
+				this.selectedRequest.uuid,
+				assignments,
+			),
 			'Seluruh equipment unit berhasil di-assign.',
 		);
 	}
@@ -285,15 +305,15 @@ export class AssignmentsComponent implements OnInit {
 			return;
 		}
 
-		const requests = assignments.map((assignment) =>
-			this.assignmentService.startOperation(
-				this.selectedRequest!.uuid,
-				assignment.uuid,
-			),
+		const assignmentUuids = assignments.map(
+			(assignment) => assignment.uuid,
 		);
 
 		this.runAction(
-			forkJoin(requests),
+			this.assignmentService.startOperations(
+				this.selectedRequest.uuid,
+				assignmentUuids,
+			),
 			'Seluruh equipment unit berhasil mulai beroperasi.',
 		);
 	}
@@ -556,15 +576,13 @@ export class AssignmentsComponent implements OnInit {
 						this.ASSIGNMENT_STATUS_CANCELLED,
 					].includes(assignment.statusCode),
 			).length;
-			const category = this.categories.find(
-				(item) => item.id === detail.equipmentCategoryId,
-			);
 
 			return {
 				...detail,
-				categoryCode: category?.code || '',
+				categoryCode: detail.equipmentCategoryCode || '',
 				categoryName:
-					category?.name || `Category #${detail.equipmentCategoryId}`,
+					detail.equipmentCategoryName ||
+					`Category #${detail.equipmentCategoryId}`,
 				assignments: detailAssignments,
 				activeCount,
 			};

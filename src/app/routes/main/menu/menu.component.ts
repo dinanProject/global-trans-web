@@ -2,9 +2,11 @@ import {
 	Component,
 	EventEmitter,
 	Input,
+	OnChanges,
 	OnInit,
 	Output,
 	QueryList,
+	SimpleChanges,
 	ViewChildren,
 } from '@angular/core';
 
@@ -16,7 +18,7 @@ import { Menu } from 'src/app/core/models/menu.model';
 	styleUrls: ['./menu.component.scss'],
 	standalone: false,
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnChanges {
 	@Input({ required: true })
 	menu!: Menu;
 
@@ -45,8 +47,24 @@ export class MenuComponent implements OnInit {
 		this.menu.child ??= [];
 		this.menu.level = this.menuLevel;
 
-		if (!this.menu.visibility) {
-			this.menu.visibility = this.hasChildren ? 'collapsed' : 'no-child';
+		if (!this.hasChildren) {
+			this.menu.visibility = 'no-child';
+			return;
+		}
+
+		this.menu.visibility = this.hasActiveChild(this.menu)
+			? 'expanded'
+			: this.menu.visibility || 'collapsed';
+	}
+
+	ngOnChanges(changes: SimpleChanges): void {
+		if (
+			changes['currentUrl'] &&
+			!changes['currentUrl'].firstChange &&
+			this.hasChildren &&
+			this.hasActiveChild(this.menu)
+		) {
+			this.menu.visibility = 'expanded';
 		}
 	}
 
@@ -70,7 +88,9 @@ export class MenuComponent implements OnInit {
 		const menuRoute = this.normalizeRoute(this.menu.route);
 		const activeRoute = this.normalizeRoute(this.currentUrl);
 
-		return activeRoute === menuRoute;
+		return (
+			menuRoute === activeRoute || activeRoute.startsWith(`${menuRoute}/`)
+		);
 	}
 
 	filterMenu(value: string): MenuComponent[] {
@@ -126,7 +146,9 @@ export class MenuComponent implements OnInit {
 		this.isMenuSelected = false;
 
 		if (this.hasChildren) {
-			this.menu.visibility = 'collapsed';
+			this.menu.visibility = this.hasActiveChild(this.menu)
+				? 'expanded'
+				: 'collapsed';
 		}
 
 		for (const menuComponent of this.menuComponents ?? []) {
@@ -170,7 +192,10 @@ export class MenuComponent implements OnInit {
 				const childRoute = this.normalizeRoute(child.route);
 				const activeRoute = this.normalizeRoute(this.currentUrl);
 
-				if (childRoute === activeRoute) {
+				if (
+					childRoute === activeRoute ||
+					activeRoute.startsWith(`${childRoute}/`)
+				) {
 					return true;
 				}
 			}

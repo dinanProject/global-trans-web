@@ -59,6 +59,11 @@ export interface EmailRetryPayload {
 	bccEmail: string | null;
 }
 
+export interface EmailRetryResult {
+	uuid: string;
+	statusCode: string;
+}
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -91,11 +96,10 @@ export class EmailService {
 		return this.apiService.get(this.baseUrl, params);
 	}
 
-	retryEmail(uuid: string, payload: EmailRetryPayload): Observable<void> {
+	retryEmail(
+		uuid: string,
+		payload: EmailRetryPayload,
+	): Observable<EmailRetryResult> {
 		return this.apiService.post(`${this.baseUrl}/${uuid}/retry`, payload);
-	}
-
-	cancelEmail(uuid: string): Observable<void> {
-		return this.apiService.post(`${this.baseUrl}/${uuid}/cancel`, {});
 	}
 }

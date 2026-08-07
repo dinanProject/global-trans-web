@@ -99,11 +99,13 @@ textarea {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: var(--border-radius);
-	background-color: var(--blue1);
-	color: var(--blue8);
+	border-radius: 8px;
+	background: #e7f0ff;
 
-	i {
-		color: inherit;
+	img {
+		width: 24px;
+		height: 24px;
+		display: block;
+		object-fit: contain;
 	}
 }

@@ -298,9 +298,11 @@
 							<select
 								id="monitoringStatus"
 								class="form-control"
+								[(ngModel)]="filters.status"
 								(ngModelChange)="onFilterChange()"
 							>
-								<option value="">All Statuses</option>
+								<option value="ACTIVE">Active / Today</option>
+								<option value="ALL">All Statuses</option>
 
 								<optgroup label="Operation">
 									<option value="ASSIGNED">Assigned</option>
@@ -464,7 +466,6 @@
 								<th>Operation Status</th>
 								<th>Schedule</th>
 								<th>SLA</th>
-								<th class="action-column"></th>
 							</tr>
 						</thead>
 
@@ -474,9 +475,6 @@
 									let assignment of assignments;
 									trackBy: trackByUuid
 								"
-								tabindex="0"
-								(click)="openDetail(assignment)"
-								(keydown.enter)="openDetail(assignment)"
 							>
 								<td>
 									<div class="equipment-cell">
@@ -484,7 +482,7 @@
 											<img
 												[src]="
 													getEquipmentIcon(
-														assignment.equipmentCategoryCode
+														assignment.equipmentCategoryIcon
 													)
 												"
 												[alt]="
@@ -641,20 +639,6 @@
 											}}
 										</small>
 									</div>
-								</td>
-
-								<td class="action-column">
-									<button
-										type="button"
-										class="row-action"
-										title="Open monitoring detail"
-										(click)="
-											openDetail(assignment);
-											$event.stopPropagation()
-										"
-									>
-										<i class="fas fa-chevron-right"></i>
-									</button>
 								</td>
 							</tr>
 						</tbody>

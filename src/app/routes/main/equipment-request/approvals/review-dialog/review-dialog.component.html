@@ -419,7 +419,12 @@
 	</mat-dialog-content>
 
 	<mat-dialog-actions class="dialog-actions">
-		<button type="button" class="btn btn-light" (click)="cancel()">
+		<button
+			type="button"
+			class="btn btn-light"
+			[disabled]="isCheckingAvailability"
+			(click)="cancel()"
+		>
 			Cancel
 		</button>
 
@@ -427,6 +432,7 @@
 			*ngFor="let action of data.rejectActions || []"
 			type="button"
 			class="btn btn-outline-danger"
+			[disabled]="isCheckingAvailability"
 			(click)="submit(action)"
 		>
 			<i class="fas fa-times-circle mr-1"></i>
@@ -437,6 +443,7 @@
 			*ngFor="let action of data.approveActions || []"
 			type="button"
 			class="btn btn-primary"
+			[disabled]="isCheckingAvailability"
 			(click)="submit(action)"
 		>
 			<i class="fas fa-check-circle mr-1"></i>
@@ -451,6 +458,7 @@
 			"
 			type="button"
 			class="btn btn-primary"
+			[disabled]="isCheckingAvailability"
 			(click)="submit(data.action)"
 		>
 			<i class="fas fa-save mr-1"></i>

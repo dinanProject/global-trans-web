@@ -208,8 +208,7 @@
 						<thead>
 							<tr>
 								<th class="number-column">#</th>
-								<th>Category Name</th>
-								<th class="numeric-column">Rate</th>
+								<th>Unit Name</th>
 								<th>Remarks</th>
 							</tr>
 						</thead>
@@ -228,26 +227,30 @@
 									<div class="category-cell">
 										<span
 											class="profile-tone-icon category-icon"
-											><i class="fas fa-tools"></i></span
-										><strong>{{
-											getCategoryName(detail)
-										}}</strong
-										><small
-											*ngIf="detail.equipmentCategoryCode"
-											>{{
-												detail.equipmentCategoryCode
-											}}</small
 										>
+											<img
+												[src]="
+													getCategoryIcon(
+														detail.equipmentCategoryIcon
+													)
+												"
+												[alt]="
+													detail.equipmentCategoryName ||
+													'Equipment'
+												"
+											/> </span
+										><strong>
+											{{
+												detail.equipmentUnitName || "—"
+											}}
+										</strong>
+
+										<small *ngIf="detail.equipmentUnitCode">
+											{{ detail.equipmentUnitCode }}
+										</small>
 									</div>
 								</td>
 
-								<td class="numeric-column">
-									{{
-										detail.rate == null
-											? "—"
-											: (detail.rate | number: "1.2-2")
-									}}
-								</td>
 								<td class="remarks-cell">
 									{{ detail.remarks || "—" }}
 								</td>
