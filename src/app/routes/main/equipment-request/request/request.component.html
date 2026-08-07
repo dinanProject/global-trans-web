@@ -206,7 +206,7 @@
 									<button
 										*ngIf="
 											getRemainingEquipmentCount(
-												request.details
+												request
 											) > 0
 										"
 										type="button"
@@ -214,9 +214,7 @@
 										(click)="openDetailDialog(request, 1)"
 									>
 										+{{
-											getRemainingEquipmentCount(
-												request.details
-											)
+											getRemainingEquipmentCount(request)
 										}}
 										more
 									</button>

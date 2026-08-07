@@ -26,6 +26,7 @@ export interface RequestDetail {
 	equipmentCategoryId: number;
 	equipmentCategoryName?: string | null;
 	equipmentCategoryCode?: string | null;
+	equipmentCategoryIcon?: string | null;
 	categoryName?: string | null;
 
 	equipmentUnitId?: number | null;
@@ -109,6 +110,7 @@ export interface RequestMaster {
 	createdAt?: string | null;
 	updatedAt?: string | null;
 	details?: RequestDetail[];
+	detailCount?: number;
 	approvals?: RequestApproval[];
 	histories?: RequestHistory[];
 	availableActions?: RequestAction[];

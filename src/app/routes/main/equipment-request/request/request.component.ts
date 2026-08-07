@@ -132,8 +132,12 @@ export class RequestComponent implements OnInit, OnDestroy {
 		return (details ?? []).slice(0, this.maxEquipmentPreview);
 	}
 
-	getRemainingEquipmentCount(details: any[] | null | undefined): number {
-		return Math.max((details ?? []).length - this.maxEquipmentPreview, 0);
+	getRemainingEquipmentCount(request: RequestMaster): number {
+		const detailCount = Number(
+			request.detailCount ?? request.details?.length ?? 0,
+		);
+
+		return Math.max(detailCount - this.maxEquipmentPreview, 0);
 	}
 
 	openCreateDialog(): void {

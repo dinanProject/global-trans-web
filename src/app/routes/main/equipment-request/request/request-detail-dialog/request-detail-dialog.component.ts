@@ -158,6 +158,16 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 		this.selectedTabIndex = index;
 	}
 
+	getCategoryIcon(icon?: string | null): string {
+		const normalizedIcon = icon?.trim();
+
+		if (!normalizedIcon || normalizedIcon.startsWith('fas ')) {
+			return 'assets/icons/equipment/equipment.svg';
+		}
+
+		return `assets/icons/equipment/${normalizedIcon}`;
+	}
+
 	formatHistoryDescription(history: RequestHistory): string {
 		if (!history?.description || !this.request) {
 			return history?.description || '—';
