@@ -31,6 +31,20 @@ interface RoleGroup {
 	standalone: false,
 })
 export class UserFormDialogComponent {
+	private readonly initialEditValue = this.data.user
+		? {
+				fullName: (this.data.user.fullName ?? '').trim(),
+				email: (this.data.user.email ?? '').trim().toLowerCase(),
+				phone: this.data.user.phone?.trim() || null,
+				companyUuid: this.data.user.companyUuid,
+				divisionUuid: this.data.user.divisionUuid || null,
+				roleUuids: [...(this.data.user.roles ?? [])]
+					.map((role) => role.uuid)
+					.sort(),
+				isActive: Boolean(this.data.user.isActive),
+			}
+		: null;
+
 	isSaving = false;
 	errorMessage = '';
 
@@ -221,6 +235,29 @@ export class UserFormDialogComponent {
 
 		if (this.data.mode === 'create') {
 			payload.password = value.password;
+		}
+
+		if (this.data.mode === 'edit' && this.initialEditValue) {
+			const currentRoleUuids = [...payload.roleUuids].sort();
+
+			const hasChanges =
+				payload.fullName !== this.initialEditValue.fullName ||
+				payload.email !== this.initialEditValue.email ||
+				payload.phone !== this.initialEditValue.phone ||
+				payload.companyUuid !== this.initialEditValue.companyUuid ||
+				payload.divisionUuid !== this.initialEditValue.divisionUuid ||
+				currentRoleUuids.length !==
+					this.initialEditValue.roleUuids.length ||
+				currentRoleUuids.some(
+					(roleUuid, index) =>
+						roleUuid !== this.initialEditValue!.roleUuids[index],
+				) ||
+				payload.isActive !== this.initialEditValue.isActive;
+
+			if (!hasChanges) {
+				this.dialogRef.close();
+				return;
+			}
 		}
 
 		this.isSaving = true;

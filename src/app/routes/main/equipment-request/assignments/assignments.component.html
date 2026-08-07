@@ -68,7 +68,8 @@
 						[value]="statusFilter"
 						(change)="updateStatusFilter($any($event.target).value)"
 					>
-						<option value="">All status</option>
+						<option value="">Active status</option>
+						<option value="ALL">All status</option>
 
 						<option
 							*ngFor="let status of worklistStatuses"

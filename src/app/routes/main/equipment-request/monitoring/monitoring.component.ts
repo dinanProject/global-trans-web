@@ -1,8 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { forkJoin, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import {
+	debounceTime,
+	distinctUntilChanged,
+	finalize,
+	takeUntil,
+} from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 interface MonitoringSummary {
@@ -47,11 +51,17 @@ interface MonitoringAssignment {
 	equipmentCategoryUuid: string | null;
 	equipmentCategoryCode: string | null;
 	equipmentCategoryName: string | null;
+	equipmentCategoryIcon: string | null;
 
 	equipmentUnitUuid: string;
 	equipmentUnitCode: string;
 	equipmentUnitName: string;
 	assetNumber: string | null;
+}
+
+interface MonitoringOverview {
+	summary: MonitoringSummary;
+	assignments: MonitoringAssignment[];
 }
 
 interface MonitoringFilters {
@@ -95,7 +105,7 @@ interface ApiResponse<T> {
 	styleUrls: ['./monitoring.component.scss'],
 	standalone: false,
 })
-export class MonitoringComponent implements OnInit {
+export class MonitoringComponent implements OnInit, OnDestroy {
 	private readonly monitoringUrl = `${environment.apiUrl}/equipment-request/monitoring`;
 
 	summary: MonitoringSummary = this.createEmptySummary();
@@ -107,6 +117,7 @@ export class MonitoringComponent implements OnInit {
 
 	filters: MonitoringFilters = this.createEmptyFilters();
 	private readonly searchChange$ = new Subject<string>();
+	private readonly destroy$ = new Subject<void>();
 
 	loading = false;
 	loadingSummary = false;
@@ -117,19 +128,25 @@ export class MonitoringComponent implements OnInit {
 
 	readonly loadingRows = Array.from({ length: 6 });
 
-	constructor(
-		private readonly http: HttpClient,
-		private readonly router: Router,
-	) {}
+	constructor(private readonly http: HttpClient) {}
 
 	ngOnInit(): void {
 		this.searchChange$
-
-			.pipe(debounceTime(400), distinctUntilChanged())
+			.pipe(
+				debounceTime(400),
+				distinctUntilChanged(),
+				takeUntil(this.destroy$),
+			)
 			.subscribe(() => {
 				this.loadMonitoring(false);
 			});
 		this.loadMonitoring();
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+		this.searchChange$.complete();
 	}
 
 	get filteredDivisionOptions(): DivisionOption[] {
@@ -148,25 +165,21 @@ export class MonitoringComponent implements OnInit {
 			this.filters.companyUuid ||
 			this.filters.divisionUuid ||
 			this.filters.equipmentUuid ||
-			this.filters.status ||
+			(this.filters.status && this.filters.status !== 'ACTIVE') ||
 			this.filters.startDate ||
 			this.filters.endDate ||
 			this.filters.overdueOnly,
 		);
 	}
 
-	getEquipmentIcon(categoryCode: string | null): string {
-		const code = (categoryCode || '').toUpperCase();
+	getEquipmentIcon(icon?: string | null): string {
+		const normalizedIcon = icon?.trim();
 
-		const icons: Record<string, string> = {
-			FORKLIFT: 'assets/icons/equipment/forklift.svg',
-			CRANE: 'assets/icons/equipment/crane.svg',
-			EXCAVATOR: 'assets/icons/equipment/excavator.svg',
-			LOADER: 'assets/icons/equipment/loader.svg',
-			BULLDOZER: 'assets/icons/equipment/bulldozer.svg',
-		};
+		if (!normalizedIcon || normalizedIcon.startsWith('fas ')) {
+			return 'assets/icons/equipment/equipment.svg';
+		}
 
-		return icons[code] || 'assets/icons/equipment/default-equipment.svg';
+		return `assets/icons/equipment/${normalizedIcon}`;
 	}
 
 	onSearchChange(value: string): void {
@@ -197,13 +210,6 @@ export class MonitoringComponent implements OnInit {
 		}
 
 		this.loadMonitoring(false);
-	}
-
-	openDetail(assignment: MonitoringAssignment): void {
-		this.router.navigate([
-			'/equipment-request/monitoring',
-			assignment.uuid,
-		]);
 	}
 
 	trackByUuid(index: number, assignment: MonitoringAssignment): string {
@@ -313,15 +319,13 @@ export class MonitoringComponent implements OnInit {
 
 		const params = this.buildQueryParams();
 
-		forkJoin({
-			summary: this.http.get<
-				ApiResponse<MonitoringSummary> | MonitoringSummary
-			>(`${this.monitoringUrl}/summary`, { params }),
-			assignments: this.http.get<
-				ApiResponse<MonitoringAssignment[]> | MonitoringAssignment[]
-			>(`${this.monitoringUrl}/assignments`, { params }),
-		})
+		this.http
+			.get<ApiResponse<MonitoringOverview> | MonitoringOverview>(
+				`${this.monitoringUrl}/overview`,
+				{ params },
+			)
 			.pipe(
+				takeUntil(this.destroy$),
 				finalize(() => {
 					this.loading = false;
 					this.loadingSummary = false;
@@ -330,15 +334,13 @@ export class MonitoringComponent implements OnInit {
 			)
 			.subscribe({
 				next: (response) => {
-					this.summary =
-						this.extractResponseData<MonitoringSummary>(
-							response.summary,
-						) || this.createEmptySummary();
+					const overview =
+						this.extractResponseData<MonitoringOverview>(response);
 
-					this.assignments =
-						this.extractResponseData<MonitoringAssignment[]>(
-							response.assignments,
-						) || [];
+					this.summary =
+						overview?.summary || this.createEmptySummary();
+
+					this.assignments = overview?.assignments || [];
 
 					if (initializeOptions || this.companyOptions.length === 0) {
 						this.buildFilterOptions(this.assignments);
@@ -507,7 +509,7 @@ export class MonitoringComponent implements OnInit {
 			companyUuid: '',
 			divisionUuid: '',
 			equipmentUuid: '',
-			status: '',
+			status: 'ACTIVE',
 			startDate: '',
 			endDate: '',
 			overdueOnly: false,

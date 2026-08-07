@@ -199,13 +199,32 @@ export class EmailComponent implements OnInit, OnDestroy {
 				}),
 			)
 			.subscribe({
-				next: () => {
+				next: (result) => {
+					const target = this.emails.find(
+						(item) => item.uuid === result.uuid,
+					);
+
+					if (target) {
+						target.toEmail = payload.toEmail;
+						target.ccEmail = payload.ccEmail;
+						target.bccEmail = payload.bccEmail;
+						target.statusCode = result.statusCode;
+						target.attemptCount = 0;
+						target.lastAttemptAt = null;
+						target.sentAt = null;
+						target.failedAt = null;
+						target.lastErrorMessage = null;
+						target.providerMessageId = null;
+						target.isActive = true;
+
+						this.emails = [...this.emails];
+					}
+
 					this.utilityService.alert(
 						'Success',
 						'Email berhasil dimasukkan kembali ke antrean.',
 						'success',
 					);
-					this.loadEmails();
 				},
 				error: (error) => {
 					this.utilityService.alert(

@@ -31,6 +31,24 @@ export class ApprovalService {
 		return this.apiService.get(`${this.baseUrl}/${uuid}`);
 	}
 
+	getApprovalReview(
+		uuid: string,
+		schedule?: {
+			startDate: string;
+			endDate: string;
+		},
+	): Observable<RequestMaster> {
+		let params = new HttpParams();
+
+		if (schedule) {
+			params = params
+				.set('startDate', schedule.startDate)
+				.set('endDate', schedule.endDate);
+		}
+
+		return this.apiService.get(`${this.baseUrl}/${uuid}/review`, params);
+	}
+
 	executeAction(
 		uuid: string,
 		payload: RequestActionPayload,

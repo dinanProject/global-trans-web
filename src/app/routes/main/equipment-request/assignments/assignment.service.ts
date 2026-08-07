@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ApiService } from 'src/app/core/services/api.service';
+import { RequestMaster } from '../request/request.service';
 
 export interface EquipmentAssignment {
 	id?: number;
@@ -28,6 +29,11 @@ export interface AssignmentPayload {
 	notes?: string | null;
 }
 
+export interface AssignmentWorkspace {
+	request: RequestMaster;
+	assignments: EquipmentAssignment[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AssignmentService {
 	private readonly baseUrl = '/equipment-request/assignment';
@@ -38,11 +44,24 @@ export class AssignmentService {
 		return this.apiService.get(`${this.baseUrl}/${requestUuid}`);
 	}
 
+	getWorkspace(requestUuid: string): Observable<AssignmentWorkspace> {
+		return this.apiService.get(`${this.baseUrl}/${requestUuid}/workspace`);
+	}
+
 	createAssignment(
 		requestUuid: string,
 		payload: AssignmentPayload,
 	): Observable<EquipmentAssignment> {
 		return this.apiService.post(`${this.baseUrl}/${requestUuid}`, payload);
+	}
+
+	createAssignments(
+		requestUuid: string,
+		assignments: AssignmentPayload[],
+	): Observable<EquipmentAssignment[]> {
+		return this.apiService.post(`${this.baseUrl}/${requestUuid}/bulk`, {
+			assignments,
+		});
 	}
 
 	startOperation(
@@ -52,6 +71,16 @@ export class AssignmentService {
 		return this.apiService.post(
 			`${this.baseUrl}/${requestUuid}/${assignmentUuid}/start`,
 			{},
+		);
+	}
+
+	startOperations(
+		requestUuid: string,
+		assignmentUuids: string[],
+	): Observable<EquipmentAssignment[]> {
+		return this.apiService.post(
+			`${this.baseUrl}/${requestUuid}/start-all`,
+			{ assignmentUuids },
 		);
 	}
 

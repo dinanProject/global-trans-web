@@ -65,7 +65,6 @@ export class RoleComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.destroy$))
 			.subscribe(() => this.applyFilters());
 
-		this.loadRoleOptions();
 		this.loadRoles();
 	}
 
@@ -74,13 +73,19 @@ export class RoleComponent implements OnInit, OnDestroy {
 		this.destroy$.complete();
 	}
 
-	private loadRoleOptions(): void {
+	private loadRoleOptionsForDialog(callback: () => void): void {
+		if (this.companies.length > 0) {
+			callback();
+			return;
+		}
+
 		this.roleService
 			.getOptions()
 			.pipe(takeUntil(this.destroy$))
 			.subscribe({
 				next: (result) => {
 					this.companies = result?.companies ?? [];
+					callback();
 				},
 				error: (error) => {
 					this.companies = [];
@@ -107,7 +112,6 @@ export class RoleComponent implements OnInit, OnDestroy {
 			)
 			.subscribe({
 				next: (roles) => {
-					console.log(roles);
 					this.roles = roles ?? [];
 					this.applyFilters();
 				},
@@ -143,15 +147,19 @@ export class RoleComponent implements OnInit, OnDestroy {
 	}
 
 	openCreateDialog(): void {
-		this.openRoleDialog({
-			mode: 'create',
+		this.loadRoleOptionsForDialog(() => {
+			this.openRoleDialog({
+				mode: 'create',
+			});
 		});
 	}
 
 	openEditDialog(role: RoleMaster): void {
-		this.openRoleDialog({
-			mode: 'edit',
-			role,
+		this.loadRoleOptionsForDialog(() => {
+			this.openRoleDialog({
+				mode: 'edit',
+				role,
+			});
 		});
 	}
 

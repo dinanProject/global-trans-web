@@ -1,9 +1,10 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 
 import { RequestAction, RequestMaster } from '../../request/request.service';
+import { ApprovalService } from '../approvals.service';
 
 export interface ReviewDialogData {
 	request: RequestMaster;
@@ -30,6 +31,7 @@ export class ReviewDialogComponent implements OnInit, OnDestroy {
 	private readonly destroy$ = new Subject<void>();
 
 	errorMessage = '';
+	isCheckingAvailability = false;
 
 	readonly form = this.formBuilder.group({
 		startDate: [
@@ -46,6 +48,7 @@ export class ReviewDialogComponent implements OnInit, OnDestroy {
 	constructor(
 		private readonly formBuilder: FormBuilder,
 		private readonly dialogRef: MatDialogRef<ReviewDialogComponent>,
+		private readonly approvalService: ApprovalService,
 		@Inject(MAT_DIALOG_DATA)
 		public readonly data: ReviewDialogData,
 	) {}
@@ -107,6 +110,10 @@ export class ReviewDialogComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	private isApproveAction(action: RequestAction): boolean {
+		return ['APPROVE_CLIENT', 'APPROVE_GTSI'].includes(action.actionCode);
+	}
+
 	getAvailabilityLabel(
 		status?: string | null,
 		statusName?: string | null,
@@ -125,14 +132,13 @@ export class ReviewDialogComponent implements OnInit, OnDestroy {
 			return value;
 		}
 
-		return new Intl.DateTimeFormat('id-ID', {
-			day: '2-digit',
-			month: 'short',
-			year: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-			hour12: false,
-		}).format(date);
+		const day = String(date.getDate()).padStart(2, '0');
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const year = date.getFullYear();
+		const hour = String(date.getHours()).padStart(2, '0');
+		const minute = String(date.getMinutes()).padStart(2, '0');
+
+		return `${day}/${month}/${year} ${hour}:${minute}`;
 	}
 
 	formatInputDisplay(value?: string | null): string {
@@ -192,12 +198,69 @@ export class ReviewDialogComponent implements OnInit, OnDestroy {
 			return;
 		}
 
-		this.dialogRef.close(<ReviewDialogResult>{
+		const result: ReviewDialogResult = {
 			actionCode: action.actionCode,
 			startDate: formattedStartDate,
 			endDate: formattedEndDate,
 			remarks: value.remarks?.trim() || null,
-		});
+		};
+
+		if (!this.isApproveAction(action)) {
+			this.dialogRef.close(result);
+			return;
+		}
+
+		this.recheckAvailability(result);
+	}
+
+	private recheckAvailability(result: ReviewDialogResult): void {
+		if (this.isCheckingAvailability) {
+			return;
+		}
+
+		this.isCheckingAvailability = true;
+		this.errorMessage = '';
+
+		this.approvalService
+			.getApprovalReview(this.data.request.uuid, {
+				startDate: result.startDate,
+				endDate: result.endDate,
+			})
+			.pipe(
+				takeUntil(this.destroy$),
+				finalize(() => {
+					this.isCheckingAvailability = false;
+				}),
+			)
+			.subscribe({
+				next: (review) => {
+					this.data.request.details = review.details ?? [];
+
+					const unavailableDetails = (
+						this.data.request.details ?? []
+					).filter(
+						(detail) =>
+							!detail.availability?.isAvailableForRequestedPeriod,
+					);
+
+					if (unavailableDetails.length > 0) {
+						this.errorMessage =
+							`${unavailableDetails.length} equipment unit ` +
+							'tidak tersedia pada periode yang dipilih. ' +
+							'Periksa kembali availability equipment di atas.';
+
+						return;
+					}
+
+					this.dialogRef.close(result);
+				},
+				error: (error) => {
+					this.errorMessage =
+						error?.error?.meta?.message ??
+						error?.error?.message ??
+						'Gagal memeriksa availability equipment.';
+				},
+			});
 	}
 
 	cancel(): void {
