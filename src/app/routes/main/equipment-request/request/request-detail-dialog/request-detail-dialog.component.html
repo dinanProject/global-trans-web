@@ -1,110 +1,215 @@
-<div class="dialog-header">
-	<div>
-		<h2>Equipment Request Detail</h2>
-		<p>{{ request?.requestNo || "Loading request..." }}</p>
-	</div>
-	<button type="button" class="dialog-close" (click)="close()">
-		<i class="fas fa-times"></i>
-	</button>
-</div>
-<mat-dialog-content>
-	<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-	<div *ngIf="isLoading" class="loading-container">
-		<loading text="Loading request detail..."></loading>
-	</div>
-	<ng-container *ngIf="!isLoading && request">
-		<div class="summary-header">
+<div class="dialog-shell">
+	<div class="dialog-header">
+		<div class="header-identity">
+			<span class="profile-tone-icon header-icon"
+				><i class="fas fa-clipboard-list"></i
+			></span>
 			<div>
-				<span
-					class="status-badge"
-					[ngClass]="statusClass(request.status)"
-					>{{ request.statusName || request.status }}</span
-				><small
-					>Approval level {{ request.currentApprovalLevel }}</small
-				>
-			</div>
-			<div class="action-list">
-				<button
-					*ngFor="let action of request.availableActions"
-					type="button"
-					class="btn btn-sm"
-					[class.btn-primary]="
-						action.actionCode === 'SUBMIT' ||
-						action.actionCode.includes('APPROVE')
-					"
-					[class.btn-light]="
-						action.actionCode !== 'SUBMIT' &&
-						!action.actionCode.includes('APPROVE')
-					"
-					[disabled]="!!actionCode"
-					(click)="executeAction(action)"
-				>
-					<span
-						*ngIf="actionCode === action.actionCode"
-						class="spinner-border spinner-border-sm mr-1"
-					></span
-					>{{ action.actionName }}
-				</button>
+				<h2>Equipment Request Detail</h2>
+				<div class="request-reference">
+					<span>Request Number</span>
+					<strong>{{
+						request?.requestNo || "Loading request..."
+					}}</strong>
+				</div>
 			</div>
 		</div>
-		<mat-tab-group
-			[(selectedIndex)]="selectedTabIndex"
-			animationDuration="0ms"
+		<button
+			type="button"
+			class="dialog-close"
+			aria-label="Close request detail"
+			(click)="close()"
 		>
-			<mat-tab label="Information"
-				><div class="tab-content">
-					<div class="info-grid">
+			<i class="fas fa-times"></i>
+		</button>
+	</div>
+
+	<mat-dialog-content>
+		<div *ngIf="errorMessage" class="error-message">
+			<i class="fas fa-exclamation-circle"></i
+			><span>{{ errorMessage }}</span>
+		</div>
+		<div *ngIf="isLoading" class="loading-container">
+			<loading text="Loading request detail..."></loading>
+		</div>
+
+		<ng-container *ngIf="!isLoading && request">
+			<div class="summary-header">
+				<div class="status-summary">
+					<span
+						class="status-badge"
+						[ngClass]="statusClass(request.status)"
+						><span class="status-dot"></span
+						>{{ request.statusName || request.status }}</span
+					>
+					<div class="approval-stage">
+						<span>Current Stage</span
+						><strong
+							>Approval Level
+							{{ request.currentApprovalLevel }}</strong
+						>
+					</div>
+				</div>
+				<div
+					class="action-list"
+					*ngIf="request.availableActions?.length"
+				>
+					<button
+						*ngFor="
+							let action of request.availableActions;
+							trackBy: trackByUuid
+						"
+						type="button"
+						class="btn btn-sm action-button"
+						[class.btn-primary]="
+							action.actionCode === 'SUBMIT' ||
+							action.actionCode.includes('APPROVE')
+						"
+						[class.btn-light]="
+							action.actionCode !== 'SUBMIT' &&
+							!action.actionCode.includes('APPROVE')
+						"
+						[disabled]="!!actionCode"
+						(click)="executeAction(action)"
+					>
+						<span
+							*ngIf="actionCode === action.actionCode"
+							class="spinner-border spinner-border-sm mr-1"
+						></span
+						>{{ action.actionName }}
+					</button>
+				</div>
+			</div>
+
+			<nav
+				class="custom-tabbar"
+				role="tablist"
+				aria-label="Request detail sections"
+			>
+				<button
+					*ngFor="let tab of tabs; let i = index"
+					type="button"
+					class="custom-tab"
+					[class.active]="selectedTabIndex === i"
+					[attr.aria-selected]="selectedTabIndex === i"
+					[attr.tabindex]="selectedTabIndex === i ? 0 : -1"
+					(click)="selectTab(i)"
+				>
+					<span class="tab-icon"><i [class]="tab.icon"></i></span
+					><span>{{ tab.label }}</span>
+				</button>
+			</nav>
+
+			<section class="tab-content" *ngIf="selectedTabIndex === 0">
+				<div class="section-heading">
+					<div>
+						<span class="section-eyebrow">Request Overview</span>
+						<h3>General Information</h3>
+					</div>
+					<p>
+						Core request identity, ownership, and reservation
+						period.
+					</p>
+				</div>
+				<div class="info-grid">
+					<div class="info-card">
+						<span class="profile-tone-icon info-icon"
+							><i class="fas fa-hashtag"></i
+						></span>
 						<div>
 							<label>Request Number</label
 							><strong>{{ request.requestNo }}</strong>
 						</div>
+					</div>
+					<div class="info-card">
+						<span class="profile-tone-icon info-icon"
+							><i class="far fa-calendar-alt"></i
+						></span>
 						<div>
 							<label>Request Date</label
 							><strong>{{
 								request.requestDate | date: "dd MMM yyyy"
 							}}</strong>
 						</div>
+					</div>
+					<div class="info-card">
+						<span class="profile-tone-icon info-icon"
+							><i class="far fa-building"></i
+						></span>
 						<div>
 							<label>Company</label
 							><strong>{{ request.companyName || "—" }}</strong>
 						</div>
+					</div>
+					<div class="info-card">
+						<span class="profile-tone-icon info-icon"
+							><i class="fas fa-sitemap"></i
+						></span>
 						<div>
 							<label>Division</label
 							><strong>{{ request.divisionName || "—" }}</strong>
 						</div>
+					</div>
+					<div class="info-card">
+						<span class="profile-tone-icon info-icon"
+							><i class="far fa-user"></i
+						></span>
 						<div>
 							<label>Requester</label
 							><strong>{{ request.requestByName || "—" }}</strong>
 						</div>
+					</div>
+					<div class="info-card">
+						<span class="profile-tone-icon info-icon"
+							><i class="far fa-clock"></i
+						></span>
 						<div>
 							<label>Reservation Period</label
 							><strong
-								>{{ request.startDate | date: "dd MMM yyyy" }} —
+								>{{ request.startDate | date: "dd MMM yyyy" }}
+								<span class="date-separator">—</span>
 								{{
 									request.endDate | date: "dd MMM yyyy"
 								}}</strong
 							>
 						</div>
 					</div>
+				</div>
+				<div class="narrative-grid">
 					<div class="text-section">
-						<label>Purpose</label>
-						<p>{{ request.purpose || "—" }}</p>
+						<div class="text-section-title">
+							<i class="fas fa-bullseye"></i
+							><label>Purpose</label>
+						</div>
+						<p>{{ request.purpose || "No purpose provided." }}</p>
 					</div>
 					<div class="text-section">
-						<label>Notes</label>
-						<p>{{ request.notes || "—" }}</p>
+						<div class="text-section-title">
+							<i class="far fa-sticky-note"></i
+							><label>Notes</label>
+						</div>
+						<p>{{ request.notes || "No additional notes." }}</p>
 					</div>
-				</div></mat-tab
-			>
-			<mat-tab label="Equipment Details"
-				><div class="tab-content table-responsive">
+				</div>
+			</section>
+
+			<section class="tab-content" *ngIf="selectedTabIndex === 1">
+				<div class="section-heading">
+					<div>
+						<span class="section-eyebrow">Requested Resources</span>
+						<h3>Equipment Details</h3>
+					</div>
+					<span class="record-count"
+						>{{ request.details?.length || 0 }} item(s)</span
+					>
+				</div>
+				<div class="table-card table-responsive">
 					<table class="table detail-table">
 						<thead>
 							<tr>
-								<th>#</th>
-								<th>Category ID</th>
-								<th>Quantity</th>
-								<th>Rate</th>
+								<th class="number-column">#</th>
+								<th>Category Name</th>
+								<th class="numeric-column">Rate</th>
 								<th>Remarks</th>
 							</tr>
 						</thead>
@@ -112,91 +217,177 @@
 							<tr
 								*ngFor="
 									let detail of request.details;
-									let i = index
+									let i = index;
+									trackBy: trackByUuid
 								"
 							>
-								<td>{{ i + 1 }}</td>
-								<td>{{ detail.equipmentCategoryId }}</td>
-								<td>{{ detail.quantity }}</td>
+								<td class="number-column">
+									<span class="row-number">{{ i + 1 }}</span>
+								</td>
 								<td>
+									<div class="category-cell">
+										<span
+											class="profile-tone-icon category-icon"
+											><i class="fas fa-tools"></i></span
+										><strong>{{
+											getCategoryName(detail)
+										}}</strong
+										><small
+											*ngIf="detail.equipmentCategoryCode"
+											>{{
+												detail.equipmentCategoryCode
+											}}</small
+										>
+									</div>
+								</td>
+
+								<td class="numeric-column">
 									{{
 										detail.rate == null
 											? "—"
 											: (detail.rate | number: "1.2-2")
 									}}
 								</td>
-								<td>{{ detail.remarks || "—" }}</td>
+								<td class="remarks-cell">
+									{{ detail.remarks || "—" }}
+								</td>
 							</tr>
 						</tbody>
 					</table>
-				</div></mat-tab
-			>
-			<mat-tab label="Approval History"
-				><div class="tab-content">
-					<div *ngIf="!request.approvals?.length" class="mini-empty">
-						No approval record.
+				</div>
+				<div *ngIf="!request.details?.length" class="mini-empty">
+					<i class="fas fa-box-open"></i
+					><strong>No equipment detail</strong
+					><span>This request does not contain equipment items.</span>
+				</div>
+			</section>
+
+			<section class="tab-content" *ngIf="selectedTabIndex === 2">
+				<div class="section-heading">
+					<div>
+						<span class="section-eyebrow">Approval Trail</span>
+						<h3>Approval History</h3>
 					</div>
-					<div
-						*ngFor="let approval of request.approvals"
-						class="timeline-row"
+					<span class="record-count"
+						>{{ request.approvals?.length || 0 }} record(s)</span
 					>
-						<span class="timeline-icon"
-							><i class="fas fa-user-check"></i
-						></span>
-						<div>
-							<strong
-								>Level {{ approval.approvalLevel }} ·
-								{{ approval.status }}</strong
-							>
-							<p>
+				</div>
+				<div *ngIf="!request.approvals?.length" class="mini-empty">
+					<i class="far fa-clock"></i
+					><strong>No approval record</strong
+					><span
+						>Approval information will appear here after
+						submission.</span
+					>
+				</div>
+				<div class="timeline" *ngIf="request.approvals?.length">
+					<div
+						*ngFor="
+							let approval of request.approvals;
+							let last = last;
+							trackBy: trackByUuid
+						"
+						class="timeline-row"
+						[class.last-row]="last"
+					>
+						<div class="timeline-marker">
+							<span class="profile-tone-icon timeline-icon"
+								><i class="fas fa-user-check"></i></span
+							><span class="timeline-line" *ngIf="!last"></span>
+						</div>
+						<div class="timeline-card">
+							<div class="timeline-title-row">
+								<strong
+									>Approval Level
+									{{ approval.approvalLevel }}</strong
+								><span class="approval-status">{{
+									approval.status
+								}}</span>
+							</div>
+							<p class="timeline-person">
 								{{
 									approval.userName ||
 										approval.roleName ||
 										"Pending approver"
 								}}
 							</p>
-							<small
-								>{{
-									approval.actionDate
-										? (approval.actionDate
-											| date: "dd MMM yyyy HH:mm")
-										: "Waiting action"
-								}}<ng-container *ngIf="approval.remarks">
-									· {{ approval.remarks }}</ng-container
-								></small
-							>
+							<div class="timeline-meta">
+								<span
+									><i class="far fa-calendar"></i
+									>{{
+										approval.actionDate
+											? (approval.actionDate
+												| date: "dd MMM yyyy HH:mm")
+											: "Waiting action"
+									}}</span
+								><span *ngIf="approval.remarks"
+									><i class="far fa-comment-alt"></i
+									>{{ approval.remarks }}</span
+								>
+							</div>
 						</div>
 					</div>
-				</div></mat-tab
-			>
-			<mat-tab label="Activity"
-				><div class="tab-content">
-					<div
-						*ngFor="let history of request.histories"
-						class="timeline-row"
+				</div>
+			</section>
+
+			<section class="tab-content" *ngIf="selectedTabIndex === 3">
+				<div class="section-heading">
+					<div>
+						<span class="section-eyebrow">Audit Trail</span>
+						<h3>Request Activity</h3>
+					</div>
+					<span class="record-count"
+						>{{ request.histories?.length || 0 }} event(s)</span
 					>
-						<span class="timeline-icon"
+				</div>
+				<div *ngIf="!request.histories?.length" class="mini-empty">
+					<i class="fas fa-history"></i
+					><strong>No activity recorded</strong
+					><span>Request events will be listed chronologically.</span>
+				</div>
+				<div class="activity-list" *ngIf="request.histories?.length">
+					<div
+						*ngFor="
+							let history of request.histories;
+							trackBy: trackByUuid
+						"
+						class="activity-row"
+					>
+						<span class="profile-tone-icon activity-icon"
 							><i class="fas fa-history"></i
 						></span>
-						<div>
-							<strong>{{ history.activity }}</strong>
-							<p>{{ history.description }}</p>
-							<small
-								>{{ history.userName || "System" }} ·
-								{{
+						<div class="activity-content">
+							<div class="activity-title-row">
+								<strong>{{
+									formatActivityLabel(history.activity)
+								}}</strong
+								><span>{{
 									history.createdAt
 										| date: "dd MMM yyyy HH:mm"
-								}}</small
+								}}</span>
+							</div>
+							<p>{{ formatHistoryDescription(history) }}</p>
+							<small
+								><i class="far fa-user"></i
+								>{{ history.userName || "System" }}</small
 							>
 						</div>
 					</div>
-				</div></mat-tab
-			>
-		</mat-tab-group>
-	</ng-container>
-</mat-dialog-content>
-<mat-dialog-actions
-	><button type="button" class="btn btn-light" (click)="close()">
-		Close
-	</button></mat-dialog-actions
->
+				</div>
+			</section>
+		</ng-container>
+	</mat-dialog-content>
+
+	<mat-dialog-actions
+		><div class="footer-reference" *ngIf="request">
+			<span>Viewing</span><strong>{{ request.requestNo }}</strong>
+		</div>
+		<button
+			type="button"
+			class="btn btn-light close-button"
+			(click)="close()"
+		>
+			Close
+		</button></mat-dialog-actions
+	>
+</div>

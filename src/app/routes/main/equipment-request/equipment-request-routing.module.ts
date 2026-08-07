@@ -5,6 +5,7 @@ import { ApprovalsComponent } from './approvals/approvals.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ReportsComponent } from './reports/reports.component';
+import { PermissionGuard } from 'src/app/core/guards/permission-guard';
 
 const routes: Routes = [
 	{
@@ -16,21 +17,34 @@ const routes: Routes = [
 	{
 		path: 'requests',
 		component: RequestComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_REQUEST.VIEW',
+		},
 	},
-
 	{
 		path: 'approvals',
 		component: ApprovalsComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_APPROVAL.VIEW',
+		},
 	},
-
 	{
 		path: 'assignments',
 		component: AssignmentsComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_REQUEST.ASSIGN',
+		},
 	},
-
 	{
 		path: 'monitoring',
 		component: MonitoringComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_MONITORING.VIEW',
+		},
 	},
 
 	{

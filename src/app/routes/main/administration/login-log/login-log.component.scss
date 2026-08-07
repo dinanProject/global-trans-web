@@ -208,13 +208,14 @@
 		white-space: nowrap;
 	}
 }
-
 .status-badge {
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: 7px;
 
-	padding: 5px 9px;
+	min-width: 132px;
+	padding: 6px 12px;
 
 	border: 1px solid transparent;
 	border-radius: 999px;
@@ -250,16 +251,6 @@
 		.status-dot {
 			background-color: #d94848;
 			box-shadow: 0 0 0 3px rgba(217, 72, 72, 0.11);
-		}
-	}
-
-	&.status-default {
-		border-color: #d9dee7;
-		background-color: #f6f7f9;
-		color: #64748b;
-
-		.status-dot {
-			background-color: #94a3b8;
 		}
 	}
 }

@@ -168,6 +168,55 @@
 				</div>
 			</div>
 
+			<div class="col-md-6">
+				<div class="form-group required">
+					<label>Capacity Unit</label>
+
+					<select
+						class="form-control"
+						formControlName="capacityUnit"
+						[class.is-invalid]="isInvalid('capacityUnit')"
+					>
+						<option value="" disabled>Select capacity unit</option>
+
+						<option
+							*ngFor="let capacityUnit of data.capacityUnits"
+							[value]="capacityUnit.lookupCode"
+						>
+							{{ capacityUnit.lookupValue }}
+						</option>
+					</select>
+
+					@if (isInvalid("capacityUnit")) {
+						<div class="invalid-feedback">
+							Capacity unit wajib dipilih.
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="form-group required">
+					<label>Capacity Value</label>
+
+					<input
+						type="number"
+						class="form-control"
+						formControlName="capacityValue"
+						[class.is-invalid]="isInvalid('capacityValue')"
+						min="0.01"
+						step="0.01"
+						placeholder="10"
+					/>
+
+					@if (isInvalid("capacityValue")) {
+						<div class="invalid-feedback">
+							Capacity value wajib diisi dan harus lebih dari 0.
+						</div>
+					}
+				</div>
+			</div>
+
 			<div class="col-12">
 				<div class="form-group">
 					<label>Remarks</label>

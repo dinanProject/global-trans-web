@@ -21,6 +21,7 @@ import {
 	RequestFormDialogData,
 } from './request-form-dialog/request-form-dialog.component';
 import {
+	CapacityUnitOption,
 	CategoryOption,
 	RequestCompanyOption,
 	RequestDivisionOption,
@@ -51,6 +52,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 	categories: CategoryOption[] = [];
 	units: UnitOption[] = [];
 	statuses: RequestStatusOption[] = [];
+	capacityUnits: CapacityUnitOption[] = [];
 	isLoading = false;
 	deletingUuid = '';
 	actionUuid = '';
@@ -240,6 +242,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 						this.categories = [];
 						this.units = [];
 						this.statuses = [];
+						this.capacityUnits = [];
 						return;
 					}
 
@@ -249,6 +252,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 						categories: this.requestService.getCategories(),
 						units: this.requestService.getUnits(),
 						statuses: this.requestService.getRequestStatuses(),
+						capacityUnits: this.requestService.getCapacityUnits(),
 					})
 						.pipe(takeUntil(this.destroy$))
 						.subscribe({
@@ -271,12 +275,14 @@ export class RequestComponent implements OnInit, OnDestroy {
 											Number(a.sortOrder) -
 											Number(b.sortOrder),
 									);
+								this.capacityUnits = result.capacityUnits ?? [];
 							},
 							error: () => {
 								this.divisions = [];
 								this.categories = [];
 								this.units = [];
 								this.statuses = [];
+								this.capacityUnits = [];
 							},
 						});
 				},
@@ -285,6 +291,8 @@ export class RequestComponent implements OnInit, OnDestroy {
 					this.divisions = [];
 					this.categories = [];
 					this.units = [];
+					this.statuses = [];
+					this.capacityUnits = [];
 				},
 			});
 	}
@@ -292,7 +300,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 	private openFormDialog(
 		data: Omit<
 			RequestFormDialogData,
-			'company' | 'divisions' | 'categories' | 'units'
+			'company' | 'divisions' | 'categories' | 'units' | 'capacityUnits'
 		>,
 	): void {
 		const dialogRef = this.dialog.open(RequestFormDialogComponent, {
@@ -308,6 +316,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 				divisions: this.divisions,
 				categories: this.categories,
 				units: this.units,
+				capacityUnits: this.capacityUnits,
 			},
 		});
 

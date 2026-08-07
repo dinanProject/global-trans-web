@@ -63,73 +63,6 @@
 		</div>
 
 		<form [formGroup]="form" class="review-form">
-			<section class="form-section">
-				<div class="section-heading">
-					<div>
-						<h3>Reservation Schedule</h3>
-						<p>
-							Periksa periode penggunaan equipment yang diajukan.
-						</p>
-					</div>
-				</div>
-
-				<div class="schedule-grid">
-					<div class="form-group">
-						<label for="review-start-date">Start Date</label>
-
-						<div class="date-field">
-							<i
-								class="far fa-calendar-alt"
-								aria-hidden="true"
-							></i>
-							<input
-								id="review-start-date"
-								type="date"
-								class="form-control"
-								formControlName="startDate"
-							/>
-						</div>
-
-						<small
-							*ngIf="
-								form.controls.startDate.touched &&
-								form.controls.startDate.invalid
-							"
-							class="field-error"
-						>
-							Start date wajib diisi.
-						</small>
-					</div>
-
-					<div class="form-group">
-						<label for="review-end-date">End Date</label>
-
-						<div class="date-field">
-							<i
-								class="far fa-calendar-alt"
-								aria-hidden="true"
-							></i>
-							<input
-								id="review-end-date"
-								type="date"
-								class="form-control"
-								formControlName="endDate"
-							/>
-						</div>
-
-						<small
-							*ngIf="
-								form.controls.endDate.touched &&
-								form.controls.endDate.invalid
-							"
-							class="field-error"
-						>
-							End date wajib diisi.
-						</small>
-					</div>
-				</div>
-			</section>
-
 			<section
 				class="form-section equipment-preview"
 				*ngIf="data.request.details?.length"
@@ -155,21 +88,288 @@
 						<div class="equipment-index">{{ i + 1 }}</div>
 
 						<div class="equipment-copy">
-							<strong>{{
-								$any(detail).equipmentCategoryName ||
-									"Equipment"
-							}}</strong>
-							<span *ngIf="$any(detail).equipmentUnitName">
-								{{ $any(detail).equipmentUnitName }}
+							<strong>
+								{{
+									detail.equipmentUnitCode ||
+										"Unit belum dipilih"
+								}}
+							</strong>
+
+							<span>
+								{{ detail.equipmentUnitName || "—" }}
 							</span>
+
+							<small *ngIf="detail.equipmentCategoryName">
+								{{ detail.equipmentCategoryName }}
+							</small>
 						</div>
 
-						<span
-							class="equipment-quantity"
-							*ngIf="detail.quantity"
+						<div
+							class="equipment-availability"
+							[class.is-available]="
+								availability.isAvailableForRequestedPeriod
+							"
+							[class.is-unavailable]="
+								!availability.isAvailableForRequestedPeriod
+							"
+							*ngIf="$any(detail).availability as availability"
 						>
-							{{ detail.quantity }} unit
-						</span>
+							<div class="availability-header">
+								<span class="availability-status">
+									{{
+										getAvailabilityLabel(
+											availability.status,
+											availability.statusName
+										)
+									}}
+								</span>
+
+								<span
+									class="availability-code"
+									*ngIf="availability.conflictRequestNo"
+								>
+									{{ availability.conflictRequestNo }}
+								</span>
+							</div>
+
+							<div class="availability-grid">
+								<div class="availability-item">
+									<span class="availability-label"
+										>Available from</span
+									>
+									<strong>
+										{{
+											availability.availableFrom
+												? formatDisplayDateTime(
+														availability.availableFrom
+													)
+												: availability.isAvailableForRequestedPeriod
+													? "Now"
+													: "—"
+										}}
+									</strong>
+								</div>
+
+								<div
+									class="availability-item"
+									*ngIf="
+										availability.lastUsageStartDate ||
+										availability.lastUsageEndDate
+									"
+								>
+									<span class="availability-label"
+										>Last usage</span
+									>
+									<strong>
+										{{
+											formatDisplayDateTime(
+												availability.lastUsageStartDate
+											)
+										}}
+										—
+										{{
+											formatDisplayDateTime(
+												availability.lastUsageEndDate
+											)
+										}}
+									</strong>
+								</div>
+
+								<div
+									class="availability-item"
+									*ngIf="
+										availability.conflictStartDate ||
+										availability.conflictEndDate
+									"
+								>
+									<span class="availability-label"
+										>Conflict period</span
+									>
+									<strong>
+										{{
+											formatDisplayDateTime(
+												availability.conflictStartDate
+											)
+										}}
+										—
+										{{
+											formatDisplayDateTime(
+												availability.conflictEndDate
+											)
+										}}
+									</strong>
+								</div>
+
+								<div
+									class="availability-item"
+									*ngIf="availability.conflictCompanyName"
+								>
+									<span class="availability-label"
+										>Company</span
+									>
+									<strong>
+										{{ availability.conflictCompanyName }}
+										<small
+											*ngIf="
+												availability.conflictCompanyCode
+											"
+										>
+											{{
+												availability.conflictCompanyCode
+											}}
+										</small>
+									</strong>
+								</div>
+
+								<div
+									class="availability-item"
+									*ngIf="availability.conflictRequesterName"
+								>
+									<span class="availability-label"
+										>Requested by</span
+									>
+									<strong>
+										{{ availability.conflictRequesterName }}
+									</strong>
+								</div>
+
+								<div
+									class="availability-item is-requested-period"
+								>
+									<span class="availability-label"
+										>Requested period</span
+									>
+									<strong>
+										{{
+											formatInputDisplay(
+												form.controls.startDate.value
+											)
+										}}
+										—
+										{{
+											formatInputDisplay(
+												form.controls.endDate.value
+											)
+										}}
+									</strong>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="form-section">
+				<div class="section-heading">
+					<div>
+						<h3>Reservation Schedule</h3>
+						<p>
+							Periksa periode penggunaan equipment yang diajukan.
+						</p>
+					</div>
+				</div>
+
+				<div class="schedule-grid">
+					<div class="form-group">
+						<label for="review-start-date">Start Date</label>
+
+						<div class="date-field">
+							<i
+								class="far fa-calendar-alt"
+								aria-hidden="true"
+							></i>
+
+							<input
+								type="text"
+								class="form-control date-display"
+								[value]="
+									formatInputDisplay(
+										form.controls.startDate.value
+									)
+								"
+								readonly
+								(click)="startDatePicker.showPicker()"
+								(focus)="startDatePicker.showPicker()"
+							/>
+
+							<input
+								#startDatePicker
+								id="review-start-date"
+								type="datetime-local"
+								class="native-date-picker"
+								formControlName="startDate"
+							/>
+
+							<button
+								type="button"
+								class="date-picker-button"
+								aria-label="Open start date picker"
+								(click)="startDatePicker.showPicker()"
+							>
+								<i class="far fa-calendar"></i>
+							</button>
+						</div>
+						<small
+							*ngIf="
+								form.controls.startDate.touched &&
+								form.controls.startDate.invalid
+							"
+							class="field-error"
+						>
+							Start date wajib diisi.
+						</small>
+					</div>
+
+					<div class="form-group">
+						<label for="review-end-date">End Date</label>
+
+						<div class="date-field">
+							<i
+								class="far fa-calendar-alt"
+								aria-hidden="true"
+							></i>
+
+							<input
+								type="text"
+								class="form-control date-display"
+								[value]="
+									formatInputDisplay(
+										form.controls.endDate.value
+									)
+								"
+								readonly
+								(click)="endDatePicker.showPicker()"
+								(focus)="endDatePicker.showPicker()"
+							/>
+
+							<input
+								#endDatePicker
+								id="review-end-date"
+								type="datetime-local"
+								class="native-date-picker"
+								formControlName="endDate"
+								[min]="form.controls.startDate.value || null"
+							/>
+
+							<button
+								type="button"
+								class="date-picker-button"
+								aria-label="Open end date picker"
+								(click)="endDatePicker.showPicker()"
+							>
+								<i class="far fa-calendar"></i>
+							</button>
+						</div>
+
+						<small
+							*ngIf="
+								form.controls.endDate.touched &&
+								form.controls.endDate.invalid
+							"
+							class="field-error"
+						>
+							End date wajib diisi.
+						</small>
 					</div>
 				</div>
 			</section>

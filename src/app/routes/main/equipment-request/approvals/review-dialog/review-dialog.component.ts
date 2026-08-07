@@ -1,6 +1,8 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Subject, takeUntil } from 'rxjs';
+
 import { RequestAction, RequestMaster } from '../../request/request.service';
 
 export interface ReviewDialogData {
@@ -10,6 +12,7 @@ export interface ReviewDialogData {
 	approveActions: RequestAction[];
 	rejectActions: RequestAction[];
 }
+
 export interface ReviewDialogResult {
 	actionCode: string;
 	startDate: string;
@@ -23,16 +26,18 @@ export interface ReviewDialogResult {
 	styleUrls: ['./review-dialog.component.scss'],
 	standalone: false,
 })
-export class ReviewDialogComponent {
+export class ReviewDialogComponent implements OnInit, OnDestroy {
+	private readonly destroy$ = new Subject<void>();
+
 	errorMessage = '';
 
 	readonly form = this.formBuilder.group({
 		startDate: [
-			this.toDateInputValue(this.data.request.startDate),
+			this.toDateTimeInputValue(this.data.request.startDate),
 			Validators.required,
 		],
 		endDate: [
-			this.toDateInputValue(this.data.request.endDate),
+			this.toDateTimeInputValue(this.data.request.endDate),
 			Validators.required,
 		],
 		remarks: ['', Validators.maxLength(2000)],
@@ -43,13 +48,25 @@ export class ReviewDialogComponent {
 		private readonly dialogRef: MatDialogRef<ReviewDialogComponent>,
 		@Inject(MAT_DIALOG_DATA)
 		public readonly data: ReviewDialogData,
-	) {
-		console.log('[review dialog dates]', {
-			rawStartDate: this.data.request.startDate,
-			rawEndDate: this.data.request.endDate,
-			inputStartDate: this.form.controls.startDate.value,
-			inputEndDate: this.form.controls.endDate.value,
-		});
+	) {}
+
+	ngOnInit(): void {
+		this.form.controls.startDate.valueChanges
+			.pipe(takeUntil(this.destroy$))
+			.subscribe(() => {
+				this.validateSchedule();
+			});
+
+		this.form.controls.endDate.valueChanges
+			.pipe(takeUntil(this.destroy$))
+			.subscribe(() => {
+				this.validateSchedule();
+			});
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
 	}
 
 	getDialogTitle(): string {
@@ -90,6 +107,59 @@ export class ReviewDialogComponent {
 		);
 	}
 
+	getAvailabilityLabel(
+		status?: string | null,
+		statusName?: string | null,
+	): string {
+		return statusName || status || 'Availability unknown';
+	}
+
+	formatDisplayDateTime(value?: string | null): string {
+		if (!value) {
+			return '—';
+		}
+
+		const date = new Date(value);
+
+		if (Number.isNaN(date.getTime())) {
+			return value;
+		}
+
+		return new Intl.DateTimeFormat('id-ID', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+		}).format(date);
+	}
+
+	formatInputDisplay(value?: string | null): string {
+		const date = this.parseDateTimeLocal(value);
+
+		if (!date) {
+			return '';
+		}
+
+		const day = String(date.getDate()).padStart(2, '0');
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const year = date.getFullYear();
+		const hour = String(date.getHours()).padStart(2, '0');
+		const minute = String(date.getMinutes()).padStart(2, '0');
+
+		return `${day}/${month}/${year} ${hour}:${minute}`;
+	}
+
+	openDatePicker(input: HTMLInputElement): void {
+		if (typeof input.showPicker === 'function') {
+			input.showPicker();
+			return;
+		}
+
+		input.click();
+	}
+
 	submit(action: RequestAction): void {
 		if (this.form.invalid) {
 			this.form.markAllAsTouched();
@@ -98,28 +168,34 @@ export class ReviewDialogComponent {
 
 		this.errorMessage = '';
 
-		const value = this.form.getRawValue();
-
-		const startDate = value.startDate || '';
-		const endDate = value.endDate || '';
-
-		if (startDate > endDate) {
-			this.errorMessage =
-				'End date tidak boleh lebih kecil dari start date.';
+		if (!this.validateSchedule()) {
 			return;
 		}
 
+		const value = this.form.getRawValue();
+		const startDate = value.startDate || '';
+		const endDate = value.endDate || '';
+
 		if (action.requiresRemarks && !value.remarks?.trim()) {
 			this.errorMessage = 'Remarks wajib diisi untuk action ini.';
+
 			this.form.controls.remarks.markAsTouched();
+			return;
+		}
+
+		const formattedStartDate = this.formatDatabaseDateTime(startDate);
+
+		const formattedEndDate = this.formatDatabaseDateTime(endDate);
+
+		if (!formattedStartDate || !formattedEndDate) {
+			this.errorMessage = 'Format tanggal dan waktu tidak valid.';
 			return;
 		}
 
 		this.dialogRef.close(<ReviewDialogResult>{
 			actionCode: action.actionCode,
-			action,
-			startDate: this.formatDatabaseDate(value.startDate),
-			endDate: this.formatDatabaseDate(value.endDate),
+			startDate: formattedStartDate,
+			endDate: formattedEndDate,
 			remarks: value.remarks?.trim() || null,
 		});
 	}
@@ -128,70 +204,167 @@ export class ReviewDialogComponent {
 		this.dialogRef.close();
 	}
 
-	private toDateInputValue(value: string | Date | null | undefined): string {
-		if (!value) return '';
+	private validateSchedule(): boolean {
+		const startDate = this.parseDateTimeLocal(
+			this.form.controls.startDate.value,
+		);
 
-		// Kalau backend sudah kirim date-only aman: "2026-08-01"
+		const endDate = this.parseDateTimeLocal(
+			this.form.controls.endDate.value,
+		);
+
+		if (!startDate || !endDate) {
+			this.errorMessage = 'Format tanggal dan waktu tidak valid.';
+			return false;
+		}
+
+		if (endDate < startDate) {
+			this.errorMessage =
+				'End date tidak boleh lebih kecil dari start date.';
+			return false;
+		}
+
+		this.errorMessage = '';
+		return true;
+	}
+
+	private toDateTimeInputValue(
+		value: string | Date | null | undefined,
+	): string {
+		if (!value) {
+			return '';
+		}
+
 		if (typeof value === 'string') {
 			const text = value.trim();
 
-			if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-				return text;
+			const localDateTimeMatch = text.match(
+				/^(\d{4}-\d{2}-\d{2})[T\s](\d{2}):(\d{2})/,
+			);
+
+			if (
+				localDateTimeMatch &&
+				!/[zZ]$/.test(text) &&
+				!/[+-]\d{2}:\d{2}$/.test(text)
+			) {
+				return (
+					`${localDateTimeMatch[1]}T` +
+					`${localDateTimeMatch[2]}:` +
+					`${localDateTimeMatch[3]}`
+				);
 			}
 
-			// Kalau ISO datetime: "2026-07-31T17:00:00.000Z"
-			// parse ke local timezone dulu.
 			const date = new Date(text);
 
 			if (Number.isNaN(date.getTime())) {
 				return '';
 			}
 
-			return this.formatLocalDate(date);
+			return this.formatLocalDateTime(date);
 		}
 
 		if (Number.isNaN(value.getTime())) {
 			return '';
 		}
 
-		return this.formatLocalDate(value);
+		return this.formatLocalDateTime(value);
 	}
 
-	private formatLocalDate(date: Date): string {
+	private formatLocalDateTime(date: Date): string {
 		const year = date.getFullYear();
 		const month = String(date.getMonth() + 1).padStart(2, '0');
 		const day = String(date.getDate()).padStart(2, '0');
+		const hour = String(date.getHours()).padStart(2, '0');
+		const minute = String(date.getMinutes()).padStart(2, '0');
 
-		return `${year}-${month}-${day}`;
+		return `${year}-${month}-${day}T${hour}:${minute}`;
 	}
 
-	private formatDatabaseDate(
+	private formatDatabaseDateTime(
 		value: string | Date | null | undefined,
 	): string | null {
-		if (!value) return null;
-
-		if (typeof value === 'string') {
-			const text = value.trim();
-
-			if (!text) return null;
-
-			if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-				return text;
-			}
-
-			const date = new Date(text);
-
-			if (Number.isNaN(date.getTime())) {
-				return null;
-			}
-
-			return this.formatLocalDate(date);
-		}
-
-		if (Number.isNaN(value.getTime())) {
+		if (!value) {
 			return null;
 		}
 
-		return this.formatLocalDate(value);
+		if (value instanceof Date) {
+			if (Number.isNaN(value.getTime())) {
+				return null;
+			}
+
+			return `${this.formatLocalDateTime(value).replace('T', ' ')}:00`;
+		}
+
+		const text = value.trim();
+
+		if (!text) {
+			return null;
+		}
+
+		const match = text.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+
+		if (!match) {
+			return null;
+		}
+
+		const [, year, month, day, hour, minute] = match;
+
+		const date = new Date(
+			Number(year),
+			Number(month) - 1,
+			Number(day),
+			Number(hour),
+			Number(minute),
+			0,
+			0,
+		);
+
+		if (
+			date.getFullYear() !== Number(year) ||
+			date.getMonth() + 1 !== Number(month) ||
+			date.getDate() !== Number(day) ||
+			date.getHours() !== Number(hour) ||
+			date.getMinutes() !== Number(minute)
+		) {
+			return null;
+		}
+
+		return `${year}-${month}-${day} ${hour}:${minute}:00`;
+	}
+
+	private parseDateTimeLocal(value?: string | null): Date | null {
+		if (!value) {
+			return null;
+		}
+
+		const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+
+		if (!match) {
+			return null;
+		}
+
+		const [, year, month, day, hour, minute] = match;
+
+		const date = new Date(
+			Number(year),
+			Number(month) - 1,
+			Number(day),
+			Number(hour),
+			Number(minute),
+			0,
+			0,
+		);
+
+		if (
+			date.getFullYear() !== Number(year) ||
+			date.getMonth() + 1 !== Number(month) ||
+			date.getDate() !== Number(day) ||
+			date.getHours() !== Number(hour) ||
+			date.getMinutes() !== Number(minute)
+		) {
+			return null;
+		}
+
+		return date;
 	}
 }

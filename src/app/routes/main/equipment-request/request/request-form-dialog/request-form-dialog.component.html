@@ -76,10 +76,9 @@
 						</label>
 
 						<input
-							type="date"
+							type="datetime-local"
 							class="form-control"
 							formControlName="startDate"
-							[min]="form.get('startDate')?.value || null"
 						/>
 
 						<span
@@ -100,7 +99,7 @@
 						</label>
 
 						<input
-							type="date"
+							type="datetime-local"
 							class="form-control"
 							formControlName="endDate"
 							[min]="form.get('startDate')?.value || null"
@@ -244,6 +243,7 @@
 										!detail.get('equipmentCategoryId')
 											?.value
 									"
+									(change)="onUnitChange(i)"
 								>
 									<option [ngValue]="null">
 										{{
@@ -267,21 +267,98 @@
 										</ng-container>
 									</option>
 								</select>
+								<span
+									class="field-error"
+									*ngIf="
+										detail.get('equipmentUnitId')
+											?.touched &&
+										detail
+											.get('equipmentUnitId')
+											?.hasError('required')
+									"
+								>
+									Equipment unit wajib dipilih.
+								</span>
 							</div>
-							<div class="detail-row">
-								<div class="form-group quantity-field">
-									<label>
-										Qty
-										<span class="required">*</span>
-									</label>
 
-									<input
-										type="number"
-										min="1"
-										class="form-control"
-										formControlName="quantity"
-									/>
-								</div>
+							<div class="form-group capacity-unit-field">
+								<label>
+									Capacity Unit
+									<span class="required">*</span>
+								</label>
+
+								<select
+									class="form-control"
+									formControlName="requiredCapacityUnit"
+								>
+									<option value="">
+										Select capacity unit
+									</option>
+
+									<option
+										*ngFor="
+											let capacityUnit of data.capacityUnits
+										"
+										[value]="capacityUnit.lookupCode"
+									>
+										{{ capacityUnit.lookupValue }}
+									</option>
+								</select>
+
+								<span
+									class="field-error"
+									*ngIf="
+										detail.get('requiredCapacityUnit')
+											?.touched &&
+										detail
+											.get('requiredCapacityUnit')
+											?.hasError('required')
+									"
+								>
+									Capacity unit wajib diisi.
+								</span>
+							</div>
+
+							<div class="form-group capacity-value-field">
+								<label>
+									Required Capacity
+									<span class="required">*</span>
+								</label>
+
+								<input
+									type="number"
+									class="form-control"
+									formControlName="requiredCapacityValue"
+									min="0.01"
+									step="0.01"
+									placeholder="Enter required capacity"
+								/>
+
+								<span
+									class="field-error"
+									*ngIf="
+										detail.get('requiredCapacityValue')
+											?.touched &&
+										detail
+											.get('requiredCapacityValue')
+											?.hasError('required')
+									"
+								>
+									Required capacity wajib diisi.
+								</span>
+
+								<span
+									class="field-error"
+									*ngIf="
+										detail.get('requiredCapacityValue')
+											?.touched &&
+										detail
+											.get('requiredCapacityValue')
+											?.hasError('min')
+									"
+								>
+									Required capacity harus lebih dari 0.
+								</span>
 							</div>
 
 							<div class="form-group remarks-field">

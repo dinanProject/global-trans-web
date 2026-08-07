@@ -20,7 +20,6 @@ interface AssignmentDetailView extends RequestDetail {
 	categoryName: string;
 	assignments: EquipmentAssignment[];
 	activeCount: number;
-	remainingQuantity: number;
 }
 
 @Component({
@@ -33,6 +32,7 @@ export class AssignmentsComponent implements OnInit {
 	readonly STATUS_APPROVED = 'APPROVED';
 	readonly STATUS_ASSIGNED = 'ASSIGNED';
 	readonly STATUS_IN_PROGRESS = 'IN_PROGRESS';
+	readonly STATUS_PARTIALLY_COMPLETED = 'PARTIALLY_COMPLETED';
 	readonly STATUS_COMPLETED = 'COMPLETED';
 
 	readonly ASSIGNMENT_STATUS_ASSIGNED = 'ASSIGNED';
@@ -46,6 +46,19 @@ export class AssignmentsComponent implements OnInit {
 		this.STATUS_ASSIGNED,
 		this.STATUS_IN_PROGRESS,
 		this.STATUS_COMPLETED,
+	];
+
+	readonly multiUnitWorkflowStatuses = [
+		this.STATUS_APPROVED,
+		this.STATUS_ASSIGNED,
+		this.STATUS_IN_PROGRESS,
+		this.STATUS_PARTIALLY_COMPLETED,
+		this.STATUS_COMPLETED,
+	];
+
+	readonly worklistStatuses = [
+		...this.workflowStatuses,
+		this.STATUS_PARTIALLY_COMPLETED,
 	];
 
 	requests: RequestMaster[] = [];
@@ -84,7 +97,7 @@ export class AssignmentsComponent implements OnInit {
 		}).subscribe({
 			next: ({ requests, categories, units }) => {
 				this.requests = (requests || []).filter((request) =>
-					this.workflowStatuses.includes(request.status),
+					this.worklistStatuses.includes(request.status),
 				);
 				this.categories = categories || [];
 				this.units = units || [];
@@ -211,10 +224,12 @@ export class AssignmentsComponent implements OnInit {
 			const payload: AssignmentPayload = {
 				requestDetailUuid: detail.uuid || '',
 				equipmentUnitUuid: unit.uuid,
-				plannedStartDate: this.toDateOnly(
+				plannedStartDate: this.toDateTimeValue(
 					this.selectedRequest!.startDate,
 				),
-				plannedEndDate: this.toDateOnly(this.selectedRequest!.endDate),
+				plannedEndDate: this.toDateTimeValue(
+					this.selectedRequest!.endDate,
+				),
 				notes: detail.remarks || null,
 			};
 
@@ -287,9 +302,26 @@ export class AssignmentsComponent implements OnInit {
 		return this.selectedRequest?.status || '';
 	}
 
+	get visibleWorkflowStatuses(): string[] {
+		return this.totalRequested > 1 ||
+			this.requestStatus === this.STATUS_PARTIALLY_COMPLETED
+			? this.multiUnitWorkflowStatuses
+			: this.workflowStatuses;
+	}
+
 	get totalRequested(): number {
+		return this.detailViews.length;
+	}
+
+	get totalCompleted(): number {
 		return this.detailViews.reduce(
-			(total, detail) => total + Number(detail.quantity || 0),
+			(total, detail) =>
+				total +
+				detail.assignments.filter(
+					(assignment) =>
+						assignment.statusCode ===
+						this.ASSIGNMENT_STATUS_COMPLETED,
+				).length,
 			0,
 		);
 	}
@@ -306,7 +338,6 @@ export class AssignmentsComponent implements OnInit {
 			(detail) =>
 				Boolean(detail.uuid) &&
 				Boolean(this.approvedUnit(detail)) &&
-				detail.remainingQuantity > 0 &&
 				detail.activeCount === 0,
 		);
 	}
@@ -367,7 +398,6 @@ export class AssignmentsComponent implements OnInit {
 			this.requestStatus === this.STATUS_APPROVED &&
 			Boolean(this.selectedRequest?.approvalLocked) &&
 			Boolean(this.approvedUnit(detail)) &&
-			detail.remainingQuantity > 0 &&
 			detail.activeCount === 0 &&
 			!this.saving
 		);
@@ -375,7 +405,9 @@ export class AssignmentsComponent implements OnInit {
 
 	canComplete(assignment: EquipmentAssignment): boolean {
 		return (
-			this.requestStatus === this.STATUS_IN_PROGRESS &&
+			[this.STATUS_IN_PROGRESS, this.STATUS_PARTIALLY_COMPLETED].includes(
+				this.requestStatus,
+			) &&
 			assignment.statusCode === this.ASSIGNMENT_STATUS_IN_OPERATION &&
 			!this.saving
 		);
@@ -436,6 +468,7 @@ export class AssignmentsComponent implements OnInit {
 					APPROVED: 'Approved',
 					ASSIGNED: 'Assigned',
 					IN_PROGRESS: 'In Progress',
+					PARTIALLY_COMPLETED: 'Partially Completed',
 					IN_OPERATION: 'In Operation',
 					COMPLETED: 'Completed',
 					REPLACED: 'Replaced',
@@ -450,6 +483,24 @@ export class AssignmentsComponent implements OnInit {
 		return `status-${String(status || '')
 			.toLowerCase()
 			.replace(/_/g, '-')}`;
+	}
+
+	formatDateTime(value?: string | null): string {
+		if (!value) {
+			return '-';
+		}
+		const date = new Date(value);
+		if (Number.isNaN(date.getTime())) {
+			return value;
+		}
+		return new Intl.DateTimeFormat('id-ID', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+		}).format(date);
 	}
 
 	formatDate(value?: string | null): string {
@@ -468,8 +519,10 @@ export class AssignmentsComponent implements OnInit {
 	}
 
 	isWorkflowStatusActive(status: string): boolean {
-		const currentIndex = this.workflowStatuses.indexOf(this.requestStatus);
-		const statusIndex = this.workflowStatuses.indexOf(status);
+		const currentIndex = this.visibleWorkflowStatuses.indexOf(
+			this.requestStatus,
+		);
+		const statusIndex = this.visibleWorkflowStatuses.indexOf(status);
 		return currentIndex >= 0 && statusIndex <= currentIndex;
 	}
 
@@ -514,24 +567,39 @@ export class AssignmentsComponent implements OnInit {
 					category?.name || `Category #${detail.equipmentCategoryId}`,
 				assignments: detailAssignments,
 				activeCount,
-				remainingQuantity: Math.max(
-					Number(detail.quantity || 0) - activeCount,
-					0,
-				),
 			};
 		});
 	}
 
-	private toDateOnly(value: string | Date): string {
+	private toDateTimeValue(value: string | Date): string {
 		if (typeof value === 'string') {
-			return value.slice(0, 10);
+			const normalizedValue = value.trim();
+
+			const match = normalizedValue.match(
+				/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/,
+			);
+
+			if (match) {
+				const [, year, month, day, hour, minute, second = '00'] = match;
+
+				return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+			}
 		}
 
-		const year = value.getFullYear();
-		const month = String(value.getMonth() + 1).padStart(2, '0');
-		const day = String(value.getDate()).padStart(2, '0');
+		const date = value instanceof Date ? value : new Date(value);
 
-		return `${year}-${month}-${day}`;
+		if (Number.isNaN(date.getTime())) {
+			return '';
+		}
+
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		const hour = String(date.getHours()).padStart(2, '0');
+		const minute = String(date.getMinutes()).padStart(2, '0');
+		const second = String(date.getSeconds()).padStart(2, '0');
+
+		return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 	}
 
 	private runAction(
@@ -578,6 +646,9 @@ export class AssignmentsComponent implements OnInit {
 
 			case this.STATUS_IN_PROGRESS:
 				return 'Seluruh unit sedang beroperasi.';
+
+			case this.STATUS_PARTIALLY_COMPLETED:
+				return 'Sebagian unit telah selesai dan unit lainnya masih beroperasi.';
 
 			case this.STATUS_COMPLETED:
 				return 'Seluruh unit telah menyelesaikan operasi.';
