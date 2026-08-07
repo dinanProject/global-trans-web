@@ -170,6 +170,12 @@ export class UnitDialogComponent implements OnInit {
 		);
 	}
 
+	get selectedCategoryIconPath(): string {
+		const icon = this.selectedCategory?.icon || 'equipment.svg';
+
+		return `assets/icons/equipment/${icon}`;
+	}
+
 	private setUppercaseValue(
 		event: Event,
 		control: FormControl<string | null>,

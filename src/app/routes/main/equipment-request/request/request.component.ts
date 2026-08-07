@@ -86,7 +86,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.destroy$))
 			.subscribe(() => this.applyFilters());
 
-		this.loadOptions();
+		this.loadStatuses();
 		this.loadRequests();
 	}
 
@@ -137,16 +137,27 @@ export class RequestComponent implements OnInit, OnDestroy {
 	}
 
 	openCreateDialog(): void {
-		this.openFormDialog({ mode: 'create' });
+		this.loadFormOptions(() => {
+			this.openFormDialog({ mode: 'create' });
+		});
 	}
 
 	openEditDialog(request: RequestMaster): void {
-		this.requestService.getRequest(request.uuid).subscribe({
-			next: (detail) =>
-				this.openFormDialog({ mode: 'edit', request: detail }),
-			error: (error) =>
-				this.showError(error, 'Failed to load equipment request.'),
-		});
+		this.requestService
+			.getRequest(request.uuid)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (detail) => {
+					this.loadFormOptions(() => {
+						this.openFormDialog({
+							mode: 'edit',
+							request: detail,
+						});
+					});
+				},
+				error: (error) =>
+					this.showError(error, 'Failed to load equipment request.'),
+			});
 	}
 
 	openDetailDialog(request: RequestMaster, initialTabIndex = 0): void {
@@ -228,7 +239,36 @@ export class RequestComponent implements OnInit, OnDestroy {
 		return request.uuid;
 	}
 
-	private loadOptions(): void {
+	private loadStatuses(): void {
+		this.requestService
+			.getRequestStatuses()
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (statuses) => {
+					this.statuses = (statuses ?? [])
+						.filter((status) => Number(status.isActive) === 1)
+						.sort(
+							(a, b) => Number(a.sortOrder) - Number(b.sortOrder),
+						);
+				},
+				error: () => {
+					this.statuses = [];
+				},
+			});
+	}
+
+	private loadFormOptions(callback: () => void): void {
+		if (
+			this.company &&
+			this.divisions.length > 0 &&
+			this.categories.length > 0 &&
+			this.units.length > 0 &&
+			this.capacityUnits.length > 0
+		) {
+			callback();
+			return;
+		}
+
 		this.mainService
 			.getUser()
 			.pipe(takeUntil(this.destroy$))
@@ -241,8 +281,13 @@ export class RequestComponent implements OnInit, OnDestroy {
 						this.divisions = [];
 						this.categories = [];
 						this.units = [];
-						this.statuses = [];
 						this.capacityUnits = [];
+
+						this.utilityService.alert(
+							'Failed',
+							'Company user tidak ditemukan.',
+							'error',
+						);
 						return;
 					}
 
@@ -251,7 +296,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 						divisions: this.requestService.getDivisions(companyId),
 						categories: this.requestService.getCategories(),
 						units: this.requestService.getUnits(),
-						statuses: this.requestService.getRequestStatuses(),
 						capacityUnits: this.requestService.getCapacityUnits(),
 					})
 						.pipe(takeUntil(this.destroy$))
@@ -265,35 +309,25 @@ export class RequestComponent implements OnInit, OnDestroy {
 								this.divisions = result.divisions ?? [];
 								this.categories = result.categories ?? [];
 								this.units = result.units ?? [];
-								this.statuses = (result.statuses ?? [])
-									.filter(
-										(status) =>
-											Number(status.isActive) === 1,
-									)
-									.sort(
-										(a, b) =>
-											Number(a.sortOrder) -
-											Number(b.sortOrder),
-									);
 								this.capacityUnits = result.capacityUnits ?? [];
+
+								callback();
 							},
-							error: () => {
+							error: (error) => {
 								this.divisions = [];
 								this.categories = [];
 								this.units = [];
-								this.statuses = [];
 								this.capacityUnits = [];
+
+								this.showError(
+									error,
+									'Failed to load equipment request form data.',
+								);
 							},
 						});
 				},
-				error: () => {
-					this.company = null;
-					this.divisions = [];
-					this.categories = [];
-					this.units = [];
-					this.statuses = [];
-					this.capacityUnits = [];
-				},
+				error: (error) =>
+					this.showError(error, 'Failed to load user information.'),
 			});
 	}
 

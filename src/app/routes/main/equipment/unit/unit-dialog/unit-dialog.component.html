@@ -38,12 +38,10 @@
 					@if (selectedCategory) {
 						<div class="category-preview">
 							<span class="category-icon">
-								<i
-									[class]="
-										selectedCategory.icon ||
-										'fas fa-layer-group'
-									"
-								></i>
+								<img
+									[src]="selectedCategoryIconPath"
+									[alt]="selectedCategory.name"
+								/>
 							</span>
 
 							<div>
