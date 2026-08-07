@@ -5,8 +5,20 @@ import { PermissionComponent } from './permission-management/permission.componen
 import { RoleComponent } from './role-management/role.component';
 import { UserComponent } from './user/user.component';
 import { LoginLogComponent } from './login-log/login-log.component';
+import { PermissionGuard } from 'src/app/core/guards/permission-guard';
+import { EmailComponent } from './email/email.component';
 
 const routes: Routes = [
+	{
+		path: 'email',
+		component: EmailComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			title: 'Administration',
+			subtitle: '',
+			permission: 'EMAIL_OUTBOX.VIEW',
+		},
+	},
 	{
 		path: 'login-log',
 		component: LoginLogComponent,

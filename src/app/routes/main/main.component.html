@@ -41,7 +41,9 @@
 					fxFlex
 				>
 					<div class="sidebar-menus">
-						@if (menus.length > 0) {
+						@if (isMenuLoading) {
+							<div class="empty-menu">Loading menu...</div>
+						} @else if (menus.length > 0) {
 							<ul class="menus">
 								@for (menu of menus; track menu) {
 									<app-menu

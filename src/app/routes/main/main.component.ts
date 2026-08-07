@@ -37,6 +37,7 @@ import { ChangePasswordDialogComponent } from './header-bar/change-password-dial
 export class MainComponent implements OnInit, OnDestroy {
 	user: User | null = null;
 	menus: Menu[] = [];
+	isMenuLoading = true;
 
 	currentUrl = '';
 
@@ -72,6 +73,8 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.mainService.setToolbarSubtitle('');
 
 		this.initMenus();
+		this.mainService.setMenus(this.sessionService.getMenus());
+
 		this.loadMainData();
 	}
 
@@ -95,13 +98,16 @@ export class MainComponent implements OnInit, OnDestroy {
 					response.permissionCodes ?? [],
 				);
 
+				this.sessionService.setMenus(response.menus ?? []);
 				this.mainService.setMenus(response.menus ?? []);
+
+				this.isMenuLoading = false;
 			},
 			error: (error: unknown) => {
 				console.error('Failed to load user and menu data', error);
 
-				this.mainService.setMenus([]);
 				this.sessionService.setAccess([], []);
+				this.isMenuLoading = false;
 			},
 		});
 

@@ -1,0 +1,109 @@
+<div class="dialog-header">
+	<div>
+		<h5>Retry Email</h5>
+		<small>Perbaiki alamat penerima sebelum email dikirim ulang.</small>
+	</div>
+
+	<button type="button" class="btn btn-light btn-sm" (click)="cancel()">
+		<i class="fas fa-times"></i>
+	</button>
+</div>
+
+<mat-dialog-content>
+	<div class="email-summary">
+		<div class="email-summary-title">
+			<strong>{{ data.email.subject }}</strong>
+
+			<small>
+				{{ data.email.moduleCode || "—" }}
+				<span *ngIf="data.email.referenceUuid">
+					• {{ data.email.referenceUuid }}
+				</span>
+			</small>
+		</div>
+
+		<div class="email-summary-info">
+			<div>
+				<span>Status</span>
+				<strong>{{ data.email.statusCode }}</strong>
+			</div>
+
+			<div>
+				<span>Attempt</span>
+				<strong>
+					{{ data.email.attemptCount }} / {{ data.email.maxAttempt }}
+				</strong>
+			</div>
+
+			<div>
+				<span>Last Activity</span>
+
+				<strong *ngIf="lastActivity; else noLastActivity">
+					{{ lastActivity | date: "dd MMM yyyy HH:mm:ss" }}
+				</strong>
+
+				<ng-template #noLastActivity>
+					<strong>—</strong>
+				</ng-template>
+			</div>
+		</div>
+
+		<div *ngIf="data.email.lastErrorMessage" class="email-summary-error">
+			<span>Last Error</span>
+			<strong>{{ data.email.lastErrorMessage }}</strong>
+		</div>
+	</div>
+
+	<form [formGroup]="form">
+		<div class="form-group">
+			<label>To Email <span class="text-danger">*</span></label>
+			<input
+				type="text"
+				class="form-control"
+				formControlName="toEmail"
+				placeholder="recipient@example.com"
+			/>
+
+			<small
+				*ngIf="
+					form.controls.toEmail.touched &&
+					form.controls.toEmail.invalid
+				"
+				class="text-danger"
+			>
+				To email wajib diisi.
+			</small>
+		</div>
+
+		<div class="form-group">
+			<label>CC Email</label>
+			<input
+				type="text"
+				class="form-control"
+				formControlName="ccEmail"
+				placeholder="Optional"
+			/>
+		</div>
+
+		<div class="form-group mb-0">
+			<label>BCC Email</label>
+			<input
+				type="text"
+				class="form-control"
+				formControlName="bccEmail"
+				placeholder="Optional"
+			/>
+		</div>
+	</form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+	<button type="button" class="btn btn-light" (click)="cancel()">
+		Cancel
+	</button>
+
+	<button type="button" class="btn btn-primary" (click)="save()">
+		<i class="fas fa-redo mr-1"></i>
+		Continue Retry
+	</button>
+</mat-dialog-actions>
