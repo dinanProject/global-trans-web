@@ -153,24 +153,40 @@ export class EmailComponent implements OnInit, OnDestroy {
 	}
 
 	openRetryDialog(email: EmailOutbox): void {
-		const data: EmailRetryDialogData = { email };
-
-		this.dialog
-			.open(EmailRetryDialogComponent, {
-				width: '620px',
-				maxWidth: '95vw',
-				disableClose: true,
-				autoFocus: false,
-				data,
-			})
-			.afterClosed()
+		this.emailService
+			.getEmail(email.uuid)
 			.pipe(takeUntil(this.destroy$))
-			.subscribe((result) => {
-				if (result?.action !== 'retry') {
-					return;
-				}
+			.subscribe({
+				next: (detail) => {
+					const data: EmailRetryDialogData = {
+						email: detail,
+					};
 
-				void this.retryEmail(email, result.payload);
+					this.dialog
+						.open(EmailRetryDialogComponent, {
+							width: '1180px',
+							maxWidth: '96vw',
+							disableClose: true,
+							autoFocus: false,
+							data,
+						})
+						.afterClosed()
+						.pipe(takeUntil(this.destroy$))
+						.subscribe((result) => {
+							if (result?.action !== 'retry') {
+								return;
+							}
+
+							void this.retryEmail(email, result.payload);
+						});
+				},
+				error: () => {
+					void this.utilityService.alert(
+						'Retry Email',
+						'Gagal memuat detail email.',
+						'error',
+					);
+				},
 			});
 	}
 

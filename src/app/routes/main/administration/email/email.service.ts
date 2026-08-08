@@ -64,6 +64,11 @@ export interface EmailRetryResult {
 	statusCode: string;
 }
 
+export interface EmailOutboxDetail extends EmailOutbox {
+	bodyHtml: string | null;
+	bodyText: string | null;
+}
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -94,6 +99,10 @@ export class EmailService {
 		}
 
 		return this.apiService.get(this.baseUrl, params);
+	}
+
+	getEmail(uuid: string): Observable<EmailOutboxDetail> {
+		return this.apiService.get(`${this.baseUrl}/${uuid}`);
 	}
 
 	retryEmail(

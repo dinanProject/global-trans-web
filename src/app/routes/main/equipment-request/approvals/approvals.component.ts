@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
+
 import {
 	Subject,
 	debounceTime,
@@ -13,15 +12,8 @@ import {
 
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import { RequestAction, RequestMaster } from '../request/request.service';
-import {
-	RequestDetailDialogComponent,
-	RequestDetailDialogData,
-} from '../request/request-detail-dialog/request-detail-dialog.component';
+
 import { ApprovalService } from './approvals.service';
-import {
-	ReviewDialogComponent,
-	ReviewDialogResult,
-} from './review-dialog/review-dialog.component';
 
 @Component({
 	selector: 'app-equipment-request-approvals',
@@ -47,14 +39,12 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 	filteredRequests: RequestMaster[] = [];
 
 	isLoading = false;
-	actionUuid = '';
-	actionCode = '';
+
 	errorMessage = '';
 
 	constructor(
 		private readonly approvalService: ApprovalService,
 		private readonly utilityService: UtilityService,
-		private readonly dialog: MatDialog,
 		private readonly router: Router,
 	) {}
 
@@ -157,118 +147,15 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 			return;
 		}
 
-		const url = this.router.serializeUrl(
-			this.router.createUrlTree([
-				'/equipment-request/approvals',
-				request.uuid,
-				'review',
-			]),
-		);
-
-		window.open(url, '_blank', 'noopener,noreferrer');
+		this.router.navigate([
+			'/equipment-request/approvals',
+			request.uuid,
+			'review',
+		]);
 	}
 
 	canReview(request: RequestMaster): boolean {
 		return this.approvalActions(request).length > 0;
-	}
-
-	openReviewDialog(request: RequestMaster): void {
-		if (this.actionUuid) return;
-
-		this.actionUuid = request.uuid;
-		this.errorMessage = '';
-
-		this.approvalService
-			.getApprovalReview(request.uuid)
-			.pipe(
-				takeUntil(this.destroy$),
-				finalize(() => {
-					this.actionUuid = '';
-				}),
-			)
-			.subscribe({
-				next: (approvalDetail: RequestMaster) => {
-					const actions = this.approvalActions(approvalDetail);
-					const approveActions = actions.filter((action) =>
-						this.isApproveAction(action),
-					);
-					const rejectActions = actions.filter((action) =>
-						this.isRejectAction(action),
-					);
-
-					const action =
-						this.getPrimaryReviewAction(approvalDetail) ??
-						actions[0];
-
-					if (!action) {
-						this.utilityService.alert(
-							'Unavailable',
-							'Tidak ada approval action yang tersedia untuk request ini.',
-							'warning',
-						);
-						return;
-					}
-
-					const dialogRef = this.dialog.open(ReviewDialogComponent, {
-						width: '920px',
-						maxWidth: '94vw',
-						maxHeight: '94vh',
-						disableClose: true,
-						autoFocus: false,
-						panelClass: 'equipment-request-review-dialog-panel',
-						data: {
-							request: approvalDetail,
-							action,
-							actions,
-							approveActions,
-							rejectActions,
-						},
-					});
-
-					dialogRef
-						.afterClosed()
-						.pipe(takeUntil(this.destroy$))
-						.subscribe((result?: ReviewDialogResult) => {
-							if (!result) return;
-
-							this.submitReview(approvalDetail, result);
-						});
-				},
-
-				error: (error: HttpErrorResponse) => {
-					this.utilityService.alert(
-						'Failed',
-						error?.error?.meta?.message ??
-							error?.error?.message ??
-							'Failed to load approval detail.',
-						'error',
-					);
-				},
-			});
-	}
-
-	openDetailDialog(request: RequestMaster): void {
-		const dialogRef = this.dialog.open(RequestDetailDialogComponent, {
-			width: '1180px',
-			maxWidth: '96vw',
-			maxHeight: '94vh',
-			disableClose: true,
-			autoFocus: false,
-			panelClass: 'equipment-request-detail-dialog-panel',
-			data: <RequestDetailDialogData>{
-				requestUuid: request.uuid,
-				source: 'approval',
-			},
-		});
-
-		dialogRef
-			.afterClosed()
-			.pipe(takeUntil(this.destroy$))
-			.subscribe((result) => {
-				if (result?.action === 'refresh') {
-					this.loadRequests();
-				}
-			});
 	}
 
 	statusClass(status: string | null | undefined): string {
@@ -313,63 +200,6 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 		return ['APPROVE_GTSI', 'REJECT_GTSI'].includes(action.actionCode);
 	}
 
-	private getPrimaryReviewAction(
-		request: RequestMaster,
-	): RequestAction | null {
-		const actions = this.approvalActions(request);
-
-		return (
-			actions.find((action: RequestAction) =>
-				['APPROVE_CLIENT', 'APPROVE_GTSI'].includes(action.actionCode),
-			) ??
-			actions[0] ??
-			null
-		);
-	}
-
-	private submitReview(
-		request: RequestMaster,
-		result: ReviewDialogResult,
-	): void {
-		if (this.actionUuid) return;
-
-		this.actionUuid = request.uuid;
-		this.actionCode = result.actionCode;
-
-		this.approvalService
-			.executeAction(request.uuid, {
-				actionCode: result.actionCode,
-				startDate: result.startDate,
-				endDate: result.endDate,
-				remarks: result.remarks,
-			})
-			.pipe(
-				finalize(() => {
-					this.actionUuid = '';
-					this.actionCode = '';
-				}),
-			)
-			.subscribe({
-				next: () => {
-					this.utilityService.alert(
-						'Success',
-						'Approval request berhasil diproses.',
-						'success',
-					);
-
-					this.loadRequests();
-				},
-
-				error: (error: HttpErrorResponse) => {
-					this.showActionError(error);
-				},
-			});
-	}
-
-	private isApprovalRequest(request: RequestMaster): boolean {
-		return this.approvalActions(request).length > 0;
-	}
-
 	private applyFilters(): void {
 		const keyword = this.searchControl.value.trim().toLowerCase();
 
@@ -411,16 +241,6 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 		}
 
 		return 'other';
-	}
-
-	private showActionError(error: HttpErrorResponse): void {
-		this.utilityService.alert(
-			'Failed',
-			error?.error?.meta?.message ??
-				error?.error?.message ??
-				'Failed to process action.',
-			'error',
-		);
 	}
 
 	formatPeriodDateTime(value?: string | null): string {

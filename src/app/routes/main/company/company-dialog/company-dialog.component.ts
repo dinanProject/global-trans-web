@@ -39,6 +39,8 @@ export class CompanyDialogComponent implements OnInit {
 	formSubmitAttempt = false;
 	isEdit = false;
 
+	private initialEditValue: CompanyPayload | null = null;
+
 	constructor(
 		private formBuilder: FormBuilder,
 		private dialogRef: MatDialogRef<CompanyDialogComponent>,
@@ -98,6 +100,44 @@ export class CompanyDialogComponent implements OnInit {
 				},
 			),
 		});
+
+		if (this.isEdit) {
+			this.formGroup.controls.code.disable({
+				emitEvent: false,
+			});
+		}
+
+		if (this.isEdit && this.data.company) {
+			this.initialEditValue = {
+				typeId: this.data.company.typeId ?? 0,
+				code: this.data.company.code.trim().toUpperCase(),
+				name: this.data.company.name.trim(),
+				taxNumber: this.normalizeNullableString(
+					this.data.company.taxNumber ?? null,
+				),
+				email: this.normalizeNullableString(
+					this.data.company.email ?? null,
+				),
+				phone: this.normalizeNullableString(
+					this.data.company.phone ?? null,
+				),
+				address: this.normalizeNullableString(
+					this.data.company.address ?? null,
+				),
+				city: this.normalizeNullableString(
+					this.data.company.city ?? null,
+				),
+				province: this.normalizeNullableString(
+					this.data.company.province ?? null,
+				),
+				postalCode: this.normalizeNullableString(
+					this.data.company.postalCode ?? null,
+				),
+				isActive:
+					this.data.company.isActive === true ||
+					this.data.company.isActive === 1,
+			};
+		}
 	}
 
 	onCodeInput(event: Event): void {
@@ -138,6 +178,26 @@ export class CompanyDialogComponent implements OnInit {
 			postalCode: this.normalizeNullableString(value.postalCode),
 			isActive: value.isActive,
 		};
+
+		if (this.isEdit && this.initialEditValue) {
+			const hasChanges =
+				payload.typeId !== this.initialEditValue.typeId ||
+				payload.code !== this.initialEditValue.code ||
+				payload.name !== this.initialEditValue.name ||
+				payload.taxNumber !== this.initialEditValue.taxNumber ||
+				payload.email !== this.initialEditValue.email ||
+				payload.phone !== this.initialEditValue.phone ||
+				payload.address !== this.initialEditValue.address ||
+				payload.city !== this.initialEditValue.city ||
+				payload.province !== this.initialEditValue.province ||
+				payload.postalCode !== this.initialEditValue.postalCode ||
+				payload.isActive !== this.initialEditValue.isActive;
+
+			if (!hasChanges) {
+				this.dialogRef.close();
+				return;
+			}
+		}
 
 		const result: CompanyDialogResult = {
 			action: 'save',

@@ -342,7 +342,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 
 					this.assignments = overview?.assignments || [];
 
-					if (initializeOptions || this.companyOptions.length === 0) {
+					if (initializeOptions || this.assignments.length > 0) {
 						this.buildFilterOptions(this.assignments);
 					}
 
@@ -401,9 +401,15 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	}
 
 	private buildFilterOptions(assignments: MonitoringAssignment[]): void {
-		const companies = new Map<string, CompanyOption>();
-		const divisions = new Map<string, DivisionOption>();
-		const equipment = new Map<string, EquipmentOption>();
+		const companies = new Map<string, CompanyOption>(
+			this.companyOptions.map((company) => [company.uuid, company]),
+		);
+		const divisions = new Map<string, DivisionOption>(
+			this.divisionOptions.map((division) => [division.uuid, division]),
+		);
+		const equipment = new Map<string, EquipmentOption>(
+			this.equipmentOptions.map((item) => [item.uuid, item]),
+		);
 
 		assignments.forEach((assignment) => {
 			if (

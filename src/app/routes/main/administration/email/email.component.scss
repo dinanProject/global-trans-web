@@ -343,3 +343,12 @@
 		justify-content: flex-end;
 	}
 }
+
+@media (max-width: 767px) {
+	.search-field,
+	.status-field,
+	.date-field,
+	.reset-button {
+		width: 100%;
+	}
+}

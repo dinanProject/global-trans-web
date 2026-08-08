@@ -244,10 +244,7 @@
 								<button
 									type="button"
 									class="btn btn-sm btn-primary action-button"
-									[disabled]="
-										!canReview(request) ||
-										actionUuid === request.uuid
-									"
+									[disabled]="!canReview(request)"
 									(click)="openReviewPage(request)"
 								>
 									<i class="fas fa-search-plus mr-1"></i>

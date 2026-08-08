@@ -115,6 +115,9 @@ export class LoginLogComponent implements OnInit, OnDestroy {
 
 	private loadLoginStatuses(): void {
 		this.isStatusLoading = true;
+		this.statusControl.disable({
+			emitEvent: false,
+		});
 
 		this.lookupService
 			.getLookupsByGroup('LOGIN_STATUS')
@@ -122,6 +125,10 @@ export class LoginLogComponent implements OnInit, OnDestroy {
 				takeUntil(this.destroy$),
 				finalize(() => {
 					this.isStatusLoading = false;
+
+					this.statusControl.enable({
+						emitEvent: false,
+					});
 				}),
 			)
 			.subscribe({

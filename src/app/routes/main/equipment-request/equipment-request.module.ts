@@ -15,7 +15,6 @@ import { ReportsComponent } from './reports/reports.component';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ApprovalsComponent } from './approvals/approvals.component';
 import { RequestComponent } from './request/request.component';
-import { ReviewDialogComponent } from './approvals/review-dialog/review-dialog.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
 import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 
@@ -24,7 +23,6 @@ import { ApprovalReviewComponent } from './approvals/approval-review/approval-re
 		RequestComponent,
 		RequestFormDialogComponent,
 		RequestDetailDialogComponent,
-		ReviewDialogComponent,
 		ApprovalsComponent,
 		ApprovalReviewComponent,
 		AssignmentsComponent,

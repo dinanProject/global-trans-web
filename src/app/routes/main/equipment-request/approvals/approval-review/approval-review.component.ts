@@ -306,16 +306,6 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 	}
 
 	private returnAfterSuccess(): void {
-		if (window.opener && !window.opener.closed) {
-			try {
-				window.opener.location.reload();
-				window.close();
-				return;
-			} catch {
-				// fallback ke navigation biasa
-			}
-		}
-
 		this.backToApprovals();
 	}
 
@@ -342,9 +332,15 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 			)
 			.subscribe({
 				next: () => {
+					const isReject = ['REJECT_CLIENT', 'REJECT_GTSI'].includes(
+						payload.actionCode,
+					);
+
 					this.utilityService.alert(
 						'Success',
-						'Approval request berhasil diproses.',
+						isReject
+							? 'Equipment request rejected successfully.'
+							: 'Equipment request approved successfully.',
 						'success',
 					);
 

@@ -146,11 +146,29 @@
 			<panel *ngIf="!loadingDetail && !selectedRequest">
 				<panel-body>
 					<div class="empty-state">
-						<i class="fas fa-hand-pointer"></i>
-						<h5>Pilih equipment request</h5>
+						<i
+							class="fas"
+							[ngClass]="
+								filteredRequests.length === 0
+									? 'fa-inbox'
+									: 'fa-hand-pointer'
+							"
+						></i>
+
+						<h5>
+							{{
+								filteredRequests.length === 0
+									? "Tidak ada assignment request"
+									: "Pilih assignment request"
+							}}
+						</h5>
+
 						<p>
-							Pilih request pada worklist untuk melihat dan
-							memproses assignment.
+							{{
+								filteredRequests.length === 0
+									? "Pencarian request tidak ada."
+									: "Pilih request terlebih dahulu dari menu sebelah kiri."
+							}}
 						</p>
 					</div>
 				</panel-body>
