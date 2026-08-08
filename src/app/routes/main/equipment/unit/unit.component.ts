@@ -6,7 +6,6 @@ import {
 	ViewChild,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { catchError, finalize, forkJoin, of, Subject, takeUntil } from 'rxjs';
@@ -21,6 +20,7 @@ import {
 	UnitService,
 } from './unit.service';
 import { UnitDialogComponent } from './unit-dialog/unit-dialog.component';
+import { AppDialogService } from 'src/app/shared/dialog/app-dialog.service';
 
 type UnitStatusFilter = 'all' | 'active' | 'inactive';
 
@@ -82,7 +82,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	constructor(
 		private unitService: UnitService,
-		private dialog: MatDialog,
+		private dialog: AppDialogService,
 		private utilityService: UtilityService,
 	) {}
 
@@ -228,14 +228,16 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			});
 	}
 
-	openCreateDialog(): void {
+	openCreateDialog(event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
 		this.loadCapacityUnitsForDialog(() => {
-			this.openCreateUnitDialog();
+			this.openCreateUnitDialog(origin);
 		});
 	}
 
-	private openCreateUnitDialog(): void {
+	private openCreateUnitDialog(origin: HTMLElement): void {
 		const dialogRef = this.dialog.open(UnitDialogComponent, {
+			origin,
 			width: '800px',
 			maxWidth: '95vw',
 			disableClose: true,
@@ -258,13 +260,14 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			});
 	}
 
-	openEditDialog(unit: Unit): void {
+	openEditDialog(unit: Unit, event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
 		this.loadCapacityUnitsForDialog(() => {
-			this.openEditUnitDialog(unit);
+			this.openEditUnitDialog(unit, origin);
 		});
 	}
 
-	private openEditUnitDialog(unit: Unit): void {
+	private openEditUnitDialog(unit: Unit, origin: HTMLElement): void {
 		const categories = this.getDialogCategories(unit);
 
 		this.initialEditValue = {
@@ -281,6 +284,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 		};
 
 		const dialogRef = this.dialog.open(UnitDialogComponent, {
+			origin,
 			width: '800px',
 			maxWidth: '95vw',
 			disableClose: true,

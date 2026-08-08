@@ -10,7 +10,7 @@
 		<button
 			type="button"
 			class="btn btn-primary"
-			(click)="openCreateDialog()"
+			(click)="openCreateDialog($event)"
 		>
 			<i class="fas fa-plus mr-1"></i>
 			Add Role
@@ -211,7 +211,7 @@
 										!canEditRole(role) ||
 										deletingUuid === role.uuid
 									"
-									(click)="openEditDialog(role)"
+									(click)="openEditDialog(role, $event)"
 								>
 									<i class="fas fa-edit mr-2"></i>
 									<span>Edit</span>
@@ -223,7 +223,7 @@
 										!canManagePermissions(role) ||
 										deletingUuid === role.uuid
 									"
-									(click)="openPermissionDialog(role)"
+									(click)="openPermissionDialog(role, $event)"
 								>
 									<i class="fas fa-key mr-2"></i>
 									<span>Manage Permissions</span>
