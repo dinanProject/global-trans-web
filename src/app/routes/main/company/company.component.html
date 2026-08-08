@@ -12,7 +12,7 @@
 			type="button"
 			class="btn btn-primary"
 			[disabled]="isLoading || companyTypes.length === 0"
-			(click)="openCreateDialog($event)"
+			(click)="openCreateDialog()"
 		>
 			<i class="fas fa-plus mr-1"></i>
 			Add Company
@@ -255,7 +255,7 @@
 							<mat-menu #actionMenu="matMenu">
 								<button
 									mat-menu-item
-									(click)="openEditDialog(company, $event)"
+									(click)="openEditDialog(company)"
 								>
 									<i class="fas fa-edit mr-2"></i>
 									<span>Edit</span>

@@ -10,7 +10,7 @@
 		<button
 			type="button"
 			class="btn btn-primary"
-			(click)="openCreateDialog($event)"
+			(click)="openCreateDialog()"
 		>
 			<i class="fas fa-user-plus mr-1"></i>
 			Add User
@@ -195,7 +195,7 @@
 									[disabled]="
 										isProtectedSystemDeveloperAccount(user)
 									"
-									(click)="openEditDialog(user, $event)"
+									(click)="openEditDialog(user)"
 								>
 									<i class="fas fa-edit mr-2"></i>
 									<span>Edit</span>
@@ -207,7 +207,7 @@
 										!user.isActive ||
 										isProtectedSystemDeveloperAccount(user)
 									"
-									(click)="openPasswordDialog(user, $event)"
+									(click)="openPasswordDialog(user)"
 								>
 									<i class="fas fa-key mr-2"></i>
 									<span>Change Password</span>

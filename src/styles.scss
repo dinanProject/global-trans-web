@@ -5,7 +5,6 @@ $animation-number: 0;
 @use "themes/button";
 @use "themes/panel";
 @use "themes/table";
-@use "app/shared/dialog/dialog";
 
 /* You can add global styles to this file, and also import other style files */
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
