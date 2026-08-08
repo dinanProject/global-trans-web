@@ -7,13 +7,14 @@
 				requests.</small
 			>
 		</div>
-		<button
-			type="button"
-			class="btn btn-primary"
+		<loading-button
+			[isLoading]="isFormOptionsLoading"
+			loadingText="Loading..."
+			className="btn btn-primary"
 			(click)="openCreateDialog()"
 		>
 			<i class="fas fa-plus mr-1"></i> Add Request
-		</button>
+		</loading-button>
 	</div>
 </page-header>
 

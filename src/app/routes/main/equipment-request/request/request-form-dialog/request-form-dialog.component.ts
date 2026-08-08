@@ -7,7 +7,6 @@ import {
 	CapacityUnitOption,
 	CategoryOption,
 	RequestCompanyOption,
-	RequestDetail,
 	RequestDivisionOption,
 	RequestMaster,
 	RequestPayload,

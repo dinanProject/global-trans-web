@@ -17,6 +17,7 @@ import { ApprovalsComponent } from './approvals/approvals.component';
 import { RequestComponent } from './request/request.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
 import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
+import { LoadingButtonModule } from 'src/app/shared/loading-button/loading-button.module';
 
 @NgModule({
 	declarations: [
@@ -37,6 +38,7 @@ import { ApprovalReviewComponent } from './approvals/approval-review/approval-re
 		PageModule,
 		PanelModule,
 		LoadingModule,
+		LoadingButtonModule,
 
 		MatTableModule,
 		MatMenuModule,
