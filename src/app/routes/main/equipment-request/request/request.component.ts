@@ -31,6 +31,8 @@ import {
 	UnitOption,
 } from './request.service';
 
+import { SessionService } from 'src/app/core/services/session.service';
+
 @Component({
 	selector: 'app-request',
 	templateUrl: './request.component.html',
@@ -54,6 +56,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 	statuses: RequestStatusOption[] = [];
 	capacityUnits: CapacityUnitOption[] = [];
 	isLoading = false;
+	isFormOptionsLoading = false;
 	deletingUuid = '';
 	actionUuid = '';
 	errorMessage = '';
@@ -64,6 +67,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 		private readonly requestService: RequestService,
 		private readonly mainService: MainService,
 		private readonly utilityService: UtilityService,
+		private readonly sessionService: SessionService,
 		private readonly dialog: MatDialog,
 	) {}
 
@@ -262,6 +266,8 @@ export class RequestComponent implements OnInit, OnDestroy {
 	}
 
 	private loadFormOptions(callback: () => void): void {
+		if (this.isFormOptionsLoading) return;
+
 		if (
 			this.company &&
 			this.divisions.length > 0 &&
@@ -273,65 +279,61 @@ export class RequestComponent implements OnInit, OnDestroy {
 			return;
 		}
 
-		this.mainService
-			.getUser()
-			.pipe(takeUntil(this.destroy$))
+		const companyId = Number(this.sessionService.getUser()?.companyId);
+
+		if (!companyId) {
+			this.company = null;
+			this.divisions = [];
+			this.categories = [];
+			this.units = [];
+			this.capacityUnits = [];
+
+			this.utilityService.alert(
+				'Failed',
+				'Company user tidak ditemukan.',
+				'error',
+			);
+			return;
+		}
+
+		this.isFormOptionsLoading = true;
+
+		forkJoin({
+			companies: this.requestService.getCompanies(),
+			divisions: this.requestService.getDivisions(companyId),
+			categories: this.requestService.getCategories(),
+			units: this.requestService.getUnits(),
+			capacityUnits: this.requestService.getCapacityUnits(),
+		})
+			.pipe(
+				takeUntil(this.destroy$),
+				finalize(() => (this.isFormOptionsLoading = false)),
+			)
 			.subscribe({
-				next: (response) => {
-					const companyId = Number(response?.user?.companyId);
+				next: (result) => {
+					this.company =
+						(result.companies ?? []).find(
+							(item) => Number(item.id) === companyId,
+						) ?? null;
 
-					if (!companyId) {
-						this.company = null;
-						this.divisions = [];
-						this.categories = [];
-						this.units = [];
-						this.capacityUnits = [];
+					this.divisions = result.divisions ?? [];
+					this.categories = result.categories ?? [];
+					this.units = result.units ?? [];
+					this.capacityUnits = result.capacityUnits ?? [];
 
-						this.utilityService.alert(
-							'Failed',
-							'Company user tidak ditemukan.',
-							'error',
-						);
-						return;
-					}
-
-					forkJoin({
-						companies: this.requestService.getCompanies(),
-						divisions: this.requestService.getDivisions(companyId),
-						categories: this.requestService.getCategories(),
-						units: this.requestService.getUnits(),
-						capacityUnits: this.requestService.getCapacityUnits(),
-					})
-						.pipe(takeUntil(this.destroy$))
-						.subscribe({
-							next: (result) => {
-								this.company =
-									(result.companies ?? []).find(
-										(item) => Number(item.id) === companyId,
-									) ?? null;
-
-								this.divisions = result.divisions ?? [];
-								this.categories = result.categories ?? [];
-								this.units = result.units ?? [];
-								this.capacityUnits = result.capacityUnits ?? [];
-
-								callback();
-							},
-							error: (error) => {
-								this.divisions = [];
-								this.categories = [];
-								this.units = [];
-								this.capacityUnits = [];
-
-								this.showError(
-									error,
-									'Failed to load equipment request form data.',
-								);
-							},
-						});
+					callback();
 				},
-				error: (error) =>
-					this.showError(error, 'Failed to load user information.'),
+				error: (error) => {
+					this.divisions = [];
+					this.categories = [];
+					this.units = [];
+					this.capacityUnits = [];
+
+					this.showError(
+						error,
+						'Failed to load equipment request form data.',
+					);
+				},
 			});
 	}
 
