@@ -6,6 +6,7 @@ import {
 	ViewChild,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { catchError, finalize, of, Subject, takeUntil } from 'rxjs';
@@ -18,7 +19,6 @@ import {
 	CategoryService,
 } from './category.service';
 import { CategoryDialogComponent } from './category-dialog/category-dialog.component';
-import { AppDialogService } from 'src/app/shared/dialog/app-dialog.service';
 
 type CategoryStatusFilter = 'all' | 'active' | 'inactive';
 
@@ -67,7 +67,7 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	constructor(
 		private categoryService: CategoryService,
-		private dialog: AppDialogService,
+		private dialog: MatDialog,
 		private utilityService: UtilityService,
 	) {}
 
@@ -142,9 +142,8 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 		return `assets/icons/equipment/${normalizedIcon}`;
 	}
 
-	openCreateDialog(event: MouseEvent): void {
+	openCreateDialog(): void {
 		const dialogRef = this.dialog.open(CategoryDialogComponent, {
-			origin: event.currentTarget as HTMLElement,
 			width: '700px',
 			maxWidth: '95vw',
 			disableClose: true,
@@ -165,7 +164,7 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 			});
 	}
 
-	openEditDialog(category: Category, event: MouseEvent): void {
+	openEditDialog(category: Category): void {
 		this.initialEditValue = {
 			code: (category.code ?? '').trim().toUpperCase(),
 			name: (category.name ?? '').trim(),
@@ -175,7 +174,6 @@ export class CategoryComponent implements OnInit, AfterViewInit, OnDestroy {
 		};
 
 		const dialogRef = this.dialog.open(CategoryDialogComponent, {
-			origin: event.currentTarget as HTMLElement,
 			width: '700px',
 			maxWidth: '95vw',
 			disableClose: true,

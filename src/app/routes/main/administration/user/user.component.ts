@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import {
 	Subject,
 	debounceTime,
@@ -18,8 +19,6 @@ import {
 	UserPasswordDialogComponent,
 	UserPasswordDialogData,
 } from './user-password-dialog/user-password-dialog.component';
-
-import { AppDialogService } from 'src/app/shared/dialog/app-dialog.service';
 
 @Component({
 	selector: 'app-user',
@@ -45,7 +44,7 @@ export class UserComponent implements OnInit, OnDestroy {
 	constructor(
 		private readonly userService: UserService,
 		private readonly sessionService: SessionService,
-		private readonly dialog: AppDialogService,
+		private readonly dialog: MatDialog,
 		private readonly utilityService: UtilityService,
 	) {}
 
@@ -130,35 +129,27 @@ export class UserComponent implements OnInit, OnDestroy {
 		this.applyFilters();
 	}
 
-	openCreateDialog(event: MouseEvent): void {
-		const origin = event.currentTarget as HTMLElement;
+	openCreateDialog(): void {
 		this.loadOptionsForDialog(() => {
-			this.openDialog(
-				{
-					mode: 'create',
-					options: this.options,
-				},
-				origin,
-			);
+			this.openDialog({
+				mode: 'create',
+				options: this.options,
+			});
 		});
 	}
 
-	openEditDialog(user: UserMaster, event: MouseEvent): void {
-		const origin = event.currentTarget as HTMLElement;
+	openEditDialog(user: UserMaster): void {
 		this.userService
 			.getUser(user.uuid)
 			.pipe(takeUntil(this.destroy$))
 			.subscribe({
 				next: (detail) => {
 					this.loadOptionsForDialog(() => {
-						this.openDialog(
-							{
-								mode: 'edit',
-								user: detail,
-								options: this.options,
-							},
-							origin,
-						);
+						this.openDialog({
+							mode: 'edit',
+							user: detail,
+							options: this.options,
+						});
 					});
 				},
 				error: (error) => {
@@ -171,8 +162,7 @@ export class UserComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	openPasswordDialog(user: UserMaster, event: MouseEvent): void {
-		const origin = event.currentTarget as HTMLElement;
+	openPasswordDialog(user: UserMaster): void {
 		const data: UserPasswordDialogData = {
 			uuid: user.uuid,
 			fullName: user.fullName,
@@ -181,7 +171,6 @@ export class UserComponent implements OnInit, OnDestroy {
 
 		this.dialog
 			.open(UserPasswordDialogComponent, {
-				origin,
 				width: '520px',
 				maxWidth: '95vw',
 				disableClose: true,
@@ -287,10 +276,9 @@ export class UserComponent implements OnInit, OnDestroy {
 		return user.uuid;
 	}
 
-	private openDialog(data: UserFormDialogData, origin: HTMLElement): void {
+	private openDialog(data: UserFormDialogData): void {
 		this.dialog
 			.open(UserFormDialogComponent, {
-				origin,
 				width: '1120px',
 				maxWidth: '96vw',
 				maxHeight: '94vh',

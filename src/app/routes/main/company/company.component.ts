@@ -6,6 +6,7 @@ import {
 	ViewChild,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { catchError, finalize, forkJoin, of, Subject, takeUntil } from 'rxjs';
@@ -23,7 +24,6 @@ import {
 	CompanyType,
 } from './company.service';
 import { CompanyDialogComponent } from './company-dialog/company-dialog.component';
-import { AppDialogService } from '../../../shared/dialog/app-dialog.service';
 
 type CompanyStatusFilter = 'all' | 'active' | 'inactive';
 
@@ -71,8 +71,8 @@ export class CompanyComponent implements OnInit, AfterViewInit, OnDestroy {
 	constructor(
 		private companyService: CompanyService,
 		private lookupService: LookupService,
+		private dialog: MatDialog,
 		private utilityService: UtilityService,
-		private dialog: AppDialogService,
 	) {}
 
 	ngOnInit(): void {
@@ -199,7 +199,7 @@ export class CompanyComponent implements OnInit, AfterViewInit, OnDestroy {
 			.join(', ');
 	}
 
-	openCreateDialog(event: MouseEvent): void {
+	openCreateDialog(): void {
 		if (this.companyTypes.length === 0) {
 			this.utilityService.alert(
 				'Failed',
@@ -211,7 +211,6 @@ export class CompanyComponent implements OnInit, AfterViewInit, OnDestroy {
 		}
 
 		const dialogRef = this.dialog.open(CompanyDialogComponent, {
-			origin: event.currentTarget as HTMLElement,
 			width: '900px',
 			maxWidth: '95vw',
 			disableClose: true,
@@ -233,12 +232,11 @@ export class CompanyComponent implements OnInit, AfterViewInit, OnDestroy {
 			});
 	}
 
-	openEditDialog(company: Company, event: MouseEvent): void {
+	openEditDialog(company: Company): void {
 		const dialogRef = this.dialog.open(CompanyDialogComponent, {
 			width: '900px',
 			maxWidth: '95vw',
 			disableClose: true,
-			origin: event.currentTarget as HTMLElement,
 			data: {
 				mode: 'edit',
 				company,
