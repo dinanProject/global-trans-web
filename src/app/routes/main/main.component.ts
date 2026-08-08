@@ -23,9 +23,10 @@ import { SessionService } from 'src/app/core/services/session.service';
 
 import { MenuComponent } from './menu/menu.component';
 import { Breadcrumb, MainService } from './main.service';
+import { AppDialogService } from '../../shared/dialog/app-dialog.service';
+
 import { UserSessionResponse } from 'src/app/core/models/user-session.model';
 import { Menu } from 'src/app/core/models/menu.model';
-import { MatDialog } from '@angular/material/dialog';
 import { ChangePasswordDialogComponent } from './header-bar/change-password-dialog.component';
 
 @Component({
@@ -57,7 +58,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		private readonly sessionService: SessionService,
 		private readonly media: MediaObserver,
 		private readonly router: Router,
-		private readonly dialog: MatDialog,
+		private readonly dialog: AppDialogService,
 	) {
 		this.initSidebarEvents();
 		this.initToolbarTitle();
@@ -209,13 +210,13 @@ export class MainComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	openChangePasswordDialog(): void {
+	openChangePasswordDialog(event: MouseEvent): void {
 		this.dialog
 			.open(ChangePasswordDialogComponent, {
 				width: '520px',
 				maxWidth: '95vw',
-				disableClose: true,
 				autoFocus: false,
+				origin: event.currentTarget as HTMLElement,
 			})
 			.afterClosed()
 			.subscribe((result) => {

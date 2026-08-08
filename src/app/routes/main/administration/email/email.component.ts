@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import {
 	Subject,
@@ -18,6 +17,7 @@ import {
 	EmailRetryDialogData,
 } from './email-retry-dialog/email-retry-dialog.component';
 import { EmailOutbox, EmailRetryPayload, EmailService } from './email.service';
+import { AppDialogService } from 'src/app/shared/dialog/app-dialog.service';
 
 @Component({
 	selector: 'app-email',
@@ -37,8 +37,8 @@ export class EmailComponent implements OnInit, OnDestroy {
 		'createdAt',
 		'recipient',
 		'subject',
-		'status',
 		'attempt',
+		'status',
 		'actions',
 	];
 	readonly pageSizeOptions = [10, 20, 50, 100];
@@ -56,7 +56,7 @@ export class EmailComponent implements OnInit, OnDestroy {
 	constructor(
 		private readonly emailService: EmailService,
 		private readonly sessionService: SessionService,
-		private readonly dialog: MatDialog,
+		private readonly dialog: AppDialogService,
 		private readonly utilityService: UtilityService,
 	) {}
 
@@ -152,7 +152,9 @@ export class EmailComponent implements OnInit, OnDestroy {
 		);
 	}
 
-	openRetryDialog(email: EmailOutbox): void {
+	openRetryDialog(email: EmailOutbox, event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
+
 		this.emailService
 			.getEmail(email.uuid)
 			.pipe(takeUntil(this.destroy$))
@@ -164,6 +166,7 @@ export class EmailComponent implements OnInit, OnDestroy {
 
 					this.dialog
 						.open(EmailRetryDialogComponent, {
+							origin,
 							width: '1180px',
 							maxWidth: '96vw',
 							disableClose: true,

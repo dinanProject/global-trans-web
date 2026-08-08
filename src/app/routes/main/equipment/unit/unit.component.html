@@ -12,7 +12,7 @@
 			type="button"
 			class="btn btn-primary"
 			[disabled]="isLoading"
-			(click)="openCreateDialog()"
+			(click)="openCreateDialog($event)"
 		>
 			<i class="fas fa-plus mr-1"></i>
 			Add Unit
@@ -261,7 +261,7 @@
 							<mat-menu #actionMenu="matMenu">
 								<button
 									mat-menu-item
-									(click)="openEditDialog(unit)"
+									(click)="openEditDialog(unit, $event)"
 								>
 									<i class="fas fa-edit mr-2"></i>
 									<span>Edit</span>

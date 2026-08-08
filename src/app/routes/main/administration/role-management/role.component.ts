@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import {
 	Subject,
 	debounceTime,
@@ -20,6 +19,7 @@ import {
 } from './role-permission-dialog/role-permission-dialog.component';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import { SessionService } from 'src/app/core/services/session.service';
+import { AppDialogService } from 'src/app/shared/dialog/app-dialog.service';
 
 @Component({
 	selector: 'app-role',
@@ -49,7 +49,7 @@ export class RoleComponent implements OnInit, OnDestroy {
 		private readonly roleService: RoleService,
 		private utilityService: UtilityService,
 		private sessionService: SessionService,
-		private readonly dialog: MatDialog,
+		private readonly dialog: AppDialogService,
 	) {}
 
 	ngOnInit(): void {
@@ -146,25 +146,38 @@ export class RoleComponent implements OnInit, OnDestroy {
 		this.applyFilters();
 	}
 
-	openCreateDialog(): void {
+	openCreateDialog(event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
+
 		this.loadRoleOptionsForDialog(() => {
-			this.openRoleDialog({
-				mode: 'create',
-			});
+			this.openRoleDialog(
+				{
+					mode: 'create',
+				},
+				origin,
+			);
 		});
 	}
 
-	openEditDialog(role: RoleMaster): void {
+	openEditDialog(role: RoleMaster, event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
+
 		this.loadRoleOptionsForDialog(() => {
-			this.openRoleDialog({
-				mode: 'edit',
-				role,
-			});
+			this.openRoleDialog(
+				{
+					mode: 'edit',
+					role,
+				},
+				origin,
+			);
 		});
 	}
 
-	openPermissionDialog(role: RoleMaster): void {
+	openPermissionDialog(role: RoleMaster, event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
+
 		const dialogRef = this.dialog.open(RolePermissionDialogComponent, {
+			origin,
 			width: '1180px',
 			maxWidth: '96vw',
 			maxHeight: '94vh',
@@ -219,8 +232,12 @@ export class RoleComponent implements OnInit, OnDestroy {
 		return role.uuid;
 	}
 
-	private openRoleDialog(data: Omit<RoleFormDialogData, 'companies'>): void {
+	private openRoleDialog(
+		data: Omit<RoleFormDialogData, 'companies'>,
+		origin: HTMLElement,
+	): void {
 		const dialogRef = this.dialog.open(RoleFormDialogComponent, {
+			origin,
 			width: '680px',
 			maxWidth: '95vw',
 			disableClose: true,

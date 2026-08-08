@@ -112,6 +112,23 @@
 	tr.mat-row:hover {
 		background-color: #f8fafc;
 	}
+
+	th:first-child,
+	td:first-child {
+		padding-left: 24px;
+	}
+
+	.mat-column-attempt {
+		width: 100px;
+		min-width: 100px;
+		max-width: 100px;
+	}
+
+	.mat-column-status {
+		width: 90px;
+		min-width: 90px;
+		max-width: 90px;
+	}
 }
 
 .date-cell,
@@ -148,14 +165,10 @@
 
 .status-badge {
 	display: inline-flex;
-
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	gap: 7px;
 	min-width: 105px;
-	padding: 6px 10px;
-	border: 1px solid transparent;
-	border-radius: 999px;
 	font-size: 11px;
 	font-weight: 600;
 	white-space: nowrap;
@@ -177,8 +190,6 @@
 	}
 
 	&.status-sent {
-		border-color: #bce8c5;
-		background-color: #eefaf1;
 		color: #24853a;
 
 		.status-dot {
@@ -191,8 +202,6 @@
 	}
 
 	&.status-failed {
-		border-color: #f4c5c5;
-		background-color: #fff2f2;
 		color: #bd3030;
 
 		.status-dot {
@@ -205,8 +214,6 @@
 	}
 
 	&.status-queued {
-		border-color: #cfe6ff;
-		background-color: #eef7ff;
 		color: #4da3ff;
 
 		.status-dot {
@@ -219,8 +226,6 @@
 	}
 
 	&.status-processing {
-		border-color: #f4dfb1;
-		background-color: #fff9e8;
 		color: #a16207;
 
 		.status-dot {
@@ -228,20 +233,6 @@
 
 			&::after {
 				background-color: #a16207;
-			}
-		}
-	}
-
-	&.status-cancelled {
-		border-color: #d8dee8;
-		background-color: #f6f8fa;
-		color: #64748b;
-
-		.status-dot {
-			background-color: #64748b;
-
-			&::after {
-				background-color: #64748b;
 			}
 		}
 	}
@@ -265,29 +256,7 @@
 }
 
 .email-retry-button {
-	border: 1px solid #cfe6ff;
-	background-color: #eef7ff;
-	color: #4da3ff;
-
-	&:hover,
-	&:focus {
-		border-color: #b8dcff;
-		background-color: #e5f3ff;
-		color: #368fe8;
-	}
-}
-
-.email-cancel-button {
-	border: 1px solid #f3d1d4;
-	background-color: #fff0f1;
-	color: #b84a52;
-
-	&:hover,
-	&:focus {
-		border-color: #edc1c5;
-		background-color: #ffe8ea;
-		color: #a33f47;
-	}
+	min-width: 90px;
 }
 
 .empty-state {

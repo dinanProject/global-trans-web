@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import {
 	Subject,
 	catchError,
@@ -22,6 +21,7 @@ import {
 } from './division.service';
 
 import { Company, CompanyService } from '../company/company.service';
+import { AppDialogService } from 'src/app/shared/dialog/app-dialog.service';
 
 type DivisionStatusFilter = 'all' | 'active' | 'inactive';
 
@@ -73,7 +73,7 @@ export class DivisionComponent implements OnInit, OnDestroy {
 	constructor(
 		private divisionService: DivisionService,
 		private companyService: CompanyService,
-		private dialog: MatDialog,
+		private dialog: AppDialogService,
 		private utilityService: UtilityService,
 	) {}
 
@@ -164,8 +164,9 @@ export class DivisionComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	openCreateDialog(): void {
+	openCreateDialog(event: MouseEvent): void {
 		const dialogRef = this.dialog.open(DivisionDialogComponent, {
+			origin: event.currentTarget as HTMLElement,
 			width: '720px',
 			disableClose: true,
 			data: {
@@ -186,7 +187,7 @@ export class DivisionComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	openEditDialog(division: Division): void {
+	openEditDialog(division: Division, event: MouseEvent): void {
 		const companies = this.getDialogCompanies(division);
 
 		this.initialEditValue = {
@@ -198,6 +199,7 @@ export class DivisionComponent implements OnInit, OnDestroy {
 		};
 
 		const dialogRef = this.dialog.open(DivisionDialogComponent, {
+			origin: event.currentTarget as HTMLElement,
 			width: '720px',
 			disableClose: true,
 			data: {

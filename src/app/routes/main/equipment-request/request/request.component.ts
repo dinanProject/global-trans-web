@@ -31,6 +31,8 @@ import {
 	UnitOption,
 } from './request.service';
 
+import { AppDialogService } from 'src/app/shared/dialog/app-dialog.service';
+
 @Component({
 	selector: 'app-request',
 	templateUrl: './request.component.html',
@@ -64,7 +66,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 		private readonly requestService: RequestService,
 		private readonly mainService: MainService,
 		private readonly utilityService: UtilityService,
-		private readonly dialog: MatDialog,
+		private readonly dialog: AppDialogService,
 	) {}
 
 	ngOnInit(): void {
@@ -140,23 +142,29 @@ export class RequestComponent implements OnInit, OnDestroy {
 		return Math.max(detailCount - this.maxEquipmentPreview, 0);
 	}
 
-	openCreateDialog(): void {
+	openCreateDialog(event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
+
 		this.loadFormOptions(() => {
-			this.openFormDialog({ mode: 'create' });
+			this.openFormDialog({ mode: 'create' }, origin);
 		});
 	}
 
-	openEditDialog(request: RequestMaster): void {
+	openEditDialog(request: RequestMaster, event: MouseEvent): void {
+		const origin = event.currentTarget as HTMLElement;
 		this.requestService
 			.getRequest(request.uuid)
 			.pipe(takeUntil(this.destroy$))
 			.subscribe({
 				next: (detail) => {
 					this.loadFormOptions(() => {
-						this.openFormDialog({
-							mode: 'edit',
-							request: detail,
-						});
+						this.openFormDialog(
+							{
+								mode: 'edit',
+								request: detail,
+							},
+							origin,
+						);
 					});
 				},
 				error: (error) =>
@@ -164,8 +172,14 @@ export class RequestComponent implements OnInit, OnDestroy {
 			});
 	}
 
-	openDetailDialog(request: RequestMaster, initialTabIndex = 0): void {
+	openDetailDialog(
+		request: RequestMaster,
+		initialTabIndex = 0,
+		event: MouseEvent,
+	): void {
+		const origin = event.currentTarget as HTMLElement;
 		const dialogRef = this.dialog.open(RequestDetailDialogComponent, {
+			origin,
 			width: '1180px',
 			maxWidth: '96vw',
 			maxHeight: '94vh',
@@ -340,8 +354,10 @@ export class RequestComponent implements OnInit, OnDestroy {
 			RequestFormDialogData,
 			'company' | 'divisions' | 'categories' | 'units' | 'capacityUnits'
 		>,
+		origin: HTMLElement,
 	): void {
 		const dialogRef = this.dialog.open(RequestFormDialogComponent, {
+			origin,
 			width: '1280px',
 			maxWidth: '96vw',
 			maxHeight: '94vh',

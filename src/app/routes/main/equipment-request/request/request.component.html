@@ -10,7 +10,7 @@
 		<button
 			type="button"
 			class="btn btn-primary"
-			(click)="openCreateDialog()"
+			(click)="openCreateDialog($event)"
 		>
 			<i class="fas fa-plus mr-1"></i> Add Request
 		</button>
@@ -211,7 +211,9 @@
 										"
 										type="button"
 										class="equipment-more-button"
-										(click)="openDetailDialog(request, 1)"
+										(click)="
+											openDetailDialog(request, 1, $event)
+										"
 									>
 										+{{
 											getRemainingEquipmentCount(request)
@@ -295,7 +297,9 @@
 							<mat-menu #actionMenu="matMenu">
 								<button
 									mat-menu-item
-									(click)="openDetailDialog(request, 0)"
+									(click)="
+										openDetailDialog(request, 0, $event)
+									"
 								>
 									<i class="fas fa-eye mr-2"></i>
 									<span>View Detail</span>
@@ -304,7 +308,7 @@
 								<button
 									mat-menu-item
 									[disabled]="!canEdit(request)"
-									(click)="openEditDialog(request)"
+									(click)="openEditDialog(request, $event)"
 								>
 									<i class="fas fa-edit mr-2"></i>
 									<span>Edit</span>
