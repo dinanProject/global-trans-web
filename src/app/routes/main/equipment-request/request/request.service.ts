@@ -1,6 +1,6 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 
 import { ApiService } from 'src/app/core/services/api.service';
 
@@ -215,6 +215,17 @@ export interface CapacityUnitOption {
 export class RequestService {
 	private readonly baseUrl = '/equipment-request/request';
 
+	private companiesCache$?: Observable<RequestCompanyOption[]>;
+
+	private readonly divisionsCache = new Map<
+		number,
+		Observable<RequestDivisionOption[]>
+	>();
+
+	private categoriesCache$?: Observable<CategoryOption[]>;
+	private unitsCache$?: Observable<UnitOption[]>;
+	private capacityUnitsCache$?: Observable<CapacityUnitOption[]>;
+
 	constructor(private readonly apiService: ApiService) {}
 
 	getRequests(filter: RequestFilter = {}): Observable<RequestMaster[]> {
@@ -254,41 +265,69 @@ export class RequestService {
 		);
 	}
 
-	/* Existing master routes in the project. Mapping is deliberately isolated here. */
 	getCompanies(): Observable<RequestCompanyOption[]> {
-		return this.apiService.get(
-			'/company',
-			this.compactParams({ isActive: 1 }),
-		);
+		if (!this.companiesCache$) {
+			this.companiesCache$ = this.apiService
+				.get('/company', this.compactParams({ isActive: 1 }))
+				.pipe(shareReplay({ bufferSize: 1, refCount: false }));
+		}
+
+		return this.companiesCache$;
 	}
 
 	getDivisions(companyId?: number): Observable<RequestDivisionOption[]> {
-		return this.apiService.get(
-			'/division',
-			this.compactParams({ companyId, isActive: 1 }),
-		);
+		const cacheKey = Number(companyId) || 0;
+		const cached = this.divisionsCache.get(cacheKey);
+
+		if (cached) {
+			return cached;
+		}
+
+		const request$ = this.apiService
+			.get('/division', this.compactParams({ companyId, isActive: 1 }))
+			.pipe(shareReplay({ bufferSize: 1, refCount: false }));
+
+		this.divisionsCache.set(cacheKey, request$);
+
+		return request$;
 	}
 
 	getCategories(): Observable<CategoryOption[]> {
-		return this.apiService.get(
-			'/equipment-category',
-			this.compactParams({ isActive: 1 }),
-		);
+		if (!this.categoriesCache$) {
+			this.categoriesCache$ = this.apiService
+				.get('/equipment-category', this.compactParams({ isActive: 1 }))
+				.pipe(shareReplay({ bufferSize: 1, refCount: false }));
+		}
+
+		return this.categoriesCache$;
 	}
 
 	getUnits(): Observable<UnitOption[]> {
-		const params = new HttpParams().set('isActive', '1');
-		return this.apiService.get('/equipment-unit', params);
+		if (!this.unitsCache$) {
+			const params = new HttpParams().set('isActive', '1');
+
+			this.unitsCache$ = this.apiService
+				.get('/equipment-unit', params)
+				.pipe(shareReplay({ bufferSize: 1, refCount: false }));
+		}
+
+		return this.unitsCache$;
 	}
 
 	getCapacityUnits(): Observable<CapacityUnitOption[]> {
-		return this.apiService.get(
-			'/lookup',
-			this.compactParams({
-				lookupGroup: 'equipment_capacity_unit',
-				isActive: 1,
-			}),
-		);
+		if (!this.capacityUnitsCache$) {
+			this.capacityUnitsCache$ = this.apiService
+				.get(
+					'/lookup',
+					this.compactParams({
+						lookupGroup: 'equipment_capacity_unit',
+						isActive: 1,
+					}),
+				)
+				.pipe(shareReplay({ bufferSize: 1, refCount: false }));
+		}
+
+		return this.capacityUnitsCache$;
 	}
 
 	private compactParams<T extends object>(source: T): HttpParams {
