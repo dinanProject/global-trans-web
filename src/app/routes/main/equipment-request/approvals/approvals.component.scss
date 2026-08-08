@@ -7,6 +7,13 @@
 	padding: 0;
 }
 
+.table-responsive {
+	width: 100%;
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;
+}
+
 .header-content,
 .filter-content {
 	width: 100%;
@@ -366,6 +373,37 @@
 		max-width: 300px;
 		font-size: 14px;
 	}
+
+	.approval-table .action-column {
+		position: sticky;
+		right: 0;
+		z-index: 2;
+		background-color: #ffffff;
+		box-shadow: -1px 0 0 #eaecf0;
+	}
+
+	.approval-table th.action-column {
+		z-index: 3;
+		background-color: #f5f7fa;
+	}
+
+	.approval-table tr:hover td.action-column {
+		background-color: #f8fafc;
+	}
+}
+
+@media (max-width: 1199px) {
+	.table-responsive {
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.table-responsive .approval-table {
+		width: 1100px !important;
+		min-width: 1100px !important;
+		max-width: none !important;
+	}
 }
 
 @media (max-width: 900px) {
@@ -378,6 +416,14 @@
 
 	.search-field,
 	.stage-field {
+		width: 100%;
+	}
+
+	.filter-actions {
+		width: 100%;
+	}
+
+	.filter-actions button {
 		width: 100%;
 	}
 }

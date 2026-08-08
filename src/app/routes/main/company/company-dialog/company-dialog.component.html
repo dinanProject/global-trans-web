@@ -50,7 +50,11 @@
 						autocomplete="off"
 						(input)="onCodeInput($event)"
 					/>
-
+					@if (isEdit) {
+						<small class="form-text text-muted">
+							Company code cannot be changed after creation.
+						</small>
+					}
 					@if (isInvalid("code")) {
 						<div class="invalid-feedback">
 							Code wajib diisi, maksimal 50 karakter.

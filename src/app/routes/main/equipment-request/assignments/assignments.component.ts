@@ -147,6 +147,16 @@ export class AssignmentsComponent implements OnInit {
 
 			return matchesStatus && (!keyword || searchable.includes(keyword));
 		});
+
+		if (
+			this.selectedRequest &&
+			!this.filteredRequests.some(
+				(request) => request.uuid === this.selectedRequest?.uuid,
+			)
+		) {
+			this.selectedRequest = null;
+			this.detailViews = [];
+		}
 	}
 
 	updateSearch(value: string): void {
