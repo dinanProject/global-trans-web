@@ -1,18 +1,28 @@
-import { Component, EventEmitter, Inject, Input, OnInit, TemplateRef } from '@angular/core';
+import {
+	Component,
+	EventEmitter,
+	Inject,
+	Input,
+	OnInit,
+	TemplateRef,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+	MatDialog,
+	MatDialogRef,
+	MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import { OptionDirective } from '../option-dialog.component';
 
 @Component({
-    selector: 'app-dialog',
-    templateUrl: './dialog.component.html',
-    styleUrls: ['./dialog.component.scss'],
-    standalone: false
+	selector: 'app-dialog',
+	templateUrl: './dialog.component.html',
+	styleUrls: ['./dialog.component.scss'],
+	standalone: false,
 })
 export class DialogComponent<T> implements OnInit {
-
 	isInitialized: boolean;
 
 	title: string = '';
@@ -25,15 +35,16 @@ export class DialogComponent<T> implements OnInit {
 	onAdd: EventEmitter<T>;
 
 	constructor(
-		@Inject(MAT_DIALOG_DATA) private data: {
-			title: string,
-			placeholder: string,
-			options: Observable<T[]>,
-			onAdd?: EventEmitter<T>,
-			optionTemplate: TemplateRef<OptionDirective>
+		@Inject(MAT_DIALOG_DATA)
+		private data: {
+			title: string;
+			placeholder: string;
+			options: Observable<T[]>;
+			onAdd?: EventEmitter<T>;
+			optionTemplate: TemplateRef<OptionDirective>;
 		},
-		private dialogRef: MatDialogRef<DialogComponent<T>>
-	) { }
+		private dialogRef: MatDialogRef<DialogComponent<T>>,
+	) {}
 
 	ngOnInit(): void {
 		this.isInitialized = false;
@@ -42,24 +53,14 @@ export class DialogComponent<T> implements OnInit {
 		this.optionTemplate = this.data.optionTemplate;
 
 		this.onAdd = this.data.onAdd;
-		this.search.valueChanges
-			.subscribe(result => {
-				this.options.filter = result?.toLowerCase().trim();
-			})
+		this.search.valueChanges.subscribe((result) => {
+			this.options.filter = result?.toLowerCase().trim();
+		});
 
-		console.log(typeof this.data.options);
-
-		this.data.options
-			.toPromise()
-			.then((options: T[]) => {
-				console.log('options', options);
-				this.options.data = options;
-				this.isInitialized = true;
-			})
-		// this.onAdd.subscribe((result: any) => {
-		// 	console.log('this.onAdd.subscribe', result);
-		// });
-
+		this.data.options.toPromise().then((options: T[]) => {
+			this.options.data = options;
+			this.isInitialized = true;
+		});
 	}
 
 	select(option: T) {
@@ -72,5 +73,4 @@ export class DialogComponent<T> implements OnInit {
 		}
 		this.dialogRef.close();
 	}
-
 }
