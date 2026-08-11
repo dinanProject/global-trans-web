@@ -63,11 +63,6 @@ export class RequestFormDialogComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		console.log(
-			'RequestFormDialogComponent categories:',
-			this.data.categories,
-		);
-
 		const details = this.data.request?.details ?? [];
 
 		if (details.length) details.forEach((detail) => this.addDetail(detail));

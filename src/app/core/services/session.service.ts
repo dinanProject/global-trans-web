@@ -181,6 +181,16 @@ export class SessionService {
 		});
 	}
 
+	hasAccessLoaded(): boolean {
+		const session = this.getSession();
+
+		return Boolean(
+			session &&
+			Array.isArray(session.roleCodes) &&
+			Array.isArray(session.permissionCodes),
+		);
+	}
+
 	getRoleCodes(): string[] {
 		return this.getSession()?.roleCodes ?? [];
 	}

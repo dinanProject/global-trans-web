@@ -75,7 +75,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.initMenus();
 		this.mainService.setMenus(this.sessionService.getMenus());
 
-		this.loadMainData();
+		this.loadMainDataIfNeeded();
 	}
 
 	private initMenus(): void {
@@ -86,12 +86,38 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.subscriptions.add(subscription);
 	}
 
+	private loadMainDataIfNeeded(): void {
+		const user = this.sessionService.getUser();
+		const menus = this.sessionService.getMenus();
+
+		if (user) {
+			this.user = user;
+		}
+
+		if (menus.length > 0) {
+			this.mainService.setMenus(menus);
+		}
+
+		if (
+			user &&
+			(this.sessionService.getRoleCodes().length > 0 ||
+				this.sessionService.getPermissionCodes().length > 0)
+		) {
+			this.isMenuLoading = false;
+			return;
+		}
+
+		this.loadMainData();
+	}
+
 	private loadMainData(): void {
 		const subscription = this.mainService.getUser().subscribe({
 			next: (response: UserSessionResponse) => {
 				this.user = response.user ?? this.user;
 
-				this.sessionService.setUser(response.user);
+				if (response.user) {
+					this.sessionService.setUser(response.user);
+				}
 
 				this.sessionService.setAccess(
 					response.roleCodes ?? [],

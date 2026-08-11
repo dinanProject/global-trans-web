@@ -35,6 +35,15 @@ export class AuthInterceptor implements HttpInterceptor {
 		next: HttpHandler,
 	): Observable<HttpEvent<unknown>> {
 		const token = this.sessionService.getToken();
+
+		if (
+			!this.isPublicAuthRequest(request) &&
+			token &&
+			this.sessionService.isTokenExpired()
+		) {
+			return this.handleUnauthorized(request, next);
+		}
+
 		const authenticatedRequest = this.addToken(request, token);
 
 		return next.handle(authenticatedRequest).pipe(
