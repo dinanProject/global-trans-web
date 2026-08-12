@@ -255,16 +255,111 @@ export class LoginLogComponent implements OnInit, OnDestroy {
 		return labels[reason] ?? reason;
 	}
 
+	getOperatingSystem(userAgent: string): string {
+		if (/Windows NT 10\.0/i.test(userAgent)) {
+			return 'Windows 10/11';
+		}
+
+		if (/Windows NT 6\.3/i.test(userAgent)) {
+			return 'Windows 8.1';
+		}
+
+		if (/Windows NT 6\.2/i.test(userAgent)) {
+			return 'Windows 8';
+		}
+
+		if (/Windows NT 6\.1/i.test(userAgent)) {
+			return 'Windows 7';
+		}
+
+		if (/Android/i.test(userAgent)) {
+			const match = userAgent.match(/Android\s([\d.]+)/i);
+
+			return match ? `Android ${match[1]}` : 'Android';
+		}
+
+		if (/iPhone|iPad|iPod/i.test(userAgent)) {
+			const match = userAgent.match(/OS\s([\d_]+)/i);
+
+			return match ? `iOS ${match[1].replace(/_/g, '.')}` : 'iOS';
+		}
+
+		if (/Mac OS X/i.test(userAgent)) {
+			const match = userAgent.match(/Mac OS X\s([\d_]+)/i);
+
+			return match ? `macOS ${match[1].replace(/_/g, '.')}` : 'macOS';
+		}
+
+		if (/Linux/i.test(userAgent)) {
+			return 'Linux';
+		}
+
+		return 'Unknown OS';
+	}
+
+	getDeviceName(userAgent: string): string {
+		if (/iPhone/i.test(userAgent)) {
+			return 'iPhone';
+		}
+
+		if (/iPad/i.test(userAgent)) {
+			return 'iPad';
+		}
+
+		if (/iPod/i.test(userAgent)) {
+			return 'iPod';
+		}
+
+		if (/Android/i.test(userAgent)) {
+			const match = userAgent.match(
+				/Android[^;]*;\s*([^;)]+?)(?:\s+Build\/|\))/i,
+			);
+
+			if (match?.[1]) {
+				return match[1].trim();
+			}
+
+			return 'Android Device';
+		}
+
+		if (/Windows/i.test(userAgent)) {
+			return 'Windows PC';
+		}
+
+		if (/Macintosh|Mac OS X/i.test(userAgent)) {
+			return 'Mac';
+		}
+
+		if (/Linux/i.test(userAgent)) {
+			return 'Linux PC';
+		}
+
+		return 'Unknown Device';
+	}
+
 	formatUserAgent(userAgent: string | null): string {
 		if (!userAgent) {
 			return '—';
 		}
 
-		if (userAgent.length <= 90) {
-			return userAgent;
+		let browser = 'Unknown Browser';
+
+		if (/Edg\//i.test(userAgent)) {
+			browser = 'Microsoft Edge';
+		} else if (/OPR\//i.test(userAgent)) {
+			browser = 'Opera';
+		} else if (/Chrome\//i.test(userAgent)) {
+			browser = 'Google Chrome';
+		} else if (/Firefox\//i.test(userAgent)) {
+			browser = 'Mozilla Firefox';
+		} else if (/Safari\//i.test(userAgent)) {
+			browser = 'Safari';
 		}
 
-		return `${userAgent.slice(0, 87)}...`;
+		const os = this.getOperatingSystem(userAgent);
+		const device = this.getDeviceName(userAgent);
+
+		return `${browser} • ${os} • ${device}`;
 	}
 
 	getStatusClass(statusCode: string | null): string {
