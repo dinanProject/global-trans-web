@@ -55,7 +55,7 @@ export class RoleFormDialogComponent {
 		code: [
 			{
 				value: this.data.role?.code ?? '',
-				disabled: !this.canEditSystemRole,
+				disabled: this.data.mode === 'edit' || !this.canEditSystemRole,
 			},
 			[Validators.required, Validators.pattern(/^[A-Z0-9_]+$/)],
 		],
