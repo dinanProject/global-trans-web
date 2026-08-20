@@ -12,12 +12,12 @@ import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { RequestDetailDialogComponent } from './request/request-detail-dialog/request-detail-dialog.component';
 import { RequestFormDialogComponent } from './request/request-form-dialog/request-form-dialog.component';
 import { ReportsComponent } from './reports/reports.component';
-import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ApprovalsComponent } from './approvals/approvals.component';
 import { RequestComponent } from './request/request.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
-import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 import { LoadingButtonModule } from 'src/app/shared/loading-button/loading-button.module';
+import { MonitoringComponent } from './monitoring/monitoring.component';
+import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 
 @NgModule({
 	declarations: [

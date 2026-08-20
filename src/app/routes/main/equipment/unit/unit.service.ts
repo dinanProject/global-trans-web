@@ -33,6 +33,11 @@ export interface Unit {
 	capacityUnit?: string | null;
 	capacityUnitName?: string | null;
 	capacityUnitAlias?: string | null;
+
+	operationalStatusCode: string;
+	operationalStatusName?: string | null;
+	operationalStatusAlias?: string | null;
+
 	remarks?: string | null;
 
 	isActive: boolean | number;
@@ -42,6 +47,15 @@ export interface Unit {
 }
 
 export interface CapacityUnitOption {
+	lookupId: number;
+	lookupCode: string;
+	lookupValue: string;
+	lookupAlias?: string | null;
+	lookupGroup: string;
+	isActive: number;
+}
+
+export interface OperationalStatusOption {
 	lookupId: number;
 	lookupCode: string;
 	lookupValue: string;
@@ -61,6 +75,7 @@ export interface UnitPayload {
 	plateNumber: string | null;
 	capacityValue: number;
 	capacityUnit: string;
+	operationalStatusCode: string;
 	remarks: string | null;
 
 	isActive: boolean;
@@ -71,6 +86,7 @@ export interface UnitDialogData {
 	unit?: Unit;
 	categories: UnitCategory[];
 	capacityUnits: CapacityUnitOption[];
+	operationalStatuses: OperationalStatusOption[];
 }
 
 export interface UnitDialogResult {
@@ -88,6 +104,7 @@ export class UnitService {
 		search?: string;
 		categoryUuid?: string;
 		isActive?: boolean | null;
+		operationalStatusCode?: string;
 	}) {
 		const queryParams: string[] = [];
 
@@ -105,6 +122,14 @@ export class UnitService {
 
 		if (params?.isActive !== undefined && params?.isActive !== null) {
 			queryParams.push(`isActive=${params.isActive}`);
+		}
+
+		if (params?.operationalStatusCode?.trim()) {
+			queryParams.push(
+				`operationalStatusCode=${encodeURIComponent(
+					params.operationalStatusCode.trim().toUpperCase(),
+				)}`,
+			);
 		}
 
 		const queryString = queryParams.length
@@ -127,6 +152,15 @@ export class UnitService {
 			'/lookup',
 			new HttpParams()
 				.set('lookupGroup', 'equipment_capacity_unit')
+				.set('isActive', '1'),
+		);
+	}
+
+	getOperationalStatuses(): Observable<OperationalStatusOption[]> {
+		return this.apiService.get(
+			'/lookup',
+			new HttpParams()
+				.set('lookupGroup', 'equipment_operational_status')
 				.set('isActive', '1'),
 		);
 	}

@@ -15,11 +15,13 @@ import { UtilityService } from '../../../../shared/utility/utility.service';
 
 import {
 	CapacityUnitOption,
+	OperationalStatusOption,
 	Unit,
 	UnitCategory,
 	UnitDialogResult,
 	UnitService,
 } from './unit.service';
+
 import { UnitDialogComponent } from './unit-dialog/unit-dialog.component';
 
 type UnitStatusFilter = 'all' | 'active' | 'inactive';
@@ -61,6 +63,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 	units: Unit[] = [];
 	categories: UnitCategory[] = [];
 	capacityUnits: CapacityUnitOption[] = [];
+	operationalStatuses: OperationalStatusOption[] = [];
 
 	dataSource = new MatTableDataSource<Unit>([]);
 
@@ -76,6 +79,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 		plateNumber: string | null;
 		capacityValue: number;
 		capacityUnit: string;
+		operationalStatusCode: string;
 		remarks: string | null;
 		isActive: boolean;
 	} | null = null;
@@ -204,24 +208,36 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private loadCapacityUnitsForDialog(callback: () => void): void {
-		if (this.capacityUnits.length > 0) {
+		if (
+			this.capacityUnits.length > 0 &&
+			this.operationalStatuses.length > 0
+		) {
 			callback();
 			return;
 		}
 
-		this.unitService
-			.getCapacityUnits()
+		forkJoin({
+			capacityUnits:
+				this.capacityUnits.length > 0
+					? of(this.capacityUnits)
+					: this.unitService.getCapacityUnits(),
+			operationalStatuses:
+				this.operationalStatuses.length > 0
+					? of(this.operationalStatuses)
+					: this.unitService.getOperationalStatuses(),
+		})
 			.pipe(takeUntil(this.destroy$))
 			.subscribe({
-				next: (capacityUnits) => {
+				next: ({ capacityUnits, operationalStatuses }) => {
 					this.capacityUnits = capacityUnits ?? [];
+					this.operationalStatuses = operationalStatuses ?? [];
 					callback();
 				},
 				error: (error) => {
 					this.utilityService.alert(
 						'Failed',
 						error?.error?.meta?.message ??
-							'Failed to load equipment capacity units.',
+							'Failed to load equipment unit lookup.',
 						'error',
 					);
 				},
@@ -243,6 +259,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 				mode: 'create',
 				categories: this.activeCategories,
 				capacityUnits: this.capacityUnits,
+				operationalStatuses: this.operationalStatuses,
 			},
 		});
 
@@ -276,6 +293,9 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			plateNumber: unit.plateNumber?.trim().toUpperCase() || null,
 			capacityValue: Number(unit.capacityValue),
 			capacityUnit: (unit.capacityUnit ?? '').trim().toUpperCase(),
+			operationalStatusCode: (unit.operationalStatusCode ?? 'AVAILABLE')
+				.trim()
+				.toUpperCase(),
 			remarks: unit.remarks?.trim() || null,
 			isActive: this.isActive(unit),
 		};
@@ -289,6 +309,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 				unit,
 				categories,
 				capacityUnits: this.capacityUnits,
+				operationalStatuses: this.operationalStatuses,
 			},
 		});
 
@@ -503,6 +524,11 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			plateNumber: payload.plateNumber?.trim().toUpperCase() || null,
 			capacityValue: Number(payload.capacityValue),
 			capacityUnit: (payload.capacityUnit ?? '').trim().toUpperCase(),
+			operationalStatusCode: (
+				payload.operationalStatusCode ?? 'AVAILABLE'
+			)
+				.trim()
+				.toUpperCase(),
 			remarks: payload.remarks?.trim() || null,
 			isActive: Boolean(payload.isActive),
 		};
@@ -518,6 +544,8 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			currentValue.capacityValue !==
 				this.initialEditValue.capacityValue ||
 			currentValue.capacityUnit !== this.initialEditValue.capacityUnit ||
+			currentValue.operationalStatusCode !==
+				this.initialEditValue.operationalStatusCode ||
 			currentValue.remarks !== this.initialEditValue.remarks ||
 			currentValue.isActive !== this.initialEditValue.isActive;
 
@@ -554,5 +582,25 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					);
 				},
 			});
+	}
+
+	getUnitStatusLabel(unit: Unit): string {
+		if (!this.isActive(unit)) {
+			return 'Inactive';
+		}
+
+		return (
+			unit.operationalStatusName ||
+			unit.operationalStatusCode ||
+			'Available'
+		);
+	}
+
+	isMaintenance(unit: Unit): boolean {
+		return (
+			this.isActive(unit) &&
+			String(unit.operationalStatusCode || '').toUpperCase() ===
+				'MAINTENANCE'
+		);
 	}
 }

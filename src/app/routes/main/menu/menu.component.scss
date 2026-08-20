@@ -65,6 +65,23 @@ li {
 			font-size: 11px;
 		}
 
+		.menu-badge {
+			display: inline-flex;
+			flex: 0 0 auto;
+			align-items: center;
+			justify-content: center;
+			min-width: 20px;
+			height: 20px;
+			margin-left: 8px;
+			padding: 0 6px;
+			border-radius: 10px;
+			background: #fee2e2;
+			color: #dc2626;
+			font-size: 11px;
+			font-weight: 600;
+			line-height: 20px;
+		}
+
 		&.active {
 			background-color: #ebf6ff;
 			box-shadow: inset 4px 0 0 0 #61bdff;

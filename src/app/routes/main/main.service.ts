@@ -57,6 +57,16 @@ export class MainService {
 		return this.apiService.get('/menu');
 	}
 
+	markMenuNotificationAsRead(
+		referenceUuid: string,
+		menuPermissionCode: string,
+	): Observable<{ updatedCount: number }> {
+		return this.apiService.post(
+			`/menu-notification/reference/${referenceUuid}/read`,
+			{ menuPermissionCode },
+		);
+	}
+
 	getUserSession(): Observable<UserSessionResponse> {
 		return this.apiService.get('/user-session');
 	}

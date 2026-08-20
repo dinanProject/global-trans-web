@@ -177,6 +177,8 @@ export interface UnitOption {
 	assetNumber?: string | null;
 	modelNumber?: string | null;
 	plateNumber?: string | null;
+	operationalStatusCode?: string | null;
+	operationalStatusName?: string | null;
 	remarks?: string | null;
 }
 

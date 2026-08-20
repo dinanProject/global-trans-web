@@ -17,6 +17,12 @@
 
 		<h5>{{ menu.menuName }}</h5>
 
+		@if ((menu.unreadCount ?? 0) > 0) {
+			<span class="menu-badge">{{
+				(menu.unreadCount ?? 0) > 99 ? "99+" : menu.unreadCount
+			}}</span>
+		}
+
 		@if (hasChildren) {
 			<i
 				class="submenu-indicator"

@@ -226,12 +226,15 @@
 						<td mat-cell *matCellDef="let unit">
 							<span
 								class="status-indicator"
-								[class.active]="isActive(unit)"
+								[class.active]="
+									isActive(unit) && !isMaintenance(unit)
+								"
+								[class.maintenance]="isMaintenance(unit)"
 								[class.inactive]="!isActive(unit)"
 							>
 								<span class="status-dot"></span>
 
-								{{ isActive(unit) ? "Active" : "Inactive" }}
+								{{ getUnitStatusLabel(unit) }}
 							</span>
 						</td>
 					</ng-container>
