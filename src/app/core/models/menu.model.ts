@@ -4,6 +4,7 @@ export interface Menu {
 	parentId: number | null;
 	sequence: number;
 	code: string;
+	unreadCount?: number;
 
 	route?: string | null;
 	icon?: string | null;

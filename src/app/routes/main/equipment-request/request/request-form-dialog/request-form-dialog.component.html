@@ -259,11 +259,25 @@
 											let unit of getUnitsByCategory(i)
 										"
 										[ngValue]="unit.id"
+										[disabled]="
+											unit.operationalStatusCode ===
+											'MAINTENANCE'
+										"
 									>
 										{{ unit.unitCode }} -
 										{{ unit.unitName }}
+
 										<ng-container *ngIf="unit.modelNumber">
 											({{ unit.modelNumber }})
+										</ng-container>
+
+										<ng-container
+											*ngIf="
+												unit.operationalStatusCode ===
+												'MAINTENANCE'
+											"
+										>
+											- Maintenance
 										</ng-container>
 									</option>
 								</select>

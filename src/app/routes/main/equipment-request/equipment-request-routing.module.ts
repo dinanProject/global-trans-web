@@ -2,11 +2,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RequestComponent } from './request/request.component';
 import { ApprovalsComponent } from './approvals/approvals.component';
-import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
-import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ReportsComponent } from './reports/reports.component';
 import { PermissionGuard } from 'src/app/core/guards/permission-guard';
+import { MonitoringComponent } from './monitoring/monitoring.component';
+import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 
 const routes: Routes = [
 	{

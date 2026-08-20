@@ -104,6 +104,7 @@ export class MainComponent implements OnInit, OnDestroy {
 				this.sessionService.getPermissionCodes().length > 0)
 		) {
 			this.isMenuLoading = false;
+			this.mainService.refreshMenus();
 			return;
 		}
 
@@ -342,6 +343,7 @@ export class MainComponent implements OnInit, OnDestroy {
 					sequence: Number(menu.sequence ?? 0),
 					route: this.normalizeMenuRoute(menu.route),
 					icon: menu.icon ?? null,
+					unreadCount: Number(menu.unreadCount ?? 0),
 					level: menu.level ?? level,
 					child: children,
 					visibility:

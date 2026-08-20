@@ -6,6 +6,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import { RequestAction, RequestMaster } from '../../request/request.service';
 import { ApprovalService } from '../approvals.service';
+import { MainService } from '../../../main.service';
 
 @Component({
 	selector: 'app-approval-review',
@@ -35,6 +36,7 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 		private readonly approvalService: ApprovalService,
 		private readonly utilityService: UtilityService,
 		private readonly formBuilder: FormBuilder,
+		private readonly mainService: MainService,
 	) {}
 
 	ngOnInit(): void {
@@ -116,6 +118,7 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 			.subscribe({
 				next: (request) => {
 					this.request = request;
+					this.markNotificationAsRead(request.uuid);
 
 					this.form.patchValue(
 						{
@@ -138,6 +141,25 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 						'Failed',
 						this.errorMessage,
 						'error',
+					);
+				},
+			});
+	}
+
+	private markNotificationAsRead(requestUuid: string): void {
+		this.mainService
+			.markMenuNotificationAsRead(requestUuid, 'EQUIPMENT_APPROVAL.VIEW')
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: ({ updatedCount }) => {
+					if (updatedCount > 0) {
+						this.mainService.refreshMenus();
+					}
+				},
+				error: (error: unknown) => {
+					console.error(
+						'Failed to mark approval notification as read',
+						error,
 					);
 				},
 			});

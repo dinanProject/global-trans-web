@@ -215,6 +215,31 @@
 				</div>
 			</div>
 
+			<div class="col-md-6">
+				<div class="form-group required">
+					<label>Operational Status</label>
+
+					<select
+						class="form-control"
+						formControlName="operationalStatusCode"
+						[class.is-invalid]="isInvalid('operationalStatusCode')"
+					>
+						<option
+							*ngFor="let status of data.operationalStatuses"
+							[value]="status.lookupCode"
+						>
+							{{ status.lookupValue }}
+						</option>
+					</select>
+
+					@if (isInvalid("operationalStatusCode")) {
+						<div class="invalid-feedback">
+							Operational status wajib dipilih.
+						</div>
+					}
+				</div>
+			</div>
+
 			<div class="col-12">
 				<div class="form-group">
 					<label>Remarks</label>
