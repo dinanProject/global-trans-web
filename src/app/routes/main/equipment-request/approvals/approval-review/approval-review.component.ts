@@ -153,7 +153,7 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 			.subscribe({
 				next: ({ updatedCount }) => {
 					if (updatedCount > 0) {
-						this.mainService.refreshMenus();
+						this.mainService.refreshMenuUnreadCounts();
 					}
 				},
 				error: (error: unknown) => {

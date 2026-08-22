@@ -105,8 +105,13 @@
 							trackBy: trackByRequestUuid
 						"
 						[class.active]="selectedRequest?.uuid === request.uuid"
-						(click)="selectRequest(request)"
+						[class.unread]="isRequestUnread(request.uuid)"
+						(click)="onRequestClicked(request)"
 					>
+						@if (isRequestUnread(request.uuid)) {
+							<span class="new-ribbon">NEW</span>
+						}
+
 						<div class="request-card-top">
 							<strong>{{ request.requestNo }}</strong>
 
