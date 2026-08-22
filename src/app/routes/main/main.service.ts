@@ -11,6 +11,8 @@ export interface Breadcrumb {
 	path: string;
 }
 
+export type MenuUnreadCounts = Record<string, number>;
+
 export interface ChangePasswordPayload {
 	currentPassword: string;
 	newPassword: string;
@@ -55,6 +57,10 @@ export class MainService {
 
 	getMenus(): Observable<Menu[]> {
 		return this.apiService.get('/menu');
+	}
+
+	getMenuUnreadCounts(): Observable<MenuUnreadCounts> {
+		return this.apiService.get('/menu-notification/unread-counts');
 	}
 
 	markMenuNotificationAsRead(

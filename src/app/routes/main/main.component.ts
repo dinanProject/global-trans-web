@@ -15,14 +15,14 @@ import {
 } from '@angular/router';
 import { MatDrawerMode } from '@angular/material/sidenav';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
-import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { EMPTY, Subscription, timer } from 'rxjs';
+import { catchError, exhaustMap, filter, map } from 'rxjs/operators';
 
 import { User } from 'src/app/core/models/user.model';
 import { SessionService } from 'src/app/core/services/session.service';
 
 import { MenuComponent } from './menu/menu.component';
-import { Breadcrumb, MainService } from './main.service';
+import { Breadcrumb, MainService, MenuUnreadCounts } from './main.service';
 import { UserSessionResponse } from 'src/app/core/models/user-session.model';
 import { Menu } from 'src/app/core/models/menu.model';
 import { MatDialog } from '@angular/material/dialog';
@@ -76,6 +76,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.mainService.setMenus(this.sessionService.getMenus());
 
 		this.loadMainDataIfNeeded();
+		this.initMenuNotificationPolling();
 	}
 
 	private initMenus(): void {
@@ -109,6 +110,32 @@ export class MainComponent implements OnInit, OnDestroy {
 		}
 
 		this.loadMainData();
+	}
+
+	private initMenuNotificationPolling(): void {
+		const subscription = timer(30_000, 30_000)
+			.pipe(
+				filter(() => !document.hidden),
+				exhaustMap(() =>
+					this.mainService.getMenuUnreadCounts().pipe(
+						catchError((error: unknown) => {
+							console.error(
+								'Failed to refresh menu notification counts',
+								error,
+							);
+
+							return EMPTY;
+						}),
+					),
+				),
+			)
+			.subscribe((unreadCounts: MenuUnreadCounts) => {
+				this.mainService.setMenus(
+					this.applyMenuUnreadCounts(this.menus, unreadCounts),
+				);
+			});
+
+		this.subscriptions.add(subscription);
 	}
 
 	private loadMainData(): void {
@@ -320,6 +347,31 @@ export class MainComponent implements OnInit, OnDestroy {
 		}
 
 		void this.router.navigateByUrl(route);
+	}
+
+	private applyMenuUnreadCounts(
+		menus: Menu[],
+		unreadCounts: MenuUnreadCounts,
+	): Menu[] {
+		return (menus ?? []).map((menu) => {
+			const child = this.applyMenuUnreadCounts(
+				menu.child ?? [],
+				unreadCounts,
+			);
+			const childUnreadCount = child.reduce(
+				(total, item) => total + Number(item.unreadCount ?? 0),
+				0,
+			);
+
+			return {
+				...menu,
+				unreadCount:
+					child.length > 0
+						? childUnreadCount
+						: Number(unreadCounts[menu.code] ?? 0),
+				child,
+			};
+		});
 	}
 
 	private normalizeMenus(menus: any[], level = 0): Menu[] {
