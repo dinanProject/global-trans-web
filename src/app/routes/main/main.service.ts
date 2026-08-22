@@ -49,12 +49,62 @@ export class MainService {
 	refreshMenus(): void {
 		this.getUser().subscribe({
 			next: (response: UserSessionResponse) => {
-				this.setMenus(response.menus ?? []);
+				this.setMenus(
+					this.preserveMenuNotificationState(
+						response.menus ?? [],
+						this.menusSubject.value,
+					),
+				);
 			},
 			error: (error: unknown) => {
 				console.error('Failed to refresh sidebar menus', error);
 			},
 		});
+	}
+
+	private preserveMenuNotificationState(
+		menus: Menu[],
+		currentMenus: Menu[],
+	): Menu[] {
+		const notificationStateByCode = new Map<
+			string,
+			Pick<Menu, 'unreadCount' | 'unreadReferenceUuids'>
+		>();
+
+		const collectState = (items: Menu[]): void => {
+			for (const item of items ?? []) {
+				if (item.code) {
+					notificationStateByCode.set(item.code, {
+						unreadCount: item.unreadCount ?? 0,
+						unreadReferenceUuids: item.unreadReferenceUuids ?? [],
+					});
+				}
+
+				collectState(item.child ?? []);
+			}
+		};
+
+		collectState(currentMenus);
+
+		const mergeState = (items: Menu[]): Menu[] =>
+			(items ?? []).map((item) => {
+				const notificationState = item.code
+					? notificationStateByCode.get(item.code)
+					: undefined;
+
+				return {
+					...item,
+					unreadCount:
+						notificationState?.unreadCount ?? item.unreadCount ?? 0,
+					unreadReferenceUuids:
+						notificationState?.unreadReferenceUuids ??
+						item.unreadReferenceUuids ??
+						[],
+					child: mergeState(item.child ?? []),
+				};
+			});
+
+		return mergeState(menus);
 	}
 
 	getUser(): Observable<UserSessionResponse> {

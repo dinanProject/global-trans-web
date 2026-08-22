@@ -116,7 +116,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	private initMenuNotificationPolling(): void {
 		const subscription = merge(
-			timer(30_000, 30_000),
+			timer(0, 30_000),
 			fromEvent(document, 'visibilitychange'),
 			fromEvent(window, 'focus'),
 		)
