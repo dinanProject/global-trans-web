@@ -78,6 +78,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		this.mainService.setMenus(this.sessionService.getMenus());
 
 		this.loadMainDataIfNeeded();
+		this.initMenuUnreadRefreshNotifications();
 		this.initMenuNotificationPolling();
 	}
 
@@ -112,6 +113,26 @@ export class MainComponent implements OnInit, OnDestroy {
 		}
 
 		this.loadMainData();
+	}
+
+	private initMenuUnreadRefreshNotifications(): void {
+		const subscription =
+			this.mainService.menuUnreadCountsRefreshed$.subscribe(
+				(unreadCounts: MenuUnreadCounts) => {
+					const updatedMenus = this.applyMenuUnreadCounts(
+						this.menus,
+						unreadCounts,
+					);
+
+					this.showNewWorkNotifications(
+						this.menus,
+						updatedMenus,
+						unreadCounts,
+					);
+				},
+			);
+
+		this.subscriptions.add(subscription);
 	}
 
 	private initMenuNotificationPolling(): void {

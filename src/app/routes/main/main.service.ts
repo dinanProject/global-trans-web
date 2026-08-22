@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDrawerMode } from '@angular/material/sidenav';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { UserSessionResponse } from 'src/app/core/models/user-session.model';
 import { Menu } from 'src/app/core/models/menu.model';
@@ -39,6 +39,11 @@ export class MainService {
 
 	private readonly menusSubject = new BehaviorSubject<Menu[]>([]);
 	readonly menus$ = this.menusSubject.asObservable();
+
+	private readonly menuUnreadCountsRefreshedSubject =
+		new Subject<MenuUnreadCounts>();
+	readonly menuUnreadCountsRefreshed$ =
+		this.menuUnreadCountsRefreshedSubject.asObservable();
 
 	constructor(private readonly apiService: ApiService) {}
 
@@ -122,6 +127,7 @@ export class MainService {
 	refreshMenuUnreadCounts(): void {
 		this.getMenuUnreadCounts().subscribe({
 			next: (unreadCounts) => {
+				this.menuUnreadCountsRefreshedSubject.next(unreadCounts);
 				this.setMenus(
 					this.applyMenuUnreadCounts(
 						this.menusSubject.value,
@@ -174,7 +180,10 @@ export class MainService {
 	): Observable<{ updatedCount: number }> {
 		return this.apiService.post(
 			`/menu-notification/reference/${referenceUuid}/read`,
-			{ menuPermissionCode, menuCode },
+			{
+				menuPermissionCode,
+				menuCode,
+			},
 		);
 	}
 
