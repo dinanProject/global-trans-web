@@ -87,11 +87,17 @@
 }
 
 .request-cell {
+	position: relative;
 	min-height: 54px;
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	min-width: 0;
+
+	&.unread {
+		padding-top: 8px;
+		padding-right: 46px;
+	}
 
 	h5,
 	h6 {
@@ -99,6 +105,34 @@
 		line-height: 1.35;
 		overflow-wrap: anywhere;
 	}
+}
+
+.new-ribbon {
+	position: absolute;
+	top: -4px;
+	right: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 42px;
+	height: 20px;
+	padding: 0 8px;
+	border-radius: 0 0 6px 6px;
+	background: #fff0c2;
+	color: #a96600;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	line-height: 1;
+	pointer-events: none;
+}
+
+:host ::ng-deep .approval-table .unread-row .mat-mdc-cell {
+	background: #fffdf8;
+}
+
+:host ::ng-deep .approval-table .unread-row:hover .mat-mdc-cell {
+	background: #fffaf0;
 }
 
 .request-icon {
@@ -389,6 +423,14 @@
 
 	.approval-table tr:hover td.action-column {
 		background-color: #f8fafc;
+	}
+
+	:host ::ng-deep .approval-table .unread-row td.action-column {
+		background-color: #fffdf8;
+	}
+
+	:host ::ng-deep .approval-table .unread-row:hover td.action-column {
+		background-color: #fffaf0;
 	}
 }
 

@@ -15,7 +15,7 @@ import {
 } from '@angular/router';
 import { MatDrawerMode } from '@angular/material/sidenav';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
-import { EMPTY, Subscription, timer } from 'rxjs';
+import { EMPTY, fromEvent, merge, Subscription, timer } from 'rxjs';
 import { catchError, exhaustMap, filter, map } from 'rxjs/operators';
 
 import { User } from 'src/app/core/models/user.model';
@@ -26,6 +26,7 @@ import { Breadcrumb, MainService, MenuUnreadCounts } from './main.service';
 import { UserSessionResponse } from 'src/app/core/models/user-session.model';
 import { Menu } from 'src/app/core/models/menu.model';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ChangePasswordDialogComponent } from './header-bar/change-password-dialog.component';
 
 @Component({
@@ -58,6 +59,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		private readonly media: MediaObserver,
 		private readonly router: Router,
 		private readonly dialog: MatDialog,
+		private readonly snackBar: MatSnackBar,
 	) {
 		this.initSidebarEvents();
 		this.initToolbarTitle();
@@ -113,7 +115,11 @@ export class MainComponent implements OnInit, OnDestroy {
 	}
 
 	private initMenuNotificationPolling(): void {
-		const subscription = timer(30_000, 30_000)
+		const subscription = merge(
+			timer(30_000, 30_000),
+			fromEvent(document, 'visibilitychange'),
+			fromEvent(window, 'focus'),
+		)
 			.pipe(
 				filter(() => !document.hidden),
 				exhaustMap(() =>
@@ -130,9 +136,17 @@ export class MainComponent implements OnInit, OnDestroy {
 				),
 			)
 			.subscribe((unreadCounts: MenuUnreadCounts) => {
-				this.mainService.setMenus(
-					this.applyMenuUnreadCounts(this.menus, unreadCounts),
+				const updatedMenus = this.applyMenuUnreadCounts(
+					this.menus,
+					unreadCounts,
 				);
+
+				this.showNewWorkNotifications(
+					this.menus,
+					updatedMenus,
+					unreadCounts,
+				);
+				this.mainService.setMenus(updatedMenus);
 			});
 
 		this.subscriptions.add(subscription);
@@ -368,10 +382,142 @@ export class MainComponent implements OnInit, OnDestroy {
 				unreadCount:
 					child.length > 0
 						? childUnreadCount
-						: Number(unreadCounts[menu.code] ?? 0),
+						: Number(unreadCounts[menu.code]?.unreadCount ?? 0),
+				unreadReferenceUuids:
+					child.length > 0
+						? []
+						: (unreadCounts[menu.code]?.unreadReferenceUuids ?? []),
 				child,
 			};
 		});
+	}
+
+	private showNewWorkNotifications(
+		previousMenus: Menu[],
+		updatedMenus: Menu[],
+		unreadCounts: MenuUnreadCounts,
+	): void {
+		const approvalIncrease =
+			this.getMenuUnreadCountByRoute(
+				updatedMenus,
+				'/equipment-request/approvals',
+			) -
+			this.getMenuUnreadCountByRoute(
+				previousMenus,
+				'/equipment-request/approvals',
+			);
+		const assignmentIncrease =
+			this.getMenuUnreadCountByRoute(
+				updatedMenus,
+				'/equipment-request/assignments',
+			) -
+			this.getMenuUnreadCountByRoute(
+				previousMenus,
+				'/equipment-request/assignments',
+			);
+
+		const messages: string[] = [];
+
+		if (approvalIncrease > 0) {
+			messages.push(
+				approvalIncrease === 1
+					? 'New approval request available'
+					: `${approvalIncrease} new approval requests`,
+			);
+		}
+
+		if (assignmentIncrease > 0) {
+			messages.push(
+				assignmentIncrease === 1
+					? 'New equipment assignment task available'
+					: `${assignmentIncrease} new equipment assignment tasks`,
+			);
+		}
+
+		if (messages.length === 0) {
+			return;
+		}
+
+		const targetRoute =
+			messages.length === 1
+				? approvalIncrease > 0
+					? '/equipment-request/approvals'
+					: '/equipment-request/assignments'
+				: null;
+		const targetReferenceUuid =
+			targetRoute === '/equipment-request/assignments'
+				? this.getLatestReferenceUuidByRoute(
+						updatedMenus,
+						unreadCounts,
+						targetRoute,
+					)
+				: null;
+		const snackBarRef = this.snackBar.open(
+			messages.join(' • '),
+			targetRoute ? 'View' : undefined,
+			{
+				duration: 7000,
+				horizontalPosition: 'right',
+				verticalPosition: 'top',
+				panelClass: ['work-notification-snackbar'],
+			},
+		);
+
+		if (!targetRoute) {
+			return;
+		}
+
+		const actionSubscription = snackBarRef.onAction().subscribe(() => {
+			if (
+				targetRoute === '/equipment-request/assignments' &&
+				targetReferenceUuid
+			) {
+				void this.router.navigate([targetRoute], {
+					queryParams: { referenceUuid: targetReferenceUuid },
+				});
+				return;
+			}
+
+			void this.router.navigateByUrl(targetRoute);
+		});
+
+		this.subscriptions.add(actionSubscription);
+	}
+
+	private getLatestReferenceUuidByRoute(
+		menus: Menu[],
+		unreadCounts: MenuUnreadCounts,
+		route: string,
+	): string | null {
+		const menu = this.findMenuByRoute(menus, route);
+
+		if (!menu) {
+			return null;
+		}
+
+		return unreadCounts[menu.code]?.latestReferenceUuid ?? null;
+	}
+
+	private getMenuUnreadCountByRoute(menus: Menu[], route: string): number {
+		const menu = this.findMenuByRoute(menus, route);
+
+		return Number(menu?.unreadCount ?? 0);
+	}
+
+	private findMenuByRoute(menus: Menu[], route: string): Menu | null {
+		for (const menu of menus ?? []) {
+			if (this.normalizeMenuRoute(menu.route) === route) {
+				return menu;
+			}
+
+			const childMatch = this.findMenuByRoute(menu.child ?? [], route);
+
+			if (childMatch) {
+				return childMatch;
+			}
+		}
+
+		return null;
 	}
 
 	private normalizeMenus(menus: any[], level = 0): Menu[] {
@@ -396,6 +542,7 @@ export class MainComponent implements OnInit, OnDestroy {
 					route: this.normalizeMenuRoute(menu.route),
 					icon: menu.icon ?? null,
 					unreadCount: Number(menu.unreadCount ?? 0),
+					unreadReferenceUuids: menu.unreadReferenceUuids ?? [],
 					level: menu.level ?? level,
 					child: children,
 					visibility:

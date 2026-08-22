@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable, Subject, takeUntil } from 'rxjs';
 
 import {
 	RequestDetail,
@@ -13,6 +14,8 @@ import {
 	EquipmentAssignment,
 } from './assignment.service';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
+import { Menu } from 'src/app/core/models/menu.model';
+import { MainService } from '../../main.service';
 
 interface AssignmentDetailView extends RequestDetail {
 	categoryCode: string;
@@ -27,7 +30,13 @@ interface AssignmentDetailView extends RequestDetail {
 	styleUrls: ['./assignments.component.scss'],
 	standalone: false,
 })
-export class AssignmentsComponent implements OnInit {
+export class AssignmentsComponent implements OnInit, OnDestroy {
+	private readonly destroy$ = new Subject<void>();
+	private assignmentUnreadCount: number | null = null;
+	private assignmentMenuCode: string | null = null;
+	private assignmentUnreadReferences = new Set<string>();
+	private pendingWorklistRefresh = false;
+	private targetReferenceUuid: string | null = null;
 	readonly STATUS_APPROVED = 'APPROVED';
 	readonly STATUS_ASSIGNED = 'ASSIGNED';
 	readonly STATUS_IN_PROGRESS = 'IN_PROGRESS';
@@ -75,52 +84,182 @@ export class AssignmentsComponent implements OnInit {
 	successMessage = '';
 
 	constructor(
+		private readonly activatedRoute: ActivatedRoute,
 		private readonly requestService: RequestService,
 		private readonly assignmentService: AssignmentService,
 		private readonly utilityService: UtilityService,
+		private readonly mainService: MainService,
 	) {}
 
 	ngOnInit(): void {
+		this.activatedRoute.queryParamMap
+			.pipe(takeUntil(this.destroy$))
+			.subscribe((params) => {
+				this.targetReferenceUuid = params.get('referenceUuid');
+				this.trySelectTargetRequest();
+			});
+
+		this.mainService.menus$
+			.pipe(takeUntil(this.destroy$))
+			.subscribe((menus) => this.handleMenuUnreadChange(menus ?? []));
+
 		this.loadWorklist();
 	}
 
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+	}
+
 	loadWorklist(keepSelection = true): void {
+		if (this.loadingWorklist) {
+			this.pendingWorklistRefresh = true;
+			return;
+		}
+
 		this.clearMessages();
 		this.loadingWorklist = true;
 
-		this.requestService.getRequests().subscribe({
-			next: (requests) => {
-				this.requests = (requests || []).filter((request) =>
-					this.worklistStatuses.includes(request.status),
-				);
-
-				this.applyFilters();
-				this.loadingWorklist = false;
-
-				if (keepSelection && this.selectedRequest) {
-					const selected = this.requests.find(
-						(request) =>
-							request.uuid === this.selectedRequest?.uuid,
+		this.requestService
+			.getRequests()
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (requests) => {
+					this.requests = (requests || []).filter((request) =>
+						this.worklistStatuses.includes(request.status),
 					);
 
-					if (selected) {
-						this.selectRequest(selected);
-						return;
-					}
-				}
+					this.applyFilters();
+					this.loadingWorklist = false;
 
-				if (!this.selectedRequest && this.filteredRequests.length > 0) {
-					this.selectRequest(this.filteredRequests[0]);
-				}
-			},
-			error: (error) => {
-				this.loadingWorklist = false;
-				this.errorMessage = this.getErrorMessage(
-					error,
-					'Gagal memuat worklist assignment.',
-				);
-			},
-		});
+					if (keepSelection && this.selectedRequest) {
+						const selected = this.requests.find(
+							(request) =>
+								request.uuid === this.selectedRequest?.uuid,
+						);
+
+						if (selected) {
+							this.selectRequest(selected);
+						}
+					}
+
+					this.trySelectTargetRequest();
+
+					if (
+						!this.selectedRequest &&
+						this.filteredRequests.length > 0
+					) {
+						this.selectRequest(this.filteredRequests[0]);
+					}
+
+					this.runPendingWorklistRefresh();
+				},
+				error: (error) => {
+					this.loadingWorklist = false;
+					this.errorMessage = this.getErrorMessage(
+						error,
+						'Gagal memuat worklist assignment.',
+					);
+
+					this.runPendingWorklistRefresh();
+				},
+			});
+	}
+
+	private trySelectTargetRequest(): void {
+		if (
+			!this.targetReferenceUuid ||
+			this.loadingWorklist ||
+			this.loadingDetail ||
+			this.saving
+		) {
+			return;
+		}
+
+		const targetRequest = this.requests.find(
+			(request) => request.uuid === this.targetReferenceUuid,
+		);
+
+		if (!targetRequest) {
+			return;
+		}
+
+		this.targetReferenceUuid = null;
+
+		if (this.selectedRequest?.uuid === targetRequest.uuid) {
+			return;
+		}
+
+		this.selectRequest(targetRequest);
+	}
+
+	private runPendingWorklistRefresh(): void {
+		if (!this.pendingWorklistRefresh) {
+			return;
+		}
+
+		this.pendingWorklistRefresh = false;
+		this.loadWorklist(true);
+	}
+
+	private handleMenuUnreadChange(menus: Menu[]): void {
+		const assignmentMenu = this.findMenuByRoute(
+			menus,
+			'/equipment-request/assignments',
+		);
+		this.assignmentMenuCode = assignmentMenu?.code ?? null;
+		this.assignmentUnreadReferences = new Set(
+			assignmentMenu?.unreadReferenceUuids ?? [],
+		);
+		const unreadCount = Number(assignmentMenu?.unreadCount ?? 0);
+
+		if (this.assignmentUnreadCount === null) {
+			this.assignmentUnreadCount = unreadCount;
+			return;
+		}
+
+		const increased = unreadCount > this.assignmentUnreadCount;
+		this.assignmentUnreadCount = unreadCount;
+
+		if (increased) {
+			this.loadWorklist(true);
+		}
+	}
+
+	private getUnreadCountByRoute(menus: Menu[], route: string): number {
+		const menu = this.findMenuByRoute(menus, route);
+
+		return Number(menu?.unreadCount ?? 0);
+	}
+
+	private findMenuByRoute(menus: Menu[], route: string): Menu | null {
+		for (const menu of menus) {
+			if (this.normalizeRoute(menu.route) === route) {
+				return menu;
+			}
+
+			const childMatch = this.findMenuByRoute(menu.child ?? [], route);
+
+			if (childMatch) {
+				return childMatch;
+			}
+		}
+
+		return null;
+	}
+
+	private normalizeRoute(route: string | null | undefined): string | null {
+		if (!route) {
+			return null;
+		}
+
+		const normalized = route.trim().replace(/^\/main/, '');
+
+		return normalized.startsWith('/') ? normalized : `/${normalized}`;
+	}
+
+	isRequestUnread(requestUuid: string): boolean {
+		return this.assignmentUnreadReferences.has(requestUuid);
 	}
 
 	applyFilters(): void {
@@ -169,6 +308,38 @@ export class AssignmentsComponent implements OnInit {
 		this.applyFilters();
 	}
 
+	onRequestClicked(request: RequestMaster): void {
+		if (this.loadingDetail || this.saving) {
+			return;
+		}
+
+		this.markAssignmentNotificationAsRead(request.uuid);
+		this.selectRequest(request);
+	}
+
+	private markAssignmentNotificationAsRead(requestUuid: string): void {
+		this.mainService
+			.markMenuNotificationAsRead(
+				requestUuid,
+				'EQUIPMENT_REQUEST.ASSIGN',
+				this.assignmentMenuCode,
+			)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: ({ updatedCount }) => {
+					if (updatedCount > 0) {
+						this.mainService.refreshMenuUnreadCounts();
+					}
+				},
+				error: (error: unknown) => {
+					console.error(
+						'Failed to mark assignment notification as read',
+						error,
+					);
+				},
+			});
+	}
+
 	selectRequest(request: RequestMaster): void {
 		if (this.loadingDetail || this.saving) {
 			return;
@@ -191,6 +362,7 @@ export class AssignmentsComponent implements OnInit {
 			},
 			error: (error) => {
 				this.loadingDetail = false;
+				this.trySelectTargetRequest();
 				this.errorMessage = this.getErrorMessage(
 					error,
 					'Gagal memuat equipment unit.',
@@ -219,9 +391,11 @@ export class AssignmentsComponent implements OnInit {
 					);
 
 					this.loadingDetail = false;
+					this.trySelectTargetRequest();
 				},
 				error: (error) => {
 					this.loadingDetail = false;
+					this.trySelectTargetRequest();
 					this.errorMessage = this.getErrorMessage(
 						error,
 						'Gagal memuat detail assignment.',
@@ -272,6 +446,7 @@ export class AssignmentsComponent implements OnInit {
 				assignments,
 			),
 			'Seluruh equipment unit berhasil di-assign.',
+			() => this.mainService.refreshMenuUnreadCounts(),
 		);
 	}
 
@@ -633,6 +808,7 @@ export class AssignmentsComponent implements OnInit {
 	private runAction(
 		request$: Observable<unknown>,
 		successMessage: string,
+		onSuccess?: () => void,
 	): void {
 		this.clearMessages();
 		this.saving = true;
@@ -643,6 +819,7 @@ export class AssignmentsComponent implements OnInit {
 				this.successMessage = successMessage;
 				this.utilityService.alert('Success', successMessage, 'success');
 
+				onSuccess?.();
 				this.loadWorklist(true);
 			},
 			error: (error) => {

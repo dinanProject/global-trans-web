@@ -5,6 +5,7 @@ export interface Menu {
 	sequence: number;
 	code: string;
 	unreadCount?: number;
+	unreadReferenceUuids?: string[];
 
 	route?: string | null;
 	icon?: string | null;

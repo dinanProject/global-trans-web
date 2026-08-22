@@ -159,6 +159,7 @@
 }
 
 .request-card {
+	position: relative;
 	width: 100%;
 	padding: 13px;
 	border: 1px solid #e5e9f0;
@@ -181,6 +182,39 @@
 		background: #f4f8ff;
 		box-shadow: inset 0 0 0 1px var(--assignment-blue);
 	}
+}
+
+.request-card.unread {
+	padding-top: 20px;
+	background: #fffdf8;
+
+	&:hover {
+		background: #fffaf0;
+	}
+
+	&.active {
+		background: #f4f8ff;
+	}
+}
+
+.new-ribbon {
+	position: absolute;
+	top: -1px;
+	right: 12px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 42px;
+	height: 20px;
+	padding: 0 8px;
+	border-radius: 0 0 6px 6px;
+	background: #fff0c2;
+	color: #a96600;
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	line-height: 1;
+	pointer-events: none;
 }
 
 .request-card-top {

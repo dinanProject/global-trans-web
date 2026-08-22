@@ -14,10 +14,10 @@ import { RequestFormDialogComponent } from './request/request-form-dialog/reques
 import { ReportsComponent } from './reports/reports.component';
 import { ApprovalsComponent } from './approvals/approvals.component';
 import { RequestComponent } from './request/request.component';
-import { AssignmentsComponent } from './assignments/assignments.component';
 import { LoadingButtonModule } from 'src/app/shared/loading-button/loading-button.module';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
+import { AssignmentsComponent } from './assignments/assignments.component';
 
 @NgModule({
 	declarations: [

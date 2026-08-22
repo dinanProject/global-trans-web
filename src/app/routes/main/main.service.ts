@@ -11,7 +11,13 @@ export interface Breadcrumb {
 	path: string;
 }
 
-export type MenuUnreadCounts = Record<string, number>;
+export interface MenuUnreadNotificationState {
+	unreadCount: number;
+	latestReferenceUuid: string | null;
+	unreadReferenceUuids: string[];
+}
+
+export type MenuUnreadCounts = Record<string, MenuUnreadNotificationState>;
 
 export interface ChangePasswordPayload {
 	currentPassword: string;
@@ -63,13 +69,62 @@ export class MainService {
 		return this.apiService.get('/menu-notification/unread-counts');
 	}
 
+	refreshMenuUnreadCounts(): void {
+		this.getMenuUnreadCounts().subscribe({
+			next: (unreadCounts) => {
+				this.setMenus(
+					this.applyMenuUnreadCounts(
+						this.menusSubject.value,
+						unreadCounts,
+					),
+				);
+			},
+			error: (error: unknown) => {
+				console.error(
+					'Failed to refresh menu notification counts',
+					error,
+				);
+			},
+		});
+	}
+
+	private applyMenuUnreadCounts(
+		menus: Menu[],
+		unreadCounts: MenuUnreadCounts,
+	): Menu[] {
+		return (menus ?? []).map((menu) => {
+			const child = this.applyMenuUnreadCounts(
+				menu.child ?? [],
+				unreadCounts,
+			);
+			const childUnreadCount = child.reduce(
+				(total, item) => total + Number(item.unreadCount ?? 0),
+				0,
+			);
+
+			return {
+				...menu,
+				unreadCount:
+					child.length > 0
+						? childUnreadCount
+						: Number(unreadCounts[menu.code]?.unreadCount ?? 0),
+				unreadReferenceUuids:
+					child.length > 0
+						? []
+						: (unreadCounts[menu.code]?.unreadReferenceUuids ?? []),
+				child,
+			};
+		});
+	}
+
 	markMenuNotificationAsRead(
 		referenceUuid: string,
 		menuPermissionCode: string,
+		menuCode?: string | null,
 	): Observable<{ updatedCount: number }> {
 		return this.apiService.post(
 			`/menu-notification/reference/${referenceUuid}/read`,
-			{ menuPermissionCode },
+			{ menuPermissionCode, menuCode },
 		);
 	}
 
