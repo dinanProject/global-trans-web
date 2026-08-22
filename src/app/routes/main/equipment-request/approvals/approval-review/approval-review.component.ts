@@ -358,6 +358,10 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 						payload.actionCode,
 					);
 
+					if (payload.actionCode === 'APPROVE_GTSI') {
+						this.mainService.refreshMenuUnreadCounts();
+					}
+
 					this.utilityService.alert(
 						'Success',
 						isReject
