@@ -18,6 +18,45 @@
 		<i class="fas fa-times"></i>
 	</button>
 </div>
+
+@if (reviewedUnitImageUrl; as reviewImageUrl) {
+	<div
+		#unitImageReview
+		class="unit-image-review-backdrop"
+		(click)="closeUnitImageReview()"
+	>
+		@if (reviewedUnit; as unit) {
+			<div class="unit-image-review-title">
+				<strong>{{ unit.unitName }}</strong>
+				<span>
+					{{ unit.unitCode }}
+					@if (unit.modelNumber) {
+						&middot; {{ unit.modelNumber }}
+					}
+				</span>
+			</div>
+		}
+
+		<button
+			type="button"
+			class="unit-image-review-close"
+			aria-label="Close equipment image preview"
+			(click)="$event.stopPropagation(); closeUnitImageReview()"
+		>
+			<i class="fas fa-times"></i>
+		</button>
+
+		<div class="unit-image-review-stage">
+			<img
+				class="unit-image-review-photo"
+				[src]="reviewImageUrl"
+				[alt]="reviewedUnit?.unitName || 'Equipment unit'"
+				(click)="$event.stopPropagation()"
+			/>
+		</div>
+	</div>
+}
+
 <mat-dialog-content>
 	<div *ngIf="errorMessage" class="error-message">
 		<i class="fas fa-exclamation-circle"></i>
@@ -26,7 +65,10 @@
 
 	<form [formGroup]="form" novalidate>
 		<div class="dialog-layout">
-			<section class="request-information">
+			<section
+				class="request-information"
+				[class.image-review-active]="reviewUnitUuid"
+			>
 				<div class="section-heading">
 					<h6>Request Information</h6>
 					<small>Complete the reservation request information.</small>
@@ -294,6 +336,76 @@
 									Equipment unit wajib dipilih.
 								</span>
 							</div>
+
+							@if (getSelectedUnit(i); as selectedUnit) {
+								<div class="selected-unit-preview">
+									@if (
+										getSelectedUnitImageUrl(i);
+										as imageUrl
+									) {
+										<button
+											type="button"
+											class="selected-unit-image selected-unit-image-button"
+											[attr.aria-label]="
+												'Preview image for ' +
+												selectedUnit.unitName
+											"
+											(click)="openUnitImageReview(i)"
+										>
+											<img
+												[src]="imageUrl"
+												[alt]="selectedUnit.unitName"
+											/>
+											<span
+												class="selected-unit-image-overlay"
+											>
+												<i
+													class="fas fa-search-plus"
+												></i>
+											</span>
+										</button>
+									} @else {
+										<div class="selected-unit-image">
+											<div
+												class="selected-unit-image-fallback"
+											>
+												@if (
+													isSelectedUnitImageLoading(
+														i
+													)
+												) {
+													<i
+														class="fas fa-spinner fa-spin"
+													></i>
+												} @else {
+													<img
+														[src]="
+															getCategoryIcon(i)
+														"
+														[alt]="
+															selectedUnit.unitName
+														"
+													/>
+												}
+											</div>
+										</div>
+									}
+
+									<div class="selected-unit-info">
+										<small>Selected Unit</small>
+										<strong>{{
+											selectedUnit.unitName
+										}}</strong>
+										<span
+											>{{ selectedUnit.unitCode }}
+											@if (selectedUnit.modelNumber) {
+												&middot;
+												{{ selectedUnit.modelNumber }}
+											}
+										</span>
+									</div>
+								</div>
+							}
 
 							<div class="form-group capacity-unit-field">
 								<label>

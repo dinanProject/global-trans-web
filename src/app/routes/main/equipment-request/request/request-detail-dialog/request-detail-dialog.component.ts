@@ -29,6 +29,10 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 		/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi;
 
 	request?: RequestMaster;
+	readonly unitImageUrls = new Map<string, string>();
+	previewUnitUuid: string | null = null;
+	private readonly unavailableUnitImages = new Set<string>();
+	private imageLoadVersion = 0;
 	isLoading = false;
 	actionCode = '';
 	errorMessage = '';
@@ -55,6 +59,8 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.imageLoadVersion += 1;
+		this.releaseUnitImages();
 		this.destroy$.next();
 		this.destroy$.complete();
 	}
@@ -74,7 +80,10 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 				finalize(() => (this.isLoading = false)),
 			)
 			.subscribe({
-				next: (request) => (this.request = request),
+				next: (request) => {
+					this.request = request;
+					this.loadUnitImages(request);
+				},
 				error: (error) =>
 					(this.errorMessage =
 						error?.error?.meta?.message ??
@@ -168,6 +177,40 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 		return `assets/icons/equipment/${normalizedIcon}`;
 	}
 
+	getUnitImageUrl(unitUuid?: string | null): string | null {
+		if (!unitUuid || this.unavailableUnitImages.has(unitUuid)) {
+			return null;
+		}
+
+		return this.unitImageUrls.get(unitUuid) || null;
+	}
+
+	openUnitImagePreview(unitUuid?: string | null): void {
+		if (!unitUuid || !this.getUnitImageUrl(unitUuid)) return;
+
+		this.previewUnitUuid = unitUuid;
+	}
+
+	closeUnitImagePreview(): void {
+		this.previewUnitUuid = null;
+	}
+
+	get previewUnitDetail() {
+		if (!this.previewUnitUuid) return null;
+
+		return (
+			(this.request?.details || []).find(
+				(detail) => detail.equipmentUnitUuid === this.previewUnitUuid,
+			) ?? null
+		);
+	}
+
+	get previewUnitImageUrl(): string | null {
+		return this.previewUnitUuid
+			? this.getUnitImageUrl(this.previewUnitUuid)
+			: null;
+	}
+
 	formatHistoryDescription(history: RequestHistory): string {
 		if (!history?.description || !this.request) {
 			return history?.description || '—';
@@ -175,6 +218,7 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 
 		let description = history.description;
 		const requestNo = this.request.requestNo;
+		const details = this.request.details || [];
 
 		// Presentation-only normalization. API payloads and workflow functions remain unchanged.
 		description = description.replace(
@@ -191,6 +235,34 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 				requestNo,
 			);
 		}
+
+		details.forEach((detail) => {
+			if (!detail.equipmentUnitUuid) return;
+
+			const unitLabel =
+				detail.equipmentUnitName ||
+				detail.equipmentUnitCode ||
+				'Equipment unit';
+			description = description.replace(
+				new RegExp(this.escapeRegExp(detail.equipmentUnitUuid), 'gi'),
+				unitLabel,
+			);
+		});
+
+		const singleUnitLabel =
+			details.length === 1
+				? details[0].equipmentUnitName ||
+					details[0].equipmentUnitCode ||
+					'Equipment unit'
+				: 'Equipment assignment';
+
+		// Assignment UUID is not exposed in the request detail payload. For a single-unit
+		// request the unit is unambiguous; for multi-unit requests keep a human-readable
+		// entity label instead of guessing the wrong unit.
+		description = description.replace(
+			/Assignment\s+[0-9a-f-]{36}/gi,
+			singleUnitLabel,
+		);
 
 		return description;
 	}
@@ -211,6 +283,55 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 
 	close(): void {
 		this.dialogRef.close({ action: 'refresh' });
+	}
+
+	private loadUnitImages(request: RequestMaster): void {
+		this.imageLoadVersion += 1;
+		const currentVersion = this.imageLoadVersion;
+		this.releaseUnitImages();
+		this.unavailableUnitImages.clear();
+
+		const unitUuids = Array.from(
+			new Set(
+				(request.details || [])
+					.map((detail) => detail.equipmentUnitUuid)
+					.filter((uuid): uuid is string => Boolean(uuid)),
+			),
+		);
+
+		unitUuids.forEach((unitUuid) => {
+			this.requestService
+				.getUnitImage(unitUuid)
+				.pipe(takeUntil(this.destroy$))
+				.subscribe({
+					next: (blob) => {
+						if (currentVersion !== this.imageLoadVersion) {
+							return;
+						}
+
+						const previousUrl = this.unitImageUrls.get(unitUuid);
+						if (previousUrl) {
+							URL.revokeObjectURL(previousUrl);
+						}
+
+						this.unitImageUrls.set(
+							unitUuid,
+							URL.createObjectURL(blob),
+						);
+					},
+					error: () => {
+						if (currentVersion === this.imageLoadVersion) {
+							this.unavailableUnitImages.add(unitUuid);
+						}
+					},
+				});
+		});
+	}
+
+	private releaseUnitImages(): void {
+		this.previewUnitUuid = null;
+		this.unitImageUrls.forEach((url) => URL.revokeObjectURL(url));
+		this.unitImageUrls.clear();
 	}
 
 	private escapeRegExp(value: string): string {

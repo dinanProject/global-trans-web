@@ -6,11 +6,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { EquipmentRequestRoutingModule } from './equipment-request-routing.module';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { PageModule } from 'src/app/shared/page/page.module';
 import { PanelModule } from 'src/app/shared/panel/panel.module';
 import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { RequestDetailDialogComponent } from './request/request-detail-dialog/request-detail-dialog.component';
-import { RequestFormDialogComponent } from './request/request-form-dialog/request-form-dialog.component';
 import { ReportsComponent } from './reports/reports.component';
 import { ApprovalsComponent } from './approvals/approvals.component';
 import { RequestComponent } from './request/request.component';
@@ -18,6 +18,7 @@ import { LoadingButtonModule } from 'src/app/shared/loading-button/loading-butto
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
 import { AssignmentsComponent } from './assignments/assignments.component';
+import { RequestFormDialogComponent } from './request/request-form-dialog/request-form-dialog.component';
 
 @NgModule({
 	declarations: [
@@ -42,6 +43,7 @@ import { AssignmentsComponent } from './assignments/assignments.component';
 
 		MatTableModule,
 		MatMenuModule,
+		MatPaginatorModule,
 		MatDialogModule,
 		MatTabsModule,
 		FormsModule,

@@ -109,7 +109,7 @@
 			<div *ngIf="!isLoading" class="table-responsive">
 				<table
 					mat-table
-					[dataSource]="filteredRequests"
+					[dataSource]="pagedRequests"
 					[trackBy]="trackByUuid"
 					class="w-100 request-table p-0"
 				>
@@ -117,12 +117,8 @@
 						<th mat-header-cell *matHeaderCellDef>Request</th>
 						<td mat-cell *matCellDef="let request">
 							<div class="request-cell">
-								<span class="request-icon">
-									<i class="fas fa-truck-loading"></i>
-								</span>
-
 								<div class="request-content">
-									<div class="requester-name">
+									<div class="requester-name text-primary">
 										{{ request.requestByName || "—" }}
 									</div>
 
@@ -162,69 +158,136 @@
 					<ng-container matColumnDef="equipment">
 						<th mat-header-cell *matHeaderCellDef>Equipment</th>
 
-						<td mat-cell *matCellDef="let request">
-							<div
-								class="equipment-summary"
-								*ngIf="
-									request.details?.length;
-									else noEquipment
-								"
-							>
-								<div class="equipment-line">
-									<div
-										class="equipment-summary-item"
-										*ngFor="
-											let detail of getEquipmentPreview(
-												request.details
-											)
-										"
-									>
-										<div class="equipment-category">
-											{{ detail.equipmentCategoryName }}
-										</div>
+						<td
+							mat-cell
+							*matCellDef="let request; let rowIndex = index"
+						>
+							<div class="equipment-cell">
+								<span class="request-sequence">
+									{{ pageIndex * pageSize + rowIndex + 1 }}.
+								</span>
 
-										<div class="equipment-unit">
+								<div
+									class="equipment-summary"
+									*ngIf="
+										request.details?.length;
+										else noEquipment
+									"
+								>
+									<div class="equipment-line">
+										<div
+											class="equipment-preview-item"
+											*ngFor="
+												let detail of getEquipmentPreview(
+													request.details
+												)
+											"
+										>
 											<ng-container
-												*ngIf="detail.equipmentUnitCode"
-											>
-												{{ detail.equipmentUnitCode }}
-											</ng-container>
-
-											<ng-container
-												*ngIf="detail.equipmentUnitName"
+												*ngIf="
+													getEquipmentImageUrl(
+														detail
+													) as imageUrl;
+													else equipmentImageFallback
+												"
 											>
 												<span
-													*ngIf="
-														detail.equipmentUnitCode
-													"
-													>-</span
+													class="equipment-thumbnail"
 												>
-												{{ detail.equipmentUnitName }}
+													<img
+														[src]="imageUrl"
+														[alt]="
+															detail.equipmentUnitName ||
+															detail.equipmentCategoryName ||
+															'Equipment unit'
+														"
+													/>
+												</span>
 											</ng-container>
+
+											<ng-template
+												#equipmentImageFallback
+											>
+												<span
+													class="equipment-thumbnail equipment-thumbnail-fallback"
+												>
+													<img
+														[src]="
+															getEquipmentCategoryIcon(
+																detail
+															)
+														"
+														[alt]="
+															detail.equipmentCategoryName ||
+															'Equipment'
+														"
+													/>
+												</span>
+											</ng-template>
+
+											<div class="equipment-summary-item">
+												<div class="equipment-category">
+													{{
+														detail.equipmentCategoryName
+													}}
+												</div>
+
+												<div class="equipment-unit">
+													<ng-container
+														*ngIf="
+															detail.equipmentUnitCode
+														"
+													>
+														{{
+															detail.equipmentUnitCode
+														}}
+													</ng-container>
+
+													<ng-container
+														*ngIf="
+															detail.equipmentUnitName
+														"
+													>
+														<span
+															*ngIf="
+																detail.equipmentUnitCode
+															"
+															>-</span
+														>
+														{{
+															detail.equipmentUnitName
+														}}
+													</ng-container>
+												</div>
+											</div>
 										</div>
+
+										<button
+											*ngIf="
+												getRemainingEquipmentCount(
+													request
+												) > 0
+											"
+											type="button"
+											class="equipment-more-button"
+											(click)="
+												openDetailDialog(request, 1)
+											"
+										>
+											+{{
+												getRemainingEquipmentCount(
+													request
+												)
+											}}
+											more
+										</button>
 									</div>
-
-									<button
-										*ngIf="
-											getRemainingEquipmentCount(
-												request
-											) > 0
-										"
-										type="button"
-										class="equipment-more-button"
-										(click)="openDetailDialog(request, 1)"
-									>
-										+{{
-											getRemainingEquipmentCount(request)
-										}}
-										more
-									</button>
 								</div>
-							</div>
 
-							<ng-template #noEquipment>
-								<span class="text-muted">No equipment</span>
-							</ng-template>
+								<ng-template #noEquipment>
+									<span class="text-muted">No equipment</span>
+								</ng-template>
+							</div>
 						</td>
 					</ng-container>
 
@@ -347,9 +410,9 @@
 					<tr
 						mat-header-row
 						*matHeaderRowDef="[
+							'equipment',
 							'request',
 							'company',
-							'equipment',
 							'period',
 							'status',
 							'actions',
@@ -360,9 +423,9 @@
 						*matRowDef="
 							let row;
 							columns: [
+								'equipment',
 								'request',
 								'company',
-								'equipment',
 								'period',
 								'status',
 								'actions',
@@ -377,11 +440,29 @@
 				</div>
 			</div>
 		</panel-body>
-		<panel-footer
-			><small class="text-secondary"
-				>{{ filteredRequests.length }} displayed from
-				{{ requests.length }} requests</small
-			></panel-footer
-		>
+		<panel-footer>
+			<div class="request-list-footer">
+				<small class="text-secondary">
+					@if (filteredRequests.length > pageSize) {
+						{{ pageDisplayStart }}–{{ pageDisplayEnd }} displayed
+						from {{ filteredRequests.length }} matching requests
+					} @else {
+						{{ filteredRequests.length }} displayed from
+						{{ requests.length }} requests
+					}
+				</small>
+
+				@if (filteredRequests.length > pageSize) {
+					<mat-paginator
+						[length]="filteredRequests.length"
+						[pageIndex]="pageIndex"
+						[pageSize]="pageSize"
+						[hidePageSize]="true"
+						[showFirstLastButtons]="true"
+						(page)="onPageChange($event)"
+					></mat-paginator>
+				}
+			</div>
+		</panel-footer>
 	</panel>
 </page-body>

@@ -180,6 +180,7 @@ export interface UnitOption {
 	operationalStatusCode?: string | null;
 	operationalStatusName?: string | null;
 	remarks?: string | null;
+	imageUuid?: string | null;
 }
 
 export interface RequestFormDialogData {
@@ -314,6 +315,10 @@ export class RequestService {
 		}
 
 		return this.unitsCache$;
+	}
+
+	getUnitImage(uuid: string): Observable<Blob> {
+		return this.apiService.getBlob(`/equipment-unit/${uuid}/image`);
 	}
 
 	getCapacityUnits(): Observable<CapacityUnitOption[]> {

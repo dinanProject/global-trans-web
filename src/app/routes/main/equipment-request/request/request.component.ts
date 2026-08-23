@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { PageEvent } from '@angular/material/paginator';
 import {
 	Subject,
 	debounceTime,
@@ -24,6 +25,7 @@ import {
 	CapacityUnitOption,
 	CategoryOption,
 	RequestCompanyOption,
+	RequestDetail,
 	RequestDivisionOption,
 	RequestMaster,
 	RequestService,
@@ -41,6 +43,8 @@ import { SessionService } from 'src/app/core/services/session.service';
 })
 export class RequestComponent implements OnInit, OnDestroy {
 	private readonly destroy$ = new Subject<void>();
+	private readonly unitImageUrls = new Map<string, string>();
+	private unitImageLoadVersion = 0;
 
 	readonly searchControl = new FormControl('', { nonNullable: true });
 	readonly statusControl = new FormControl('all', { nonNullable: true });
@@ -62,6 +66,8 @@ export class RequestComponent implements OnInit, OnDestroy {
 	errorMessage = '';
 	submittingUuid = '';
 	maxEquipmentPreview = 1;
+	readonly pageSize = 20;
+	pageIndex = 0;
 
 	constructor(
 		private readonly requestService: RequestService,
@@ -95,6 +101,8 @@ export class RequestComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.unitImageLoadVersion += 1;
+		this.clearUnitImageUrls();
 		this.destroy$.next();
 		this.destroy$.complete();
 	}
@@ -112,9 +120,12 @@ export class RequestComponent implements OnInit, OnDestroy {
 			.subscribe({
 				next: (requests) => {
 					this.requests = requests ?? [];
+					this.loadRequestEquipmentImages(this.requests);
 					this.applyFilters();
 				},
 				error: (error) => {
+					this.unitImageLoadVersion += 1;
+					this.clearUnitImageUrls();
 					this.requests = [];
 					this.filteredRequests = [];
 					this.errorMessage =
@@ -132,8 +143,26 @@ export class RequestComponent implements OnInit, OnDestroy {
 		this.applyFilters();
 	}
 
-	getEquipmentPreview(details: any[] | null | undefined): any[] {
+	getEquipmentPreview(
+		details: RequestDetail[] | null | undefined,
+	): RequestDetail[] {
 		return (details ?? []).slice(0, this.maxEquipmentPreview);
+	}
+
+	getEquipmentImageUrl(detail: RequestDetail): string | null {
+		const unitUuid = detail.equipmentUnitUuid?.trim();
+
+		return unitUuid ? (this.unitImageUrls.get(unitUuid) ?? null) : null;
+	}
+
+	getEquipmentCategoryIcon(detail: RequestDetail): string {
+		const normalizedIcon = detail.equipmentCategoryIcon?.trim();
+
+		if (!normalizedIcon || normalizedIcon.startsWith('fas ')) {
+			return 'assets/icons/equipment/equipment.svg';
+		}
+
+		return `assets/icons/equipment/${normalizedIcon}`;
 	}
 
 	getRemainingEquipmentCount(request: RequestMaster): number {
@@ -142,6 +171,31 @@ export class RequestComponent implements OnInit, OnDestroy {
 		);
 
 		return Math.max(detailCount - this.maxEquipmentPreview, 0);
+	}
+
+	get pagedRequests(): RequestMaster[] {
+		const startIndex = this.pageIndex * this.pageSize;
+		return this.filteredRequests.slice(
+			startIndex,
+			startIndex + this.pageSize,
+		);
+	}
+
+	get pageDisplayStart(): number {
+		return this.filteredRequests.length === 0
+			? 0
+			: this.pageIndex * this.pageSize + 1;
+	}
+
+	get pageDisplayEnd(): number {
+		return Math.min(
+			(this.pageIndex + 1) * this.pageSize,
+			this.filteredRequests.length,
+		);
+	}
+
+	onPageChange(event: PageEvent): void {
+		this.pageIndex = event.pageIndex;
 	}
 
 	openCreateDialog(): void {
@@ -245,6 +299,55 @@ export class RequestComponent implements OnInit, OnDestroy {
 
 	trackByUuid(_: number, request: RequestMaster): string {
 		return request.uuid;
+	}
+
+	private loadRequestEquipmentImages(requests: RequestMaster[]): void {
+		const loadVersion = ++this.unitImageLoadVersion;
+		this.clearUnitImageUrls();
+
+		const previewUnitUuids = new Set<string>();
+
+		requests.forEach((request) => {
+			this.getEquipmentPreview(request.details).forEach((detail) => {
+				const unitUuid = detail.equipmentUnitUuid?.trim();
+
+				if (unitUuid) {
+					previewUnitUuids.add(unitUuid);
+				}
+			});
+		});
+
+		previewUnitUuids.forEach((unitUuid) => {
+			this.requestService
+				.getUnitImage(unitUuid)
+				.pipe(takeUntil(this.destroy$))
+				.subscribe({
+					next: (blob) => {
+						if (loadVersion !== this.unitImageLoadVersion) return;
+
+						const previousUrl = this.unitImageUrls.get(unitUuid);
+
+						if (previousUrl) {
+							URL.revokeObjectURL(previousUrl);
+						}
+
+						this.unitImageUrls.set(
+							unitUuid,
+							URL.createObjectURL(blob),
+						);
+					},
+					error: () => {
+						if (loadVersion !== this.unitImageLoadVersion) return;
+
+						this.unitImageUrls.delete(unitUuid);
+					},
+				});
+		});
+	}
+
+	private clearUnitImageUrls(): void {
+		this.unitImageUrls.forEach((url) => URL.revokeObjectURL(url));
+		this.unitImageUrls.clear();
 	}
 
 	private loadStatuses(): void {
@@ -377,6 +480,8 @@ export class RequestComponent implements OnInit, OnDestroy {
 	}
 
 	private applyFilters(): void {
+		this.pageIndex = 0;
+
 		const keyword = this.searchControl.value.trim().toLowerCase();
 		const status = this.statusControl.value;
 		const startDate = this.startDateControl.value;

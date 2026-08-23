@@ -1,7 +1,14 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import {
+	Component,
+	ElementRef,
+	Inject,
+	OnDestroy,
+	OnInit,
+	ViewChild,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { finalize } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 
 import {
 	CapacityUnitOption,
@@ -31,9 +38,18 @@ export interface RequestFormDialogData {
 	styleUrls: ['./request-form-dialog.component.scss'],
 	standalone: false,
 })
-export class RequestFormDialogComponent implements OnInit {
+export class RequestFormDialogComponent implements OnInit, OnDestroy {
+	@ViewChild('unitImageReview')
+	private unitImageReview?: ElementRef<HTMLElement>;
+
 	isSaving = false;
 	errorMessage = '';
+	reviewUnitUuid: string | null = null;
+
+	private readonly destroy$ = new Subject<void>();
+	private readonly unitImageUrls = new Map<string, string>();
+	private readonly loadingUnitImages = new Set<string>();
+	private readonly failedUnitImages = new Set<string>();
 
 	readonly form = this.formBuilder.group({
 		companyId: [this.data.company?.id ?? null, Validators.required],
@@ -69,6 +85,14 @@ export class RequestFormDialogComponent implements OnInit {
 		else this.addDetail();
 	}
 
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+
+		this.unitImageUrls.forEach((url) => URL.revokeObjectURL(url));
+		this.unitImageUrls.clear();
+	}
+
 	get title(): string {
 		return this.data.mode === 'create'
 			? 'Add Equipment Request'
@@ -102,6 +126,10 @@ export class RequestFormDialogComponent implements OnInit {
 				remarks: [detail?.remarks ?? '', Validators.maxLength(1000)],
 			}),
 		);
+
+		if (detail?.equipmentUnitId) {
+			this.loadSelectedUnitImage(this.details.length - 1);
+		}
 	}
 
 	removeDetail(index: number): void {
@@ -122,6 +150,8 @@ export class RequestFormDialogComponent implements OnInit {
 	}
 
 	onCategoryChange(detailIndex: number): void {
+		this.closeUnitImageReview();
+
 		this.details.at(detailIndex).patchValue({
 			equipmentUnitId: null,
 			requiredCapacityValue: null,
@@ -130,6 +160,8 @@ export class RequestFormDialogComponent implements OnInit {
 	}
 
 	onUnitChange(detailIndex: number): void {
+		this.closeUnitImageReview();
+
 		const detail = this.details.at(detailIndex);
 		const equipmentUnitId = Number(detail.get('equipmentUnitId')?.value);
 
@@ -142,6 +174,107 @@ export class RequestFormDialogComponent implements OnInit {
 			requiredCapacityUnit:
 				selectedUnit?.capacityUnit?.trim().toUpperCase() ?? '',
 		});
+
+		this.loadSelectedUnitImage(detailIndex);
+	}
+
+	getSelectedUnit(detailIndex: number): UnitOption | null {
+		const equipmentUnitId = Number(
+			this.details.at(detailIndex).get('equipmentUnitId')?.value,
+		);
+
+		if (!equipmentUnitId) return null;
+
+		return (
+			this.data.units.find(
+				(unit) => Number(unit.id) === equipmentUnitId,
+			) ?? null
+		);
+	}
+
+	getSelectedUnitImageUrl(detailIndex: number): string | null {
+		const unit = this.getSelectedUnit(detailIndex);
+		return unit ? (this.unitImageUrls.get(unit.uuid) ?? null) : null;
+	}
+
+	isSelectedUnitImageLoading(detailIndex: number): boolean {
+		const unit = this.getSelectedUnit(detailIndex);
+		return unit ? this.loadingUnitImages.has(unit.uuid) : false;
+	}
+
+	openUnitImageReview(detailIndex: number): void {
+		const unit = this.getSelectedUnit(detailIndex);
+
+		if (!unit || !this.unitImageUrls.has(unit.uuid)) return;
+
+		this.reviewUnitUuid = unit.uuid;
+		this.scrollToUnitImageReviewOnMobile();
+	}
+
+	closeUnitImageReview(): void {
+		this.reviewUnitUuid = null;
+	}
+
+	get reviewedUnit(): UnitOption | null {
+		if (!this.reviewUnitUuid) return null;
+
+		return (
+			this.data.units.find((unit) => unit.uuid === this.reviewUnitUuid) ??
+			null
+		);
+	}
+
+	get reviewedUnitImageUrl(): string | null {
+		return this.reviewUnitUuid
+			? (this.unitImageUrls.get(this.reviewUnitUuid) ?? null)
+			: null;
+	}
+
+	private scrollToUnitImageReviewOnMobile(): void {
+		if (
+			typeof window === 'undefined' ||
+			!window.matchMedia('(max-width: 900px)').matches
+		) {
+			return;
+		}
+
+		window.setTimeout(() => {
+			this.unitImageReview?.nativeElement.scrollIntoView({
+				behavior: 'smooth',
+				block: 'start',
+			});
+		}, 0);
+	}
+
+	private loadSelectedUnitImage(detailIndex: number): void {
+		const unit = this.getSelectedUnit(detailIndex);
+
+		if (
+			!unit?.imageUuid ||
+			this.unitImageUrls.has(unit.uuid) ||
+			this.loadingUnitImages.has(unit.uuid) ||
+			this.failedUnitImages.has(unit.uuid)
+		) {
+			return;
+		}
+
+		this.loadingUnitImages.add(unit.uuid);
+
+		this.requestService
+			.getUnitImage(unit.uuid)
+			.pipe(
+				takeUntil(this.destroy$),
+				finalize(() => this.loadingUnitImages.delete(unit.uuid)),
+			)
+			.subscribe({
+				next: (blob) => {
+					this.unitImageUrls.set(
+						unit.uuid,
+						URL.createObjectURL(blob),
+					);
+				},
+				error: () => this.failedUnitImages.add(unit.uuid),
+			});
 	}
 
 	save(): void {

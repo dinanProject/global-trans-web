@@ -50,35 +50,59 @@
 						>
 					</div>
 				</div>
-				<div
-					class="action-list"
-					*ngIf="request.availableActions?.length"
-				>
-					<button
-						*ngFor="
-							let action of request.availableActions;
-							trackBy: trackByUuid
-						"
-						type="button"
-						class="btn btn-sm action-button"
-						[class.btn-primary]="
-							action.actionCode === 'SUBMIT' ||
-							action.actionCode.includes('APPROVE')
-						"
-						[class.btn-light]="
-							action.actionCode !== 'SUBMIT' &&
-							!action.actionCode.includes('APPROVE')
-						"
-						[disabled]="!!actionCode"
-						(click)="executeAction(action)"
-					>
-						<span
-							*ngIf="actionCode === action.actionCode"
-							class="spinner-border spinner-border-sm mr-1"
-						></span
-						>{{ action.actionName }}
-					</button>
-				</div>
+				@if (request.availableActions?.length) {
+					<div class="action-list">
+						@for (
+							action of request.availableActions;
+							track action.uuid
+						) {
+							<button
+								type="button"
+								class="btn btn-sm action-button mr-2"
+								[class.btn-primary]="
+									action.actionCode === 'SUBMIT' ||
+									action.actionCode.includes('APPROVE')
+								"
+								[class.btn-light]="
+									action.actionCode !== 'SUBMIT' &&
+									!action.actionCode.includes('APPROVE')
+								"
+								[disabled]="!!actionCode"
+								(click)="executeAction(action)"
+							>
+								@if (actionCode === action.actionCode) {
+									<span
+										class="spinner-border spinner-border-sm"
+										aria-hidden="true"
+									></span>
+								} @else {
+									<i
+										class="fas"
+										[class.fa-paper-plane]="
+											action.actionCode === 'SUBMIT'
+										"
+										[class.fa-check]="
+											action.actionCode.includes(
+												'APPROVE'
+											)
+										"
+										[class.fa-times]="
+											action.actionCode.includes('REJECT')
+										"
+										[class.fa-undo]="
+											action.actionCode.includes('RETURN')
+										"
+										[class.fa-ban]="
+											action.actionCode.includes('CANCEL')
+										"
+									></i>
+								}
+
+								<span>{{ action.actionName }}</span>
+							</button>
+						}
+					</div>
+				}
 			</div>
 
 			<nav
@@ -193,191 +217,360 @@
 				</div>
 			</section>
 
-			<section class="tab-content" *ngIf="selectedTabIndex === 1">
-				<div class="section-heading">
-					<div>
-						<span class="section-eyebrow">Requested Resources</span>
-						<h3>Equipment Details</h3>
-					</div>
-					<span class="record-count"
-						>{{ request.details?.length || 0 }} item(s)</span
-					>
-				</div>
-				<div class="table-card table-responsive">
-					<table class="table detail-table">
-						<thead>
-							<tr>
-								<th class="number-column">#</th>
-								<th>Unit Name</th>
-								<th>Remarks</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr
-								*ngFor="
-									let detail of request.details;
-									let i = index;
-									trackBy: trackByUuid
-								"
+			@if (selectedTabIndex === 1) {
+				<section class="tab-content equipment-tab-content">
+					<div class="section-heading">
+						<div>
+							<span class="section-eyebrow"
+								>Requested Resources</span
 							>
-								<td class="number-column">
-									<span class="row-number">{{ i + 1 }}</span>
-								</td>
-								<td>
-									<div class="category-cell">
-										<span
-											class="profile-tone-icon category-icon"
-										>
-											<img
-												[src]="
-													getCategoryIcon(
-														detail.equipmentCategoryIcon
-													)
-												"
-												[alt]="
-													detail.equipmentCategoryName ||
-													'Equipment'
-												"
-											/> </span
-										><strong>
+							<h3>Equipment Details</h3>
+						</div>
+						<span class="record-count"
+							>{{ request.details?.length || 0 }} unit(s)</span
+						>
+					</div>
+
+					@if (request.details?.length) {
+						<div class="equipment-detail-list">
+							@for (
+								detail of request.details;
+								track detail.uuid || $index;
+								let i = $index
+							) {
+								<article class="equipment-detail-card">
+									<div class="equipment-detail-main">
+										<div class="equipment-detail-kicker">
+											<span>Unit {{ i + 1 }}</span>
+											<span
+												class="equipment-category-label"
+												>{{
+													getCategoryName(detail)
+												}}</span
+											>
+										</div>
+										<h4>
 											{{
 												detail.equipmentUnitName || "—"
 											}}
-										</strong>
+										</h4>
+										<div class="equipment-unit-meta">
+											@if (detail.equipmentUnitCode) {
+												<span
+													><i
+														class="fas fa-barcode"
+													></i
+													>{{
+														detail.equipmentUnitCode
+													}}</span
+												>
+											}
+											@if (
+												detail.equipmentUnitAssetNumber
+											) {
+												<span
+													><i class="fas fa-tag"></i
+													>{{
+														detail.equipmentUnitAssetNumber
+													}}</span
+												>
+											}
+											@if (
+												detail.equipmentUnitCapacityValue !=
+													null &&
+												detail.equipmentUnitCapacityUnit
+											) {
+												<span
+													><i
+														class="fas fa-weight-hanging"
+													></i
+													>{{
+														detail.equipmentUnitCapacityValue
+													}}
+													{{
+														detail.equipmentUnitCapacityUnit
+													}}</span
+												>
+											}
+										</div>
 
-										<small *ngIf="detail.equipmentUnitCode">
-											{{ detail.equipmentUnitCode }}
-										</small>
+										<div class="equipment-remarks">
+											<span>Remarks</span>
+											<p>
+												{{
+													detail.remarks ||
+														"No remarks provided."
+												}}
+											</p>
+										</div>
 									</div>
-								</td>
 
-								<td class="remarks-cell">
-									{{ detail.remarks || "—" }}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div *ngIf="!request.details?.length" class="mini-empty">
-					<i class="fas fa-box-open"></i
-					><strong>No equipment detail</strong
-					><span>This request does not contain equipment items.</span>
-				</div>
-			</section>
-
-			<section class="tab-content" *ngIf="selectedTabIndex === 2">
-				<div class="section-heading">
-					<div>
-						<span class="section-eyebrow">Approval Trail</span>
-						<h3>Approval History</h3>
-					</div>
-					<span class="record-count"
-						>{{ request.approvals?.length || 0 }} record(s)</span
-					>
-				</div>
-				<div *ngIf="!request.approvals?.length" class="mini-empty">
-					<i class="far fa-clock"></i
-					><strong>No approval record</strong
-					><span
-						>Approval information will appear here after
-						submission.</span
-					>
-				</div>
-				<div class="timeline" *ngIf="request.approvals?.length">
-					<div
-						*ngFor="
-							let approval of request.approvals;
-							let last = last;
-							trackBy: trackByUuid
-						"
-						class="timeline-row"
-						[class.last-row]="last"
-					>
-						<div class="timeline-marker">
-							<span class="profile-tone-icon timeline-icon"
-								><i class="fas fa-user-check"></i></span
-							><span class="timeline-line" *ngIf="!last"></span>
+									<div class="equipment-detail-visual">
+										@if (
+											getUnitImageUrl(
+												detail.equipmentUnitUuid
+											);
+											as imageUrl
+										) {
+											<button
+												type="button"
+												class="equipment-detail-image-button"
+												aria-label="Preview equipment unit image"
+												(click)="
+													openUnitImagePreview(
+														detail.equipmentUnitUuid
+													)
+												"
+											>
+												<img
+													[src]="imageUrl"
+													[alt]="
+														detail.equipmentUnitName ||
+														'Equipment unit'
+													"
+												/>
+												<span
+													class="equipment-detail-image-overlay"
+												>
+													<i
+														class="fas fa-search-plus"
+													></i>
+												</span>
+											</button>
+										} @else {
+											<div
+												class="equipment-detail-fallback"
+											>
+												<img
+													[src]="
+														getCategoryIcon(
+															detail.equipmentCategoryIcon
+														)
+													"
+													[alt]="
+														detail.equipmentCategoryName ||
+														'Equipment'
+													"
+												/>
+											</div>
+										}
+									</div>
+								</article>
+							}
 						</div>
-						<div class="timeline-card">
-							<div class="timeline-title-row">
-								<strong
-									>Approval Level
-									{{ approval.approvalLevel }}</strong
-								><span class="approval-status">{{
-									approval.status
-								}}</span>
-							</div>
-							<p class="timeline-person">
-								{{
-									approval.userName ||
-										approval.roleName ||
-										"Pending approver"
-								}}
-							</p>
-							<div class="timeline-meta">
-								<span
-									><i class="far fa-calendar"></i
-									>{{
-										approval.actionDate
-											? (approval.actionDate
-												| date: "dd MMM yyyy HH:mm")
-											: "Waiting action"
-									}}</span
-								><span *ngIf="approval.remarks"
-									><i class="far fa-comment-alt"></i
-									>{{ approval.remarks }}</span
-								>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section class="tab-content" *ngIf="selectedTabIndex === 3">
-				<div class="section-heading">
-					<div>
-						<span class="section-eyebrow">Audit Trail</span>
-						<h3>Request Activity</h3>
-					</div>
-					<span class="record-count"
-						>{{ request.histories?.length || 0 }} event(s)</span
-					>
-				</div>
-				<div *ngIf="!request.histories?.length" class="mini-empty">
-					<i class="fas fa-history"></i
-					><strong>No activity recorded</strong
-					><span>Request events will be listed chronologically.</span>
-				</div>
-				<div class="activity-list" *ngIf="request.histories?.length">
-					<div
-						*ngFor="
-							let history of request.histories;
-							trackBy: trackByUuid
-						"
-						class="activity-row"
-					>
-						<span class="profile-tone-icon activity-icon"
-							><i class="fas fa-history"></i
-						></span>
-						<div class="activity-content">
-							<div class="activity-title-row">
-								<strong>{{
-									formatActivityLabel(history.activity)
-								}}</strong
-								><span>{{
-									history.createdAt
-										| date: "dd MMM yyyy HH:mm"
-								}}</span>
-							</div>
-							<p>{{ formatHistoryDescription(history) }}</p>
-							<small
-								><i class="far fa-user"></i
-								>{{ history.userName || "System" }}</small
+					} @else {
+						<div class="mini-empty">
+							<i class="fas fa-box-open"></i>
+							<strong>No equipment detail</strong>
+							<span
+								>This request does not contain equipment
+								items.</span
 							>
 						</div>
+					}
+				</section>
+			}
+
+			@if (selectedTabIndex === 2) {
+				<section class="tab-content approval-history-content">
+					<div class="section-heading">
+						<div>
+							<span class="section-eyebrow">Approval Trail</span>
+							<h3>Approval History</h3>
+						</div>
+						<span class="record-count"
+							>{{
+								request.approvals?.length || 0
+							}}
+							record(s)</span
+						>
 					</div>
-				</div>
-			</section>
+
+					@if (!request.approvals?.length) {
+						<div class="mini-empty">
+							<i class="far fa-clock"></i>
+							<strong>No approval record</strong>
+							<span
+								>Approval information will appear here after
+								submission.</span
+							>
+						</div>
+					} @else {
+						<div class="timeline approval-timeline">
+							@for (
+								approval of request.approvals;
+								track approval.uuid || $index;
+								let last = $last
+							) {
+								<div
+									class="timeline-row"
+									[class.last-row]="last"
+								>
+									<div class="timeline-marker">
+										<span
+											class="profile-tone-icon timeline-icon"
+										>
+											<i class="fas fa-user-check"></i>
+										</span>
+										@if (!last) {
+											<span class="timeline-line"></span>
+										}
+									</div>
+
+									<article
+										class="timeline-card approval-card"
+									>
+										<div class="approval-card-header">
+											<div>
+												<span
+													class="approval-stage-label"
+													>Approval Stage</span
+												>
+												<strong
+													>Level
+													{{
+														approval.approvalLevel
+													}}</strong
+												>
+											</div>
+											<span class="approval-status">{{
+												approval.status
+											}}</span>
+										</div>
+
+										<div class="approval-person-block">
+											<span class="approval-person-icon"
+												><i class="far fa-user"></i
+											></span>
+											<div>
+												<span>Approver</span>
+												<strong>{{
+													approval.userName ||
+														approval.roleName ||
+														"Pending approver"
+												}}</strong>
+											</div>
+										</div>
+
+										<div
+											class="timeline-meta approval-meta"
+										>
+											<span>
+												<i class="far fa-calendar"></i>
+												{{
+													approval.actionDate
+														? (approval.actionDate
+															| date
+																: "dd MMM yyyy HH:mm")
+														: "Waiting action"
+												}}
+											</span>
+											@if (approval.remarks) {
+												<span class="approval-remark">
+													<i
+														class="far fa-comment-alt"
+													></i
+													>{{ approval.remarks }}
+												</span>
+											}
+										</div>
+									</article>
+								</div>
+							}
+						</div>
+					}
+				</section>
+			}
+
+			@if (selectedTabIndex === 3) {
+				<section class="tab-content activity-history-content">
+					<div class="section-heading">
+						<div>
+							<span class="section-eyebrow">Audit Trail</span>
+							<h3>Request Activity</h3>
+						</div>
+						<span class="record-count"
+							>{{ request.histories?.length || 0 }} event(s)</span
+						>
+					</div>
+
+					@if (!request.histories?.length) {
+						<div class="mini-empty">
+							<i class="fas fa-history"></i>
+							<strong>No activity recorded</strong>
+							<span
+								>Request events will be listed
+								chronologically.</span
+							>
+						</div>
+					} @else {
+						<div class="activity-timeline">
+							@for (
+								history of request.histories;
+								track history.uuid || $index;
+								let last = $last;
+								let i = $index
+							) {
+								<div
+									class="activity-timeline-row"
+									[class.last-row]="last"
+								>
+									<div class="activity-marker">
+										<span
+											class="profile-tone-icon activity-icon"
+											><i class="fas fa-history"></i
+										></span>
+										@if (!last) {
+											<span class="activity-line"></span>
+										}
+									</div>
+
+									<article class="activity-card">
+										<div class="activity-card-header">
+											<div class="activity-heading">
+												<span class="activity-sequence"
+													>Event {{ i + 1 }}</span
+												>
+												<strong>{{
+													formatActivityLabel(
+														history.activity
+													)
+												}}</strong>
+											</div>
+											<span class="activity-time">
+												<i class="far fa-clock"></i
+												>{{
+													history.createdAt
+														| date
+															: "dd MMM yyyy HH:mm"
+												}}
+											</span>
+										</div>
+										<p class="activity-description">
+											{{
+												formatHistoryDescription(
+													history
+												)
+											}}
+										</p>
+										<div class="activity-actor">
+											<span
+												><i class="far fa-user"></i
+											></span>
+											<div>
+												<small>Performed by</small
+												><strong>{{
+													history.userName || "System"
+												}}</strong>
+											</div>
+										</div>
+									</article>
+								</div>
+							}
+						</div>
+					}
+				</section>
+			}
 		</ng-container>
 	</mat-dialog-content>
 
@@ -393,4 +586,41 @@
 			Close
 		</button></mat-dialog-actions
 	>
+	@if (previewUnitImageUrl; as previewImageUrl) {
+		<div
+			class="unit-image-preview-backdrop"
+			role="dialog"
+			aria-modal="true"
+			aria-label="Equipment unit image preview"
+			(click)="closeUnitImagePreview()"
+		>
+			<div class="unit-image-preview-title">
+				<strong>{{
+					previewUnitDetail?.equipmentUnitName || "Equipment Unit"
+				}}</strong>
+				@if (previewUnitDetail?.equipmentUnitCode) {
+					<span>{{ previewUnitDetail?.equipmentUnitCode }}</span>
+				}
+			</div>
+
+			<button
+				type="button"
+				class="unit-image-preview-close"
+				aria-label="Close equipment image preview"
+				(click)="$event.stopPropagation(); closeUnitImagePreview()"
+			>
+				<i class="fas fa-times"></i>
+			</button>
+
+			<div class="unit-image-preview-stage">
+				<img
+					[src]="previewImageUrl"
+					[alt]="
+						previewUnitDetail?.equipmentUnitName || 'Equipment unit'
+					"
+					(click)="$event.stopPropagation()"
+				/>
+			</div>
+		</div>
+	}
 </div>
