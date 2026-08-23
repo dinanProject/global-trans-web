@@ -346,11 +346,11 @@
 	}
 
 	&:hover img,
-	&:focus img {
+	&:focus-visible img {
 		transform: scale(1.04);
 	}
 
-	&:focus {
+	&:focus-visible {
 		outline: 2px solid rgba(255, 173, 50, 0.32);
 		outline-offset: 2px;
 	}
@@ -368,7 +368,7 @@
 	transition: opacity 0.2s ease;
 
 	.unit-photo-button:hover &,
-	.unit-photo-button:focus & {
+	.unit-photo-button:focus-visible & {
 		opacity: 1;
 	}
 }
