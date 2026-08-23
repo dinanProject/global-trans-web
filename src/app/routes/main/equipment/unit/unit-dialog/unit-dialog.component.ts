@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import {
 	FormBuilder,
 	FormControl,
@@ -34,11 +34,20 @@ interface UnitForm {
 	styleUrls: ['./unit-dialog.component.scss'],
 	standalone: false,
 })
-export class UnitDialogComponent implements OnInit {
+export class UnitDialogComponent implements OnInit, OnDestroy {
 	formGroup!: FormGroup<UnitForm>;
 
 	formSubmitAttempt = false;
 	isEdit = false;
+
+	selectedImageFile: File | null = null;
+	imagePreviewUrl: string | null = null;
+	imageMarkedForRemoval = false;
+	imageValidationMessage = '';
+
+	private localImagePreviewUrl: string | null = null;
+
+	readonly maxImageSizeBytes = 5 * 1024 * 1024;
 
 	constructor(
 		private formBuilder: FormBuilder,
@@ -49,6 +58,7 @@ export class UnitDialogComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.isEdit = this.data.mode === 'edit';
+		this.imagePreviewUrl = this.data.imageUrl ?? null;
 
 		this.formGroup = this.formBuilder.group<UnitForm>({
 			categoryUuid: new FormControl(this.data.unit?.categoryUuid ?? '', {
@@ -107,6 +117,46 @@ export class UnitDialogComponent implements OnInit {
 		});
 	}
 
+
+
+	ngOnDestroy(): void {
+		this.revokeLocalImagePreview();
+	}
+
+	onImageSelected(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0] ?? null;
+
+		input.value = '';
+
+		if (!file) {
+			return;
+		}
+
+		const validationMessage = this.validateImageFile(file);
+
+		if (validationMessage) {
+			this.imageValidationMessage = validationMessage;
+			return;
+		}
+
+		this.revokeLocalImagePreview();
+
+		this.selectedImageFile = file;
+		this.localImagePreviewUrl = URL.createObjectURL(file);
+		this.imagePreviewUrl = this.localImagePreviewUrl;
+		this.imageMarkedForRemoval = false;
+		this.imageValidationMessage = '';
+	}
+
+	removeImage(): void {
+		this.revokeLocalImagePreview();
+		this.selectedImageFile = null;
+		this.imagePreviewUrl = null;
+		this.imageMarkedForRemoval = Boolean(this.data.unit?.imageUuid);
+		this.imageValidationMessage = '';
+	}
+
 	onUnitCodeInput(event: Event): void {
 		this.setUppercaseValue(event, this.formGroup.controls.unitCode);
 	}
@@ -152,6 +202,9 @@ export class UnitDialogComponent implements OnInit {
 		const result: UnitDialogResult = {
 			action: 'save',
 			payload,
+			imageFile: this.selectedImageFile,
+			removeImage:
+				this.imageMarkedForRemoval && !this.selectedImageFile,
 		};
 
 		this.dialogRef.close(result);
@@ -185,6 +238,31 @@ export class UnitDialogComponent implements OnInit {
 		const icon = this.selectedCategory?.icon || 'equipment.svg';
 
 		return `assets/icons/equipment/${icon}`;
+	}
+
+
+
+	private validateImageFile(file: File): string {
+		const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+		const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+		const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+		if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(extension)) {
+			return 'Gunakan gambar JPG, PNG, atau WEBP.';
+		}
+
+		if (file.size > this.maxImageSizeBytes) {
+			return 'Ukuran gambar maksimal 5 MB.';
+		}
+
+		return '';
+	}
+
+	private revokeLocalImagePreview(): void {
+		if (this.localImagePreviewUrl) {
+			URL.revokeObjectURL(this.localImagePreviewUrl);
+			this.localImagePreviewUrl = null;
+		}
 	}
 
 	private setUppercaseValue(

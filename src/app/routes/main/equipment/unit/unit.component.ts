@@ -3,6 +3,7 @@ import {
 	Component,
 	OnDestroy,
 	OnInit,
+	TemplateRef,
 	ViewChild,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
@@ -36,7 +37,11 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 	@ViewChild(MatSort)
 	sort!: MatSort;
 
+	@ViewChild('imagePreviewDialog')
+	imagePreviewDialog!: TemplateRef<unknown>;
+
 	private readonly destroy$ = new Subject<void>();
+	private readonly unitImageUrls = new Map<string, string>();
 
 	readonly searchControl = new FormControl<string>('', {
 		nonNullable: true,
@@ -69,6 +74,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	isLoading = false;
 	errorMessage = '';
+	previewUnit: Unit | null = null;
 
 	private initialEditValue: {
 		categoryUuid: string;
@@ -124,6 +130,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.clearUnitImageUrls();
 		this.destroy$.next();
 		this.destroy$.complete();
 	}
@@ -165,6 +172,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 				this.categories = categories ?? [];
 
 				this.applyFilters();
+				this.loadUnitImagePreviews(this.units);
 			});
 	}
 
@@ -190,6 +198,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			.subscribe((units: Unit[]) => {
 				this.units = units ?? [];
 				this.applyFilters();
+				this.loadUnitImagePreviews(this.units);
 			});
 	}
 
@@ -205,6 +214,26 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 		}
 
 		return `assets/icons/equipment/${normalizedIcon}`;
+	}
+
+
+	getUnitImageUrl(unit: Unit): string | null {
+		return this.unitImageUrls.get(unit.uuid) ?? null;
+	}
+
+	openImagePreview(unit: Unit): void {
+		if (!this.getUnitImageUrl(unit)) {
+			return;
+		}
+
+		this.previewUnit = unit;
+
+		this.dialog.open(this.imagePreviewDialog, {
+			width: '920px',
+			maxWidth: '96vw',
+			maxHeight: '92vh',
+			panelClass: 'equipment-image-preview-dialog',
+		});
 	}
 
 	private loadCapacityUnitsForDialog(callback: () => void): void {
@@ -271,7 +300,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					return;
 				}
 
-				this.createUnit(result.payload);
+				this.createUnit(result);
 			});
 	}
 
@@ -310,6 +339,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 				categories,
 				capacityUnits: this.capacityUnits,
 				operationalStatuses: this.operationalStatuses,
+				imageUrl: this.getUnitImageUrl(unit),
 			},
 		});
 
@@ -321,7 +351,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					return;
 				}
 
-				this.updateUnit(unit.uuid, result.payload);
+				this.updateUnit(unit.uuid, result);
 			});
 	}
 
@@ -479,28 +509,27 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 		);
 	}
 
-	private createUnit(payload: UnitDialogResult['payload']): void {
+	private createUnit(result: UnitDialogResult): void {
 		this.isLoading = true;
 
 		this.unitService
-			.createUnit(payload)
-			.pipe(
-				takeUntil(this.destroy$),
-				finalize(() => {
-					this.isLoading = false;
-				}),
-			)
+			.createUnit(result.payload)
+			.pipe(takeUntil(this.destroy$))
 			.subscribe({
-				next: () => {
-					this.utilityService.alert(
-						'Success',
-						'Equipment unit successfully created.',
-						'success',
-					);
+				next: (createdUnit: Unit) => {
+					if (result.imageFile) {
+						this.uploadUnitImageAfterSave(
+							createdUnit.uuid,
+							result.imageFile,
+							'created',
+						);
+						return;
+					}
 
-					this.loadUnits();
+					this.finishUnitSave('Equipment unit successfully created.');
 				},
 				error: (error) => {
+					this.isLoading = false;
 					this.utilityService.alert(
 						'Failed',
 						error?.error?.meta?.message ??
@@ -511,10 +540,8 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			});
 	}
 
-	private updateUnit(
-		uuid: string,
-		payload: UnitDialogResult['payload'],
-	): void {
+	private updateUnit(uuid: string, result: UnitDialogResult): void {
+		const payload = result.payload;
 		const currentValue = {
 			categoryUuid: payload.categoryUuid,
 			unitCode: (payload.unitCode ?? '').trim().toUpperCase(),
@@ -533,7 +560,7 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			isActive: Boolean(payload.isActive),
 		};
 
-		const hasChanges =
+		const hasDataChanges =
 			!this.initialEditValue ||
 			currentValue.categoryUuid !== this.initialEditValue.categoryUuid ||
 			currentValue.unitCode !== this.initialEditValue.unitCode ||
@@ -541,39 +568,40 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 			currentValue.assetNumber !== this.initialEditValue.assetNumber ||
 			currentValue.modelNumber !== this.initialEditValue.modelNumber ||
 			currentValue.plateNumber !== this.initialEditValue.plateNumber ||
-			currentValue.capacityValue !==
-				this.initialEditValue.capacityValue ||
+			currentValue.capacityValue !== this.initialEditValue.capacityValue ||
 			currentValue.capacityUnit !== this.initialEditValue.capacityUnit ||
 			currentValue.operationalStatusCode !==
 				this.initialEditValue.operationalStatusCode ||
 			currentValue.remarks !== this.initialEditValue.remarks ||
 			currentValue.isActive !== this.initialEditValue.isActive;
 
-		if (!hasChanges) {
+		const hasImageChanges = Boolean(result.imageFile || result.removeImage);
+
+		if (!hasDataChanges && !hasImageChanges) {
 			return;
 		}
 
 		this.isLoading = true;
 
+		if (!hasDataChanges) {
+			this.saveImageChanges(uuid, result, 'updated');
+			return;
+		}
+
 		this.unitService
 			.updateUnit(uuid, payload)
-			.pipe(
-				takeUntil(this.destroy$),
-				finalize(() => {
-					this.isLoading = false;
-				}),
-			)
+			.pipe(takeUntil(this.destroy$))
 			.subscribe({
 				next: () => {
-					this.utilityService.alert(
-						'Success',
-						'Equipment unit successfully updated.',
-						'success',
-					);
+					if (hasImageChanges) {
+						this.saveImageChanges(uuid, result, 'updated');
+						return;
+					}
 
-					this.loadUnits();
+					this.finishUnitSave('Equipment unit successfully updated.');
 				},
 				error: (error) => {
+					this.isLoading = false;
 					this.utilityService.alert(
 						'Failed',
 						error?.error?.meta?.message ??
@@ -582,6 +610,113 @@ export class UnitComponent implements OnInit, AfterViewInit, OnDestroy {
 					);
 				},
 			});
+	}
+
+	private saveImageChanges(
+		uuid: string,
+		result: UnitDialogResult,
+		action: 'created' | 'updated',
+	): void {
+		if (result.imageFile) {
+			this.uploadUnitImageAfterSave(uuid, result.imageFile, action);
+			return;
+		}
+
+		if (!result.removeImage) {
+			this.finishUnitSave(`Equipment unit successfully ${action}.`);
+			return;
+		}
+
+		this.unitService
+			.deleteUnitImage(uuid)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: () => {
+					this.finishUnitSave(`Equipment unit successfully ${action}.`);
+				},
+				error: (error) => {
+					this.finishUnitImageError(error, action);
+				},
+			});
+	}
+
+	private uploadUnitImageAfterSave(
+		uuid: string,
+		imageFile: File,
+		action: 'created' | 'updated',
+	): void {
+		this.unitService
+			.uploadUnitImage(uuid, imageFile)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: () => {
+					this.finishUnitSave(`Equipment unit successfully ${action}.`);
+				},
+				error: (error) => {
+					this.finishUnitImageError(error, action);
+				},
+			});
+	}
+
+	private finishUnitSave(message: string): void {
+		this.isLoading = false;
+		this.utilityService.alert('Success', message, 'success');
+		this.loadUnits();
+	}
+
+	private finishUnitImageError(
+		error: any,
+		action: 'created' | 'updated',
+	): void {
+		this.isLoading = false;
+		this.utilityService.alert(
+			'Image Upload Failed',
+			error?.error?.meta?.message ??
+				`Equipment unit was ${action}, but the image could not be saved.`,
+			'warning',
+		);
+		this.loadUnits();
+	}
+
+	private loadUnitImagePreviews(units: Unit[]): void {
+		this.clearUnitImageUrls();
+
+		units
+			.filter((unit) => Boolean(unit.imageUuid))
+			.forEach((unit) => {
+				const expectedImageUuid = unit.imageUuid;
+
+				this.unitService
+					.getUnitImage(unit.uuid)
+					.pipe(takeUntil(this.destroy$))
+					.subscribe({
+						next: (blob) => {
+							const currentUnit = this.units.find(
+								(item) => item.uuid === unit.uuid,
+							);
+
+							if (currentUnit?.imageUuid !== expectedImageUuid) {
+								return;
+							}
+
+							const previousUrl = this.unitImageUrls.get(unit.uuid);
+
+							if (previousUrl) {
+								URL.revokeObjectURL(previousUrl);
+							}
+
+							this.unitImageUrls.set(unit.uuid, URL.createObjectURL(blob));
+						},
+						error: () => {
+							this.unitImageUrls.delete(unit.uuid);
+						},
+					});
+			});
+	}
+
+	private clearUnitImageUrls(): void {
+		this.unitImageUrls.forEach((url) => URL.revokeObjectURL(url));
+		this.unitImageUrls.clear();
 	}
 
 	getUnitStatusLabel(unit: Unit): string {

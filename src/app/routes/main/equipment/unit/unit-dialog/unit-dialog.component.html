@@ -56,6 +56,80 @@
 				</div>
 			</div>
 
+			<div class="col-12">
+				<div class="form-group equipment-image-field">
+					<label>Unit Image</label>
+
+					<div class="equipment-image-card">
+						<input
+							#imageInput
+							class="equipment-image-file-input"
+							type="file"
+							accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+							(change)="onImageSelected($event)"
+						/>
+
+						<button
+							type="button"
+							class="equipment-image-upload-area"
+							[attr.aria-label]="imagePreviewUrl ? 'Replace equipment unit image' : 'Choose equipment unit image'"
+							(click)="imageInput.click()"
+						>
+							@if (imagePreviewUrl) {
+								<div class="equipment-image-preview">
+									<img
+										[src]="imagePreviewUrl"
+										[alt]="formGroup.controls.unitName.value || 'Equipment unit image preview'"
+									/>
+								</div>
+							} @else {
+								<div class="equipment-image-placeholder">
+									<i class="fas fa-cloud-upload-alt"></i>
+									<strong>Choose equipment photo</strong>
+									<span>Click this area to upload JPG, PNG, or WEBP.</span>
+								</div>
+							}
+						</button>
+
+						<div class="equipment-image-actions">
+							<div>
+								<strong>Equipment photo</strong>
+								<small>JPG, PNG, or WEBP. Maximum 5 MB.</small>
+							</div>
+
+							<div class="equipment-image-buttons">
+								<button
+									type="button"
+									class="btn btn-sm btn-light"
+									(click)="imageInput.click()"
+								>
+									<i class="fas fa-upload mr-1"></i>
+									{{ imagePreviewUrl ? "Replace" : "Choose Image" }}
+								</button>
+
+								@if (imagePreviewUrl) {
+									<button
+										type="button"
+										class="btn btn-sm btn-light text-danger"
+										(click)="removeImage()"
+									>
+										<i class="fas fa-trash-alt mr-1"></i>
+										Remove
+									</button>
+								}
+							</div>
+						</div>
+					</div>
+
+					@if (imageValidationMessage) {
+						<div class="image-validation-message">
+							<i class="fas fa-exclamation-circle mr-1"></i>
+							{{ imageValidationMessage }}
+						</div>
+					}
+				</div>
+			</div>
+
 			<div class="col-md-4">
 				<div class="form-group required">
 					<label>Unit Code</label>

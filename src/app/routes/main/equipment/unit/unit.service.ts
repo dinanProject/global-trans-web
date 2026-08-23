@@ -40,6 +40,12 @@ export interface Unit {
 
 	remarks?: string | null;
 
+	imageUuid?: string | null;
+	imageOriginalName?: string | null;
+	imageMimeType?: string | null;
+	imageFileSize?: number | null;
+	imageUpdatedAt?: string | null;
+
 	isActive: boolean | number;
 
 	createdAt?: string;
@@ -87,11 +93,14 @@ export interface UnitDialogData {
 	categories: UnitCategory[];
 	capacityUnits: CapacityUnitOption[];
 	operationalStatuses: OperationalStatusOption[];
+	imageUrl?: string | null;
 }
 
 export interface UnitDialogResult {
 	action: 'save';
 	payload: UnitPayload;
+	imageFile?: File | null;
+	removeImage?: boolean;
 }
 
 @Injectable({
@@ -171,6 +180,21 @@ export class UnitService {
 
 	updateUnit(uuid: string, payload: UnitPayload) {
 		return this.apiService.put(`/equipment-unit/${uuid}`, payload);
+	}
+
+	getUnitImage(uuid: string): Observable<Blob> {
+		return this.apiService.getBlob(`/equipment-unit/${uuid}/image`);
+	}
+
+	uploadUnitImage(uuid: string, imageFile: File) {
+		const formData = new FormData();
+		formData.append('image', imageFile);
+
+		return this.apiService.upload(`/equipment-unit/${uuid}/image`, formData);
+	}
+
+	deleteUnitImage(uuid: string) {
+		return this.apiService.delete(`/equipment-unit/${uuid}/image`);
 	}
 
 	deactivateUnit(uuid: string) {

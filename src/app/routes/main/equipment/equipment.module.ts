@@ -11,11 +11,11 @@ import { EquipmentRoutingModule } from './equipment-routing.module';
 import { CategoryComponent } from './category/category.component';
 import { CategoryDialogComponent } from './category/category-dialog/category-dialog.component';
 
-import { UnitComponent } from './unit/unit.component';
-import { UnitDialogComponent } from './unit/unit-dialog/unit-dialog.component';
 import { PageModule } from 'src/app/shared/page/page.module';
 import { PanelModule } from 'src/app/shared/panel/panel.module';
 import { LoadingModule } from 'src/app/shared/loading/loading.module';
+import { UnitComponent } from './unit/unit.component';
+import { UnitDialogComponent } from './unit/unit-dialog/unit-dialog.component';
 
 @NgModule({
 	declarations: [

@@ -224,10 +224,14 @@
 	}
 
 	.sidebar-toggle {
+		box-sizing: border-box;
+		flex: 0 0 70px !important;
+		width: 70px;
+		min-width: 70px;
+		max-width: 70px;
 		cursor: pointer;
 		font-size: 22px;
 		color: #4a5568;
-		border-right: 1px solid #e5e7eb;
 
 		&:hover {
 			background-color: #f7f9fc;
