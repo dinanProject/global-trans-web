@@ -1,17 +1,12 @@
 <page-header>
 	<div class="header-content">
 		<div>
-			<h5>Approvals</h5>
+			<h5>Review &amp; Approval</h5>
 			<small class="text-secondary">
-				Review, approve, or reject equipment reservation requests.
+				Monitor incoming requests and process Exxon approval decisions.
 			</small>
 		</div>
-		<button
-			type="button"
-			class="btn btn-light"
-			[disabled]="isLoading"
-			(click)="loadRequests()"
-		>
+		<button type="button" class="btn btn-light" [disabled]="isLoading" (click)="loadRequests()">
 			<i class="fas fa-sync-alt mr-1"></i> Refresh
 		</button>
 	</div>
@@ -25,12 +20,8 @@
 					<div class="form-group search-field">
 						<label>Search</label>
 						<div class="input-group">
-							<input
-								type="text"
-								class="form-control"
-								[formControl]="searchControl"
-								placeholder="Request no, company, requester or purpose..."
-							/>
+							<input type="text" class="form-control" [formControl]="searchControl"
+								placeholder="Request no, company, requester or purpose..." />
 							<div class="input-group-append">
 								<span class="input-group-text">
 									<i class="fas fa-search"></i>
@@ -40,26 +31,14 @@
 					</div>
 					<div class="form-group stage-field">
 						<label>Stage</label>
-						<select
-							class="form-control"
-							[formControl]="stageControl"
-						>
+						<select class="form-control" [formControl]="stageControl">
 							<option value="all">All Stages</option>
-							<option value="client">Client Approval</option>
-							<option value="global-review">Global Review</option>
-							<option value="global-approval">
-								Global Approval
-							</option>
+							<option value="exxon">Exxon Approval</option>
 						</select>
 					</div>
 				</div>
 				<div class="filter-actions">
-					<button
-						type="button"
-						class="btn btn-light"
-						[disabled]="isLoading"
-						(click)="resetFilters()"
-					>
+					<button type="button" class="btn btn-light" [disabled]="isLoading" (click)="resetFilters()">
 						<i class="fas fa-undo mr-1"></i> Reset
 					</button>
 				</div>
@@ -76,21 +55,14 @@
 			</div>
 
 			<div *ngIf="!isLoading" class="table-responsive">
-				<table
-					mat-table
-					[dataSource]="filteredRequests"
-					[trackBy]="trackByUuid"
-					class="w-100 approval-table p-0"
-				>
+				<table mat-table [dataSource]="filteredRequests" [trackBy]="trackByUuid"
+					class="w-100 approval-table p-0">
 					<ng-container matColumnDef="request">
 						<th mat-header-cell *matHeaderCellDef>Request</th>
 						<td mat-cell *matCellDef="let request">
-							<div
-								class="request-cell"
-								[class.unread]="isRequestUnread(request.uuid)"
-							>
+							<div class="request-cell" [class.unread]="isRequestUnread(request.uuid)">
 								@if (isRequestUnread(request.uuid)) {
-									<span class="new-ribbon">NEW</span>
+								<span class="new-ribbon">NEW</span>
 								}
 
 								<span class="request-icon">
@@ -106,8 +78,8 @@
 										{{ request.requestByName || "—" }}
 										<span>•</span>
 										{{
-											request.requestDate
-												| date: "dd MMM yyyy"
+										request.requestDate
+										| date: "dd MMM yyyy"
 										}}
 									</div>
 								</div>
@@ -135,24 +107,19 @@
 
 						<td mat-cell *matCellDef="let request">
 							<div class="equipment-cell">
-								<ng-container
-									*ngIf="
+								<ng-container *ngIf="
 										request.details?.length;
 										else noEquipment
-									"
-								>
-									<div
-										class="equipment-preview-item"
-										*ngFor="
+									">
+									<div class="equipment-preview-item" *ngFor="
 											let detail of getEquipmentPreview(
 												request.details
 											)
-										"
-									>
+										">
 										<span class="equipment-code">
 											{{
-												detail.equipmentUnitCode ||
-													"Unit belum dipilih"
+											detail.equipmentUnitCode ||
+											"Unit belum dipilih"
 											}}
 										</span>
 
@@ -162,23 +129,20 @@
 
 										<span class="equipment-name">
 											{{
-												detail.equipmentUnitName ||
-													detail.equipmentCategoryName ||
-													"—"
+											detail.equipmentUnitName ||
+											detail.equipmentCategoryName ||
+											"—"
 											}}
 										</span>
 									</div>
 
-									<div
-										class="equipment-more"
-										*ngIf="
+									<div class="equipment-more" *ngIf="
 											getRemainingEquipmentCount(
 												request
 											) > 0
-										"
-									>
+										">
 										+{{
-											getRemainingEquipmentCount(request)
+										getRemainingEquipmentCount(request)
 										}}
 										equipment lainnya
 									</div>
@@ -201,8 +165,8 @@
 									<small>Start</small>
 									<strong>
 										{{
-											request.startDate
-												| date: "dd MMM yyyy, HH:mm"
+										request.startDate
+										| date: "dd MMM yyyy, HH:mm"
 										}}
 									</strong>
 								</div>
@@ -210,8 +174,8 @@
 									<small>End</small>
 									<strong>
 										{{
-											request.endDate
-												| date: "dd MMM yyyy, HH:mm"
+										request.endDate
+										| date: "dd MMM yyyy, HH:mm"
 										}}
 									</strong>
 								</div>
@@ -223,10 +187,7 @@
 						<th mat-header-cell *matHeaderCellDef>Status</th>
 						<td mat-cell *matCellDef="let request">
 							<div class="status-cell">
-								<span
-									class="status-badge"
-									[ngClass]="statusClass(request.status)"
-								>
+								<span class="status-badge" [ngClass]="statusClass(request.status)">
 									{{ request.statusName || request.status }}
 								</span>
 							</div>
@@ -234,49 +195,31 @@
 					</ng-container>
 
 					<ng-container matColumnDef="actions">
-						<th
-							mat-header-cell
-							*matHeaderCellDef
-							class="action-column"
-						>
+						<th mat-header-cell *matHeaderCellDef class="action-column">
 							Actions
 						</th>
 
-						<td
-							mat-cell
-							*matCellDef="let request"
-							class="action-column"
-						>
+						<td mat-cell *matCellDef="let request" class="action-column">
 							<div class="approval-actions">
-								<button
-									type="button"
-									class="btn btn-sm btn-primary action-button"
-									[disabled]="!canReview(request)"
-									(click)="openReviewPage(request)"
-								>
+								<a class="btn btn-sm btn-primary action-button"
+									[routerLink]="['/equipment-request/approvals', request.uuid, 'review']">
 									<i class="fas fa-search-plus mr-1"></i>
 									Review
-								</button>
+								</a>
 							</div>
 						</td>
 					</ng-container>
 
-					<tr
-						mat-header-row
-						*matHeaderRowDef="[
+					<tr mat-header-row *matHeaderRowDef="[
 							'request',
 							'company',
 							'equipment',
 							'period',
 							'status',
 							'actions',
-						]"
-					></tr>
+						]"></tr>
 
-					<tr
-						mat-row
-						[class.unread-row]="isRequestUnread(row.uuid)"
-						*matRowDef="
+					<tr mat-row [class.unread-row]="isRequestUnread(row.uuid)" *matRowDef="
 							let row;
 							columns: [
 								'request',
@@ -286,8 +229,7 @@
 								'status',
 								'actions',
 							]
-						"
-					></tr>
+						"></tr>
 				</table>
 			</div>
 			<div *ngIf="filteredRequests.length === 0" class="empty-state">

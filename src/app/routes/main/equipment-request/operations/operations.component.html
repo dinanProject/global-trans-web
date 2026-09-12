@@ -1,0 +1,511 @@
+<page-header>
+	<div class="header-content">
+		<div>
+			<div class="eyebrow">Equipment Reservation</div>
+			<h5>Operations</h5>
+			<small class="text-secondary">
+				Monitor request yang sudah disetujui dan periode operasionalnya
+			</small>
+		</div>
+
+		<button type="button" class="btn btn-light refresh-button" (click)="loadWorklist(true)"
+			[disabled]="loadingWorklist || loadingDetail || saving">
+			<i class="fas fa-sync-alt" [class.fa-spin]="loadingWorklist || loadingDetail"></i>
+			Refresh
+		</button>
+	</div>
+</page-header>
+
+<page-body>
+	<div class="alert alert-danger" *ngIf="errorMessage">
+		<i class="fas fa-exclamation-circle"></i>
+		{{ errorMessage }}
+	</div>
+
+	<div class="alert alert-success" *ngIf="successMessage">
+		<i class="fas fa-check-circle"></i>
+		{{ successMessage }}
+	</div>
+
+	<div class="operations-overview">
+		<div class="operation-kpi">
+			<span>Scheduled</span>
+			<strong>{{ operationCount(OPERATION_STATUS_SCHEDULED) }}</strong>
+		</div>
+		<div class="operation-kpi starting-soon">
+			<span>Starting Soon</span>
+			<strong>{{ operationCount(OPERATION_STATUS_STARTING_SOON) }}</strong>
+			<small>Within {{ startingSoonDays }} days</small>
+		</div>
+		<div class="operation-kpi in-operation">
+			<span>In Operation</span>
+			<strong>{{ operationCount(OPERATION_STATUS_IN_OPERATION) }}</strong>
+		</div>
+		<div class="operation-kpi attention">
+			<span>Attention</span>
+			<strong>{{ operationCount(OPERATION_STATUS_ATTENTION) }}</strong>
+			<small>Past planned end</small>
+		</div>
+		<div class="operation-kpi">
+			<span>Completed</span>
+			<strong>{{ operationCount(OPERATION_STATUS_COMPLETED) }}</strong>
+		</div>
+	</div>
+
+	<div class="operation-layout">
+		<panel class="worklist-panel">
+			<panel-body>
+				<div class="section-header">
+					<div>
+						<div class="section-title">Operations Worklist</div>
+						<div class="section-subtitle">
+							Approved request berdasarkan planned period
+						</div>
+					</div>
+
+					<span class="counter">
+						{{ filteredRequests.length }}
+					</span>
+				</div>
+
+				<div class="filters">
+					<div class="search-box">
+						<i class="fas fa-search"></i>
+
+						<input type="text" class="form-control" [value]="search"
+							(input)="updateSearch($any($event.target).value)" placeholder="Search request..." />
+					</div>
+
+					<select class="form-control" [value]="statusFilter"
+						(change)="updateStatusFilter($any($event.target).value)">
+						<option value="">Active Operations</option>
+						<option value="ALL">All status</option>
+
+						<option *ngFor="let status of operationStatuses" [value]="status">
+							{{ statusLabel(status) }}
+						</option>
+					</select>
+				</div>
+
+				<div class="loading-state compact" *ngIf="loadingWorklist">
+					<i class="fas fa-spinner fa-spin"></i>
+					<span>Memuat worklist...</span>
+				</div>
+
+				<div class="empty-state compact" *ngIf="!loadingWorklist && filteredRequests.length === 0">
+					<i class="fas fa-inbox"></i>
+					<span>Tidak ada request operasional.</span>
+				</div>
+
+				<div class="request-list" *ngIf="!loadingWorklist && filteredRequests.length > 0">
+					<button type="button" class="request-card" *ngFor="
+							let request of paginatedRequests;
+							trackBy: trackByRequestUuid
+						" [class.active]="selectedRequest?.uuid === request.uuid" [class.unread]="isRequestUnread(request.uuid)"
+						(click)="onRequestClicked(request)">
+						@if (isRequestUnread(request.uuid)) {
+						<span class="new-ribbon">NEW</span>
+						}
+
+						<div class="request-card-top">
+							<strong>{{ request.requestNo }}</strong>
+
+							<span class="status-badge" [ngClass]="statusClass(operationStatus(request))">
+								{{ statusLabel(operationStatus(request)) }}
+							</span>
+						</div>
+
+						<div class="request-company">
+							{{ request.companyName || "-" }}
+						</div>
+
+						<div class="request-meta">
+							<span>
+								<i class="far fa-calendar-alt"></i>
+								{{ formatDateTime(request.startDate) }}
+							</span>
+
+							<span>
+								{{ request.divisionName || "-" }}
+							</span>
+						</div>
+					</button>
+				</div>
+
+				@if (!loadingWorklist && filteredRequests.length > pageSize) {
+				<div class="worklist-pagination">
+					<span class="pagination-summary">
+						{{ pageStartItem }}-{{ pageEndItem }} of {{ filteredRequests.length }}
+					</span>
+
+					<div class="pagination-actions">
+						<button type="button" class="pagination-button" [disabled]="currentPage === 1"
+							(click)="goToPage(currentPage - 1)" aria-label="Previous worklist page">
+							<i class="fas fa-chevron-left"></i>
+						</button>
+
+						<span class="pagination-page">{{ currentPage }} / {{ totalPages }}</span>
+
+						<button type="button" class="pagination-button" [disabled]="currentPage === totalPages"
+							(click)="goToPage(currentPage + 1)" aria-label="Next worklist page">
+							<i class="fas fa-chevron-right"></i>
+						</button>
+					</div>
+				</div>
+				}
+			</panel-body>
+		</panel>
+
+		<div class="detail-column">
+			<div class="loading-state" *ngIf="loadingDetail">
+				<i class="fas fa-spinner fa-spin"></i>
+				<span>Memuat detail operation...</span>
+			</div>
+
+			<panel *ngIf="!loadingDetail && !selectedRequest">
+				<panel-body>
+					<div class="empty-state">
+						<i class="fas" [ngClass]="
+								filteredRequests.length === 0
+									? 'fa-inbox'
+									: 'fa-hand-pointer'
+							"></i>
+
+						<h5>
+							{{
+							filteredRequests.length === 0
+							? "Tidak ada operation request"
+							: "Pilih operation request"
+							}}
+						</h5>
+
+						<p>
+							{{
+							filteredRequests.length === 0
+							? "Pencarian request tidak ada."
+							: "Pilih request terlebih dahulu dari menu sebelah kiri."
+							}}
+						</p>
+					</div>
+				</panel-body>
+			</panel>
+
+			<ng-container *ngIf="!loadingDetail && selectedRequest">
+				<panel class="request-summary-panel">
+					<panel-body>
+						<div class="section-header">
+							<div>
+								<div class="eyebrow">
+									{{ selectedRequest.requestNo }}
+								</div>
+
+								<div class="section-title">Request Summary</div>
+							</div>
+
+							<span class="status-badge" [ngClass]="statusClass(operationStatus(selectedRequest))">
+								{{ statusLabel(operationStatus(selectedRequest)) }}
+							</span>
+						</div>
+
+						<div class="operation-state-banner" [ngClass]="statusClass(operationStatus(selectedRequest))">
+							<i class="fas fa-clock"></i>
+							<div>
+								<strong>{{ statusLabel(operationStatus(selectedRequest)) }}</strong>
+								<div>{{ requestDetailSubtitle }}</div>
+							</div>
+						</div>
+
+						<div class="summary-grid">
+							<div class="company-summary">
+								<span>Company</span>
+
+								<strong>
+									{{ selectedRequest.companyName || "-" }}
+								</strong>
+
+								<small>
+									<i class="fas fa-sitemap"></i>
+									{{
+									selectedRequest.divisionName ||
+									"No division"
+									}}
+								</small>
+							</div>
+
+							<div class="schedule-summary">
+								<span>Schedule</span>
+
+								<div class="schedule-range">
+									<div>
+										<small>Start</small>
+
+										<strong>
+											{{
+											formatDateTime(
+											selectedRequest.startDate
+											)
+											}}
+										</strong>
+									</div>
+
+									<i class="fas fa-arrow-right"></i>
+
+									<div>
+										<small>End</small>
+
+										<strong>
+											{{
+											formatDateTime(
+											selectedRequest.endDate
+											)
+											}}
+										</strong>
+									</div>
+								</div>
+							</div>
+
+							<div class="operation-progress-summary">
+								<div class="progress-summary-row">
+									<span>Authorized Units</span>
+
+									<strong>
+										{{ totalActiveOperations }} /
+										{{ totalRequested }}
+									</strong>
+								</div>
+
+								<div class="progress-summary-divider"></div>
+
+								<div class="progress-summary-row">
+									<span>Completed</span>
+
+									<strong>
+										{{ totalCompleted }} /
+										{{ totalRequested }}
+									</strong>
+								</div>
+							</div>
+						</div>
+
+						@if (loadingAttachments || attachments.length > 0) {
+							<div class="operation-attachments">
+								<div class="operation-attachments-header">
+									<div>
+										<i class="fas fa-paperclip"></i>
+										<strong>Attachments</strong>
+									</div>
+									<span>{{ loadingAttachments ? 'Loading...' : attachments.length + ' file(s)' }}</span>
+								</div>
+
+								@if (!loadingAttachments) {
+									<div class="operation-attachment-list">
+										@for (attachment of attachments; track attachment.uuid) {
+											<button type="button" class="operation-attachment-item" (click)="openAttachment(attachment)">
+												<i [class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+												<span>
+													<strong>{{ attachment.originalName }}</strong>
+													<small>{{ formatAttachmentSize(attachment.fileSize) }} · Open</small>
+												</span>
+												<i class="fas fa-external-link-alt"></i>
+											</button>
+										}
+									</div>
+								}
+							</div>
+						}
+
+					</panel-body>
+				</panel>
+
+				<panel>
+					<panel-body>
+						<div class="section-header">
+							<div>
+								<div class="section-title">
+									Approved Request Detail
+								</div>
+
+								<div class="section-subtitle">
+									{{ requestDetailSubtitle }}
+								</div>
+							</div>
+						</div>
+
+						<div class="detail-list" *ngIf="detailViews.length > 0">
+							<div class="approved-unit-card" *ngFor="let detail of detailViews">
+								<div class="approved-unit-header">
+									<div class="approved-unit-heading">
+										<h6>{{ detail.categoryName }}</h6>
+									</div>
+
+									<span class="fulfilled" *ngIf="detail.operations.length > 0" [ngClass]="
+											statusClass(
+												detail.operations[0].statusCode
+											)
+										">
+										<i class="fas fa-check-circle"></i>
+
+										{{
+										statusLabel(
+										detail.operations[0].statusCode
+										)
+										}}
+									</span>
+								</div>
+
+								<ng-container *ngIf="
+										approvedUnit(detail) as unit;
+										else missingApprovedUnit
+									">
+									<div class="approved-unit-body">
+										<div class="approved-unit-identity">
+											@if (getUnitImageUrl(unit.uuid); as imageUrl) {
+											<button type="button" class="approved-unit-icon approved-unit-image-button"
+												aria-label="Preview equipment unit image"
+												(click)="openUnitImagePreview(unit.uuid)">
+												<img [src]="imageUrl" [alt]="unit.unitName" />
+											</button>
+											} @else {
+											<div class="approved-unit-icon">
+												<img [src]="getEquipmentIcon(detail.categoryCode)" [alt]="detail.categoryName" />
+											</div>
+											}
+
+											<div class="approved-unit-primary">
+												<strong>
+													{{ unit.unitCode }} -
+													{{ unit.unitName }}
+												</strong>
+
+												<span>
+													{{
+													unit.assetNumber ||
+													"Asset number belum tersedia"
+													}}
+												</span>
+											</div>
+										</div>
+
+										<div class="approved-unit-fields">
+											<div class="approved-unit-field approved-period-field">
+												<span>Period</span>
+
+												<div class="approved-period-range">
+													<div>
+														<small>Start</small>
+
+														<strong>
+															{{
+															formatDateTime(
+															selectedRequest.startDate
+															)
+															}}
+														</strong>
+													</div>
+
+													<i class="fas fa-arrow-right"></i>
+
+													<div>
+														<small>End</small>
+
+														<strong>
+															{{
+															formatDateTime(
+															selectedRequest.endDate
+															)
+															}}
+														</strong>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="approved-unit-footer">
+										<div class="unit-remarks">
+											<span>Remarks</span>
+
+											<strong>
+												{{
+												detail.remarks ||
+												unit.remarks ||
+												"—"
+												}}
+											</strong>
+										</div>
+
+										<div class="completion-time" *ngIf="
+												detail.operations[0]
+													?.actualEndDate
+											">
+											<span>Completed At</span>
+
+											<strong>
+												{{
+												formatDateTime(
+												detail.operations[0]
+												.actualEndDate
+												)
+												}}
+											</strong>
+										</div>
+
+										<div class="approved-unit-actions">
+											<ng-container *ngFor="
+													let operation of detail.operations
+												">
+												<button type="button" class="btn btn-success complete-button" (click)="
+														completeOperation(
+															operation
+														)
+													" *ngIf="
+														canComplete(operation)
+													">
+													<i class="fas fa-flag me-2"></i>
+													Complete this request
+												</button>
+											</ng-container>
+										</div>
+									</div>
+								</ng-container>
+
+								<ng-template #missingApprovedUnit>
+									<div class="missing-unit">
+										<i class="fas fa-exclamation-triangle"></i>
+
+										Unit yang disetujui tidak ditemukan pada
+										master equipment unit.
+									</div>
+								</ng-template>
+							</div>
+						</div>
+
+						<div class="empty-state compact" *ngIf="detailViews.length === 0">
+							<i class="fas fa-list"></i>
+							<span>
+								Request ini tidak memiliki detail aktif.
+							</span>
+						</div>
+					</panel-body>
+				</panel>
+			</ng-container>
+		</div>
+	</div>
+</page-body>
+
+<ng-template #unitImagePreviewDialog>
+	@if (previewUnit && previewUnitImageUrl) {
+	<div class="unit-image-preview-panel" role="dialog" aria-modal="true" aria-label="Equipment unit image preview">
+		<div class="unit-image-preview-title">
+			<strong>{{ previewUnit.unitCode }} - {{ previewUnit.unitName }}</strong>
+			<span>Equipment Unit Image</span>
+		</div>
+		<button type="button" class="unit-image-preview-close" aria-label="Close equipment image preview" (click)="closeUnitImagePreview()">
+			<i class="fas fa-times"></i>
+		</button>
+		<div class="unit-image-preview-stage">
+			<img [src]="previewUnitImageUrl" [alt]="previewUnit.unitName" />
+		</div>
+	</div>
+	}
+</ng-template>

@@ -7,11 +7,7 @@
 			</small>
 		</div>
 
-		<button
-			type="button"
-			class="btn btn-primary"
-			(click)="openCreateDialog()"
-		>
+		<button type="button" class="btn btn-primary" (click)="openCreateDialog()">
 			<i class="fas fa-plus mr-1"></i>
 			Add Root Menu
 		</button>
@@ -26,12 +22,8 @@
 					<label>Search</label>
 
 					<div class="input-group">
-						<input
-							type="text"
-							class="form-control"
-							[formControl]="search"
-							placeholder="Search menu, code or route..."
-						/>
+						<input type="text" class="form-control" [formControl]="search"
+							placeholder="Search menu, code or route..." />
 
 						<div class="input-group-append">
 							<span class="input-group-text">
@@ -41,12 +33,7 @@
 					</div>
 				</div>
 
-				<button
-					type="button"
-					class="btn btn-light"
-					[disabled]="isLoading"
-					(click)="loadMenus()"
-				>
+				<button type="button" class="btn btn-light" [disabled]="isLoading" (click)="loadMenus()">
 					<i class="fas fa-sync-alt mr-1"></i>
 					Refresh
 				</button>
@@ -63,55 +50,33 @@
 			</div>
 
 			<div *ngIf="!isLoading" class="table-responsive">
-				<table
-					mat-table
-					[dataSource]="menuRows"
-					[trackBy]="trackByMenuId"
-					class="w-100 menu-table p-0"
-				>
+				<table mat-table [dataSource]="menuRows" [trackBy]="trackByMenuId" class="w-100 menu-table p-0">
 					<ng-container matColumnDef="menuName">
 						<th mat-header-cell *matHeaderCellDef>Menu</th>
 
 						<td mat-cell *matCellDef="let menu">
-							<div
-								class="menu-name-cell"
-								[style.padding-left.px]="menu.level * 28"
-							>
-								<button
-									type="button"
-									class="tree-toggle"
-									[class.tree-toggle-hidden]="
+							<div class="menu-name-cell" [style.padding-left.px]="menu.level * 28">
+								<button type="button" class="tree-toggle" [class.tree-toggle-hidden]="
 										!menu.hasChildren
-									"
-									(click)="
+									" (click)="
 										toggleMenu(menu);
 										$event.stopPropagation()
-									"
-								>
-									<i
-										class="fas"
-										[class.fa-chevron-down]="
+									">
+									<i class="fas" [class.fa-chevron-down]="
 											isExpanded(menu.menuId)
-										"
-										[class.fa-chevron-right]="
+										" [class.fa-chevron-right]="
 											!isExpanded(menu.menuId)
-										"
-									></i>
+										"></i>
 								</button>
 
 								<span class="menu-icon">
-									<i
-										[class]="menu.icon || 'far fa-circle'"
-									></i>
+									<i [class]="menu.icon || 'far fa-circle'"></i>
 								</span>
 
 								<div>
 									<h6>{{ menu.menuName }}</h6>
 
-									<small
-										*ngIf="menu.parentMenuName"
-										class="text-secondary"
-									>
+									<small *ngIf="menu.parentMenuName" class="text-secondary">
 										Child of
 										{{ menu.parentMenuName }}
 									</small>
@@ -132,10 +97,7 @@
 						<th mat-header-cell *matHeaderCellDef>Route</th>
 
 						<td mat-cell *matCellDef="let menu">
-							<span
-								*ngIf="menu.route; else noRoute"
-								class="route-value"
-							>
+							<span *ngIf="menu.route; else noRoute" class="route-value">
 								{{ menu.route }}
 							</span>
 
@@ -159,10 +121,7 @@
 								</small>
 							</div>
 
-							<span
-								*ngIf="!menu.permissionCode"
-								class="text-secondary"
-							>
+							<span *ngIf="!menu.permissionCode" class="text-secondary">
 								—
 							</span>
 						</td>
@@ -180,11 +139,8 @@
 						<th mat-header-cell *matHeaderCellDef>Status</th>
 
 						<td mat-cell *matCellDef="let menu">
-							<span
-								class="status-indicator"
-								[class.active]="menu.isActive"
-								[class.inactive]="!menu.isActive"
-							>
+							<span class="status-indicator" [class.active]="menu.isActive"
+								[class.inactive]="!menu.isActive">
 								<span class="status-dot"></span>
 
 								{{ menu.isActive ? "Active" : "Inactive" }}
@@ -193,51 +149,29 @@
 					</ng-container>
 
 					<ng-container matColumnDef="actions">
-						<th
-							mat-header-cell
-							*matHeaderCellDef
-							class="action-column"
-						>
+						<th mat-header-cell *matHeaderCellDef class="action-column">
 							Actions
 						</th>
 
-						<td
-							mat-cell
-							*matCellDef="let menu"
-							class="action-column"
-						>
-							<button
-								type="button"
-								class="btn btn-sm btn-light"
-								[matMenuTriggerFor]="actionMenu"
-								(click)="$event.stopPropagation()"
-							>
+						<td mat-cell *matCellDef="let menu" class="action-column">
+							<button type="button" class="btn btn-sm btn-light" [matMenuTriggerFor]="actionMenu"
+								(click)="$event.stopPropagation()">
 								<i class="fas fa-ellipsis-v"></i>
 							</button>
 
 							<mat-menu #actionMenu="matMenu">
-								<button
-									mat-menu-item
-									(click)="openEditDialog(menu)"
-								>
+								<button mat-menu-item (click)="openEditDialog(menu)">
 									<i class="fas fa-edit mr-2"></i>
 									<span>Edit</span>
 								</button>
 
-								<button
-									mat-menu-item
-									(click)="openCreateDialog(menu)"
-								>
+								<button mat-menu-item (click)="openCreateDialog(menu)">
 									<i class="fas fa-plus mr-2"></i>
 									<span>Add Child</span>
 								</button>
 
-								<button
-									mat-menu-item
-									class="menu-danger"
-									[disabled]="!menu.isActive"
-									(click)="deactivateMenu(menu)"
-								>
+								<button mat-menu-item class="menu-danger" [disabled]="!menu.isActive"
+									(click)="deactivateMenu(menu)">
 									<i class="fas fa-ban mr-2"></i>
 									<span>Deactivate</span>
 								</button>
@@ -247,12 +181,8 @@
 
 					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 
-					<tr
-						mat-row
-						*matRowDef="let row; columns: displayedColumns"
-						[class.clickable-row]="row.hasChildren"
-						(click)="toggleMenu(row)"
-					></tr>
+					<tr mat-row *matRowDef="let row; columns: displayedColumns" [class.clickable-row]="row.hasChildren"
+						(click)="toggleMenu(row)"></tr>
 				</table>
 
 				<div *ngIf="menuRows.length === 0" class="empty-state">

@@ -17,7 +17,7 @@ import { RequestComponent } from './request/request.component';
 import { LoadingButtonModule } from 'src/app/shared/loading-button/loading-button.module';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
-import { AssignmentsComponent } from './assignments/assignments.component';
+import { OperationsComponent } from './operations/operations.component';
 import { RequestFormDialogComponent } from './request/request-form-dialog/request-form-dialog.component';
 
 @NgModule({
@@ -27,7 +27,7 @@ import { RequestFormDialogComponent } from './request/request-form-dialog/reques
 		RequestDetailDialogComponent,
 		ApprovalsComponent,
 		ApprovalReviewComponent,
-		AssignmentsComponent,
+		OperationsComponent,
 		MonitoringComponent,
 		ReportsComponent,
 	],

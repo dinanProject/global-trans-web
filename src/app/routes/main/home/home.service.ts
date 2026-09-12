@@ -53,6 +53,10 @@ export interface DashboardFilters {
 	divisionUuid?: string;
 }
 
+export interface DashboardConfig {
+	showDashboardCharts: boolean;
+}
+
 export interface DashboardOverview {
 	period: string;
 	dateRange: DashboardDateRange;
@@ -68,6 +72,12 @@ export interface DashboardOverview {
 })
 export class HomeService {
 	constructor(private readonly apiService: ApiService) {}
+
+	getConfig(): Observable<DashboardConfig> {
+		return this.apiService.get(
+			'/home/config',
+		) as Observable<DashboardConfig>;
+	}
 
 	getOverview(filters: DashboardFilters): Observable<DashboardOverview> {
 		let params = new HttpParams().set('period', filters.period);

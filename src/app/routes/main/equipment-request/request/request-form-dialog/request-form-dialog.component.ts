@@ -8,7 +8,9 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, forkJoin, of, Subject, switchMap, takeUntil } from 'rxjs';
+
+import { UtilityService } from 'src/app/shared/utility/utility.service';
 
 import {
 	CapacityUnitOption,
@@ -16,6 +18,7 @@ import {
 	RequestCompanyOption,
 	RequestDetail,
 	RequestDivisionOption,
+	RequestAttachment,
 	RequestMaster,
 	RequestPayload,
 	RequestService,
@@ -45,6 +48,12 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 	isSaving = false;
 	errorMessage = '';
 	reviewUnitUuid: string | null = null;
+	attachments: RequestAttachment[] = [];
+	pendingAttachments: File[] = [];
+	readonly attachmentMaxCount = 5;
+	readonly attachmentMaxBytes = 10 * 1024 * 1024;
+	private createdRequestUuid: string | null = null;
+	private readonly deletingAttachmentUuids = new Set<string>();
 
 	private readonly destroy$ = new Subject<void>();
 	private readonly unitImageUrls = new Map<string, string>();
@@ -73,6 +82,7 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 	constructor(
 		private readonly formBuilder: FormBuilder,
 		private readonly requestService: RequestService,
+		private readonly utilityService: UtilityService,
 		private readonly dialogRef: MatDialogRef<RequestFormDialogComponent>,
 		@Inject(MAT_DIALOG_DATA)
 		public readonly data: RequestFormDialogData,
@@ -83,6 +93,8 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 
 		if (details.length) details.forEach((detail) => this.addDetail(detail));
 		else this.addDetail();
+
+		if (this.data.request?.uuid) this.loadAttachments(this.data.request.uuid);
 	}
 
 	ngOnDestroy(): void {
@@ -330,21 +342,131 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		this.isSaving = true;
 		this.errorMessage = '';
 
-		const request$ =
-			this.data.mode === 'create'
-				? this.requestService.createRequest(payload)
-				: this.requestService.updateRequest(
-						this.data.request!.uuid,
-						payload,
-					);
+		const existingRequestUuid = this.data.request?.uuid || this.createdRequestUuid;
+		const request$ = existingRequestUuid
+			? this.requestService.updateRequest(existingRequestUuid, payload)
+			: this.requestService.createRequest(payload);
 
-		request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
+		request$
+			.pipe(
+				switchMap((savedRequest) => {
+					if (this.data.mode === 'create' && savedRequest?.uuid) this.createdRequestUuid = savedRequest.uuid;
+					if (!savedRequest?.uuid || !this.pendingAttachments.length) return of(savedRequest);
+					return forkJoin(
+						this.pendingAttachments.map((file) =>
+							this.requestService.uploadAttachment(savedRequest.uuid, file),
+						),
+					).pipe(switchMap(() => of(savedRequest)));
+				}),
+				finalize(() => (this.isSaving = false)),
+			)
+			.subscribe({
 			next: () => this.dialogRef.close({ action: 'save' }),
 			error: (error) => {
-				this.errorMessage =
-					error?.error?.meta?.message ??
-					'Failed to save equipment request.';
+				const message = error?.error?.meta?.message ?? 'Failed to save equipment request.';
+				if (this.createdRequestUuid) {
+					this.errorMessage = `Request sudah tersimpan, tetapi attachment gagal: ${message}. Silakan pilih ulang file yang gagal lalu Save kembali.`;
+					this.pendingAttachments = [];
+					this.loadAttachments(this.createdRequestUuid);
+				} else {
+					this.errorMessage = message;
+				}
 			},
+		});
+	}
+
+	selectAttachments(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		const files = Array.from(input.files ?? []);
+		input.value = '';
+		this.errorMessage = '';
+
+		for (const file of files) {
+			if (this.attachments.length + this.pendingAttachments.length >= this.attachmentMaxCount) {
+				this.errorMessage = `Maksimal ${this.attachmentMaxCount} attachment per request.`;
+				break;
+			}
+			if (file.size > this.attachmentMaxBytes) {
+				this.errorMessage = `${file.name} melebihi batas 10 MB.`;
+				continue;
+			}
+			if (!['application/pdf','image/jpeg','image/png','image/gif','image/webp'].includes(file.type)) {
+				this.errorMessage = `${file.name} bukan PDF/image yang didukung.`;
+				continue;
+			}
+			this.pendingAttachments.push(file);
+		}
+	}
+
+	removePendingAttachment(index: number): void {
+		this.pendingAttachments.splice(index, 1);
+	}
+
+	async removeSavedAttachment(attachment: RequestAttachment): Promise<void> {
+		const requestUuid = this.data.request?.uuid || this.createdRequestUuid;
+
+		if (
+			!requestUuid ||
+			!this.canManageSavedAttachments ||
+			this.deletingAttachmentUuids.has(attachment.uuid)
+		) {
+			return;
+		}
+
+		const confirmed = await this.utilityService.confirm(
+			'Remove Attachment',
+			`Remove ${attachment.originalName} from this request?`,
+			'warning',
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		this.errorMessage = '';
+		this.deletingAttachmentUuids.add(attachment.uuid);
+
+		this.requestService
+			.deleteAttachment(requestUuid, attachment.uuid)
+			.pipe(
+				takeUntil(this.destroy$),
+				finalize(() => this.deletingAttachmentUuids.delete(attachment.uuid)),
+			)
+			.subscribe({
+				next: () => {
+					this.attachments = this.attachments.filter(
+						(item) => item.uuid !== attachment.uuid,
+					);
+				},
+				error: (error) => {
+					this.errorMessage =
+						error?.error?.meta?.message ??
+						'Failed to remove attachment.';
+				},
+			});
+	}
+
+	get canManageSavedAttachments(): boolean {
+		return (
+			this.data.mode === 'edit' &&
+			this.data.request?.statusAllowEdit === true &&
+			!this.isSaving
+		);
+	}
+
+	isDeletingAttachment(attachmentUuid: string): boolean {
+		return this.deletingAttachmentUuids.has(attachmentUuid);
+	}
+
+	formatFileSize(bytes: number): string {
+		if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+	}
+
+	private loadAttachments(requestUuid: string): void {
+		this.requestService.getAttachments(requestUuid).pipe(takeUntil(this.destroy$)).subscribe({
+			next: (attachments) => (this.attachments = attachments ?? []),
+			error: () => (this.attachments = []),
 		});
 	}
 

@@ -135,6 +135,18 @@
 												| date: "dd MMM yyyy"
 										}}
 									</small>
+
+									@if ((request.attachmentCount || 0) > 0) {
+										<button
+											type="button"
+											class="request-attachment-indicator"
+											(click)="openDetailDialog(request, 0)"
+											[attr.aria-label]="'Open ' + request.attachmentCount + ' attachment(s)'"
+										>
+											<i class="fas fa-paperclip"></i>
+											<span>{{ request.attachmentCount }} attachment(s)</span>
+										</button>
+									}
 								</div>
 							</div>
 						</td>

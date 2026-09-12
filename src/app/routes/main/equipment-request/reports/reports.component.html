@@ -1,20 +1,108 @@
 <page-header>
-	<div class="header-content">
+	<div class="report-page-header">
 		<div>
+			<div class="eyebrow">EQUIPMENT RESERVATION</div>
 			<h5>Reports</h5>
-			<small class="text-secondary">This module will be implemented next.</small>
+			<small class="text-secondary">Export equipment request and operational data to Excel.</small>
 		</div>
+
+		<button type="button" class="btn btn-primary export-button" [disabled]="exporting || loadingFilters"
+			(click)="exportExcel()">
+			@if (exporting) {
+			<i class="fas fa-circle-notch fa-spin"></i>
+			<span>Generating...</span>
+			} @else {
+			<i class="fas fa-file-excel"></i>
+			<span>Export Excel</span>
+			}
+		</button>
 	</div>
 </page-header>
 
 <page-body>
-	<panel>
-		<panel-body>
-			<div class="empty-state">
-				<i class="fas fa-tools"></i>
-				<h5>Reports module</h5>
-				<p>Coming next after approval workflow is stable.</p>
+	<div class="report-shell">
+		<section class="report-card">
+			<div class="report-card-header">
+				<div>
+					<div class="eyebrow">REPORT FILTERS</div>
+					<h5>Equipment Request Report</h5>
+				</div>
+				<button type="button" class="btn btn-light" [disabled]="exporting" (click)="resetFilters()">
+					<i class="fas fa-undo-alt"></i>
+					Reset
+				</button>
 			</div>
-		</panel-body>
-	</panel>
+
+			@if (loadingFilters) {
+			<div class="report-loading">
+				<i class="fas fa-circle-notch fa-spin"></i>
+				<span>Loading report filters...</span>
+			</div>
+			} @else {
+			<div class="filter-grid">
+				<div class="filter-field">
+					<label for="reportStartDate">Request Date From</label>
+					<input id="reportStartDate" type="date" class="form-control" [(ngModel)]="filter.startDate" />
+				</div>
+
+				<div class="filter-field">
+					<label for="reportEndDate">Request Date To</label>
+					<input id="reportEndDate" type="date" class="form-control" [(ngModel)]="filter.endDate" />
+				</div>
+
+				<div class="filter-field">
+					<label for="reportCompany">Company</label>
+					<select id="reportCompany" class="form-control" [(ngModel)]="filter.companyUuid"
+						(ngModelChange)="onCompanyChange()">
+						<option value="">All Companies</option>
+						@for (company of companies; track company.uuid) {
+						<option [value]="company.uuid">{{ company.name }}</option>
+						}
+					</select>
+				</div>
+
+				<div class="filter-field">
+					<label for="reportDivision">Division</label>
+					<select id="reportDivision" class="form-control" [(ngModel)]="filter.divisionUuid">
+						<option value="">All Divisions</option>
+						@for (division of filteredDivisions; track division.uuid) {
+						<option [value]="division.uuid">{{ division.name }}</option>
+						}
+					</select>
+				</div>
+
+				<div class="filter-field">
+					<label for="reportStatus">Request Status</label>
+					<select id="reportStatus" class="form-control" [(ngModel)]="filter.status">
+						<option value="">All Statuses</option>
+						@for (status of statuses; track status.code) {
+						<option [value]="status.code">{{ status.name }}</option>
+						}
+					</select>
+				</div>
+
+				<div class="filter-field">
+					<label for="reportCategory">Equipment Category</label>
+					<select id="reportCategory" class="form-control" [(ngModel)]="filter.categoryUuid">
+						<option value="">All Equipment</option>
+						@for (category of categories; track category.uuid) {
+						<option [value]="category.uuid">{{ category.name }}</option>
+						}
+					</select>
+				</div>
+			</div>
+			}
+		</section>
+
+		<section class="report-info-card">
+			<div class="info-icon"><i class="fas fa-file-excel"></i></div>
+			<div>
+				<h6>Excel output</h6>
+				<p>
+					Includes request identity, organization, equipment, Lifting Estimation, final planned schedule,
+					derived operational status, Exxon approval, completion date, and remarks.
+				</p>
+			</div>
+		</section>
+	</div>
 </page-body>

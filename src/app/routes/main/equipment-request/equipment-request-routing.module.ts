@@ -2,11 +2,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RequestComponent } from './request/request.component';
 import { ApprovalsComponent } from './approvals/approvals.component';
-import { AssignmentsComponent } from './assignments/assignments.component';
 import { ReportsComponent } from './reports/reports.component';
 import { PermissionGuard } from 'src/app/core/guards/permission-guard';
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import { ApprovalReviewComponent } from './approvals/approval-review/approval-review.component';
+import { OperationsComponent } from './operations/operations.component';
 
 const routes: Routes = [
 	{
@@ -40,14 +40,6 @@ const routes: Routes = [
 		},
 	},
 	{
-		path: 'assignments',
-		component: AssignmentsComponent,
-		canActivate: [PermissionGuard],
-		data: {
-			permission: 'EQUIPMENT_REQUEST.ASSIGN',
-		},
-	},
-	{
 		path: 'monitoring',
 		component: MonitoringComponent,
 		canActivate: [PermissionGuard],
@@ -57,8 +49,21 @@ const routes: Routes = [
 	},
 
 	{
+		path: 'operations',
+		component: OperationsComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_OPERATION.VIEW',
+		},
+	},
+
+	{
 		path: 'reports',
 		component: ReportsComponent,
+		canActivate: [PermissionGuard],
+		data: {
+			permission: 'EQUIPMENT_REPORT.VIEW',
+		},
 	},
 ];
 

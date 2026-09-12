@@ -648,3 +648,24 @@ body {
 	background-color: #ffffff !important;
 	color: #354052 !important;
 }
+
+/* Equipment unit image preview: keep the CDK dialog shell visually transparent so
+   the dark preview panel is the only visible surface. */
+.equipment-unit-image-preview-dialog {
+	.mat-mdc-dialog-container,
+	.mat-dialog-container {
+		padding: 0 !important;
+		overflow: hidden !important;
+		border-radius: 12px !important;
+		background: transparent !important;
+		box-shadow: none !important;
+	}
+
+	.mat-mdc-dialog-surface,
+	.mdc-dialog__surface {
+		overflow: hidden !important;
+		border-radius: 12px !important;
+		background: transparent !important;
+		box-shadow: none !important;
+	}
+}

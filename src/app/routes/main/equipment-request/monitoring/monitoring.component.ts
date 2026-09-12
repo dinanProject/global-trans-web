@@ -1,5 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+	Component,
+	OnDestroy,
+	OnInit,
+	TemplateRef,
+	ViewChild,
+} from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import {
 	debounceTime,
@@ -8,12 +15,13 @@ import {
 	takeUntil,
 } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { RequestService } from '../request/request.service';
 
 interface MonitoringSummary {
 	activeOperation: number;
 	waitingStart: number;
 	overdue: number;
-	lateStart: number;
+	onSchedule: number;
 	completedToday: number;
 	availableUnit: number;
 	maintenanceUnit: number;
@@ -126,6 +134,9 @@ interface CalendarAgendaGroup {
 	standalone: false,
 })
 export class MonitoringComponent implements OnInit, OnDestroy {
+	@ViewChild('unitImagePreviewDialog')
+	private unitImagePreviewDialog!: TemplateRef<unknown>;
+	private unitImagePreviewDialogRef: MatDialogRef<unknown> | null = null;
 	private readonly monitoringUrl = `${environment.apiUrl}/equipment-request/monitoring`;
 
 	summary: MonitoringSummary = this.createEmptySummary();
@@ -138,6 +149,10 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	filters: MonitoringFilters = this.createEmptyFilters();
 	private readonly searchChange$ = new Subject<string>();
 	private readonly destroy$ = new Subject<void>();
+	readonly unitImageUrls = new Map<string, string>();
+	previewUnitUuid: string | null = null;
+	private readonly unavailableUnitImages = new Set<string>();
+	private imageLoadVersion = 0;
 
 	loading = false;
 	loadingSummary = false;
@@ -147,6 +162,8 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	lastUpdatedAt: Date | null = null;
 
 	readonly loadingRows = Array.from({ length: 6 });
+	readonly worklistPageSize = 4;
+	worklistPage = 1;
 
 	viewMode: MonitoringViewMode = 'WORKLIST';
 	calendarHorizon: CalendarHorizon = 14;
@@ -154,7 +171,11 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	calendarStartDate = '';
 	calendarEndDate = '';
 
-	constructor(private readonly http: HttpClient) {}
+	constructor(
+		private readonly http: HttpClient,
+		private readonly requestService: RequestService,
+		private readonly dialog: MatDialog,
+	) {}
 
 	ngOnInit(): void {
 		this.updateCalendarWindow();
@@ -171,6 +192,9 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.unitImagePreviewDialogRef?.close();
+		this.imageLoadVersion += 1;
+		this.releaseUnitImages();
 		this.destroy$.next();
 		this.destroy$.complete();
 		this.searchChange$.complete();
@@ -184,6 +208,27 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 		return this.divisionOptions.filter(
 			(division) => division.companyUuid === this.filters.companyUuid,
 		);
+	}
+
+	get worklistTotalPages(): number {
+		return Math.max(1, Math.ceil(this.assignments.length / this.worklistPageSize));
+	}
+
+	get paginatedAssignments(): MonitoringAssignment[] {
+		const startIndex = (this.worklistPage - 1) * this.worklistPageSize;
+		return this.assignments.slice(startIndex, startIndex + this.worklistPageSize);
+	}
+
+	get worklistRangeStart(): number {
+		if (!this.assignments.length) {
+			return 0;
+		}
+
+		return (this.worklistPage - 1) * this.worklistPageSize + 1;
+	}
+
+	get worklistRangeEnd(): number {
+		return Math.min(this.worklistPage * this.worklistPageSize, this.assignments.length);
 	}
 
 	get hasActiveFilters(): boolean {
@@ -407,10 +452,12 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	}
 
 	onSearchChange(value: string): void {
+		this.worklistPage = 1;
 		this.searchChange$.next(value || '');
 	}
 
 	onFilterChange(): void {
+		this.worklistPage = 1;
 		if (this.viewMode === 'CALENDAR') {
 			this.updateCalendarWindow();
 		}
@@ -424,6 +471,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 
 	resetFilters(): void {
 		this.filters = this.createEmptyFilters();
+		this.worklistPage = 1;
 
 		if (this.viewMode === 'CALENDAR') {
 			this.updateCalendarWindow();
@@ -433,6 +481,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	}
 
 	onCompanyChange(): void {
+		this.worklistPage = 1;
 		if (
 			this.filters.divisionUuid &&
 			!this.filteredDivisionOptions.some(
@@ -445,15 +494,32 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 		this.loadMonitoring(false);
 	}
 
+	goToPreviousWorklistPage(): void {
+		if (this.worklistPage <= 1) {
+			return;
+		}
+
+		this.worklistPage -= 1;
+	}
+
+	goToNextWorklistPage(): void {
+		if (this.worklistPage >= this.worklistTotalPages) {
+			return;
+		}
+
+		this.worklistPage += 1;
+	}
+
 	trackByUuid(index: number, assignment: MonitoringAssignment): string {
 		return assignment.uuid;
 	}
 
 	getOperationStatusLabel(status: string): string {
 		const labels: Record<string, string> = {
-			ASSIGNED: 'Assigned',
-			RUNNING: 'Running',
-			IN_OPERATION: 'Running',
+			ASSIGNED: 'Scheduled',
+			SCHEDULED: 'Scheduled',
+			RUNNING: 'In Operation',
+			IN_OPERATION: 'In Operation',
 			COMPLETED: 'Completed',
 		};
 
@@ -463,6 +529,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	getOperationStatusClass(status: string): string {
 		const classes: Record<string, string> = {
 			ASSIGNED: 'operation-assigned',
+			SCHEDULED: 'operation-assigned',
 			RUNNING: 'operation-running',
 			IN_OPERATION: 'operation-running',
 			COMPLETED: 'operation-completed',
@@ -473,7 +540,8 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 
 	getOperationStatusIcon(status: string): string {
 		const icons: Record<string, string> = {
-			ASSIGNED: 'fa-hourglass-half',
+			ASSIGNED: 'fa-calendar-check',
+			SCHEDULED: 'fa-calendar-check',
 			RUNNING: 'fa-play',
 			IN_OPERATION: 'fa-play',
 			COMPLETED: 'fa-check',
@@ -484,7 +552,9 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 
 	getSlaStatusLabel(status: string): string {
 		const labels: Record<string, string> = {
-			ASSIGNED: 'Assigned',
+			ASSIGNED: 'Scheduled',
+			SCHEDULED: 'Scheduled',
+			ON_SCHEDULE: 'On Schedule',
 			LATE_START: 'Late Start',
 			ON_TIME_START: 'On Time Start',
 			OVERDUE: 'Overdue',
@@ -498,6 +568,8 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	getSlaStatusClass(status: string): string {
 		const classes: Record<string, string> = {
 			ASSIGNED: 'sla-assigned',
+			SCHEDULED: 'sla-assigned',
+			ON_SCHEDULE: 'sla-on-time',
 			LATE_START: 'sla-late',
 			ON_TIME_START: 'sla-on-time',
 			OVERDUE: 'sla-overdue',
@@ -574,6 +646,8 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 						overview?.summary || this.createEmptySummary();
 
 					this.assignments = overview?.assignments || [];
+					this.worklistPage = Math.min(this.worklistPage, this.worklistTotalPages);
+					this.loadUnitImages(this.assignments);
 
 					if (initializeOptions || this.assignments.length > 0) {
 						this.buildFilterOptions(this.assignments);
@@ -593,6 +667,98 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 						'Failed to load equipment monitoring data.';
 				},
 			});
+	}
+
+	getUnitImageUrl(unitUuid?: string | null): string | null {
+		if (!unitUuid || this.unavailableUnitImages.has(unitUuid)) return null;
+		return this.unitImageUrls.get(unitUuid) || null;
+	}
+
+	openUnitImagePreview(unitUuid?: string | null): void {
+		if (!unitUuid || !this.getUnitImageUrl(unitUuid)) {
+			return;
+		}
+
+		this.previewUnitUuid = unitUuid;
+		const dialogRef = this.dialog.open(this.unitImagePreviewDialog, {
+			width: '1040px',
+			maxWidth: '94vw',
+			maxHeight: '92vh',
+			autoFocus: false,
+			restoreFocus: true,
+			panelClass: 'equipment-unit-image-preview-dialog',
+		});
+
+		this.unitImagePreviewDialogRef = dialogRef;
+		dialogRef.afterClosed().subscribe(() => {
+			if (this.unitImagePreviewDialogRef !== dialogRef) {
+				return;
+			}
+
+			this.previewUnitUuid = null;
+			this.unitImagePreviewDialogRef = null;
+		});
+	}
+
+	closeUnitImagePreview(): void {
+		this.unitImagePreviewDialogRef?.close();
+	}
+
+	get previewAssignment(): MonitoringAssignment | null {
+		if (!this.previewUnitUuid) {
+			return null;
+		}
+
+		return (
+			this.assignments.find(
+				(assignment) =>
+					assignment.equipmentUnitUuid === this.previewUnitUuid,
+			) || null
+		);
+	}
+
+	get previewUnitImageUrl(): string | null {
+		return this.previewUnitUuid
+			? this.getUnitImageUrl(this.previewUnitUuid)
+			: null;
+	}
+
+	private loadUnitImages(assignments: MonitoringAssignment[]): void {
+		this.imageLoadVersion += 1;
+		const currentVersion = this.imageLoadVersion;
+		this.releaseUnitImages();
+		this.unavailableUnitImages.clear();
+		const unitUuids = Array.from(
+			new Set(
+				assignments
+					.map((assignment) => assignment.equipmentUnitUuid)
+					.filter((uuid): uuid is string => Boolean(uuid)),
+			),
+		);
+		unitUuids.forEach((unitUuid) => {
+			this.requestService
+				.getUnitImage(unitUuid)
+				.pipe(takeUntil(this.destroy$))
+				.subscribe({
+					next: (blob) => {
+						if (currentVersion !== this.imageLoadVersion) return;
+						this.unitImageUrls.set(
+							unitUuid,
+							URL.createObjectURL(blob),
+						);
+					},
+					error: () => {
+						if (currentVersion === this.imageLoadVersion)
+							this.unavailableUnitImages.add(unitUuid);
+					},
+				});
+		});
+	}
+
+	private releaseUnitImages(): void {
+		this.unitImageUrls.forEach((url) => URL.revokeObjectURL(url));
+		this.unitImageUrls.clear();
+		this.previewUnitUuid = null;
 	}
 
 	private buildQueryParams(): HttpParams {
@@ -800,7 +966,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 			activeOperation: 0,
 			waitingStart: 0,
 			overdue: 0,
-			lateStart: 0,
+			onSchedule: 0,
 			completedToday: 0,
 			availableUnit: 0,
 			maintenanceUnit: 0,

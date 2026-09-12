@@ -1,5 +1,7 @@
 :host {
 	display: block;
+	height: 100%;
+	overflow: hidden;
 	color: #4b5565;
 
 	--icon-bg: #eef5ff;
@@ -16,6 +18,10 @@
 
 .dialog-shell {
 	position: relative;
+	display: flex;
+	height: 100%;
+	max-height: 94vh;
+	flex-direction: column;
 	background: #fff;
 	overflow: hidden;
 }
@@ -98,9 +104,11 @@
 }
 
 mat-dialog-content {
+	min-height: 0;
+	max-height: none !important;
+	flex: 1 1 auto;
 	padding: 0 !important;
-	min-height: 560px;
-	max-height: calc(100vh - 155px) !important;
+	overflow-y: auto;
 	background: #fbfcfd;
 }
 
@@ -708,9 +716,12 @@ mat-dialog-content {
 
 .equipment-detail-visual {
 	display: flex;
+	align-self: center;
 	align-items: stretch;
 	justify-content: stretch;
-	min-height: 110px;
+	width: 100%;
+	min-height: 0;
+	aspect-ratio: 4 / 3;
 	overflow: hidden;
 	border: 1px solid #e5eaf0;
 	border-radius: 11px;
@@ -722,7 +733,7 @@ mat-dialog-content {
 	display: block;
 	width: 100%;
 	height: 100%;
-	min-height: 110px;
+	min-height: 0;
 	padding: 0;
 	overflow: hidden;
 	border: 0;
@@ -734,7 +745,7 @@ mat-dialog-content {
 	display: block;
 	width: 100%;
 	height: 100%;
-	min-height: 110px;
+	min-height: 0;
 	object-fit: cover;
 	transition: transform 0.22s ease;
 }
@@ -770,7 +781,8 @@ mat-dialog-content {
 .equipment-detail-fallback {
 	display: flex;
 	width: 100%;
-	min-height: 110px;
+	height: 100%;
+	min-height: 0;
 	align-items: center;
 	justify-content: center;
 	background: linear-gradient(145deg, #f3f7fb, #eef4fb);
@@ -1208,6 +1220,7 @@ mat-dialog-content {
 
 mat-dialog-actions {
 	display: flex;
+	flex: 0 0 auto;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
@@ -1331,14 +1344,15 @@ mat-dialog-actions {
 	}
 
 	.equipment-detail-visual {
-		min-height: 180px;
+		min-height: 0;
+		aspect-ratio: 16 / 9;
 		order: -1;
 	}
 
 	.equipment-detail-image-button,
 	.equipment-detail-image-button > img,
 	.equipment-detail-fallback {
-		min-height: 180px;
+		min-height: 0;
 	}
 
 	.unit-image-preview-backdrop {
@@ -1365,3 +1379,255 @@ mat-dialog-actions {
 		max-width: 100%;
 	}
 }
+
+.request-journey .journey-card {
+	transition:
+		border-color 160ms ease,
+		box-shadow 160ms ease,
+		opacity 160ms ease;
+}
+
+.request-journey .journey-description {
+	padding: 14px 20px 6px;
+	color: #5e6b7c;
+	font-size: 12px;
+	line-height: 1.55;
+}
+
+.request-journey .journey-meta {
+	margin: 10px 18px 14px 20px;
+}
+
+.journey-row.journey-current .journey-card {
+	border-color: #bfd8ff;
+	box-shadow: 0 7px 20px rgba(63, 140, 255, 0.08);
+}
+
+.journey-row.journey-current .journey-card::before {
+	background: #3f8cff;
+}
+
+.journey-row.journey-current .journey-icon {
+	border-color: #cfe0ff;
+	background: #eef5ff;
+	color: #2f78df;
+}
+
+.journey-row.journey-completed .journey-card::before {
+	background: #75b984;
+}
+
+.journey-row.journey-completed .journey-icon {
+	border-color: #d8ecdd;
+	background: #eef8f1;
+	color: #4f8a5b;
+}
+
+.journey-row.journey-upcoming .journey-card {
+	opacity: 0.72;
+}
+
+.journey-row.journey-upcoming .journey-icon {
+	border-color: #e4e9ef;
+	background: #f6f8fa;
+	color: #8c98a7;
+}
+
+.journey-row.journey-upcoming .journey-status {
+	border-color: #e2e7ed;
+	background: #f3f5f7;
+	color: #7b8794;
+}
+
+.journey-row.journey-rejected .journey-card {
+	border-color: #f0d4d7;
+}
+
+.journey-row.journey-rejected .journey-card::before {
+	background: #c86a72;
+}
+
+.journey-row.journey-rejected .journey-icon {
+	border-color: #f0d6d9;
+	background: #faeeee;
+	color: #a85b62;
+}
+
+.journey-row.journey-rejected .journey-status {
+	border-color: #f0d6d9;
+	background: #faeeee;
+	color: #a85b62;
+}
+
+/* Compact request journey and activity timeline. Keeps the existing information
+   hierarchy while reducing vertical travel at the 100% browser baseline. */
+.approval-history-content,
+.activity-history-content {
+	.section-heading {
+		margin-bottom: 10px;
+	}
+}
+
+.request-journey,
+.activity-timeline {
+	padding-top: 0;
+}
+
+.request-journey .timeline-row,
+.activity-timeline-row {
+	gap: 11px;
+}
+
+.request-journey .timeline-marker,
+.activity-marker {
+	flex-basis: 32px;
+}
+
+.request-journey .timeline-icon,
+.activity-icon {
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
+	font-size: 12px;
+	box-shadow: 0 3px 9px rgba(63, 140, 255, 0.06);
+}
+
+.request-journey .timeline-line,
+.activity-line {
+	min-height: 34px;
+}
+
+.request-journey .timeline-card,
+.activity-card {
+	margin-bottom: 9px;
+	border-radius: 10px;
+	box-shadow: 0 3px 11px rgba(35, 51, 72, 0.028);
+}
+
+.request-journey .approval-card-header {
+	padding: 9px 13px 8px 15px;
+}
+
+.request-journey .approval-card-header > div {
+	gap: 1px;
+}
+
+.request-journey .approval-card-header strong,
+.activity-card-header strong {
+	font-size: 12px;
+}
+
+.request-journey .approval-stage-label,
+.activity-sequence {
+	font-size: 8px;
+}
+
+.request-journey .approval-status {
+	padding: 3px 7px;
+	font-size: 8px;
+}
+
+.request-journey .journey-description {
+	padding: 8px 15px 4px;
+	font-size: 11px;
+	line-height: 1.4;
+}
+
+.request-journey .journey-meta {
+	margin: 5px 13px 8px 15px;
+	padding: 7px 10px;
+	gap: 6px 12px;
+	font-size: 10px;
+}
+
+.activity-card-header {
+	padding: 9px 13px 7px 15px;
+}
+
+.activity-heading {
+	gap: 1px;
+}
+
+.activity-time {
+	padding: 3px 7px;
+	font-size: 9px;
+}
+
+.activity-description {
+	padding: 0 13px 8px 15px;
+	font-size: 11px;
+	line-height: 1.4;
+}
+
+.activity-actor {
+	gap: 7px;
+	padding: 7px 13px 8px 15px;
+}
+
+.activity-actor > span {
+	width: 24px;
+	height: 24px;
+	flex-basis: 24px;
+	border-radius: 7px;
+	font-size: 10px;
+}
+
+.activity-actor small {
+	font-size: 8px;
+}
+
+.activity-actor strong {
+	font-size: 10px;
+}
+
+/* Unified activity presentation: business-friendly timeline with audit context. */
+.activity-remarks {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0 13px 8px 15px;
+	padding: 7px 9px;
+	border: 1px solid #e7ebf0;
+	border-radius: 8px;
+	background: #f8fafc;
+	color: #667587;
+}
+
+.activity-remarks > i {
+	margin-top: 2px;
+	color: #7f91a6;
+	font-size: 10px;
+}
+
+.activity-remarks > div {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.activity-remarks small {
+	color: #98a2ae;
+	font-size: 8px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.activity-remarks span {
+	font-size: 10px;
+	line-height: 1.35;
+}
+
+.request-attachments { margin-top: 1rem; }
+.request-attachments .text-section-title span { margin-left:auto; font-size:.75rem; color:#8793a6; }
+.request-attachment-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; margin-top:.65rem; }
+.request-attachment-card { display:flex; align-items:center; gap:.7rem; width:100%; min-width:0; padding:.75rem .85rem; border:1px solid #e2e8f0; border-radius:10px; background:#fff; text-align:left; color:#4d5b70; }
+.request-attachment-card:hover { border-color:#b9cff8; background:#f8fbff; }
+.request-attachment-card > i:first-child { width:24px; text-align:center; color:#4b8df8; font-size:1.15rem; }
+.request-attachment-card > i:last-child { margin-left:auto; color:#9aa6b8; font-size:.75rem; }
+.request-attachment-card span { min-width:0; flex:1; }
+.request-attachment-card strong, .request-attachment-card small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.request-attachment-card small { margin-top:.15rem; color:#8b97a9; }
+@media (max-width: 768px) { .request-attachment-list { grid-template-columns:1fr; } }
+.request-attachment-thumbnail { width:42px; height:42px; flex:0 0 42px; border-radius:8px; object-fit:cover; background:#eef3f9; }

@@ -7,7 +7,11 @@ import {
 	LookupService,
 } from 'src/app/shared/sys-lookup/lookup.service';
 
-import { DashboardOverview, HomeService } from './home.service';
+import {
+	DashboardConfig,
+	DashboardOverview,
+	HomeService,
+} from './home.service';
 
 interface PeriodOption {
 	value: string;
@@ -21,7 +25,7 @@ interface PeriodOption {
 	standalone: false,
 })
 export class HomeComponent implements OnInit, OnDestroy {
-	readonly showDashboardCharts = false;
+	showDashboardCharts = false;
 
 	private readonly chartColors = {
 		blue: '#5B7DBE',
@@ -359,10 +363,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 	) {}
 
 	ngOnInit(): void {
-		if (!this.showDashboardCharts) {
-			return;
-		}
-		this.loadPeriodOptions();
+		this.loadDashboardConfig();
 	}
 
 	ngOnDestroy(): void {
@@ -375,6 +376,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 		}
 
 		this.loadDashboard();
+	}
+
+	private loadDashboardConfig(): void {
+		const subscription = this.homeService.getConfig().subscribe({
+			next: (config: DashboardConfig) => {
+				this.showDashboardCharts = config.showDashboardCharts === true;
+
+				if (this.showDashboardCharts) {
+					this.loadPeriodOptions();
+				}
+			},
+			error: (error: unknown) => {
+				console.error('Failed to load dashboard config', error);
+				this.showDashboardCharts = false;
+			},
+		});
+
+		this.subscriptions.add(subscription);
 	}
 
 	private loadPeriodOptions(): void {

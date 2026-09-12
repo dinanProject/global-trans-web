@@ -9,7 +9,7 @@
 			<h5>Monitoring</h5>
 
 			<small class="text-secondary">
-				Monitor active equipment assignments, operational progress, and
+				Monitor equipment operations, planned schedules, completion, and
 				SLA performance across registered companies.
 			</small>
 		</div>
@@ -19,21 +19,13 @@
 				<span>Last updated</span>
 				<strong>{{
 					lastUpdatedAt | date: "dd MMM yyyy, HH:mm"
-				}}</strong>
+					}}</strong>
 			</div>
 
-			<button
-				type="button"
-				class="btn btn-outline-primary"
-				[disabled]="loading"
-				(click)="refresh()"
-			>
-				<i
-					class="fas"
-					[ngClass]="
+			<button type="button" class="btn btn-outline-primary" [disabled]="loading" (click)="refresh()">
+				<i class="fas" [ngClass]="
 						loading ? 'fa-circle-notch fa-spin' : 'fa-sync-alt'
-					"
-				></i>
+					"></i>
 				Refresh
 			</button>
 		</div>
@@ -48,11 +40,7 @@
 				<span>{{ errorMessage }}</span>
 			</div>
 
-			<button
-				type="button"
-				class="btn btn-sm btn-light"
-				(click)="refresh()"
-			>
+			<button type="button" class="btn btn-sm btn-light" (click)="refresh()">
 				Try Again
 			</button>
 		</div>
@@ -69,11 +57,8 @@
 					<div class="kpi-value">
 						<span *ngIf="!loadingSummary">{{
 							summary.activeOperation
-						}}</span>
-						<span
-							class="skeleton skeleton-value"
-							*ngIf="loadingSummary"
-						></span>
+							}}</span>
+						<span class="skeleton skeleton-value" *ngIf="loadingSummary"></span>
 					</div>
 
 					<small>Equipment currently in operation</small>
@@ -86,19 +71,16 @@
 				</div>
 
 				<div class="kpi-content">
-					<span class="kpi-label">Waiting Start</span>
+					<span class="kpi-label">Scheduled</span>
 
 					<div class="kpi-value">
 						<span *ngIf="!loadingSummary">
 							{{ summary.waitingStart }}
 						</span>
-						<span
-							class="skeleton skeleton-value"
-							*ngIf="loadingSummary"
-						></span>
+						<span class="skeleton skeleton-value" *ngIf="loadingSummary"></span>
 					</div>
 
-					<small>Assigned units not yet started</small>
+					<small>Scheduled units before planned start</small>
 				</div>
 			</article>
 
@@ -113,11 +95,8 @@
 					<div class="kpi-value">
 						<span *ngIf="!loadingSummary">{{
 							summary.overdue
-						}}</span>
-						<span
-							class="skeleton skeleton-value"
-							*ngIf="loadingSummary"
-						></span>
+							}}</span>
+						<span class="skeleton skeleton-value" *ngIf="loadingSummary"></span>
 					</div>
 
 					<small>Operations exceeding planned end</small>
@@ -130,19 +109,16 @@
 				</div>
 
 				<div class="kpi-content">
-					<span class="kpi-label">Late Start</span>
+					<span class="kpi-label">On Schedule</span>
 
 					<div class="kpi-value">
 						<span *ngIf="!loadingSummary">{{
-							summary.lateStart
-						}}</span>
-						<span
-							class="skeleton skeleton-value"
-							*ngIf="loadingSummary"
-						></span>
+							summary.onSchedule
+							}}</span>
+						<span class="skeleton skeleton-value" *ngIf="loadingSummary"></span>
 					</div>
 
-					<small>Started after planned schedule</small>
+					<small>Operations currently within planned period</small>
 				</div>
 			</article>
 
@@ -158,10 +134,7 @@
 						<span *ngIf="!loadingSummary">
 							{{ summary.completedToday }}
 						</span>
-						<span
-							class="skeleton skeleton-value"
-							*ngIf="loadingSummary"
-						></span>
+						<span class="skeleton skeleton-value" *ngIf="loadingSummary"></span>
 					</div>
 
 					<small>Operations completed today</small>
@@ -179,21 +152,18 @@
 					<div class="kpi-value">
 						<span *ngIf="!loadingSummary">{{
 							summary.availableUnit
-						}}</span>
-						<span
-							class="skeleton skeleton-value"
-							*ngIf="loadingSummary"
-						></span>
+							}}</span>
+						<span class="skeleton skeleton-value" *ngIf="loadingSummary"></span>
 					</div>
 
 					<div class="kpi-secondary-info">
-						<small>Units ready for assignment</small>
+						<small>Units currently available</small>
 
 						@if (!loadingSummary) {
-							<span class="maintenance-count">
-								<i class="fas fa-tools"></i>
-								Maintenance: {{ summary.maintenanceUnit }}
-							</span>
+						<span class="maintenance-count">
+							<i class="fas fa-tools"></i>
+							Maintenance: {{ summary.maintenanceUnit }}
+						</span>
 						}
 					</div>
 				</div>
@@ -212,12 +182,8 @@
 							</p>
 						</div>
 
-						<button
-							type="button"
-							class="btn btn-link btn-sm reset-button"
-							[disabled]="!hasActiveFilters || loadingAssignments"
-							(click)="resetFilters()"
-						>
+						<button type="button" class="btn btn-link btn-sm reset-button"
+							[disabled]="!hasActiveFilters || loadingAssignments" (click)="resetFilters()">
 							<i class="fas fa-rotate-left"></i>
 							Reset Filters
 						</button>
@@ -230,32 +196,20 @@
 							<div class="input-icon">
 								<i class="fas fa-search"></i>
 
-								<input
-									id="monitoringSearch"
-									type="text"
-									class="form-control"
-									[(ngModel)]="filters.search"
-									(ngModelChange)="onSearchChange($event)"
-									placeholder="Equipment, request no, company, asset number..."
-								/>
+								<input id="monitoringSearch" type="text" class="form-control"
+									[(ngModel)]="filters.search" (ngModelChange)="onSearchChange($event)"
+									placeholder="Equipment, request no, company, asset number..." />
 							</div>
 						</div>
 
 						<div class="form-group">
 							<label for="monitoringCompany">Company</label>
 
-							<select
-								id="monitoringCompany"
-								class="form-control"
-								[(ngModel)]="filters.companyUuid"
-								(ngModelChange)="onCompanyChange()"
-							>
+							<select id="monitoringCompany" class="form-control" [(ngModel)]="filters.companyUuid"
+								(ngModelChange)="onCompanyChange()">
 								<option value="">All Companies</option>
 
-								<option
-									*ngFor="let company of companyOptions"
-									[value]="company.uuid"
-								>
+								<option *ngFor="let company of companyOptions" [value]="company.uuid">
 									{{ company.code }} — {{ company.name }}
 								</option>
 							</select>
@@ -264,20 +218,13 @@
 						<div class="form-group">
 							<label for="monitoringDivision">Division</label>
 
-							<select
-								id="monitoringDivision"
-								class="form-control"
-								[(ngModel)]="filters.divisionUuid"
-								(ngModelChange)="onFilterChange()"
-							>
+							<select id="monitoringDivision" class="form-control" [(ngModel)]="filters.divisionUuid"
+								(ngModelChange)="onFilterChange()">
 								<option value="">All Divisions</option>
 
-								<option
-									*ngFor="
+								<option *ngFor="
 										let division of filteredDivisionOptions
-									"
-									[value]="division.uuid"
-								>
+									" [value]="division.uuid">
 									{{ division.code }} — {{ division.name }}
 								</option>
 							</select>
@@ -286,18 +233,11 @@
 						<div class="form-group">
 							<label for="monitoringEquipment">Equipment</label>
 
-							<select
-								id="monitoringEquipment"
-								class="form-control"
-								[(ngModel)]="filters.equipmentUuid"
-								(ngModelChange)="onFilterChange()"
-							>
+							<select id="monitoringEquipment" class="form-control" [(ngModel)]="filters.equipmentUuid"
+								(ngModelChange)="onFilterChange()">
 								<option value="">All Equipment</option>
 
-								<option
-									*ngFor="let equipment of equipmentOptions"
-									[value]="equipment.uuid"
-								>
+								<option *ngFor="let equipment of equipmentOptions" [value]="equipment.uuid">
 									{{ equipment.code }} — {{ equipment.name }}
 								</option>
 							</select>
@@ -306,18 +246,14 @@
 						<div class="form-group">
 							<label for="monitoringStatus">Status</label>
 
-							<select
-								id="monitoringStatus"
-								class="form-control"
-								[(ngModel)]="filters.status"
-								(ngModelChange)="onFilterChange()"
-							>
+							<select id="monitoringStatus" class="form-control" [(ngModel)]="filters.status"
+								(ngModelChange)="onFilterChange()">
 								<option value="ACTIVE">Active / Today</option>
 								<option value="ALL">All Statuses</option>
 
 								<optgroup label="Operation">
-									<option value="ASSIGNED">Assigned</option>
-									<option value="RUNNING">Running</option>
+									<option value="SCHEDULED">Scheduled</option>
+									<option value="RUNNING">In Operation</option>
 									<option value="COMPLETED">Completed</option>
 								</optgroup>
 
@@ -342,42 +278,29 @@
 						<div class="form-group">
 							<label for="monitoringStartDate">Start Date</label>
 
-							<input
-								id="monitoringStartDate"
-								type="date"
-								class="form-control"
-								[(ngModel)]="filters.startDate"
-								(ngModelChange)="onFilterChange()"
-							/>
+							<input id="monitoringStartDate" type="date" class="form-control"
+								[(ngModel)]="filters.startDate" (ngModelChange)="onFilterChange()" />
 						</div>
 
 						<div class="form-group">
 							<label for="monitoringEndDate">End Date</label>
 
-							<input
-								id="monitoringEndDate"
-								type="date"
-								class="form-control"
-								[(ngModel)]="filters.endDate"
-								(ngModelChange)="onFilterChange()"
-							/>
+							<input id="monitoringEndDate" type="date" class="form-control" [(ngModel)]="filters.endDate"
+								(ngModelChange)="onFilterChange()" />
 						</div>
 
 						<div class="form-group overdue-filter">
 							<div class="filter-label">SLA Filter</div>
 
 							<label class="overdue-toggle label-no-colon">
-								<input
-									type="checkbox"
-									[(ngModel)]="filters.overdueOnly"
-									(ngModelChange)="onFilterChange()"
-								/>
+								<input type="checkbox" [(ngModel)]="filters.overdueOnly"
+									(ngModelChange)="onFilterChange()" />
 
 								<span class="toggle-control"></span>
 
 								<span class="toggle-label">
 									<strong>Overdue Only</strong>
-									<small>Show overdue assignments only</small>
+									<small>Show overdue operations only</small>
 								</span>
 							</label>
 						</div>
@@ -393,291 +316,256 @@
 						<div class="title-row">
 							<h6>
 								@if (viewMode === "CALENDAR") {
-									Equipment Assignment Calendar
+								Operation Units Calendar
 								} @else {
-									Equipment Assignment Worklist
+								Operation Units Worklist
 								}
 							</h6>
 
 							@if (!loadingAssignments) {
-								<span class="record-count">
-									{{ assignments.length }}
-									{{
-										assignments.length === 1
-											? "record"
-											: "records"
-									}}
-								</span>
+							<span class="record-count">
+								{{ assignments.length }}
+								{{
+								assignments.length === 1
+								? "record"
+								: "records"
+								}}
+							</span>
 							}
 						</div>
 
 						<p>
 							@if (viewMode === "CALENDAR") {
-								Planned assignment schedule across the selected
-								calendar horizon.
+							Planned operational schedule across the selected
+							calendar horizon.
 							} @else {
-								Assignment-level operational visibility and SLA
-								monitoring.
+							Assignment-level operational visibility and SLA
+							monitoring.
 							}
 						</p>
 					</div>
 
 					<div class="monitoring-view-actions">
 						<div class="view-toggle" aria-label="Monitoring view">
-							<button
-								type="button"
-								[class.active]="viewMode === 'WORKLIST'"
-								(click)="setViewMode('WORKLIST')"
-							>
+							<button type="button" [class.active]="viewMode === 'WORKLIST'"
+								(click)="setViewMode('WORKLIST')">
 								<i class="fas fa-list"></i>
 								Worklist
 							</button>
 
-							<button
-								type="button"
-								[class.active]="viewMode === 'CALENDAR'"
-								(click)="setViewMode('CALENDAR')"
-							>
+							<button type="button" [class.active]="viewMode === 'CALENDAR'"
+								(click)="setViewMode('CALENDAR')">
 								<i class="fas fa-calendar-alt"></i>
 								Calendar
 							</button>
 						</div>
 
 						@if (viewMode === "CALENDAR") {
-							<div class="calendar-horizon">
-								<span>{{ calendarRangeLabel }}</span>
+						<div class="calendar-horizon">
+							<span>{{ calendarRangeLabel }}</span>
 
-								<div class="horizon-toggle">
-									<button
-										type="button"
-										[class.active]="calendarHorizon === 14"
-										(click)="setCalendarHorizon(14)"
-									>
-										2 Weeks
-									</button>
+							<div class="horizon-toggle">
+								<button type="button" [class.active]="calendarHorizon === 14"
+									(click)="setCalendarHorizon(14)">
+									2 Weeks
+								</button>
 
-									<button
-										type="button"
-										[class.active]="calendarHorizon === 30"
-										(click)="setCalendarHorizon(30)"
-									>
-										1 Month
-									</button>
-								</div>
+								<button type="button" [class.active]="calendarHorizon === 30"
+									(click)="setCalendarHorizon(30)">
+									1 Month
+								</button>
 							</div>
+						</div>
 						}
 					</div>
 				</div>
 
 				@if (loadingAssignments) {
-					<div class="table-loading">
-						@for (item of loadingRows; track $index) {
-							<div class="loading-row">
-								<span
-									class="skeleton skeleton-equipment"
-								></span>
-								<span class="skeleton"></span>
-								<span class="skeleton"></span>
-								<span class="skeleton"></span>
-								<span class="skeleton"></span>
-								<span class="skeleton skeleton-status"></span>
-							</div>
-						}
+				<div class="table-loading">
+					@for (item of loadingRows; track $index) {
+					<div class="loading-row">
+						<span class="skeleton skeleton-equipment"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton"></span>
+						<span class="skeleton skeleton-status"></span>
 					</div>
+					}
+				</div>
 				} @else if (assignments.length === 0) {
-					<div class="empty-state">
-						<div class="empty-icon">
-							<i class="fas fa-clipboard-check"></i>
-						</div>
-
-						<h5>No monitoring records found</h5>
-
-						<p>
-							There are no equipment assignments matching the
-							current filters.
-						</p>
-
-						@if (hasActiveFilters) {
-							<button
-								type="button"
-								class="btn btn-outline-primary"
-								(click)="resetFilters()"
-							>
-								Clear Filters
-							</button>
-						}
+				<div class="empty-state">
+					<div class="empty-icon">
+						<i class="fas fa-clipboard-check"></i>
 					</div>
+
+					<h5>No monitoring records found</h5>
+
+					<p>
+						There are no equipment operations matching the
+						current filters.
+					</p>
+
+					@if (hasActiveFilters) {
+					<button type="button" class="btn btn-outline-primary" (click)="resetFilters()">
+						Clear Filters
+					</button>
+					}
+				</div>
 				} @else if (viewMode === "WORKLIST") {
-					<div class="worklist-table-wrapper">
-						<table class="worklist-table">
-							<thead>
-								<tr>
-									<th>Equipment</th>
-									<th>Organization</th>
-									<th>Request</th>
-									<th>Operation Status</th>
-									<th>Schedule</th>
-									<th>SLA</th>
-								</tr>
-							</thead>
+				<div class="worklist-table-wrapper">
+					<table class="worklist-table">
+						<thead>
+							<tr>
+								<th>Equipment</th>
+								<th>Organization</th>
+								<th>Request</th>
+								<th>Operation Status</th>
+								<th>Schedule</th>
+								<th>SLA</th>
+							</tr>
+						</thead>
 
-							<tbody>
-								<tr
-									*ngFor="
-										let assignment of assignments;
+						<tbody>
+							<tr *ngFor="
+										let assignment of paginatedAssignments;
 										trackBy: trackByUuid
-									"
-								>
-									<td>
-										<div class="equipment-cell">
-											<div class="equipment-icon">
-												<img
-													[src]="
-														getEquipmentIcon(
-															assignment.equipmentCategoryIcon
-														)
-													"
-													[alt]="
-														assignment.equipmentCategoryName ||
-														assignment.equipmentUnitName
-													"
-												/>
-											</div>
+									">
+								<td>
+									<div class="equipment-cell">
+										@if (getUnitImageUrl(assignment.equipmentUnitUuid); as imageUrl) {
+										<button type="button" class="equipment-icon equipment-image-button"
+											aria-label="Preview equipment unit image"
+											(click)="openUnitImagePreview(assignment.equipmentUnitUuid); $event.stopPropagation()">
+											<img [src]="imageUrl" [alt]="assignment.equipmentUnitName" />
+										</button>
+										} @else {
+										<div class="equipment-icon">
+											<img [src]="getEquipmentIcon(assignment.equipmentCategoryIcon)"
+												[alt]="assignment.equipmentCategoryName || assignment.equipmentUnitName" />
+										</div>
+										}
 
-											<div>
-												<strong>{{
-													assignment.equipmentUnitName
+										<div>
+											<strong>{{
+												assignment.equipmentUnitName
 												}}</strong>
 
-												<div class="equipment-meta">
-													<span>{{
-														assignment.equipmentUnitCode
+											<div class="equipment-meta">
+												<span>{{
+													assignment.equipmentUnitCode
 													}}</span>
 
-													<span
-														*ngIf="
+												<span *ngIf="
 															assignment.assetNumber
-														"
-													>
-														Asset
-														{{
-															assignment.assetNumber
-														}}
-													</span>
-												</div>
-
-												<small
-													*ngIf="
-														assignment.equipmentCategoryName
-													"
-												>
+														">
+													Asset
 													{{
-														assignment.equipmentCategoryName
+													assignment.assetNumber
 													}}
-												</small>
+												</span>
 											</div>
+
+											<small *ngIf="
+														assignment.equipmentCategoryName
+													">
+												{{
+												assignment.equipmentCategoryName
+												}}
+											</small>
 										</div>
-									</td>
+									</div>
+								</td>
 
-									<td>
-										<div class="primary-text">
-											{{ assignment.companyName || "—" }}
-										</div>
+								<td>
+									<div class="primary-text">
+										{{ assignment.companyName || "—" }}
+									</div>
 
-										<small>
-											{{
-												assignment.divisionName ||
-													"No division"
-											}}
-										</small>
-									</td>
+									<small>
+										{{
+										assignment.divisionName ||
+										"No division"
+										}}
+									</small>
+								</td>
 
-									<td>
-										<div class="request-number">
-											{{ assignment.requestNo }}
-										</div>
+								<td>
+									<div class="request-number">
+										{{ assignment.requestNo }}
+									</div>
 
-										<small>
-											{{
-												assignment.requestDate
-													| date: "dd MMM yyyy"
-											}}
-										</small>
-									</td>
+									<small>
+										{{
+										assignment.requestDate
+										| date: "dd MMM yyyy"
+										}}
+									</small>
+								</td>
 
-									<td>
-										<span
-											class="status-badge"
-											[ngClass]="
+								<td>
+									<span class="status-badge" [ngClass]="
 												getOperationStatusClass(
 													assignment.operationStatus
 												)
-											"
-										>
-											<i
-												class="fas"
-												[ngClass]="
+											">
+										<i class="fas" [ngClass]="
 													getOperationStatusIcon(
 														assignment.operationStatus
 													)
-												"
-											></i>
+												"></i>
 
-											{{
-												getOperationStatusLabel(
-													assignment.operationStatus
-												)
-											}}
-										</span>
-									</td>
+										{{
+										getOperationStatusLabel(
+										assignment.operationStatus
+										)
+										}}
+									</span>
+								</td>
 
-									<td>
-										<div class="schedule-cell">
-											<div>
-												<span>Start</span>
-												<strong>
-													{{
-														assignment.plannedStartDate
-															| date
-																: "dd MMM yyyy"
-													}}
-												</strong>
-											</div>
-
-											<i class="fas fa-arrow-right"></i>
-
-											<div>
-												<span>End</span>
-												<strong>
-													{{
-														assignment.plannedEndDate
-															| date
-																: "dd MMM yyyy"
-													}}
-												</strong>
-											</div>
+								<td>
+									<div class="schedule-cell">
+										<div>
+											<span>Start</span>
+											<strong>
+												{{
+												assignment.plannedStartDate
+												| date
+												: "dd MMM yyyy"
+												}}
+											</strong>
 										</div>
-									</td>
 
-									<td>
-										<div class="sla-cell">
-											<span
-												class="sla-badge"
-												[ngClass]="
+										<i class="fas fa-arrow-right"></i>
+
+										<div>
+											<span>End</span>
+											<strong>
+												{{
+												assignment.plannedEndDate
+												| date
+												: "dd MMM yyyy"
+												}}
+											</strong>
+										</div>
+									</div>
+								</td>
+
+								<td>
+									<div class="sla-cell">
+										<span class="sla-badge" [ngClass]="
 													getSlaStatusClass(
 														assignment.slaStatus
 													)
-												"
-											>
-												{{
-													getSlaStatusLabel(
-														assignment.slaStatus
-													)
-												}}
-											</span>
+												">
+											{{
+											getSlaStatusLabel(
+											assignment.slaStatus
+											)
+											}}
+										</span>
 
-											<small
-												[ngClass]="{
+										<small [ngClass]="{
 													'text-danger':
 														assignment.remainingDays !==
 															null &&
@@ -686,287 +574,288 @@
 													'text-warning':
 														assignment.remainingDays ===
 														0,
-												}"
-											>
-												{{
-													getRemainingDaysLabel(
-														assignment
-													)
-												}}
-											</small>
-										</div>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				} @else {
-					<div class="calendar-desktop">
-						<div class="calendar-wrapper">
-							<div
-								class="calendar-grid"
-								[class.calendar-month]="calendarHorizon === 30"
-							>
-								<div class="calendar-corner">
-									Equipment / Request
-								</div>
+												}">
+											{{
+											getRemainingDaysLabel(
+											assignment
+											)
+											}}
+										</small>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 
-								<div
-									class="calendar-days"
-									[style.grid-template-columns]="
+				@if (assignments.length > worklistPageSize) {
+				<div class="worklist-pagination" aria-label="Monitoring worklist pagination">
+					<span class="pagination-range">
+						{{ worklistRangeStart }}–{{ worklistRangeEnd }} of {{ assignments.length }}
+					</span>
+
+					<div class="pagination-controls">
+						<button type="button" class="pagination-button" aria-label="Previous page"
+							[disabled]="worklistPage === 1" (click)="goToPreviousWorklistPage()">
+							<i class="fas fa-chevron-left"></i>
+						</button>
+
+						<span class="pagination-page">{{ worklistPage }} / {{ worklistTotalPages }}</span>
+
+						<button type="button" class="pagination-button" aria-label="Next page"
+							[disabled]="worklistPage === worklistTotalPages" (click)="goToNextWorklistPage()">
+							<i class="fas fa-chevron-right"></i>
+						</button>
+					</div>
+				</div>
+				}
+				} @else {
+				<div class="calendar-desktop">
+					<div class="calendar-wrapper">
+						<div class="calendar-grid" [class.calendar-month]="calendarHorizon === 30">
+							<div class="calendar-corner">
+								Equipment / Request
+							</div>
+
+							<div class="calendar-days" [style.grid-template-columns]="
 										'repeat(' +
 										calendarDays.length +
 										', minmax(52px, 1fr))'
-									"
-								>
-									@for (day of calendarDays; track day.key) {
-										<div
-											class="calendar-day"
-											[class.today]="day.isToday"
-										>
-											<span>{{ day.dayLabel }}</span>
-											<strong>{{ day.dateLabel }}</strong>
-										</div>
+									">
+								@for (day of calendarDays; track day.key) {
+								<div class="calendar-day" [class.today]="day.isToday">
+									<span>{{ day.dayLabel }}</span>
+									<strong>{{ day.dateLabel }}</strong>
+								</div>
+								}
+							</div>
+
+							@for (
+							assignment of assignments;
+							track assignment.uuid
+							) {
+							<div class="calendar-label">
+								<div class="calendar-equipment-name">
+									<strong>
+										{{
+										assignment.equipmentUnitName
+										}}
+									</strong>
+
+									<span>
+										{{
+										assignment.equipmentUnitCode
+										}}
+									</span>
+								</div>
+
+								<small>
+									{{ assignment.requestNo }} ·
+									{{ assignment.companyName || "—" }}
+								</small>
+							</div>
+
+							<div class="calendar-track">
+								<div class="calendar-track-days" [style.grid-template-columns]="
+												'repeat(' +
+												calendarDays.length +
+												', minmax(52px, 1fr))'
+											">
+									@for (
+									day of calendarDays;
+									track day.key
+									) {
+									<span [class.today]="day.isToday"></span>
 									}
 								</div>
 
-								@for (
-									assignment of assignments;
-									track assignment.uuid
-								) {
-									<div class="calendar-label">
-										<div class="calendar-equipment-name">
+								<div class="calendar-bar" [ngClass]="
+												getCalendarBarClass(assignment)
+											" [ngStyle]="
+												getCalendarBarStyle(assignment)
+											" [title]="
+												getCalendarTooltip(assignment)
+											">
+									<span>
+										{{ assignment.requestNo }}
+									</span>
+								</div>
+							</div>
+							}
+						</div>
+					</div>
+				</div>
+
+				<div class="calendar-mobile-agenda">
+					@for (group of calendarAgendaGroups; track group.key) {
+					<section class="agenda-group">
+						<div class="agenda-date" [class.today]="group.isToday">
+							<div>
+								<span>{{ group.dayLabel }}</span>
+								<strong>{{ group.dateLabel }}</strong>
+							</div>
+
+							<small>
+								{{ group.assignments.length }}
+								{{
+								group.assignments.length === 1
+								? "operation"
+								: "operations"
+								}}
+							</small>
+						</div>
+
+						<div class="agenda-list">
+							@for (
+							assignment of group.assignments;
+							track assignment.uuid
+							) {
+							<article class="agenda-card">
+								<div class="agenda-card-header">
+									<div>
+										<div class="agenda-equipment">
 											<strong>
 												{{
-													assignment.equipmentUnitName
+												assignment.equipmentUnitName
 												}}
 											</strong>
 
 											<span>
 												{{
-													assignment.equipmentUnitCode
+												assignment.equipmentUnitCode
 												}}
 											</span>
 										</div>
 
-										<small>
-											{{ assignment.requestNo }} ·
-											{{ assignment.companyName || "—" }}
-										</small>
-									</div>
-
-									<div class="calendar-track">
-										<div
-											class="calendar-track-days"
-											[style.grid-template-columns]="
-												'repeat(' +
-												calendarDays.length +
-												', minmax(52px, 1fr))'
-											"
-										>
-											@for (
-												day of calendarDays;
-												track day.key
-											) {
-												<span
-													[class.today]="day.isToday"
-												></span>
-											}
-										</div>
-
-										<div
-											class="calendar-bar"
-											[ngClass]="
-												getCalendarBarClass(assignment)
-											"
-											[ngStyle]="
-												getCalendarBarStyle(assignment)
-											"
-											[title]="
-												getCalendarTooltip(assignment)
-											"
-										>
-											<span>
-												{{ assignment.requestNo }}
-											</span>
+										<div class="agenda-request">
+											{{
+											assignment.requestNo
+											}}
 										</div>
 									</div>
-								}
-							</div>
-						</div>
-					</div>
 
-					<div class="calendar-mobile-agenda">
-						@for (group of calendarAgendaGroups; track group.key) {
-							<section class="agenda-group">
-								<div
-									class="agenda-date"
-									[class.today]="group.isToday"
-								>
-									<div>
-										<span>{{ group.dayLabel }}</span>
-										<strong>{{ group.dateLabel }}</strong>
-									</div>
-
-									<small>
-										{{ group.assignments.length }}
-										{{
-											group.assignments.length === 1
-												? "assignment"
-												: "assignments"
-										}}
-									</small>
-								</div>
-
-								<div class="agenda-list">
-									@for (
-										assignment of group.assignments;
-										track assignment.uuid
-									) {
-										<article class="agenda-card">
-											<div class="agenda-card-header">
-												<div>
-													<div
-														class="agenda-equipment"
-													>
-														<strong>
-															{{
-																assignment.equipmentUnitName
-															}}
-														</strong>
-
-														<span>
-															{{
-																assignment.equipmentUnitCode
-															}}
-														</span>
-													</div>
-
-													<div class="agenda-request">
-														{{
-															assignment.requestNo
-														}}
-													</div>
-												</div>
-
-												<span
-													class="status-badge"
-													[ngClass]="
+									<span class="status-badge" [ngClass]="
 														getOperationStatusClass(
 															assignment.operationStatus
 														)
-													"
-												>
-													<i
-														class="fas"
-														[ngClass]="
+													">
+										<i class="fas" [ngClass]="
 															getOperationStatusIcon(
 																assignment.operationStatus
 															)
-														"
-													></i>
+														"></i>
 
-													{{
-														getOperationStatusLabel(
-															assignment.operationStatus
-														)
-													}}
-												</span>
-											</div>
+										{{
+										getOperationStatusLabel(
+										assignment.operationStatus
+										)
+										}}
+									</span>
+								</div>
 
-											<div class="agenda-organization">
-												<i class="fas fa-building"></i>
+								<div class="agenda-organization">
+									<i class="fas fa-building"></i>
 
-												<span>
-													{{
-														assignment.companyName ||
-															"—"
-													}}
+									<span>
+										{{
+										assignment.companyName ||
+										"—"
+										}}
 
-													@if (
-														assignment.divisionName
-													) {
-														·
-														{{
-															assignment.divisionName
-														}}
-													}
-												</span>
-											</div>
+										@if (
+										assignment.divisionName
+										) {
+										·
+										{{
+										assignment.divisionName
+										}}
+										}
+									</span>
+								</div>
 
-											<div class="agenda-schedule">
-												<div>
-													<span>Planned Start</span>
+								<div class="agenda-schedule">
+									<div>
+										<span>Planned Start</span>
 
-													<strong>
-														{{
-															assignment.plannedStartDate
-																| date
-																	: "dd MMM yyyy"
-														}}
-													</strong>
-												</div>
+										<strong>
+											{{
+											assignment.plannedStartDate
+											| date
+											: "dd MMM yyyy"
+											}}
+										</strong>
+									</div>
 
-												<i
-													class="fas fa-arrow-right"
-												></i>
+									<i class="fas fa-arrow-right"></i>
 
-												<div>
-													<span>Planned End</span>
+									<div>
+										<span>Planned End</span>
 
-													<strong>
-														{{
-															assignment.plannedEndDate
-																| date
-																	: "dd MMM yyyy"
-														}}
-													</strong>
-												</div>
-											</div>
+										<strong>
+											{{
+											assignment.plannedEndDate
+											| date
+											: "dd MMM yyyy"
+											}}
+										</strong>
+									</div>
+								</div>
 
-											<div class="agenda-card-footer">
-												<span
-													class="sla-badge"
-													[ngClass]="
+								<div class="agenda-card-footer">
+									<span class="sla-badge" [ngClass]="
 														getSlaStatusClass(
 															assignment.slaStatus
 														)
-													"
-												>
-													{{
-														getSlaStatusLabel(
-															assignment.slaStatus
-														)
-													}}
-												</span>
+													">
+										{{
+										getSlaStatusLabel(
+										assignment.slaStatus
+										)
+										}}
+									</span>
 
-												<small
-													[class.text-danger]="
+									<small [class.text-danger]="
 														assignment.remainingDays !==
 															null &&
 														assignment.remainingDays <
 															0
-													"
-													[class.text-warning]="
+													" [class.text-warning]="
 														assignment.remainingDays ===
 														0
-													"
-												>
-													{{
-														getRemainingDaysLabel(
-															assignment
-														)
-													}}
-												</small>
-											</div>
-										</article>
-									}
+													">
+										{{
+										getRemainingDaysLabel(
+										assignment
+										)
+										}}
+									</small>
 								</div>
-							</section>
-						}
-					</div>
+							</article>
+							}
+						</div>
+					</section>
+					}
+				</div>
 				}
 			</panel-body>
 		</panel>
 	</div>
 </page-body>
+
+<ng-template #unitImagePreviewDialog>
+	@if (previewAssignment && previewUnitImageUrl) {
+	<div class="unit-image-preview-panel" role="dialog" aria-modal="true" aria-label="Equipment unit image preview">
+		<div class="unit-image-preview-title">
+			<strong>{{ previewAssignment.equipmentUnitCode }} - {{ previewAssignment.equipmentUnitName }}</strong>
+			<span>Equipment Unit Image</span>
+		</div>
+		<button type="button" class="unit-image-preview-close" aria-label="Close equipment image preview"
+			(click)="closeUnitImagePreview()">
+			<i class="fas fa-times"></i>
+		</button>
+		<div class="unit-image-preview-stage">
+			<img [src]="previewUnitImageUrl" [alt]="previewAssignment.equipmentUnitName" />
+		</div>
+	</div>
+	}
+</ng-template>

@@ -111,9 +111,20 @@ export interface RequestMaster {
 	updatedAt?: string | null;
 	details?: RequestDetail[];
 	detailCount?: number;
+	attachmentCount?: number;
 	approvals?: RequestApproval[];
 	histories?: RequestHistory[];
 	availableActions?: RequestAction[];
+}
+
+export interface RequestAttachment {
+	uuid: string;
+	originalName: string;
+	mimeType: string;
+	fileSize: number;
+	description?: string | null;
+	uploadedAt?: string | null;
+	uploadedByName?: string | null;
 }
 
 export interface RequestFilter {
@@ -252,6 +263,24 @@ export class RequestService {
 		payload: RequestPayload,
 	): Observable<RequestMaster> {
 		return this.apiService.put(`${this.baseUrl}/${requestUuid}`, payload);
+	}
+
+	getAttachments(requestUuid: string): Observable<RequestAttachment[]> {
+		return this.apiService.get(`${this.baseUrl}/${requestUuid}/attachments`);
+	}
+
+	uploadAttachment(requestUuid: string, file: File): Observable<RequestAttachment> {
+		const formData = new FormData();
+		formData.append('file', file, file.name);
+		return this.apiService.upload(`${this.baseUrl}/${requestUuid}/attachments`, formData);
+	}
+
+	downloadAttachment(requestUuid: string, attachmentUuid: string): Observable<Blob> {
+		return this.apiService.getBlob(`${this.baseUrl}/${requestUuid}/attachments/${attachmentUuid}/download`);
+	}
+
+	deleteAttachment(requestUuid: string, attachmentUuid: string): Observable<{ uuid: string }> {
+		return this.apiService.delete(`${this.baseUrl}/${requestUuid}/attachments/${attachmentUuid}`);
 	}
 
 	deleteRequest(requestUuid: string): Observable<{ uuid: string }> {

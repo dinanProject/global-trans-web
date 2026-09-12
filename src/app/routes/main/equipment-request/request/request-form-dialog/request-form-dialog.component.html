@@ -28,12 +28,7 @@
 		@if (reviewedUnit; as unit) {
 			<div class="unit-image-review-title">
 				<strong>{{ unit.unitName }}</strong>
-				<span>
-					{{ unit.unitCode }}
-					@if (unit.modelNumber) {
-						&middot; {{ unit.modelNumber }}
-					}
-				</span>
+				<span>{{ unit.unitCode }}</span>
 			</div>
 		}
 
@@ -180,6 +175,48 @@
 						placeholder="Additional notes..."
 					></textarea>
 				</div>
+				<div class="form-group attachment-field">
+					<div class="attachment-heading">
+						<div>
+							<label>Attachments</label>
+							<small>Optional supporting PDF or image, max. 5 files / 10 MB each.</small>
+						</div>
+						<label class="btn btn-light attachment-picker" [class.disabled]="attachments.length + pendingAttachments.length >= attachmentMaxCount">
+							<i class="fas fa-paperclip mr-1"></i> Add Files
+							<input type="file" hidden multiple accept="application/pdf,image/jpeg,image/png,image/gif,image/webp" (change)="selectAttachments($event)" />
+						</label>
+					</div>
+
+					@if (attachments.length || pendingAttachments.length) {
+						<div class="attachment-list">
+							@for (attachment of attachments; track attachment.uuid) {
+								<div class="attachment-item saved">
+									<i [class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+									<div><strong>{{ attachment.originalName }}</strong><small>{{ formatFileSize(attachment.fileSize) }} · Saved</small></div>
+									@if (canManageSavedAttachments) {
+										<button
+											type="button"
+											class="attachment-remove"
+											[disabled]="isDeletingAttachment(attachment.uuid)"
+											(click)="removeSavedAttachment(attachment)"
+											aria-label="Remove saved attachment"
+											title="Remove attachment"
+										>
+											<i [class]="isDeletingAttachment(attachment.uuid) ? 'fas fa-spinner fa-spin' : 'fas fa-times'"></i>
+										</button>
+									}
+								</div>
+							}
+							@for (file of pendingAttachments; track file.name + file.size; let i = $index) {
+								<div class="attachment-item">
+									<i [class]="file.type === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+									<div><strong>{{ file.name }}</strong><small>{{ formatFileSize(file.size) }} · Upload after save</small></div>
+									<button type="button" class="attachment-remove" (click)="removePendingAttachment(i)" aria-label="Remove attachment"><i class="fas fa-times"></i></button>
+								</div>
+							}
+						</div>
+					}
+				</div>
 			</section>
 
 			<section class="equipment-section">
@@ -309,9 +346,6 @@
 										{{ unit.unitCode }} -
 										{{ unit.unitName }}
 
-										<ng-container *ngIf="unit.modelNumber">
-											({{ unit.modelNumber }})
-										</ng-container>
 
 										<ng-container
 											*ngIf="
@@ -396,13 +430,7 @@
 										<strong>{{
 											selectedUnit.unitName
 										}}</strong>
-										<span
-											>{{ selectedUnit.unitCode }}
-											@if (selectedUnit.modelNumber) {
-												&middot;
-												{{ selectedUnit.modelNumber }}
-											}
-										</span>
+										<span>{{ selectedUnit.unitCode }}</span>
 									</div>
 								</div>
 							}
@@ -447,7 +475,7 @@
 
 							<div class="form-group capacity-value-field">
 								<label>
-									Required Capacity
+									Lifting Estimation
 									<span class="required">*</span>
 								</label>
 
@@ -457,7 +485,7 @@
 									formControlName="requiredCapacityValue"
 									min="0.01"
 									step="0.01"
-									placeholder="Enter required capacity"
+									placeholder="Enter lifting estimation"
 								/>
 
 								<span
@@ -470,7 +498,7 @@
 											?.hasError('required')
 									"
 								>
-									Required capacity wajib diisi.
+									Lifting estimation wajib diisi.
 								</span>
 
 								<span
@@ -483,7 +511,7 @@
 											?.hasError('min')
 									"
 								>
-									Required capacity harus lebih dari 0.
+									Lifting estimation harus lebih dari 0.
 								</span>
 							</div>
 

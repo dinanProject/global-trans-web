@@ -24,13 +24,9 @@
 			</div>
 		</div>
 
-		<button
-			type="button"
-			class="btn btn-light review-back-button"
-			(click)="backToApprovals()"
-		>
+		<button type="button" class="btn btn-light review-back-button" (click)="backToApprovals()">
 			<i class="fas fa-arrow-left"></i>
-			<span>Back to Approvals</span>
+			<span>Back to Review &amp; Approval</span>
 		</button>
 	</div>
 </page-header>
@@ -41,11 +37,7 @@
 			<loading text="Loading approval review..."></loading>
 		</div>
 
-		<div
-			*ngIf="!isLoading && !request && errorMessage"
-			class="review-alert review-alert-danger"
-			role="alert"
-		>
+		<div *ngIf="!isLoading && !request && errorMessage" class="review-alert review-alert-danger" role="alert">
 			<i class="fas fa-exclamation-circle"></i>
 
 			<div>
@@ -147,11 +139,7 @@
 			<!-- =====================================================
 			     VALIDATION MESSAGE
 			     ===================================================== -->
-			<div
-				*ngIf="errorMessage"
-				class="review-alert review-alert-danger"
-				role="alert"
-			>
+			<div *ngIf="errorMessage" class="review-alert review-alert-danger" role="alert">
 				<i class="fas fa-exclamation-circle"></i>
 
 				<div>
@@ -164,10 +152,7 @@
 				<!-- =================================================
 				     EQUIPMENT
 				     ================================================= -->
-				<section
-					class="review-section equipment-section"
-					*ngIf="request.details?.length"
-				>
+				<section class="review-section equipment-section" *ngIf="request.details?.length">
 					<div class="section-header">
 						<div>
 							<span class="section-kicker">
@@ -199,24 +184,31 @@
 							<div>Availability</div>
 						</div>
 
-						<div
-							class="equipment-row"
-							*ngFor="
+						<div class="equipment-row" *ngFor="
 								let detail of request.details;
 								let i = index
-							"
-						>
+							">
 							<!-- EQUIPMENT -->
 							<div class="equipment-column">
 								<div class="equipment-sequence">
 									{{ i + 1 }}
 								</div>
 
+								@if (getUnitImageUrl(detail.equipmentUnitUuid); as imageUrl) {
+								<button type="button" class="equipment-unit-image" aria-label="Preview equipment unit image" (click)="openUnitImagePreview(detail.equipmentUnitUuid)">
+									<img [src]="imageUrl" [alt]="detail.equipmentUnitName || detail.equipmentCategoryName || 'Equipment unit'" />
+								</button>
+								} @else {
+								<div class="equipment-unit-image equipment-unit-image-fallback">
+									<img src="assets/icons/equipment/equipment.svg" [alt]="detail.equipmentCategoryName || 'Equipment'" />
+								</div>
+								}
+
 								<div class="equipment-primary">
 									<div class="equipment-code">
 										{{
-											detail.equipmentUnitCode ||
-												"Unit belum dipilih"
+										detail.equipmentUnitCode ||
+										"Unit belum dipilih"
 										}}
 									</div>
 
@@ -226,7 +218,7 @@
 
 									<div class="equipment-category">
 										{{
-											detail.equipmentCategoryName || "—"
+										detail.equipmentCategoryName || "—"
 										}}
 									</div>
 								</div>
@@ -235,7 +227,7 @@
 							<!-- REQUIREMENT -->
 							<div class="requirement-column">
 								<span class="data-label">
-									Required Capacity
+									Lifting Estimation
 								</span>
 
 								<strong>
@@ -246,44 +238,33 @@
 
 							<!-- AVAILABILITY -->
 							<div class="availability-column">
-								<ng-container
-									*ngIf="
+								<ng-container *ngIf="
 										$any(detail)
 											.availability as availability
-									"
-								>
+									">
 									<div class="availability-heading">
-										<span
-											class="availability-status"
-											[class.is-available]="
+										<span class="availability-status" [class.is-available]="
 												availability.isAvailableForRequestedPeriod
-											"
-											[class.is-unavailable]="
+											" [class.is-unavailable]="
 												!availability.isAvailableForRequestedPeriod
-											"
-										>
-											<i
-												[class]="
+											">
+											<i [class]="
 													availability.isAvailableForRequestedPeriod
 														? 'fas fa-check-circle'
 														: 'fas fa-exclamation-circle'
-												"
-											></i>
+												"></i>
 
 											{{
-												getAvailabilityLabel(
-													availability.status,
-													availability.statusName
-												)
+											getAvailabilityLabel(
+											availability.status,
+											availability.statusName
+											)
 											}}
 										</span>
 
-										<span
-											class="conflict-reference"
-											*ngIf="
+										<span class="conflict-reference" *ngIf="
 												availability.conflictRequestNo
-											"
-										>
+											">
 											{{ availability.conflictRequestNo }}
 										</span>
 									</div>
@@ -294,31 +275,28 @@
 
 											<strong class="date-value">
 												{{
-													availability.availableFrom
-														? formatDateTime(
-																availability.availableFrom
-															)
-														: availability.isAvailableForRequestedPeriod
-															? "Now"
-															: "—"
+												availability.availableFrom
+												? formatDateTime(
+												availability.availableFrom
+												)
+												: availability.isAvailableForRequestedPeriod
+												? "Now"
+												: "—"
 												}}
 											</strong>
 										</div>
 
-										<div
-											class="availability-detail"
-											*ngIf="
+										<div class="availability-detail" *ngIf="
 												availability.lastUsageStartDate ||
 												availability.lastUsageEndDate
-											"
-										>
+											">
 											<span>Last Usage</span>
 
 											<strong class="date-value">
 												{{
-													formatDateTime(
-														availability.lastUsageStartDate
-													)
+												formatDateTime(
+												availability.lastUsageStartDate
+												)
 												}}
 
 												<span class="date-arrow">
@@ -326,27 +304,24 @@
 												</span>
 
 												{{
-													formatDateTime(
-														availability.lastUsageEndDate
-													)
+												formatDateTime(
+												availability.lastUsageEndDate
+												)
 												}}
 											</strong>
 										</div>
 
-										<div
-											class="availability-detail conflict-detail"
-											*ngIf="
+										<div class="availability-detail conflict-detail" *ngIf="
 												availability.conflictStartDate ||
 												availability.conflictEndDate
-											"
-										>
+											">
 											<span>Conflict Period</span>
 
 											<strong class="date-value">
 												{{
-													formatDateTime(
-														availability.conflictStartDate
-													)
+												formatDateTime(
+												availability.conflictStartDate
+												)
 												}}
 
 												<span class="date-arrow">
@@ -354,49 +329,42 @@
 												</span>
 
 												{{
-													formatDateTime(
-														availability.conflictEndDate
-													)
+												formatDateTime(
+												availability.conflictEndDate
+												)
 												}}
 											</strong>
 										</div>
 
-										<div
-											class="availability-detail"
-											*ngIf="
+										<div class="availability-detail" *ngIf="
 												availability.conflictCompanyName
-											"
-										>
+											">
 											<span>Conflict Company</span>
 
 											<strong>
 												{{
-													availability.conflictCompanyName
+												availability.conflictCompanyName
 												}}
 
-												<small
-													*ngIf="
+												<small *ngIf="
 														availability.conflictCompanyCode
-													"
-												>
+													">
 													{{
-														availability.conflictCompanyCode
+													availability.conflictCompanyCode
 													}}
 												</small>
 											</strong>
 										</div>
 
-										<div
-											class="availability-detail requested-detail"
-										>
+										<div class="availability-detail requested-detail">
 											<span>Requested Period</span>
 
 											<strong class="date-value">
 												{{
-													formatInputDisplay(
-														form.controls.startDate
-															.value
-													)
+												formatInputDisplay(
+												form.controls.startDate
+												.value
+												)
 												}}
 
 												<span class="date-arrow">
@@ -404,20 +372,17 @@
 												</span>
 
 												{{
-													formatInputDisplay(
-														form.controls.endDate
-															.value
-													)
+												formatInputDisplay(
+												form.controls.endDate
+												.value
+												)
 												}}
 											</strong>
 										</div>
 									</div>
 								</ng-container>
 
-								<div
-									class="availability-status is-unavailable"
-									*ngIf="!$any(detail).availability"
-								>
+								<div class="availability-status is-unavailable" *ngIf="!$any(detail).availability">
 									<i class="fas fa-question-circle"></i>
 
 									Availability unknown
@@ -426,6 +391,23 @@
 						</div>
 					</div>
 				</section>
+
+				@if (attachments.length) {
+				<section class="review-section attachment-section">
+					<div class="section-header compact">
+						<div><span class="section-kicker">Supporting Documents</span><h3>Attachments</h3><p>Read-only reference provided with this request.</p></div>
+						<div class="section-counter"><i class="fas fa-paperclip"></i><span>{{ attachments.length }} file(s)</span></div>
+					</div>
+					<div class="review-attachment-list">
+						@for (attachment of attachments; track attachment.uuid) {
+						<button type="button" class="review-attachment" (click)="openAttachment(attachment)">
+							<i [class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+							<span><strong>{{ attachment.originalName }}</strong><small>{{ formatFileSize(attachment.fileSize) }} · Open</small></span><i class="fas fa-external-link-alt"></i>
+						</button>
+						}
+					</div>
+				</section>
+				}
 
 				<!-- =================================================
 				     LOWER SECTION
@@ -460,48 +442,25 @@
 								</label>
 
 								<div class="date-field">
-									<i
-										class="far fa-calendar-alt"
-										aria-hidden="true"
-									></i>
+									<i class="far fa-calendar-alt" aria-hidden="true"></i>
 
-									<input
-										type="text"
-										class="form-control date-display"
-										[value]="
-											formatInputDisplay(
-												form.controls.startDate.value
-											)
-										"
-										readonly
-										(click)="
-											openDatePicker(startDatePicker)
-										"
-										(focus)="
-											openDatePicker(startDatePicker)
-										"
-									/>
+									@if (isClientReview()) {
+									<input type="text" class="form-control date-display"
+										[value]="formatInputDisplay(form.controls.startDate.value)" readonly
+										(click)="openDatePicker(startDatePicker)"
+										(focus)="openDatePicker(startDatePicker)" />
 
-									<input
-										#startDatePicker
-										id="review-start-date"
-										type="datetime-local"
-										class="native-date-picker"
-										formControlName="startDate"
-									/>
+									<input #startDatePicker id="review-start-date" type="datetime-local"
+										class="native-date-picker" formControlName="startDate" />
 
-									<button
-										type="button"
-										class="date-picker-button"
-										aria-label="
-											Open start date picker
-										"
-										(click)="
-											openDatePicker(startDatePicker)
-										"
-									>
+									<button type="button" class="date-picker-button" aria-label="Open start date picker"
+										(click)="openDatePicker(startDatePicker)">
 										<i class="far fa-calendar"></i>
 									</button>
+									} @else {
+									<input id="review-start-date" type="text" class="form-control date-display"
+										[value]="formatInputDisplay(form.controls.startDate.value)" readonly />
+									}
 								</div>
 							</div>
 
@@ -509,46 +468,26 @@
 								<label for="review-end-date"> End Date </label>
 
 								<div class="date-field">
-									<i
-										class="far fa-calendar-alt"
-										aria-hidden="true"
-									></i>
+									<i class="far fa-calendar-alt" aria-hidden="true"></i>
 
-									<input
-										type="text"
-										class="form-control date-display"
-										[value]="
-											formatInputDisplay(
-												form.controls.endDate.value
-											)
-										"
-										readonly
+									@if (isClientReview()) {
+									<input type="text" class="form-control date-display"
+										[value]="formatInputDisplay(form.controls.endDate.value)" readonly
 										(click)="openDatePicker(endDatePicker)"
-										(focus)="openDatePicker(endDatePicker)"
-									/>
+										(focus)="openDatePicker(endDatePicker)" />
 
-									<input
-										#endDatePicker
-										id="review-end-date"
-										type="datetime-local"
-										class="native-date-picker"
-										formControlName="endDate"
-										[min]="
-											form.controls.startDate.value ||
-											null
-										"
-									/>
+									<input #endDatePicker id="review-end-date" type="datetime-local"
+										class="native-date-picker" formControlName="endDate"
+										[min]="form.controls.startDate.value || null" />
 
-									<button
-										type="button"
-										class="date-picker-button"
-										aria-label="
-											Open end date picker
-										"
-										(click)="openDatePicker(endDatePicker)"
-									>
+									<button type="button" class="date-picker-button" aria-label="Open end date picker"
+										(click)="openDatePicker(endDatePicker)">
 										<i class="far fa-calendar"></i>
 									</button>
+									} @else {
+									<input id="review-end-date" type="text" class="form-control date-display"
+										[value]="formatInputDisplay(form.controls.endDate.value)" readonly />
+									}
 								</div>
 							</div>
 						</div>
@@ -573,21 +512,22 @@
 							</div>
 						</div>
 
-						<textarea
-							class="form-control remarks-input"
-							formControlName="remarks"
-							[placeholder]="getRemarksPlaceholder()"
-							maxlength="2000"
-						></textarea>
+						<textarea class="form-control remarks-input" formControlName="remarks"
+							[placeholder]="getRemarksPlaceholder()" [readonly]="actions.length === 0"
+							maxlength="2000"></textarea>
 
 						<div class="textarea-helper">
-							<span> Supporting notes for this approval. </span>
+							@if (actions.length === 0) {
+							<span>Read-only approval notes.</span>
+							} @else {
+							<span>Supporting notes for this approval.</span>
 
 							<span>
 								{{
-									form.controls.remarks.value?.length || 0
+								form.controls.remarks.value?.length || 0
 								}}/2000
 							</span>
+							}
 						</div>
 					</section>
 				</div>
@@ -597,7 +537,7 @@
 			     ACTION BAR
 			     ===================================================== -->
 			<section class="review-action-bar">
-				<div class="review-action-left">
+				<div class="review-action-left" *ngIf="actions.length > 0">
 					<div class="action-progress" *ngIf="isCheckingAvailability">
 						<i class="fas fa-circle-notch fa-spin"></i>
 
@@ -634,35 +574,31 @@
 					</div>
 				</div>
 
+				@if (actions.length === 0) {
+				<div class="action-hint">
+					<i class="fas fa-eye"></i>
+					<span>Global Trans review only — no approval action is required.</span>
+				</div>
+				}
+
 				<div class="review-action-buttons">
-					<button
-						type="button"
-						class="btn btn-light"
-						[disabled]="isActionBusy"
-						(click)="backToApprovals()"
-					>
+					<button type="button" class="btn btn-light" [disabled]="isActionBusy" (click)="backToApprovals()">
+						@if (actions.length === 0) {
+						Back to Review &amp; Approval
+						} @else {
 						Cancel
+						}
 					</button>
 
-					<button
-						*ngFor="let action of rejectActions"
-						type="button"
-						class="btn btn-danger"
-						[disabled]="isActionBusy"
-						(click)="submitAction(action)"
-					>
+					<button *ngFor="let action of rejectActions" type="button" class="btn btn-danger"
+						[disabled]="isActionBusy" (click)="submitAction(action)">
 						<i class="fas fa-times-circle"></i>
 
 						{{ action.actionName }}
 					</button>
 
-					<button
-						*ngFor="let action of approveActions"
-						type="button"
-						class="btn btn-primary"
-						[disabled]="isActionBusy"
-						(click)="submitAction(action)"
-					>
+					<button *ngFor="let action of approveActions" type="button" class="btn btn-primary"
+						[disabled]="isActionBusy" (click)="submitAction(action)">
 						<i class="fas fa-check-circle"></i>
 
 						{{ action.actionName }}
@@ -672,3 +608,20 @@
 		</ng-container>
 	</div>
 </page-body>
+
+<ng-template #unitImagePreviewDialog>
+	@if (previewUnitDetail && previewUnitImageUrl) {
+	<div class="unit-image-preview-panel" role="dialog" aria-modal="true" aria-label="Equipment unit image preview">
+		<div class="unit-image-preview-title">
+			<strong>{{ previewUnitDetail.equipmentUnitCode }} - {{ previewUnitDetail.equipmentUnitName }}</strong>
+			<span>Equipment Unit Image</span>
+		</div>
+		<button type="button" class="unit-image-preview-close" aria-label="Close equipment image preview" (click)="closeUnitImagePreview()">
+			<i class="fas fa-times"></i>
+		</button>
+		<div class="unit-image-preview-stage">
+			<img [src]="previewUnitImageUrl" [alt]="previewUnitDetail.equipmentUnitName || 'Equipment unit'" />
+		</div>
+	</div>
+	}
+</ng-template>

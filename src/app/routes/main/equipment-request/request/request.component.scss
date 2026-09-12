@@ -554,3 +554,32 @@
 	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
 }
+
+
+.request-attachment-indicator {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.3rem;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #6f7f95;
+	font-size: 0.72rem;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+}
+
+.request-attachment-indicator:hover,
+.request-attachment-indicator:focus-visible {
+	color: #3f8cff;
+	text-decoration: none;
+}
+
+@media (max-width: 768px) {
+	.request-attachment-indicator {
+		min-height: 32px;
+		padding: 0.25rem 0;
+	}
+}

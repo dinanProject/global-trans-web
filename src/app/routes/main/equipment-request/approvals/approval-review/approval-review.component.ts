@@ -1,10 +1,17 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { UtilityService } from 'src/app/shared/utility/utility.service';
-import { RequestAction, RequestMaster } from '../../request/request.service';
+import {
+	RequestAction,
+	RequestAttachment,
+	RequestDetail,
+	RequestMaster,
+	RequestService,
+} from '../../request/request.service';
 import { ApprovalService } from '../approvals.service';
 import { MainService } from '../../../main.service';
 
@@ -15,9 +22,17 @@ import { MainService } from '../../../main.service';
 	standalone: false,
 })
 export class ApprovalReviewComponent implements OnInit, OnDestroy {
+	@ViewChild('unitImagePreviewDialog')
+	private unitImagePreviewDialog!: TemplateRef<unknown>;
+	private unitImagePreviewDialogRef: MatDialogRef<unknown> | null = null;
 	private readonly destroy$ = new Subject<void>();
+	readonly unitImageUrls = new Map<string, string>();
+	previewUnitUuid: string | null = null;
+	private readonly unavailableUnitImages = new Set<string>();
+	private imageLoadVersion = 0;
 
 	request: RequestMaster | null = null;
+	attachments: RequestAttachment[] = [];
 
 	isLoading = false;
 	errorMessage = '';
@@ -37,6 +52,8 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 		private readonly utilityService: UtilityService,
 		private readonly formBuilder: FormBuilder,
 		private readonly mainService: MainService,
+		private readonly requestService: RequestService,
+		private readonly dialog: MatDialog,
 	) {}
 
 	ngOnInit(): void {
@@ -63,13 +80,18 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.unitImagePreviewDialogRef?.close();
+		this.imageLoadVersion += 1;
+		this.releaseUnitImages();
 		this.destroy$.next();
 		this.destroy$.complete();
 	}
 
 	get pageTitle(): string {
 		if (this.request?.status === 'CLIENT_REVIEW') {
-			return 'Client Review';
+			return this.actions.length > 0
+				? 'Exxon Approval'
+				: 'Global Trans Review';
 		}
 
 		if (this.request?.status === 'GTSI_REVIEW') {
@@ -118,6 +140,8 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 			.subscribe({
 				next: (request) => {
 					this.request = request;
+					this.loadUnitImages(request);
+					this.loadAttachments(request.uuid);
 					this.markNotificationAsRead(request.uuid);
 
 					this.form.patchValue(
@@ -126,7 +150,7 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 								request.startDate,
 							),
 							endDate: this.toDateTimeInputValue(request.endDate),
-							remarks: '',
+							remarks: this.getExistingApprovalRemarks(request),
 						},
 						{ emitEvent: false },
 					);
@@ -144,6 +168,150 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 					);
 				},
 			});
+	}
+
+	openAttachment(attachment: RequestAttachment): void {
+		if (!this.request?.uuid) return;
+		this.requestService.downloadAttachment(this.request.uuid, attachment.uuid).pipe(takeUntil(this.destroy$)).subscribe({
+			next: (blob) => { const url = URL.createObjectURL(blob); window.open(url, '_blank', 'noopener,noreferrer'); setTimeout(() => URL.revokeObjectURL(url), 60000); },
+			error: () => this.utilityService.alert('Failed', 'Failed to open attachment.', 'error'),
+		});
+	}
+
+	formatFileSize(bytes: number): string {
+		if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+	}
+
+	private loadAttachments(requestUuid: string): void {
+		this.requestService.getAttachments(requestUuid).pipe(takeUntil(this.destroy$)).subscribe({ next: (items) => (this.attachments = items ?? []), error: () => (this.attachments = []) });
+	}
+
+	getUnitImageUrl(unitUuid?: string | null): string | null {
+		if (!unitUuid || this.unavailableUnitImages.has(unitUuid)) {
+			return null;
+		}
+
+		return this.unitImageUrls.get(unitUuid) || null;
+	}
+
+	openUnitImagePreview(unitUuid?: string | null): void {
+		if (!unitUuid || !this.getUnitImageUrl(unitUuid)) {
+			return;
+		}
+
+		this.previewUnitUuid = unitUuid;
+		const dialogRef = this.dialog.open(this.unitImagePreviewDialog, {
+			width: '1040px',
+			maxWidth: '94vw',
+			maxHeight: '92vh',
+			autoFocus: false,
+			restoreFocus: true,
+			panelClass: 'equipment-unit-image-preview-dialog',
+		});
+
+		this.unitImagePreviewDialogRef = dialogRef;
+		dialogRef.afterClosed().subscribe(() => {
+			if (this.unitImagePreviewDialogRef !== dialogRef) {
+				return;
+			}
+
+			this.previewUnitUuid = null;
+			this.unitImagePreviewDialogRef = null;
+		});
+	}
+
+	closeUnitImagePreview(): void {
+		this.unitImagePreviewDialogRef?.close();
+	}
+
+	get previewUnitDetail(): RequestDetail | null {
+		if (!this.previewUnitUuid) {
+			return null;
+		}
+
+		return (
+			(this.request?.details || []).find(
+				(detail) => detail.equipmentUnitUuid === this.previewUnitUuid,
+			) || null
+		);
+	}
+
+	get previewUnitImageUrl(): string | null {
+		return this.previewUnitUuid
+			? this.getUnitImageUrl(this.previewUnitUuid)
+			: null;
+	}
+
+	private loadUnitImages(request: RequestMaster): void {
+		this.imageLoadVersion += 1;
+		const currentVersion = this.imageLoadVersion;
+		this.releaseUnitImages();
+		this.unavailableUnitImages.clear();
+
+		const unitUuids = Array.from(
+			new Set(
+				(request.details || [])
+					.map((detail) => detail.equipmentUnitUuid)
+					.filter((uuid): uuid is string => Boolean(uuid)),
+			),
+		);
+
+		unitUuids.forEach((unitUuid) => {
+			this.requestService
+				.getUnitImage(unitUuid)
+				.pipe(takeUntil(this.destroy$))
+				.subscribe({
+					next: (blob) => {
+						if (currentVersion !== this.imageLoadVersion) {
+							return;
+						}
+
+						this.unitImageUrls.set(
+							unitUuid,
+							URL.createObjectURL(blob),
+						);
+					},
+					error: () => {
+						if (currentVersion === this.imageLoadVersion) {
+							this.unavailableUnitImages.add(unitUuid);
+						}
+					},
+				});
+		});
+	}
+
+	private releaseUnitImages(): void {
+		this.unitImageUrls.forEach((url) => URL.revokeObjectURL(url));
+		this.unitImageUrls.clear();
+		this.previewUnitUuid = null;
+	}
+
+	private getExistingApprovalRemarks(request: RequestMaster): string {
+		const completedApproval = [...(request.approvals ?? [])]
+			.filter((approval) =>
+				['APPROVED', 'REJECTED'].includes(approval.status),
+			)
+			.sort((a, b) => {
+				const levelDiff = a.approvalLevel - b.approvalLevel;
+				if (levelDiff !== 0) {
+					return levelDiff;
+				}
+
+				const aTime = new Date(
+					a.actionDate || a.createdAt || '',
+				).getTime();
+				const bTime = new Date(
+					b.actionDate || b.createdAt || '',
+				).getTime();
+
+				return (
+					(Number.isFinite(bTime) ? bTime : 0) -
+					(Number.isFinite(aTime) ? aTime : 0)
+				);
+			})[0];
+
+		return completedApproval?.remarks ?? '';
 	}
 
 	private markNotificationAsRead(requestUuid: string): void {
@@ -279,18 +447,18 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 
 	getInfoTitle(): string {
 		if (this.isClientReview()) {
-			return 'Review client approval';
+			return 'Review Exxon approval';
 		}
 
-		return 'Review reservation schedule';
+		return 'Request review';
 	}
 
 	getInfoDescription(): string {
 		if (this.isClientReview()) {
-			return 'Review jadwal, equipment, dan catatan sebelum approval.';
+			return 'Review equipment dan planned period request sebelum final approval.';
 		}
 
-		return 'Review jadwal dan equipment sebelum request dilanjutkan.';
+		return 'Global Trans dapat memonitor request dan planned period tanpa approval action.';
 	}
 
 	getRemarksPlaceholder(): string {

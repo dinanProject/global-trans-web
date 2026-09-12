@@ -427,14 +427,14 @@ export class MainComponent implements OnInit, OnDestroy {
 				previousMenus,
 				'/equipment-request/approvals',
 			);
-		const assignmentIncrease =
+		const operationsIncrease =
 			this.getMenuUnreadCountByRoute(
 				updatedMenus,
-				'/equipment-request/assignments',
+				'/equipment-request/operations',
 			) -
 			this.getMenuUnreadCountByRoute(
 				previousMenus,
-				'/equipment-request/assignments',
+				'/equipment-request/operations',
 			);
 
 		const messages: string[] = [];
@@ -447,11 +447,11 @@ export class MainComponent implements OnInit, OnDestroy {
 			);
 		}
 
-		if (assignmentIncrease > 0) {
+		if (operationsIncrease > 0) {
 			messages.push(
-				assignmentIncrease === 1
-					? 'New equipment assignment task available'
-					: `${assignmentIncrease} new equipment assignment tasks`,
+				operationsIncrease === 1
+					? 'New operation work item available'
+					: `${operationsIncrease} new operation work items`,
 			);
 		}
 
@@ -463,10 +463,10 @@ export class MainComponent implements OnInit, OnDestroy {
 			messages.length === 1
 				? approvalIncrease > 0
 					? '/equipment-request/approvals'
-					: '/equipment-request/assignments'
+					: '/equipment-request/operations'
 				: null;
 		const targetReferenceUuid =
-			targetRoute === '/equipment-request/assignments'
+			targetRoute === '/equipment-request/operations'
 				? this.getLatestReferenceUuidByRoute(
 						updatedMenus,
 						unreadCounts,
@@ -490,7 +490,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 		const actionSubscription = snackBarRef.onAction().subscribe(() => {
 			if (
-				targetRoute === '/equipment-request/assignments' &&
+				targetRoute === '/equipment-request/operations' &&
 				targetReferenceUuid
 			) {
 				void this.router.navigate([targetRoute], {

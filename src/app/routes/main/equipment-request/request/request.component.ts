@@ -226,6 +226,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 		const dialogRef = this.dialog.open(RequestDetailDialogComponent, {
 			width: '1180px',
 			maxWidth: '96vw',
+			height: '94vh',
 			maxHeight: '94vh',
 			disableClose: true,
 			autoFocus: false,
