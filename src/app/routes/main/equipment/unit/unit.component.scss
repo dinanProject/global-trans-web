@@ -45,7 +45,7 @@
 
 	th {
 		font-weight: 500;
-		color: #354052;
+		color: var(--text-primary-01);
 		white-space: nowrap;
 	}
 
@@ -120,11 +120,11 @@
 		}
 
 		&.active {
-			color: #249533;
+			color: var(--interactive-text-16);
 
 			.status-dot {
-				background-color: #38a84f;
-				box-shadow: 0 0 0 2px rgba(56, 168, 79, 0.12);
+				background-color: var(--interactive-solid-29);
+				box-shadow: 0 0 0 2px var(--shadow-23);
 
 				&::before,
 				&::after {
@@ -132,7 +132,7 @@
 					position: absolute;
 					inset: 0;
 					border-radius: inherit;
-					background-color: rgba(56, 168, 79, 0.38);
+					background-color: var(--interactive-solid-30);
 					animation: status-pulse 1.6s ease-out infinite;
 				}
 
@@ -143,19 +143,19 @@
 		}
 
 		&.maintenance {
-			color: #b7791f;
+			color: var(--interactive-text-25);
 
 			.status-dot {
-				background-color: #d69e2e;
-				box-shadow: 0 0 0 2px rgba(214, 158, 46, 0.12);
+				background-color: var(--interactive-solid-33);
+				box-shadow: 0 0 0 2px var(--shadow-29);
 			}
 		}
 
 		&.inactive {
-			color: #999999;
+			color: var(--text-muted-05);
 
 			.status-dot {
-				background-color: #b7bdc5;
+				background-color: var(--surface-muted-03);
 			}
 		}
 	}
@@ -194,7 +194,7 @@
 	align-items: center;
 	justify-content: center;
 	border-radius: 8px;
-	background-color: #eef6ff;
+	background-color: var(--interactive-bg-20);
 
 	img {
 		width: 28px;
@@ -211,7 +211,7 @@
 	display: block;
 	min-width: 0;
 	overflow: hidden;
-	color: #354052;
+	color: var(--text-primary-01);
 	font-weight: 500;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -351,7 +351,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid rgba(255, 173, 50, 0.32);
+		outline: 2px solid var(--interactive-border-16);
 		outline-offset: 2px;
 	}
 }
@@ -362,8 +362,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: rgba(19, 28, 41, 0.48);
-	color: #ffffff;
+	background: var(--interactive-solid-34);
+	color: var(--text-on-primary-01);
 	opacity: 0;
 	transition: opacity 0.2s ease;
 
@@ -379,7 +379,7 @@
 	overflow: hidden;
 	flex-direction: column;
 	border-radius: 10px;
-	background: #ffffff;
+	background: var(--surface-01);
 }
 
 .image-review-header,
@@ -392,11 +392,11 @@
 
 .image-review-header {
 	padding: 18px 22px;
-	border-bottom: 1px solid #e8ebef;
+	border-bottom: 1px solid var(--border-subtle-24);
 
 	h5 {
 		margin: 0 0 2px;
-		color: #2f3948;
+		color: var(--text-primary-11);
 	}
 
 	span {
@@ -412,8 +412,8 @@
 	padding: 0;
 	border: 0;
 	border-radius: 50%;
-	background: #f4f5f7;
-	color: #596575;
+	background: var(--surface-muted-12);
+	color: var(--text-secondary-19);
 	cursor: pointer;
 }
 
@@ -425,7 +425,7 @@
 	justify-content: center;
 	overflow: hidden;
 	padding: 22px 24px;
-	background: #f7f8fa;
+	background: var(--surface-03);
 
 	img {
 		width: auto;
@@ -433,17 +433,17 @@
 		max-width: 100%;
 		max-height: calc(88vh - 186px);
 		display: block;
-		border: 1px solid #e6eaf0;
+		border: 1px solid var(--border-subtle-25);
 		border-radius: 10px;
-		background: #ffffff;
+		background: var(--surface-01);
 		object-fit: contain;
-		box-shadow: 0 6px 18px rgba(28, 39, 54, 0.08);
+		box-shadow: 0 6px 18px var(--shadow-30);
 	}
 }
 
 .image-review-footer {
 	padding: 14px 22px;
-	border-top: 1px solid #e8ebef;
+	border-top: 1px solid var(--border-subtle-24);
 
 	> div {
 		min-width: 0;
@@ -453,7 +453,7 @@
 
 	strong {
 		overflow: hidden;
-		color: #354052;
+		color: var(--text-primary-01);
 		font-size: 13px;
 		text-overflow: ellipsis;
 		white-space: nowrap;

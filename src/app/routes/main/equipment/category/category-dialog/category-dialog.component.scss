@@ -31,7 +31,7 @@
 	}
 
 	input:checked + .toggle-track {
-		background: #ffad32;
+		background: var(--interactive-solid-32);
 	}
 
 	input:checked + .toggle-track .toggle-thumb {
@@ -47,7 +47,7 @@
 	height: 22px;
 	padding: 2px;
 	border-radius: 999px;
-	background: #c9ced6;
+	background: var(--surface-muted-09);
 	transition: background-color 0.2s ease;
 }
 
@@ -56,8 +56,8 @@
 	width: 18px;
 	height: 18px;
 	border-radius: 50%;
-	background: #ffffff;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+	background: var(--surface-01);
+	box-shadow: 0 1px 3px var(--shadow-26);
 	transition: transform 0.2s ease;
 }
 
@@ -114,7 +114,7 @@ textarea {
 	justify-content: center;
 	margin-top: 0;
 	border-radius: 8px;
-	background: #e7f0ff;
+	background: var(--interactive-bg-25);
 }
 
 .category-icon-preview img {

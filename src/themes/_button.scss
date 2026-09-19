@@ -6,16 +6,16 @@
 	// 	border-color: #249533;
 	// 	&:hover {
 	// 		background: #34a544;
-    // 		background: linear-gradient(180deg,#34a544,#2f9a3e);
+	// 		background: linear-gradient(180deg,#34a544,#2f9a3e);
 	// 	}
 	// }
 	&.btn-primary {
-		background: #4CA9FF;
+		background: var(--primary-semantic);
 		// background: linear-gradient(180deg,#2ea1f8,#1990ea);
-		border-color: #1a91eb;
+		border-color: var(--primary-border);
 		&:hover {
-			background: #1a98f7;
-    		// background: linear-gradient(180deg,#1a98f7,#1485db);
+			background: var(--primary-hover);
+			// background: linear-gradient(180deg,#1a98f7,#1485db);
 		}
 	}
 	// &.btn-danger {
@@ -25,7 +25,7 @@
 	// 	border-color: #d35847;
 	// 	&:hover {
 	// 		background: #f83f46;
-    // 		background: linear-gradient(180deg,#f83f46,#cf4937);
+	// 		background: linear-gradient(180deg,#f83f46,#cf4937);
 	// 	}
 	// }
 }

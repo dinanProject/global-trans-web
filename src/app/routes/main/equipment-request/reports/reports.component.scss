@@ -30,12 +30,12 @@
 	gap: 7px;
 	min-width: 142px;
 	min-height: 38px;
-	color: #fff !important;
+	color: var(--text-on-primary-03) !important;
 }
 
 .export-button i,
 .export-button span {
-	color: #fff !important;
+	color: var(--text-on-primary-03) !important;
 }
 
 .report-shell {
@@ -45,9 +45,16 @@
 
 .report-card,
 .report-info-card {
-	border: 1px solid var(--border-color, #e4e9f0);
+	border: 1px solid var(--report-card-border);
 	border-radius: 14px;
-	background: #fff;
+}
+
+.report-card {
+	background: var(--report-filter-surface);
+}
+
+.report-info-card {
+	background: var(--report-info-surface);
 }
 
 .report-card {
@@ -116,7 +123,7 @@
 	display: grid;
 	place-items: center;
 	border-radius: 10px;
-	background: rgba(63, 140, 255, 0.1);
+	background: var(--status-info-bg-15);
 	color: var(--primary);
 }
 

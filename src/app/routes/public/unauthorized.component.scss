@@ -18,12 +18,12 @@
 	display: grid;
 	grid-template-columns: minmax(300px, 0.88fr) minmax(380px, 1.12fr);
 	overflow: hidden;
-	border: 1px solid #e1e7ef;
+	border: 1px solid var(--interactive-border-52);
 	border-radius: 16px;
-	background: #ffffff;
+	background: var(--surface-01);
 	box-shadow:
-		0 1px 2px rgba(16, 24, 40, 0.04),
-		0 12px 32px rgba(16, 24, 40, 0.06);
+		0 1px 2px var(--shadow-27),
+		0 12px 32px var(--shadow-66);
 }
 
 .unauthorized-visual {
@@ -35,11 +35,11 @@
 	justify-content: center;
 	overflow: hidden;
 	padding: 44px;
-	border-right: 1px solid #e2e8f0;
+	border-right: 1px solid var(--interactive-border-05);
 	background: linear-gradient(
 		145deg,
-		rgba(255, 247, 230, 0.94),
-		rgba(250, 252, 255, 0.98)
+		var(--interactive-bg-87),
+		var(--interactive-bg-88)
 	);
 }
 
@@ -48,14 +48,14 @@
 	inset: 0;
 	opacity: 0.5;
 	background-image:
-		linear-gradient(rgba(194, 124, 32, 0.05) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(194, 124, 32, 0.05) 1px, transparent 1px);
+		linear-gradient(var(--interactive-solid-55) 1px, transparent 1px),
+		linear-gradient(90deg, var(--interactive-solid-55) 1px, transparent 1px);
 	background-size: 32px 32px;
 	mask-image: linear-gradient(
 		to bottom,
 		transparent,
-		#000 18%,
-		#000 82%,
+		var(--theme-color-05) 18%,
+		var(--theme-color-05) 82%,
 		transparent
 	);
 }
@@ -76,7 +76,7 @@
 
 .security-ring-outer {
 	inset: 0;
-	border: 1px solid rgba(196, 132, 39, 0.22);
+	border: 1px solid var(--interactive-border-55);
 	animation: securityRotate 18s linear infinite;
 
 	&::before,
@@ -86,8 +86,8 @@
 		width: 9px;
 		height: 9px;
 		border-radius: 50%;
-		background: #c48727;
-		box-shadow: 0 0 0 5px rgba(196, 135, 39, 0.1);
+		background: var(--interactive-solid-56);
+		box-shadow: 0 0 0 5px var(--shadow-69);
 	}
 
 	&::before {
@@ -103,7 +103,7 @@
 
 .security-ring-inner {
 	inset: 28px;
-	border: 1px dashed rgba(196, 132, 39, 0.25);
+	border: 1px dashed var(--interactive-border-56);
 	animation: securityRotateReverse 14s linear infinite;
 }
 
@@ -115,14 +115,14 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border: 1px solid #f0dfc2;
+	border: 1px solid var(--interactive-border-57);
 	border-radius: 28px;
-	background: #ffffff;
-	color: #bf7f21;
+	background: var(--surface-01);
+	color: var(--interactive-text-71);
 	font-size: 44px;
 	box-shadow:
-		0 12px 28px rgba(174, 112, 29, 0.12),
-		0 2px 6px rgba(16, 24, 40, 0.06);
+		0 12px 28px var(--shadow-70),
+		0 2px 6px var(--shadow-66);
 }
 
 .security-lock {
@@ -134,24 +134,24 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border: 4px solid #ffffff;
+	border: 4px solid var(--border-subtle-67);
 	border-radius: 50%;
-	background: #c48727;
-	color: #ffffff;
+	background: var(--interactive-solid-56);
+	color: var(--text-on-primary-01);
 	font-size: 13px;
-	box-shadow: 0 5px 12px rgba(107, 72, 22, 0.2);
+	box-shadow: 0 5px 12px var(--shadow-71);
 }
 
 .error-code {
 	position: relative;
 	z-index: 2;
 	margin-top: 14px;
-	color: #b9781d;
+	color: var(--status-danger-text-22);
 	font-size: 58px;
 	font-weight: 800;
 	letter-spacing: 0.06em;
 	line-height: 1;
-	text-shadow: 0 4px 12px rgba(181, 116, 27, 0.12);
+	text-shadow: 0 4px 12px var(--shadow-72);
 }
 
 .unauthorized-content {
@@ -166,7 +166,7 @@
 	align-items: center;
 	gap: 8px;
 	margin-bottom: 16px;
-	color: #b9781d;
+	color: var(--interactive-text-72);
 	font-size: 11px;
 	font-weight: 700;
 	letter-spacing: 0.09em;
@@ -178,13 +178,13 @@
 	width: 7px;
 	height: 7px;
 	border-radius: 50%;
-	background: #c48727;
-	box-shadow: 0 0 0 4px rgba(196, 135, 39, 0.1);
+	background: var(--interactive-solid-56);
+	box-shadow: 0 0 0 4px var(--shadow-69);
 }
 
 h1 {
 	margin: 0;
-	color: #26324b;
+	color: var(--interactive-text-70);
 	font-size: clamp(30px, 4vw, 42px);
 	font-weight: 750;
 	letter-spacing: -0.025em;
@@ -194,7 +194,7 @@ h1 {
 .description {
 	max-width: 480px;
 	margin: 16px 0 0;
-	color: #69758a;
+	color: var(--text-secondary-69);
 	font-size: 15px;
 	line-height: 1.65;
 }
@@ -202,9 +202,9 @@ h1 {
 .access-details {
 	margin-top: 27px;
 	overflow: hidden;
-	border: 1px solid #e2e8f0;
+	border: 1px solid var(--interactive-border-05);
 	border-radius: 10px;
-	background: #fafbfc;
+	background: var(--surface-06);
 }
 
 .access-detail-row {
@@ -215,7 +215,7 @@ h1 {
 	padding: 14px 16px;
 
 	& + & {
-		border-top: 1px solid #e7ebf1;
+		border-top: 1px solid var(--border-subtle-68);
 	}
 }
 
@@ -227,8 +227,8 @@ h1 {
 	align-items: center;
 	justify-content: center;
 	border-radius: 8px;
-	background: #fff4df;
-	color: #b9781d;
+	background: var(--interactive-bg-89);
+	color: var(--interactive-text-72);
 	font-size: 13px;
 }
 
@@ -242,7 +242,7 @@ h1 {
 
 	span {
 		margin-bottom: 3px;
-		color: #8993a5;
+		color: var(--text-muted-48);
 		font-size: 10px;
 		font-weight: 700;
 		letter-spacing: 0.045em;
@@ -251,7 +251,7 @@ h1 {
 
 	strong {
 		overflow: hidden;
-		color: #344057;
+		color: var(--text-primary-37);
 		font-family:
 			ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 		font-size: 12px;
@@ -267,14 +267,14 @@ h1 {
 	align-items: flex-start;
 	gap: 9px;
 	margin-top: 17px;
-	color: #7a8699;
+	color: var(--text-secondary-70);
 	font-size: 12px;
 	line-height: 1.55;
 
 	i {
 		flex: 0 0 auto;
 		margin-top: 3px;
-		color: #b78a4f;
+		color: var(--interactive-text-73);
 	}
 }
 
@@ -307,20 +307,20 @@ h1 {
 	gap: 6px;
 	margin-top: 28px;
 	padding-top: 20px;
-	border-top: 1px solid #edf0f4;
-	color: #9099a9;
+	border-top: 1px solid var(--border-subtle-10);
+	color: var(--text-muted-50);
 	font-size: 11px;
 
 	a {
 		display: inline-flex;
 		align-items: center;
 		gap: 5px;
-		color: #53657f;
+		color: var(--text-secondary-71);
 		font-weight: 600;
 		text-decoration: none;
 
 		&:hover {
-			color: #b9781d;
+			color: var(--interactive-text-72);
 			text-decoration: underline;
 		}
 	}
@@ -366,7 +366,7 @@ h1 {
 		min-height: 260px;
 		padding: 30px;
 		border-right: 0;
-		border-bottom: 1px solid #e2e8f0;
+		border-bottom: 1px solid var(--interactive-border-05);
 	}
 
 	.security-illustration {

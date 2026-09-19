@@ -9,13 +9,13 @@
 	justify-content: space-between;
 	gap: 16px;
 	padding: 18px 24px 14px;
-	border-bottom: 1px solid #e2e6ea;
-	background-color: #ffffff;
+	border-bottom: 1px solid var(--border-subtle-13);
+	background-color: var(--surface-01);
 
 	h2 {
 		margin: 0;
 		padding: 0;
-		color: #354052;
+		color: var(--text-primary-01);
 		font-size: 21px;
 		font-weight: 600;
 		line-height: 1.3;
@@ -24,7 +24,7 @@
 
 .dialog-subtitle {
 	margin: 3px 0 0;
-	color: #778291;
+	color: var(--text-secondary-02);
 	font-size: 12px;
 }
 
@@ -37,13 +37,13 @@
 	border: 0;
 	border-radius: 6px;
 	background-color: transparent;
-	color: #657080;
+	color: var(--text-secondary-15);
 	font-size: 17px;
 	cursor: pointer;
 
 	&:hover:not(:disabled) {
-		background-color: #f1f3f5;
-		color: #354052;
+		background-color: var(--surface-muted-02);
+		color: var(--text-primary-01);
 	}
 }
 
@@ -52,7 +52,7 @@ mat-dialog-content {
 	max-width: 100%;
 	max-height: calc(94vh - 146px);
 	padding: 16px 24px !important;
-	background-color: #ffffff;
+	background-color: var(--surface-01);
 }
 
 .error-message {
@@ -61,10 +61,10 @@ mat-dialog-content {
 	gap: 8px;
 	padding: 9px 11px;
 	margin-bottom: 12px;
-	border: 1px solid #efc4c8;
+	border: 1px solid var(--status-danger-border-09);
 	border-radius: 7px;
-	background-color: #fff2f3;
-	color: #c53e49;
+	background-color: var(--status-danger-bg-11);
+	color: var(--status-danger-text-11);
 	font-size: 12px;
 }
 
@@ -84,9 +84,9 @@ mat-dialog-content {
 .form-section {
 	padding: 14px;
 	margin: 0;
-	border: 1px solid #dbe1e7;
+	border: 1px solid var(--border-subtle-14);
 	border-radius: 8px;
-	background-color: #ffffff;
+	background-color: var(--surface-01);
 }
 
 .left-column .form-section:first-child,
@@ -107,14 +107,14 @@ mat-dialog-content {
 
 	h3 {
 		margin: 0;
-		color: #354052;
+		color: var(--text-primary-01);
 		font-size: 14px;
 		font-weight: 600;
 	}
 
 	p {
 		margin: 2px 0 0;
-		color: #778291;
+		color: var(--text-secondary-02);
 		font-size: 11px;
 	}
 }
@@ -131,8 +131,8 @@ mat-dialog-content {
 	align-items: center;
 	justify-content: center;
 	border-radius: 7px;
-	background-color: #e8f3ff;
-	color: #087cf0;
+	background-color: var(--interactive-bg-15);
+	color: var(--interactive-text-19);
 	font-size: 13px;
 }
 
@@ -153,12 +153,12 @@ mat-dialog-content {
 	label {
 		display: block;
 		margin-bottom: 4px;
-		color: #354052;
+		color: var(--text-primary-01);
 		font-size: 12px;
 		font-weight: 500;
 
 		span {
-			color: #dc3545;
+			color: var(--interactive-text-14);
 		}
 	}
 }
@@ -167,15 +167,15 @@ mat-dialog-content {
 .custom-select {
 	width: 100%;
 	height: 38px;
-	border-color: #cfd6dd;
+	border-color: var(--border-subtle-20);
 	border-radius: 6px;
-	background-color: #ffffff;
-	color: #354052;
+	background-color: var(--surface-01);
+	color: var(--text-primary-01);
 	font-size: 12px;
 
 	&:focus {
-		border-color: #69aff3;
-		box-shadow: 0 0 0 3px rgba(8, 124, 240, 0.1);
+		border-color: var(--interactive-border-15);
+		box-shadow: 0 0 0 3px var(--shadow-25);
 	}
 }
 
@@ -183,7 +183,7 @@ mat-dialog-content {
 .field-error {
 	display: block;
 	margin-top: 4px;
-	color: #dc3545;
+	color: var(--status-danger-text-10);
 	font-size: 10px;
 }
 
@@ -193,9 +193,9 @@ mat-dialog-content {
 	justify-content: space-between;
 	gap: 14px;
 	padding: 14px;
-	border: 1px solid #dbe1e7;
+	border: 1px solid var(--border-subtle-14);
 	border-radius: 8px;
-	background-color: #f8fafc;
+	background-color: var(--interactive-bg-02);
 }
 
 .active-group {
@@ -224,7 +224,7 @@ mat-dialog-content {
 	}
 
 	input:checked + .toggle-track {
-		background: #ffad32;
+		background: var(--interactive-solid-32);
 	}
 
 	input:checked + .toggle-track .toggle-thumb {
@@ -240,7 +240,7 @@ mat-dialog-content {
 	height: 22px;
 	padding: 2px;
 	border-radius: 999px;
-	background: #c9ced6;
+	background: var(--surface-muted-09);
 	transition: background-color 0.2s ease;
 }
 
@@ -249,20 +249,20 @@ mat-dialog-content {
 	width: 18px;
 	height: 18px;
 	border-radius: 50%;
-	background: #ffffff;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+	background: var(--surface-01);
+	box-shadow: 0 1px 3px var(--shadow-26);
 	transition: transform 0.2s ease;
 }
 
 .status-title {
-	color: #354052;
+	color: var(--text-primary-01);
 	font-size: 13px;
 	font-weight: 600;
 }
 
 .status-description {
 	margin-top: 2px;
-	color: #778291;
+	color: var(--text-secondary-02);
 	font-size: 10px;
 }
 
@@ -281,8 +281,8 @@ mat-dialog-content {
 	right: 0;
 	padding: 4px 8px;
 	border-radius: 999px;
-	background-color: #eef6ff;
-	color: #087cf0;
+	background-color: var(--interactive-bg-20);
+	color: var(--interactive-text-19);
 	font-size: 10px;
 	font-weight: 600;
 }
@@ -294,13 +294,13 @@ mat-dialog-content {
 
 	&.is-invalid-list {
 		padding: 6px;
-		border: 1px solid #dc3545;
+		border: 1px solid var(--status-danger-border-10);
 		border-radius: 7px;
 	}
 }
 
 .role-group {
-	border: 1px solid #dbe1e7;
+	border: 1px solid var(--border-subtle-14);
 	border-radius: 7px;
 	overflow: hidden;
 }
@@ -312,7 +312,7 @@ mat-dialog-content {
 	gap: 8px;
 	margin: 0;
 	padding: 9px 10px;
-	background-color: #f7f9fb;
+	background-color: var(--interactive-bg-21);
 	cursor: pointer;
 
 	input {
@@ -323,7 +323,7 @@ mat-dialog-content {
 }
 
 .tree-branch {
-	color: #7c8795;
+	color: var(--text-secondary-16);
 	font-size: 12px;
 	text-align: center;
 }
@@ -335,13 +335,13 @@ mat-dialog-content {
 	flex-direction: column;
 
 	strong {
-		color: #354052;
+		color: var(--text-primary-01);
 		font-size: 12px;
 		font-weight: 600;
 	}
 
 	small {
-		color: #778291;
+		color: var(--text-secondary-02);
 		font-size: 9px;
 	}
 }
@@ -350,8 +350,8 @@ mat-dialog-content {
 	min-width: 22px;
 	padding: 2px 6px;
 	border-radius: 999px;
-	background-color: #e8edf2;
-	color: #657080;
+	background-color: var(--surface-muted-10);
+	color: var(--text-secondary-15);
 	font-size: 9px;
 	text-align: center;
 }
@@ -368,16 +368,16 @@ mat-dialog-content {
 	gap: 8px;
 	margin: 0;
 	padding: 8px 10px 8px 18px;
-	border-top: 1px solid #edf0f3;
-	background-color: #ffffff;
+	border-top: 1px solid var(--border-subtle-21);
+	background-color: var(--surface-01);
 	cursor: pointer;
 
 	&:hover {
-		background-color: #f8fbff;
+		background-color: var(--interactive-bg-22);
 	}
 
 	&.role-row-selected {
-		background-color: #f1f8ff;
+		background-color: var(--interactive-bg-23);
 	}
 
 	input {
@@ -397,7 +397,7 @@ mat-dialog-content {
 		left: 7px;
 		top: -9px;
 		bottom: 9px;
-		border-left: 1px solid #cfd6dd;
+		border-left: 1px solid var(--border-subtle-20);
 	}
 
 	&::after {
@@ -406,7 +406,7 @@ mat-dialog-content {
 		left: 7px;
 		top: 9px;
 		width: 10px;
-		border-top: 1px solid #cfd6dd;
+		border-top: 1px solid var(--border-subtle-20);
 	}
 }
 
@@ -420,13 +420,13 @@ mat-dialog-content {
 .role-copy {
 	small {
 		margin-top: 1px;
-		color: #087cf0;
+		color: var(--interactive-text-19);
 		font-weight: 600;
 	}
 
 	> span:last-child:not(.role-title-row) {
 		margin-top: 2px;
-		color: #687382;
+		color: var(--text-secondary-05);
 		font-size: 9px;
 		line-height: 1.35;
 	}
@@ -437,8 +437,8 @@ mat-dialog-content {
 	align-items: center;
 	padding: 2px 6px;
 	border-radius: 999px;
-	background-color: #e8f3ff;
-	color: #087cf0;
+	background-color: var(--interactive-bg-15);
+	color: var(--interactive-text-19);
 	font-size: 8px;
 	font-weight: 600;
 }
@@ -450,7 +450,7 @@ mat-dialog-content {
 	align-items: center;
 	justify-content: center;
 	gap: 7px;
-	color: #778291;
+	color: var(--text-secondary-02);
 	font-size: 11px;
 
 	i {
@@ -465,8 +465,8 @@ mat-dialog-actions {
 	justify-content: flex-end;
 	gap: 10px;
 	padding: 12px 24px 16px;
-	border-top: 1px solid #e2e6ea;
-	background-color: #f8f9fa;
+	border-top: 1px solid var(--border-subtle-13);
+	background-color: var(--surface-02);
 
 	button {
 		min-width: 118px;

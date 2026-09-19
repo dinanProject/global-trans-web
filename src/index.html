@@ -10,7 +10,40 @@
 	<meta name="mobile-web-app-capable" content="yes" />
 	<link rel="icon" type="image/x-icon" href="favicon.ico" />
 
+	<script>
+		(function () {
+			var theme = 'light';
+			var isLoginRoute = window.location.pathname.indexOf('/auth/login') === 0;
+
+			if (!isLoginRoute) {
+				try {
+					theme = localStorage.getItem('global-trans-theme') === 'dark' ? 'dark' : 'light';
+				} catch (e) {
+					theme = 'light';
+				}
+			}
+
+			document.documentElement.setAttribute('data-theme', theme);
+			document.documentElement.style.colorScheme = theme;
+		})();
+	</script>
+
 	<style>
+		/*
+		 * First-paint fallback only. The semantic theme remains authoritative in
+		 * _theme-tokens.scss; these values mirror --app-background so the browser
+		 * never paints its default white canvas before the compiled CSS is ready.
+		 */
+		html,
+		body {
+			background: #fafafa;
+		}
+
+		html[data-theme="dark"],
+		html[data-theme="dark"] body {
+			background: #0d1117;
+		}
+
 		.loading {
 			width: 100%;
 			height: 100%;

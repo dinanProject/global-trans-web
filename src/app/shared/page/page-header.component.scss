@@ -5,13 +5,15 @@
 	display: flex;
 	place-content: flex-end flex-start;
 	align-items: flex-end;
-	background-color: #FFFFFF;
-	color: #354052;
-	box-shadow: 0 2px 2px rgb(206 197 197 / 5%), 0 1px 0 rgb(0 0 0 / 5%);
+	background-color: var(--surface-01);
+	color: var(--text-primary-01);
+	box-shadow:
+		0 2px 2px var(--shadow-73),
+		0 1px 0 var(--shadow-74);
 	z-index: 1;
 
 	::ng-deep {
-		>.form-group {
+		> .form-group {
 			margin-right: 10px;
 			margin-bottom: 0px;
 		}

@@ -3,8 +3,8 @@
 	flex-direction: column;
 	box-sizing: border-box;
 	display: flex;
-	border: 1px solid #e6eaee;
-	background-color: #FFFFFF;
+	border: 1px solid var(--border-subtle-61);
+	background-color: var(--surface-01);
 	border-radius: var(--border-radius-larger);
 	border-collapse: collapse;
 	position: relative;
@@ -16,7 +16,7 @@
 ::ng-deep {
 	.panel-header {
 		padding: 25px 22px 15px;
-		border-bottom: 1px solid #e6eaee;
+		border-bottom: 1px solid var(--border-subtle-61);
 
 		.panel-title {
 			font-size: 20px;
@@ -27,7 +27,7 @@
 
 	.panel-filter {
 		padding: 10px 22px;
-		border-bottom: 1px solid #e6eaee;
+		border-bottom: 1px solid var(--border-subtle-61);
 		place-content: flex-end flex-start;
 		align-items: flex-end;
 		flex-direction: row;
@@ -43,8 +43,7 @@
 			}
 		}
 
-		>div {
-
+		> div {
 			// margin-right: 10px;
 			&:last-child {
 				margin-right: 0px;
@@ -54,7 +53,7 @@
 
 	.panel-body {
 		padding: 30px;
-		border-bottom: 1px solid #e6eaee;
+		border-bottom: 1px solid var(--border-subtle-61);
 
 		&:last-child {
 			border-bottom: none;
@@ -68,6 +67,6 @@
 
 	.panel-footer {
 		padding: 12px 22px;
-		border-top: 1px solid #e6eaee;
+		border-top: 1px solid var(--border-subtle-61);
 	}
 }

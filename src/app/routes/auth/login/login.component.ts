@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
@@ -27,6 +28,7 @@ export class LoginComponent implements OnInit {
 	private readonly router = inject(Router);
 	private readonly loginService = inject(LoginService);
 	private readonly sessionService = inject(SessionService);
+	private readonly document = inject(DOCUMENT);
 	private readonly destroyRef = inject(DestroyRef);
 
 	readonly formGroup = this.formBuilder.group({
@@ -48,6 +50,10 @@ export class LoginComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+		// Login is intentionally always Light. Do not overwrite the stored app preference;
+		// MainComponent/ThemeService will restore it after authentication.
+		this.document.documentElement.setAttribute('data-theme', 'light');
+
 		const requestedReturnUrl =
 			this.activatedRoute.snapshot.queryParamMap.get('returnUrl');
 

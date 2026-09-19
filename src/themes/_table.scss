@@ -1,12 +1,12 @@
 .mat-mdc-table {
 	.mat-mdc-header-row {
-		background-color: #f5f8fa;
+		background-color: var(--table-header-surface);
 		height: 42px;
 		min-height: 42px;
-		border-bottom: 1px solid #e6eaee;
+		border-bottom: 1px solid var(--border);
 		.mat-mdc-header-cell {
 			font-family: "Poppins";
-			color: #7f8fa4;
+			color: var(--text-muted);
 			font-size: 14px;
 			font-weight: 500;
 			// border-bottom: 1px solid #e6eaee;
@@ -14,12 +14,12 @@
 		}
 	}
 	.mat-mdc-row {
-		border-bottom: 1px solid #e6eaee;
+		border-bottom: 1px solid var(--border);
 		// border-bottom: none;
 		// padding: 0px 10px;
 		.mat-mdc-cell {
 			// color: #7f8fa4;
-			color: #354052;
+			color: var(--text-primary);
 			font-family: "Poppins";
 			font-size: 14px;
 			font-weight: 400;

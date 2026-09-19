@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use "@angular/material" as mat;
+@use "themes/theme-tokens";
 $animation-number: 0;
 @use "themes/font";
 @use "themes/button";
@@ -41,60 +42,73 @@ $theme: mat.m2-define-light-theme(
 // );
 
 @include mat.all-component-themes($theme);
+
+$dark-theme: mat.m2-define-dark-theme(
+	(
+		color: (
+			primary: $primary,
+			accent: $accent,
+			warn: $warn,
+		),
+	)
+);
+
+html[data-theme="dark"] {
+	@include mat.all-component-colors($dark-theme);
+	color-scheme: dark;
+}
 // @include mat-base-typography($custom-typography);
 // @include mat-core($custom-typography);
 
 :root {
-	--border-color: #e6eaee;
-	--blue1: #edf6fd;
-	--blue2: #c5e5fe;
-	--blue3: #a6ddff;
-	--blue4: #8bc7ff;
-	--blue5: #61bdff;
-	--blue6: #4ca9ff;
-	--blue7: #5885dc;
-	--blue8: #007bff;
-	--blue9: #0062cc;
+	--border-color: var(--border);
+	--blue1: var(--status-info-text-26);
+	--blue2: var(--status-info-text-27);
+	--blue3: var(--status-info-text-28);
+	--blue4: var(--status-info-text-29);
+	--blue5: var(--status-info-text-30);
+	--blue6: var(--status-info-text-31);
+	--blue7: var(--status-info-text-32);
+	--blue8: var(--status-info-text-33);
+	--blue9: var(--status-info-text-34);
 
-	--gray1: #fafafa;
-	--gray2: #f5f5f5;
-	--gray3: #e6eaee;
-	--gray4: #999999;
-	--gray5: #53575e;
+	--gray1: var(--theme-color-06);
+	--gray2: var(--theme-color-07);
+	--gray3: var(--theme-color-08);
+	--gray4: var(--theme-color-09);
+	--gray5: var(--theme-color-10);
 
-	--gray6: #ced4da;
+	--gray6: var(--theme-color-11);
 
-	--green1: #c5e069;
-	--green2: #7ead5b;
+	--green1: var(--status-success-text-19);
+	--green2: var(--status-success-text-20);
 
-	--orange1: #f3d9b0;
-	--orange2: #feb855;
+	--orange1: var(--status-warning-text-09);
+	--orange2: var(--status-warning-text-10);
 
-	--purple1: #989cdb;
-	--purple2: #b599d8;
-	--purple3: #86549e;
+	--purple1: var(--theme-color-12);
+	--purple2: var(--theme-color-13);
+	--purple3: var(--theme-color-14);
 
-	--red1: #fb6a6a;
-	--red2: #d74545;
-	--red3: #ff0000;
-	--red4: #cc0000;
+	--red1: var(--status-danger-text-24);
+	--red2: var(--status-danger-text-25);
+	--red3: var(--status-danger-text-26);
+	--red4: var(--status-danger-text-27);
 
-	--white: #ffffff;
-	--yellow: #ffd35c;
+	--white: var(--theme-color-15);
+	--yellow: var(--status-warning-text-11);
 
-	--background: var(--gray1);
-	--border: var(--gray3);
-	--input-border: var(--gray6);
-	--input-border-color: var(--gray6);
-	--primary: var(blue5);
+	--background: var(--app-background);
+	--input-border: var(--input-border-semantic);
+	--input-border-color: var(--input-border-semantic);
+	--primary: var(--primary-semantic);
 	--danger: var(--red3);
-	--text: var(--gray5);
-	--text-error: var(--red3);
-	--text-light: var(--gray4);
-	--text-link: var(--blue8);
+	--text: var(--text-secondary);
+	--text-error: var(--status-danger-text);
+	--text-light: var(--text-subtle);
 
-	--primary: #4ca9ff;
-	--danger: #dc3545;
+	--primary: var(--primary-semantic);
+	--danger: var(--status-danger-text);
 	--border-radius: 6px;
 	--border-radius-larger: 8px;
 }
@@ -127,7 +141,7 @@ body {
 	button {
 		font-weight: 400;
 		font-family: "Poppins";
-		color: #354052;
+		color: var(--text-primary);
 		line-height: normal;
 	}
 
@@ -181,7 +195,7 @@ body {
 
 	.separator {
 		height: 1px;
-		background-color: #dfe3e9;
+		background-color: var(--surface-muted-29);
 		margin: 10px 0px;
 	}
 
@@ -198,7 +212,7 @@ body {
 					float: right;
 					font-size: 12px;
 					margin-left: 4px;
-					color: #ed1c24 !important;
+					color: var(--status-danger-text-28) !important;
 				}
 			}
 		}
@@ -241,28 +255,28 @@ body {
 	}
 
 	.form-control[readonly] {
-		background-color: #ffffff;
+		background-color: var(--surface);
 	}
 
 	.panel .panel-filter {
 		padding: 10px 22px 18px;
-		border-bottom: 1px solid #e6eaee;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.mat-mdc-dialog-container {
 		padding: 0px;
 		border-radius: var(--border-radius-larger);
-		background-color: #eff3f6;
+		background-color: var(--dialog-body-surface);
 		min-height: 200px;
 
 		.mat-mdc-dialog-title {
 			padding: 10px 20px;
 			margin: 0px;
-			background-color: #ffffff;
+			background-color: var(--dialog-header-surface);
 			box-shadow:
-				0 2px 2px rgba(0, 0, 0, 0.05),
-				0 1px 0 rgba(0, 0, 0, 0.05);
-			color: #354052;
+				0 2px 2px var(--shadow-soft),
+				0 1px 0 var(--shadow-soft);
+			color: var(--text-primary);
 			font-family: "Poppins";
 			font-weight: 400;
 			font-size: 16px;
@@ -278,10 +292,10 @@ body {
 		}
 
 		.mat-mdc-dialog-actions {
-			background-color: #f2f2f2;
+			background-color: var(--dialog-footer-surface);
 			box-shadow:
-				0 -2px 2px rgba(0, 0, 0, 0.05),
-				0 -1px 0 rgba(0, 0, 0, 0.05);
+				0 -2px 2px var(--shadow-soft),
+				0 -1px 0 var(--shadow-soft);
 			padding: 10px 20px;
 			position: relative;
 			z-index: 2;
@@ -308,15 +322,15 @@ body {
 			}
 
 			&.menu-success {
-				color: #249533;
+				color: var(--status-success-text);
 			}
 
 			&.menu-primary {
-				color: #1a91eb;
+				color: var(--primary-text);
 			}
 
 			&.menu-danger {
-				color: #d35847;
+				color: var(--status-danger-text);
 			}
 		}
 
@@ -333,7 +347,7 @@ body {
 				height: 40px;
 				font-size: 14px;
 				padding: 0 30px 0 20px;
-				color: rgba(0, 0, 0, 0.7);
+				color: var(--text-primary-38);
 
 				i {
 					width: 35px;
@@ -341,7 +355,7 @@ body {
 				}
 
 				&:hover {
-					color: #354052;
+					color: var(--text-primary);
 				}
 
 				&:focus {
@@ -355,7 +369,7 @@ body {
 			max-width: 280px;
 			margin-top: -5px;
 			margin-right: 10px;
-			background-color: #293549;
+			background-color: var(--surface-muted-31);
 
 			a.mat-mdc-menu-item {
 				text-decoration: none;
@@ -367,12 +381,12 @@ body {
 				height: 50px;
 				font-size: 14px;
 				padding: 0 30px 0 20px;
-				color: #ffffff;
+				color: var(--text-on-primary-01);
 
 				.logo {
 					width: 35px;
 					height: 35px;
-					background-color: #299ef5;
+					background-color: var(--interactive-solid-57);
 					text-align: center;
 					line-height: 40px;
 					border-radius: 3px;
@@ -381,13 +395,13 @@ body {
 
 				h1 {
 					font-size: 14px;
-					color: #ffffff;
+					color: var(--text-on-primary-01);
 					margin: 0;
 					padding: 0px 15px;
 				}
 
 				&:hover {
-					background-color: rgba(0, 0, 0, 0.1);
+					background-color: var(--surface-muted-32);
 				}
 
 				&:focus {
@@ -419,7 +433,7 @@ body {
 			padding-bottom: 5px;
 
 			&:hover {
-				background-color: #e9f4ff;
+				background-color: var(--interactive-bg-91);
 			}
 		}
 	}
@@ -433,12 +447,12 @@ body {
 	.scroll {
 		&::-webkit-scrollbar {
 			width: 6px;
-			background-color: rgba(255, 255, 255, 0.1);
+			background-color: var(--surface-16);
 		}
 
 		&::-webkit-scrollbar-thumb {
 			border-radius: 6px;
-			background-color: #4ca9ff;
+			background-color: var(--interactive-solid-58);
 		}
 
 		&.scroll-y {
@@ -462,11 +476,11 @@ body {
 			display: flex;
 			place-content: flex-end flex-start;
 			align-items: flex-end;
-			background-color: #ffffff;
-			color: #354052;
+			background-color: var(--surface);
+			color: var(--text-primary);
 			box-shadow:
-				0 2px 2px rgb(206 197 197 / 5%),
-				0 1px 0 rgb(0 0 0 / 5%);
+				0 2px 2px var(--shadow-73),
+				0 1px 0 var(--shadow-74);
 			z-index: 1;
 
 			> .form-group {
@@ -493,9 +507,9 @@ body {
 	.error-message {
 		font-size: 14px;
 		padding: 10px 30px;
-		border: 1px solid #ed1c24;
-		color: #ed1c24;
-		background-color: #fde4e5;
+		border: 1px solid var(--status-danger-strong-border);
+		color: var(--status-danger-strong-text);
+		background-color: var(--status-danger-strong-bg-soft);
 		margin: 0px;
 		line-height: normal;
 		border-radius: 3.5px;
@@ -519,9 +533,9 @@ body {
 /* Work queue notification snackbar */
 .work-notification-snackbar,
 .mat-mdc-snack-bar-container.work-notification-snackbar {
-	--mdc-snackbar-container-color: #ffffff !important;
-	--mdc-snackbar-supporting-text-color: #354052 !important;
-	--mat-snack-bar-button-color: #007bff !important;
+	--mdc-snackbar-container-color: var(--notification-surface) !important;
+	--mdc-snackbar-supporting-text-color: var(--text-primary) !important;
+	--mat-snack-bar-button-color: var(--notification-action) !important;
 }
 
 .work-notification-snackbar .mat-mdc-snack-bar-container,
@@ -529,18 +543,18 @@ body {
 	.mdc-snackbar__surface {
 		min-width: 360px;
 		max-width: 520px;
-		border: 1px solid #c5e5fe;
-		border-left: 4px solid #4ca9ff;
+		border: 1px solid var(--notification-border);
+		border-left: 4px solid var(--notification-accent);
 		border-radius: 8px;
-		background: #ffffff !important;
-		background-color: #ffffff !important;
-		color: #354052 !important;
-		box-shadow: 0 8px 24px rgba(53, 64, 82, 0.16);
+		background: var(--notification-surface) !important;
+		background-color: var(--notification-surface) !important;
+		color: var(--text-primary) !important;
+		box-shadow: 0 8px 24px var(--shadow-raised);
 	}
 
 	.mat-mdc-snack-bar-label,
 	.mdc-snackbar__label {
-		color: #354052 !important;
+		color: var(--text-primary) !important;
 		font-size: 13px;
 		font-weight: 500;
 		line-height: 1.45;
@@ -548,13 +562,13 @@ body {
 
 	.mat-mdc-button.mat-mdc-snack-bar-action,
 	.mat-mdc-snack-bar-action {
-		color: #007bff !important;
+		color: var(--notification-action) !important;
 		font-weight: 600;
 	}
 
 	.mat-mdc-button.mat-mdc-snack-bar-action:hover,
 	.mat-mdc-snack-bar-action:hover {
-		background-color: #edf6fd;
+		background-color: var(--primary-soft);
 	}
 }
 
@@ -629,11 +643,11 @@ body {
 .mat-mdc-snack-bar-container.work-notification-snackbar,
 .work-notification-snackbar.mat-mdc-snack-bar-container,
 .cdk-overlay-pane.work-notification-snackbar {
-	--mdc-snackbar-container-color: #ffffff !important;
-	--mat-snack-bar-container-color: #ffffff !important;
-	--mdc-snackbar-supporting-text-color: #354052 !important;
-	--mat-snack-bar-supporting-text-color: #354052 !important;
-	--mat-snack-bar-button-color: #007bff !important;
+	--mdc-snackbar-container-color: var(--notification-surface) !important;
+	--mat-snack-bar-container-color: var(--notification-surface) !important;
+	--mdc-snackbar-supporting-text-color: var(--text-primary) !important;
+	--mat-snack-bar-supporting-text-color: var(--text-primary) !important;
+	--mat-snack-bar-button-color: var(--notification-action) !important;
 }
 
 .mat-mdc-snack-bar-container.work-notification-snackbar .mdc-snackbar__surface,
@@ -644,9 +658,9 @@ body {
 	.mat-mdc-snackbar-surface,
 .cdk-overlay-pane.work-notification-snackbar .mdc-snackbar__surface,
 .cdk-overlay-pane.work-notification-snackbar .mat-mdc-snackbar-surface {
-	background: #ffffff !important;
-	background-color: #ffffff !important;
-	color: #354052 !important;
+	background: var(--notification-surface) !important;
+	background-color: var(--notification-surface) !important;
+	color: var(--text-primary) !important;
 }
 
 /* Equipment unit image preview: keep the CDK dialog shell visually transparent so
@@ -667,5 +681,120 @@ body {
 		border-radius: 12px !important;
 		background: transparent !important;
 		box-shadow: none !important;
+	}
+}
+
+/* Shared theme compatibility for Bootstrap controls and CDK/Material overlays. */
+html[data-theme="dark"] {
+	body {
+		background-color: var(--app-background);
+		color: var(--text-primary);
+	}
+
+	.form-control,
+	.custom-select,
+	.input-group-text,
+	select,
+	textarea,
+	input:not([type="checkbox"]):not([type="radio"]) {
+		border-color: var(--input-border-semantic);
+		background-color: var(--input-surface);
+		color: var(--text-primary);
+	}
+
+	.form-control::placeholder,
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--text-subtle);
+		opacity: 1;
+	}
+
+	.form-control:disabled,
+	.form-control[readonly],
+	input:disabled,
+	select:disabled,
+	textarea:disabled {
+		background-color: var(--surface-muted);
+		color: var(--text-disabled);
+	}
+
+	.btn-light {
+		border-color: var(--border-strong);
+		background-color: var(--surface-raised);
+		color: var(--text-secondary);
+	}
+
+	.btn-light:hover:not(:disabled),
+	.btn-light:focus:not(:disabled) {
+		border-color: var(--focus-ring);
+		background-color: var(--surface-hover);
+		color: var(--text-primary);
+	}
+
+	.dropdown-menu,
+	.mat-mdc-menu-panel,
+	.mat-mdc-select-panel,
+	.mat-datepicker-content,
+	.mat-mdc-autocomplete-panel {
+		background-color: var(--popover-surface);
+		color: var(--text-primary);
+	}
+
+	.mat-mdc-option,
+	.mat-mdc-menu-item,
+	.mat-mdc-paginator,
+	.mat-mdc-table,
+	.mat-mdc-dialog-surface {
+		color: var(--text-primary);
+	}
+
+	/* Material M2 dark defaults use warm grays. Keep Material behavior, but make
+	   application surfaces follow the same neutral semantic hierarchy. */
+	.mat-mdc-table {
+		background-color: var(--surface) !important;
+	}
+
+	.mat-mdc-header-row,
+	.mat-mdc-header-cell {
+		background-color: var(--table-header-surface) !important;
+	}
+
+	.mat-mdc-row,
+	.mat-mdc-cell {
+		background-color: var(--surface) !important;
+	}
+
+	.mat-mdc-row:hover .mat-mdc-cell {
+		background-color: var(--surface-hover) !important;
+	}
+
+	.mat-mdc-cell,
+	.mat-mdc-header-cell {
+		border-bottom-color: var(--border) !important;
+	}
+
+	.mat-mdc-paginator {
+		background-color: var(--surface-raised) !important;
+	}
+
+	.mat-mdc-dialog-surface {
+		background-color: var(--dialog-header-surface) !important;
+	}
+
+	.mat-mdc-option:hover:not(.mdc-list-item--disabled),
+	.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled),
+	.mat-mdc-menu-item:hover:not([disabled]) {
+		background-color: var(--surface-hover);
+	}
+
+	.cdk-overlay-container {
+		color: var(--text-primary);
+	}
+
+	/* Equipment SVG assets are fixed monochrome brand-blue files. Keep assets unchanged;
+	   render their strokes as high-contrast light foreground on Dark surfaces. */
+	img[src*="assets/icons/equipment/"] {
+		filter: brightness(0) invert(1);
+		opacity: 0.92;
 	}
 }

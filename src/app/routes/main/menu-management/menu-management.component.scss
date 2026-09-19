@@ -25,7 +25,7 @@
 .menu-table {
 	th {
 		font-weight: 500;
-		color: #354052;
+		color: var(--text-primary-01);
 		white-space: nowrap;
 	}
 
@@ -58,11 +58,11 @@
 		}
 
 		&.active {
-			color: #249533;
+			color: var(--interactive-text-16);
 
 			.status-dot {
-				background-color: #38a84f;
-				box-shadow: 0 0 0 2px rgba(56, 168, 79, 0.12);
+				background-color: var(--interactive-solid-29);
+				box-shadow: 0 0 0 2px var(--shadow-23);
 
 				&::before,
 				&::after {
@@ -70,7 +70,7 @@
 					position: absolute;
 					inset: 0;
 					border-radius: inherit;
-					background-color: rgba(56, 168, 79, 0.38);
+					background-color: var(--interactive-solid-30);
 					animation: status-pulse 1.6s ease-out infinite;
 				}
 
@@ -81,10 +81,10 @@
 		}
 
 		&.inactive {
-			color: #999999;
+			color: var(--text-muted-05);
 
 			.status-dot {
-				background-color: #b7bdc5;
+				background-color: var(--surface-muted-03);
 			}
 		}
 	}
@@ -143,8 +143,8 @@
 	align-items: center;
 	justify-content: center;
 	border-radius: var(--border-radius);
-	background-color: var(--blue1);
-	color: var(--blue8);
+	background-color: var(--management-icon-surface);
+	color: var(--management-icon-foreground);
 
 	i {
 		color: inherit;
@@ -164,8 +164,8 @@
 	text-align: center;
 
 	&.active {
-		color: #249533;
-		background-color: #eaf7ec;
+		color: var(--interactive-text-16);
+		background-color: var(--interactive-bg-82);
 	}
 
 	&.inactive {

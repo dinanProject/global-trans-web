@@ -106,12 +106,11 @@
 						</th>
 						<td mat-cell *matCellDef="let email">
 							<div class="subject-cell">
-								<strong [title]="email.subject">{{
-									email.subject
-									}}</strong>
+								<strong>
+									{{ email.subject }}
+								</strong>
 								<small class="text-secondary">
 									{{ email.moduleCode || "—" }}
-									<span *ngIf="email.referenceUuid">• {{ email.referenceUuid }}</span>
 								</small>
 							</div>
 						</td>

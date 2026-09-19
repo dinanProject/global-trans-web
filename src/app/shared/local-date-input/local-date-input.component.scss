@@ -11,7 +11,7 @@
 .local-date-display {
 	padding-right: 38px;
 	cursor: pointer;
-	background-color: #fff;
+	background-color: var(--surface-07);
 }
 
 .local-date-display:disabled {
@@ -37,7 +37,7 @@
 	height: 30px;
 	border: 0;
 	background: transparent;
-	color: #64748b;
+	color: var(--text-secondary-01);
 	cursor: pointer;
 }
 

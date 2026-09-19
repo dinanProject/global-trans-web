@@ -31,7 +31,7 @@
 	}
 
 	input:checked + .toggle-track {
-		background: #ffad32;
+		background: var(--interactive-solid-32);
 	}
 
 	input:checked + .toggle-track .toggle-thumb {
@@ -47,7 +47,7 @@
 	height: 22px;
 	padding: 2px;
 	border-radius: 999px;
-	background: #c9ced6;
+	background: var(--surface-muted-09);
 	transition: background-color 0.2s ease;
 }
 
@@ -56,8 +56,8 @@
 	width: 18px;
 	height: 18px;
 	border-radius: 50%;
-	background: #ffffff;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+	background: var(--surface-01);
+	box-shadow: 0 1px 3px var(--shadow-26);
 	transition: transform 0.2s ease;
 }
 
@@ -88,7 +88,7 @@ textarea {
 	}
 
 	strong {
-		color: #354052;
+		color: var(--text-primary-01);
 	}
 }
 
@@ -100,7 +100,7 @@ textarea {
 	align-items: center;
 	justify-content: center;
 	border-radius: 8px;
-	background: #e7f0ff;
+	background: var(--interactive-bg-25);
 
 	img {
 		width: 24px;
@@ -119,10 +119,10 @@ textarea {
 	max-width: 760px;
 	margin: 0 auto;
 	overflow: hidden;
-	border: 1px solid #e3e7ed;
+	border: 1px solid var(--border-subtle-23);
 	border-radius: 10px;
-	background: #ffffff;
-	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	background: var(--surface-01);
+	box-shadow: 0 1px 2px var(--shadow-27);
 }
 
 .equipment-image-file-input {
@@ -142,7 +142,7 @@ textarea {
 	padding: 0;
 	display: block;
 	border: 0;
-	background: #ffffff;
+	background: var(--surface-01);
 	color: inherit;
 	text-align: inherit;
 	cursor: pointer;
@@ -151,14 +151,14 @@ textarea {
 		box-shadow 0.18s ease;
 
 	&:hover {
-		background: #fafbfc;
+		background: var(--surface-06);
 	}
 
 	&:focus-visible {
 		position: relative;
 		z-index: 1;
 		outline: 0;
-		box-shadow: inset 0 0 0 2px rgba(58, 130, 246, 0.35);
+		box-shadow: inset 0 0 0 2px var(--shadow-28);
 	}
 }
 
@@ -167,7 +167,7 @@ textarea {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: #ffffff;
+	background: var(--surface-01);
 
 	img {
 		width: 100%;
@@ -187,8 +187,8 @@ textarea {
 	justify-content: center;
 	gap: 7px;
 	padding: 28px;
-	background: #fafbfc;
-	color: #75808f;
+	background: var(--surface-06);
+	color: var(--text-secondary-18);
 	text-align: center;
 
 	i {
@@ -199,13 +199,13 @@ textarea {
 		align-items: center;
 		justify-content: center;
 		border-radius: 12px;
-		background: #eef4ff;
+		background: var(--interactive-bg-26);
 		font-size: 21px;
-		color: #4d86e8;
+		color: var(--interactive-text-24);
 	}
 
 	strong {
-		color: #354052;
+		color: var(--text-primary-01);
 	}
 
 	span {
@@ -219,8 +219,8 @@ textarea {
 	justify-content: space-between;
 	gap: 16px;
 	padding: 12px 14px;
-	border-top: 1px solid #edf0f4;
-	background: #ffffff;
+	border-top: 1px solid var(--border-subtle-10);
+	background: var(--surface-01);
 
 	> div:first-child {
 		min-width: 0;
@@ -230,7 +230,7 @@ textarea {
 	}
 
 	strong {
-		color: #354052;
+		color: var(--text-primary-01);
 		font-size: 13px;
 	}
 
@@ -249,7 +249,7 @@ textarea {
 .image-validation-message {
 	margin-top: 7px;
 	font-size: 12px;
-	color: #dc3545;
+	color: var(--status-success-text-02);
 }
 
 @media (max-width: 575px) {

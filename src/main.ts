@@ -9,9 +9,27 @@ import { environment } from './environments/environment';
 import 'hammerjs';
 import 'hammer-timejs';
 
+const storedTheme = (() => {
+	try {
+		return localStorage.getItem('global-trans-theme') === 'dark'
+			? 'dark'
+			: 'light';
+	} catch {
+		return 'light';
+	}
+})();
+
+const isLoginRoute = window.location.pathname.startsWith('/auth/login');
+
+document.documentElement.setAttribute(
+	'data-theme',
+	isLoginRoute ? 'light' : storedTheme,
+);
+
 if (environment.production) {
 	enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-	.catch(err => console.error(err));
+platformBrowserDynamic()
+	.bootstrapModule(AppModule)
+	.catch((err) => console.error(err));

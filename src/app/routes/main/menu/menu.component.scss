@@ -14,7 +14,7 @@ li {
 	h4 {
 		margin: 30px 0 15px;
 		padding-left: 25px;
-		color: #7f8fa4;
+		color: var(--text-muted);
 		font-size: 14px;
 		font-weight: 600;
 		text-transform: uppercase;
@@ -43,14 +43,14 @@ li {
 			justify-content: flex-start;
 			width: 20px;
 			margin-right: 10px;
-			color: #7c828d;
+			color: var(--sidebar-icon);
 		}
 
 		h5 {
 			flex: 1 1 0;
 			box-sizing: border-box;
 			margin: 0;
-			color: #53575e;
+			color: var(--sidebar-text);
 			font-size: 14px;
 			font-weight: 400;
 			line-height: normal;
@@ -75,20 +75,20 @@ li {
 			margin-left: 8px;
 			padding: 0 6px;
 			border-radius: 10px;
-			background: #fee2e2;
-			color: #dc2626;
+			background: var(--sidebar-badge-bg);
+			color: var(--sidebar-badge-text);
 			font-size: 11px;
 			font-weight: 600;
 			line-height: 20px;
 		}
 
 		&.active {
-			background-color: #ebf6ff;
-			box-shadow: inset 4px 0 0 0 #61bdff;
+			background-color: var(--sidebar-item-selected);
+			box-shadow: inset 4px 0 0 0 var(--sidebar-accent);
 
 			i,
 			h5 {
-				color: #4ca9ff;
+				color: var(--sidebar-item-selected-text);
 			}
 
 			h5 {
@@ -97,19 +97,19 @@ li {
 		}
 
 		&:hover {
-			background-color: #fafafa;
+			background-color: var(--sidebar-item-hover);
 		}
 	}
 
 	&.selected {
 		> a {
 			position: relative;
-			background-color: #ebf6ff;
-			box-shadow: inset 4px 0 0 0 #61bdff;
+			background-color: var(--sidebar-item-selected);
+			box-shadow: inset 4px 0 0 0 var(--sidebar-accent);
 
 			i,
 			h5 {
-				color: #4ca9ff;
+				color: var(--sidebar-item-selected-text);
 			}
 
 			h5 {
@@ -124,7 +124,7 @@ li {
 				height: 0;
 				border-top: 7px solid transparent;
 				border-bottom: 7px solid transparent;
-				border-left: 7px solid #61bdff;
+				border-left: 7px solid var(--sidebar-accent);
 				content: "";
 				transform: translateY(-50%);
 			}

@@ -20,6 +20,7 @@ import { catchError, exhaustMap, filter, map } from 'rxjs/operators';
 
 import { User } from 'src/app/core/models/user.model';
 import { SessionService } from 'src/app/core/services/session.service';
+import { ThemeService } from 'src/app/core/services/theme.service';
 
 import { MenuComponent } from './menu/menu.component';
 import { Breadcrumb, MainService, MenuUnreadCounts } from './main.service';
@@ -60,6 +61,7 @@ export class MainComponent implements OnInit, OnDestroy {
 		private readonly router: Router,
 		private readonly dialog: MatDialog,
 		private readonly snackBar: MatSnackBar,
+		private readonly themeService: ThemeService,
 	) {
 		this.initSidebarEvents();
 		this.initToolbarTitle();
@@ -211,6 +213,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
 	getUserInitial(): string {
 		return this.getUserDisplayName().charAt(0).toUpperCase();
+	}
+
+	isDarkTheme(): boolean {
+		return this.themeService.isDarkTheme();
+	}
+
+	toggleTheme(): void {
+		this.themeService.toggleTheme();
 	}
 
 	ngOnDestroy(): void {

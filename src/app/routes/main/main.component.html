@@ -1,150 +1,103 @@
 <div class="page-container" fxFlexFill>
 	<mat-sidenav-container fxFlex fxLayout>
-		<mat-sidenav
-			#sidebar
-			[mode]="getSidebarMode()"
-			[opened]="isSidebarOpened()"
-			[autoFocus]="false"
-			fxFlex="300px"
-		>
+		<mat-sidenav #sidebar [mode]="getSidebarMode()" [opened]="isSidebarOpened()" [autoFocus]="false" fxFlex="300px">
 			<div class="sidebar" fxFlexFill fxLayout="column">
-				<div
-					class="site"
-					fxFlex="70px"
-					fxLayout
-					fxLayoutAlign="start center"
-					fxLayoutGap="15px"
-				>
+				<div class="site" fxFlex="70px" fxLayout fxLayoutAlign="start center" fxLayoutGap="15px">
 					<div class="logo" fxLayout="column">
-						<img
-							src="assets/images/logo-gtsi.png"
-							alt="Global Trans"
-						/>
+						<img src="assets/images/logo-gtsi.png" alt="Global Trans" />
 					</div>
 
 					<h1 fxFlex>Global Trans</h1>
 				</div>
 
 				<div class="search-bar">
-					<input
-						type="text"
-						class="form-control"
-						placeholder="Search Menu..."
-						(keyup)="searchMenu($event)"
-						(focus)="searchMenuFocus()"
-						(blur)="searchMenuBlur()"
-					/>
+					<input type="text" class="form-control" placeholder="Search Menu..." (keyup)="searchMenu($event)"
+						(focus)="searchMenuFocus()" (blur)="searchMenuBlur()" />
 				</div>
 
-				<div
-					class="sidebar-inner scroll scroll-y"
-					fxLayout="column"
-					fxFlex
-				>
+				<div class="sidebar-inner scroll scroll-y" fxLayout="column" fxFlex>
 					<div class="sidebar-menus">
 						@if (isMenuLoading) {
-							<div class="empty-menu">Loading menu...</div>
+						<div class="empty-menu">Loading menu...</div>
 						} @else if (menus.length > 0) {
-							<ul class="menus">
-								@for (menu of menus; track menu) {
-									<app-menu
-										[menu]="menu"
-										[currentUrl]="currentUrl"
-										[isMenuFiltering]="isMenuFiltering"
-										[selectedMenuIndex]="selectedMenuIndex"
-										(clicked)="onMenuClicked($event)"
-									></app-menu>
-								}
-							</ul>
+						<ul class="menus">
+							@for (menu of menus; track menu) {
+							<app-menu [menu]="menu" [currentUrl]="currentUrl" [isMenuFiltering]="isMenuFiltering"
+								[selectedMenuIndex]="selectedMenuIndex" (clicked)="onMenuClicked($event)"></app-menu>
+							}
+						</ul>
 						} @else {
-							<div class="empty-menu">No menu available</div>
+						<div class="empty-menu">No menu available</div>
 						}
 					</div>
+				</div>
+
+				<div class="sidebar-theme-control">
+					<button type="button" class="theme-switch" (click)="toggleTheme()"
+						[attr.aria-label]="isDarkTheme() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+						<span class="theme-switch-icon" aria-hidden="true">
+							<i class="fas" [class.fa-sun]="isDarkTheme()" [class.fa-moon]="!isDarkTheme()"></i>
+						</span>
+						<span class="theme-switch-label">
+							{{ isDarkTheme() ? "Light Mode" : "Dark Mode" }}
+						</span>
+						<span class="theme-switch-state" aria-hidden="true">
+							<span class="theme-switch-thumb"></span>
+						</span>
+					</button>
 				</div>
 			</div>
 		</mat-sidenav>
 
 		<mat-sidenav-content fxFlex fxLayout="column">
-			<mat-toolbar
-				fxLayout
-				fxLayoutAlign="start center"
-				fxFlex="70px"
-				class="p-0"
-			>
-				<div
-					class="sidebar-toggle"
-					(click)="toggleSidebar()"
-					fxFlex="0 0 70px"
-					fxLayout
-					fxLayoutAlign="center center"
-				>
+			<mat-toolbar fxLayout fxLayoutAlign="start center" fxFlex="70px" class="p-0">
+				<div class="sidebar-toggle" (click)="toggleSidebar()" fxFlex="0 0 70px" fxLayout
+					fxLayoutAlign="center center">
 					<i class="fas fa-bars"></i>
 				</div>
 
 				<div class="toolbar-separator" fxHide.lt-lg></div>
 
-				<div
-					fxFlex
-					fxLayout="column"
-					fxLayoutAlign="center start"
-					class="toolbar-title px-0 px-lg-4"
-				>
+				<div fxFlex fxLayout="column" fxLayoutAlign="center start" class="toolbar-title px-0 px-lg-4">
 					<h1>{{ getToolbarTitle() }}</h1>
 
 					@if (getToolbarSubtitle()) {
-						<h2>
-							{{ getToolbarSubtitle() }}
-						</h2>
+					<h2>
+						{{ getToolbarSubtitle() }}
+					</h2>
 					}
 				</div>
 
 				@if (user) {
-					<div
-						class="user"
-						[matMenuTriggerFor]="userMenu"
-						fxLayout
-						fxLayoutAlign="start center"
-						fxLayoutGap="10px"
-					>
-						<div class="user-detail">
-							<h1 fxHide.lt-lg>
-								{{ user.fullName }}
-							</h1>
+				<div class="user" [matMenuTriggerFor]="userMenu" fxLayout fxLayoutAlign="start center"
+					fxLayoutGap="10px">
+					<div class="user-detail">
+						<h1 fxHide.lt-lg>
+							{{ user.fullName }}
+						</h1>
 
-							<h2 fxHide.lt-lg>
-								{{ user.email }}
-							</h2>
-						</div>
-
-						<div
-							class="user-avatar"
-							fxLayout
-							fxLayoutAlign="center center"
-						>
-							{{ getUserInitial() }}
-						</div>
-
-						<i class="fas fa-chevron-down"></i>
+						<h2 fxHide.lt-lg>
+							{{ user.email }}
+						</h2>
 					</div>
-					<mat-menu
-						#userMenu="matMenu"
-						xPosition="before"
-						class="user-menu"
-					>
-						<button
-							mat-menu-item
-							type="button"
-							(click)="openChangePasswordDialog()"
-						>
-							<i class="fas fa-key"></i>
-							Change Password
-						</button>
 
-						<button mat-menu-item type="button" (click)="logout()">
-							<i class="fas fa-power-off"></i>
-							Logout
-						</button>
-					</mat-menu>
+					<div class="user-avatar" fxLayout fxLayoutAlign="center center">
+						{{ getUserInitial() }}
+					</div>
+
+					<i class="fas fa-chevron-down"></i>
+				</div>
+				<mat-menu #userMenu="matMenu" xPosition="before" class="user-menu">
+					<button mat-menu-item type="button" (click)="openChangePasswordDialog()">
+						<i class="fas fa-key"></i>
+						Change Password
+					</button>
+
+					<button mat-menu-item type="button" (click)="logout()">
+						<i class="fas fa-power-off"></i>
+						Logout
+					</button>
+				</mat-menu>
 				}
 			</mat-toolbar>
 

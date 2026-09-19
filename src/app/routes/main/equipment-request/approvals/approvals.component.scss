@@ -51,7 +51,7 @@
 
 	th {
 		font-weight: 500;
-		color: #354052;
+		color: var(--text-primary-01);
 		white-space: nowrap;
 	}
 
@@ -118,8 +118,8 @@
 	height: 20px;
 	padding: 0 8px;
 	border-radius: 0 0 6px 6px;
-	background: #fff0c2;
-	color: #a96600;
+	background: var(--interactive-bg-40);
+	color: var(--interactive-text-38);
 	font-size: 9px;
 	font-weight: 800;
 	letter-spacing: 0.08em;
@@ -128,11 +128,11 @@
 }
 
 :host ::ng-deep .approval-table .unread-row .mat-mdc-cell {
-	background: #fffdf8;
+	background: var(--interactive-bg-41);
 }
 
 :host ::ng-deep .approval-table .unread-row:hover .mat-mdc-cell {
-	background: #fffaf0;
+	background: var(--interactive-bg-42);
 }
 
 .request-icon {
@@ -143,8 +143,8 @@
 	align-items: center;
 	justify-content: center;
 	border-radius: var(--border-radius);
-	background: var(--blue1);
-	color: var(--blue8);
+	background: var(--approval-request-icon-surface);
+	color: var(--approval-request-icon-foreground);
 }
 
 .request-info {
@@ -154,7 +154,7 @@
 .request-no {
 	font-weight: 600;
 	line-height: 1.25;
-	color: #354052;
+	color: var(--text-primary-01);
 	overflow-wrap: anywhere;
 }
 
@@ -210,7 +210,7 @@
 
 .equipment-code {
 	flex: 0 0 auto;
-	color: #354052;
+	color: var(--text-primary-01);
 	font-size: 12px;
 	font-weight: 600;
 }
@@ -226,7 +226,7 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 
-	color: #5f6878;
+	color: var(--text-secondary-30);
 	font-size: 12px;
 }
 
@@ -265,7 +265,7 @@
 		display: block;
 		margin-top: 2px;
 
-		color: #354052;
+		color: var(--text-primary-01);
 
 		font-size: 12px;
 		font-weight: 600;
@@ -291,20 +291,39 @@
 	display: inline-flex;
 	align-items: center;
 	min-height: 26px;
-	padding: 4px 10px;
-	border-radius: 12px;
 	font-size: 12px;
 	font-weight: 600;
 	white-space: nowrap;
 }
 
 .stage-badge {
-	background: #eef6ff;
-	color: #1e74c6;
+	padding: 4px 10px;
+	border-radius: 12px;
 }
 
 .status-badge {
-	background: var(--gray2);
+	gap: 7px;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+
+	&::before {
+		width: 7px;
+		height: 7px;
+		flex: 0 0 7px;
+		border-radius: 50%;
+		background: currentColor;
+		content: "";
+	}
+}
+
+.stage-badge {
+	background: var(--interactive-bg-20);
+	color: var(--interactive-text-39);
+}
+
+.status-badge {
 	color: var(--gray6);
 }
 
@@ -312,30 +331,25 @@
 .client-approved,
 .gtsi-review,
 .gtsi-reviewed {
-	background: #fff4d8;
-	color: #916b00;
+	color: var(--interactive-text-40);
 }
 
 .gtsi-approved,
 .assigned {
-	background: var(--blue1);
 	color: var(--blue8);
 }
 
 .partially-completed {
-	background: #fff4d8;
-	color: #916b00;
+	color: var(--status-success-text-03);
 }
 
 .rejected,
 .cancelled {
-	background: #fff0f1;
-	color: #c53e49;
+	color: var(--status-danger-text-11);
 }
 
 .completed {
-	background: #eaf8ed;
-	color: #249533;
+	color: var(--status-success-text-04);
 }
 
 .action-column {
@@ -382,7 +396,7 @@
 
 	h5 {
 		margin: 0 0 8px;
-		color: #354052;
+		color: var(--text-primary-01);
 	}
 
 	p {
@@ -412,25 +426,25 @@
 		position: sticky;
 		right: 0;
 		z-index: 2;
-		background-color: #ffffff;
-		box-shadow: -1px 0 0 #eaecf0;
+		background-color: var(--surface-01);
+		box-shadow: -1px 0 0 var(--shadow-35);
 	}
 
 	.approval-table th.action-column {
 		z-index: 3;
-		background-color: #f5f7fa;
+		background-color: var(--interactive-bg-44);
 	}
 
 	.approval-table tr:hover td.action-column {
-		background-color: #f8fafc;
+		background-color: var(--interactive-bg-02);
 	}
 
 	:host ::ng-deep .approval-table .unread-row td.action-column {
-		background-color: #fffdf8;
+		background-color: var(--interactive-bg-41);
 	}
 
 	:host ::ng-deep .approval-table .unread-row:hover td.action-column {
-		background-color: #fffaf0;
+		background-color: var(--interactive-bg-42);
 	}
 }
 

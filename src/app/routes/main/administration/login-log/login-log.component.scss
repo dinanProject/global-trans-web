@@ -57,7 +57,7 @@
 	label {
 		margin-bottom: 6px;
 
-		color: #475569;
+		color: var(--text-primary-03);
 		font-size: 12px;
 		font-weight: 600;
 	}
@@ -66,21 +66,21 @@
 .form-control {
 	height: 38px;
 
-	border-color: #d8dee8;
+	border-color: var(--border-subtle-09);
 	border-radius: 6px;
 
-	color: #334155;
+	color: var(--text-primary-02);
 	font-size: 13px;
 
 	&:focus {
-		border-color: #80aef8;
+		border-color: var(--interactive-border-06);
 
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		box-shadow: 0 0 0 3px var(--shadow-20);
 	}
 
 	&:disabled {
 		cursor: not-allowed;
-		background-color: #f3f5f8;
+		background-color: var(--surface-muted-01);
 	}
 }
 
@@ -109,10 +109,10 @@
 		height: 48px;
 		padding: 0 16px;
 
-		border-bottom: 1px solid #e5e9f0;
+		border-bottom: 1px solid var(--border-subtle-06);
 
-		background-color: #f8fafc;
-		color: #475569;
+		background-color: var(--interactive-bg-02);
+		color: var(--text-primary-03);
 
 		font-size: 12px;
 		font-weight: 600;
@@ -124,16 +124,16 @@
 		min-height: 58px;
 		padding: 12px 16px;
 
-		border-bottom: 1px solid #edf0f4;
+		border-bottom: 1px solid var(--border-subtle-10);
 
-		color: #334155;
+		color: var(--text-primary-02);
 		font-size: 13px;
 		vertical-align: middle;
 	}
 
 	tr.mat-mdc-row:hover,
 	tr.mat-row:hover {
-		background-color: #fafcff;
+		background-color: var(--interactive-bg-07);
 	}
 }
 
@@ -144,7 +144,7 @@
 	gap: 3px;
 
 	strong {
-		color: #334155;
+		color: var(--status-danger-text-09);
 		font-size: 13px;
 		font-weight: 600;
 		line-height: 1.4;
@@ -172,11 +172,11 @@
 	height: 36px;
 	flex: 0 0 36px;
 
-	border: 1px solid #d9e7ff;
+	border: 1px solid var(--interactive-border-11);
 	border-radius: 50%;
 
-	background-color: #edf4ff;
-	color: #2563eb;
+	background-color: var(--interactive-bg-08);
+	color: var(--interactive-text-05);
 
 	font-size: 13px;
 	font-weight: 700;
@@ -191,7 +191,7 @@
 		margin: 0 0 2px;
 		overflow: hidden;
 
-		color: #263247;
+		color: var(--interactive-text-09);
 		font-size: 13px;
 		font-weight: 600;
 		line-height: 1.4;
@@ -214,11 +214,12 @@
 	justify-content: center;
 	gap: 7px;
 
-	min-width: 132px;
-	padding: 6px 12px;
+	min-width: 0;
+	padding: 0;
 
-	border: 1px solid transparent;
-	border-radius: 999px;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
 
 	font-size: 12px;
 	font-weight: 600;
@@ -233,24 +234,20 @@
 	}
 
 	&.status-success {
-		border-color: #bce8c5;
-		background-color: #eefaf1;
-		color: #24853a;
+		color: var(--status-success-text-01);
 
 		.status-dot {
-			background-color: #35a853;
-			box-shadow: 0 0 0 3px rgba(53, 168, 83, 0.11);
+			background-color: var(--status-success-bg-02);
+			box-shadow: 0 0 0 3px var(--shadow-21);
 		}
 	}
 
 	&.status-failed {
-		border-color: #f4c5c5;
-		background-color: #fff2f2;
-		color: #bd3030;
+		color: var(--status-danger-text-05);
 
 		.status-dot {
-			background-color: #d94848;
-			box-shadow: 0 0 0 3px rgba(217, 72, 72, 0.11);
+			background-color: var(--status-danger-bg-09);
+			box-shadow: 0 0 0 3px var(--shadow-22);
 		}
 	}
 }
@@ -271,11 +268,11 @@
 
 	padding: 4px 7px;
 
-	border: 1px solid #e2e7ee;
+	border: 1px solid var(--border-subtle-12);
 	border-radius: 5px;
 
-	background-color: #f6f8fa;
-	color: #475569;
+	background-color: var(--surface-05);
+	color: var(--text-primary-03);
 
 	font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 	font-size: 12px;
@@ -288,7 +285,7 @@
 	max-width: 320px;
 	overflow: hidden;
 
-	color: #64748b;
+	color: var(--text-secondary-01);
 	font-size: 12px;
 	line-height: 1.5;
 	text-overflow: ellipsis;
@@ -304,20 +301,20 @@
 	min-height: 280px;
 	padding: 30px;
 
-	color: #94a3b8;
+	color: var(--text-muted-03);
 	text-align: center;
 
 	i {
 		margin-bottom: 14px;
 
-		color: #c1c9d5;
+		color: var(--text-muted-04);
 		font-size: 36px;
 	}
 
 	h5 {
 		margin: 0 0 6px;
 
-		color: #536174;
+		color: var(--text-secondary-04);
 		font-size: 15px;
 		font-weight: 600;
 	}
@@ -337,8 +334,8 @@
 
 :host ::ng-deep .mat-mdc-paginator,
 :host ::ng-deep .mat-paginator {
-	border-top: 1px solid #e8ecf2;
-	background-color: #ffffff;
+	border-top: 1px solid var(--border-subtle-11);
+	background-color: var(--surface-01);
 }
 @media (max-width: 991px) {
 	.filter-content {
