@@ -139,9 +139,9 @@
 				<div class="narrative-grid">
 					<div class="text-section">
 						<div class="text-section-title">
-							<i class="fas fa-bullseye"></i><label>Purpose</label>
+							<i class="fas fa-sitemap"></i><label>Division</label>
 						</div>
-						<p>{{ request.purpose || "No purpose provided." }}</p>
+						<p>{{ request.divisionName || "No division provided." }}</p>
 					</div>
 					<div class="text-section">
 						<div class="text-section-title">
@@ -153,16 +153,20 @@
 
 				@if (attachments.length) {
 				<div class="request-attachments">
-					<div class="text-section-title"><i class="fas fa-paperclip"></i><label>Attachments</label><span>{{ attachments.length }}</span></div>
+					<div class="text-section-title"><i class="fas fa-paperclip"></i><label>Attachments</label><span>{{
+							attachments.length }}</span></div>
 					<div class="request-attachment-list">
 						@for (attachment of attachments; track attachment.uuid) {
 						<button type="button" class="request-attachment-card" (click)="openAttachment(attachment)">
 							@if (attachmentImageUrls.get(attachment.uuid); as thumbnailUrl) {
-							<img class="request-attachment-thumbnail" [src]="thumbnailUrl" [alt]="attachment.originalName" />
+							<img class="request-attachment-thumbnail" [src]="thumbnailUrl"
+								[alt]="attachment.originalName" />
 							} @else {
-							<i [class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+							<i
+								[class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
 							}
-							<span><strong>{{ attachment.originalName }}</strong><small>{{ formatFileSize(attachment.fileSize) }} · Open attachment</small></span>
+							<span><strong>{{ attachment.originalName }}</strong><small>{{
+									formatFileSize(attachment.fileSize) }} · Open attachment</small></span>
 							<i class="fas fa-external-link-alt"></i>
 						</button>
 						}

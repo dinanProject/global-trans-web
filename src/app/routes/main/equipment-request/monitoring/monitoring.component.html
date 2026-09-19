@@ -18,7 +18,7 @@
 			<div class="last-updated" *ngIf="lastUpdatedAt">
 				<span>Last updated</span>
 				<strong>{{
-					lastUpdatedAt | date: "dd MMM yyyy, HH:mm"
+					lastUpdatedAt | date: "dd/MM/yyyy HH:mm"
 					}}</strong>
 			</div>
 
@@ -216,21 +216,6 @@
 						</div>
 
 						<div class="form-group">
-							<label for="monitoringDivision">Division</label>
-
-							<select id="monitoringDivision" class="form-control" [(ngModel)]="filters.divisionUuid"
-								(ngModelChange)="onFilterChange()">
-								<option value="">All Divisions</option>
-
-								<option *ngFor="
-										let division of filteredDivisionOptions
-									" [value]="division.uuid">
-									{{ division.code }} — {{ division.name }}
-								</option>
-							</select>
-						</div>
-
-						<div class="form-group">
 							<label for="monitoringEquipment">Equipment</label>
 
 							<select id="monitoringEquipment" class="form-control" [(ngModel)]="filters.equipmentUuid"
@@ -278,15 +263,16 @@
 						<div class="form-group">
 							<label for="monitoringStartDate">Start Date</label>
 
-							<input id="monitoringStartDate" type="date" class="form-control"
-								[(ngModel)]="filters.startDate" (ngModelChange)="onFilterChange()" />
+							<app-local-date-input inputId="monitoringStartDate" mode="date"
+								[(ngModel)]="filters.startDate"
+								(ngModelChange)="onFilterChange()"></app-local-date-input>
 						</div>
 
 						<div class="form-group">
 							<label for="monitoringEndDate">End Date</label>
 
-							<input id="monitoringEndDate" type="date" class="form-control" [(ngModel)]="filters.endDate"
-								(ngModelChange)="onFilterChange()" />
+							<app-local-date-input inputId="monitoringEndDate" mode="date" [(ngModel)]="filters.endDate"
+								(ngModelChange)="onFilterChange()"></app-local-date-input>
 						</div>
 
 						<div class="form-group overdue-filter">
@@ -498,7 +484,7 @@
 									<small>
 										{{
 										assignment.requestDate
-										| date: "dd MMM yyyy"
+										| date: "dd/MM/yyyy"
 										}}
 									</small>
 								</td>
@@ -531,7 +517,7 @@
 												{{
 												assignment.plannedStartDate
 												| date
-												: "dd MMM yyyy"
+												: "dd/MM/yyyy"
 												}}
 											</strong>
 										</div>
@@ -544,7 +530,7 @@
 												{{
 												assignment.plannedEndDate
 												| date
-												: "dd MMM yyyy"
+												: "dd/MM/yyyy"
 												}}
 											</strong>
 										</div>
@@ -781,7 +767,7 @@
 											{{
 											assignment.plannedStartDate
 											| date
-											: "dd MMM yyyy"
+											: "dd/MM/yyyy"
 											}}
 										</strong>
 									</div>
@@ -795,7 +781,7 @@
 											{{
 											assignment.plannedEndDate
 											| date
-											: "dd MMM yyyy"
+											: "dd/MM/yyyy"
 											}}
 										</strong>
 									</div>

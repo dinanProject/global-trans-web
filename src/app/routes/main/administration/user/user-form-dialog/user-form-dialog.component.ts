@@ -37,7 +37,6 @@ export class UserFormDialogComponent {
 				email: (this.data.user.email ?? '').trim().toLowerCase(),
 				phone: this.data.user.phone?.trim() || null,
 				companyUuid: this.data.user.companyUuid,
-				divisionUuid: this.data.user.divisionUuid || null,
 				roleUuids: [...(this.data.user.roles ?? [])]
 					.map((role) => role.uuid)
 					.sort(),
@@ -59,7 +58,6 @@ export class UserFormDialogComponent {
 		],
 		phone: [this.data.user?.phone ?? '', [Validators.maxLength(30)]],
 		companyUuid: [this.data.user?.companyUuid ?? '', Validators.required],
-		divisionUuid: [this.data.user?.divisionUuid ?? ''],
 		roleUuids: [
 			this.data.user?.roles?.map((role) => role.uuid) ?? [],
 			Validators.required,
@@ -95,13 +93,6 @@ export class UserFormDialogComponent {
 			: 'Update user identity, organization, roles, and status.';
 	}
 
-	get availableDivisions() {
-		const companyUuid = this.form.controls.companyUuid.value;
-
-		return this.data.options.divisions.filter(
-			(item) => item.companyUuid === companyUuid,
-		);
-	}
 
 	get selectedRoleUuids(): string[] {
 		return this.form.controls.roleUuids.value;
@@ -143,17 +134,6 @@ export class UserFormDialogComponent {
 	}
 
 	companyChanged(): void {
-		const currentDivisionUuid = this.form.controls.divisionUuid.value;
-
-		if (
-			currentDivisionUuid &&
-			!this.availableDivisions.some(
-				(division) => division.uuid === currentDivisionUuid,
-			)
-		) {
-			this.form.controls.divisionUuid.setValue('');
-		}
-
 		const validRoleUuids = new Set(
 			this.availableRoles.map((role) => role.uuid),
 		);
@@ -228,7 +208,6 @@ export class UserFormDialogComponent {
 			email: value.email.trim().toLowerCase(),
 			phone: value.phone.trim() || null,
 			companyUuid: value.companyUuid,
-			divisionUuid: value.divisionUuid || null,
 			roleUuids: value.roleUuids,
 			isActive: value.isActive,
 		};
@@ -245,7 +224,6 @@ export class UserFormDialogComponent {
 				payload.email !== this.initialEditValue.email ||
 				payload.phone !== this.initialEditValue.phone ||
 				payload.companyUuid !== this.initialEditValue.companyUuid ||
-				payload.divisionUuid !== this.initialEditValue.divisionUuid ||
 				currentRoleUuids.length !==
 					this.initialEditValue.roleUuids.length ||
 				currentRoleUuids.some(

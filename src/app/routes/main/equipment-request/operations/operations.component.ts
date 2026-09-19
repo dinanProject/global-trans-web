@@ -1,4 +1,10 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import {
+	Component,
+	OnDestroy,
+	OnInit,
+	TemplateRef,
+	ViewChild,
+} from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -10,10 +16,7 @@ import {
 	RequestService,
 	UnitOption,
 } from '../request/request.service';
-import {
-	OperationsService,
-	EquipmentOperation,
-} from './operations.service';
+import { OperationsService, EquipmentOperation } from './operations.service';
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 import { Menu } from 'src/app/core/models/menu.model';
 import { MainService } from '../../main.service';
@@ -46,24 +49,29 @@ export class OperationsComponent implements OnInit, OnDestroy {
 	readonly STATUS_IN_PROGRESS = 'IN_PROGRESS';
 	readonly STATUS_PARTIALLY_COMPLETED = 'PARTIALLY_COMPLETED';
 	readonly STATUS_COMPLETED = 'COMPLETED';
+	readonly STATUS_STOPPED = 'STOPPED';
 
 	readonly OPERATION_RECORD_STATUS_ASSIGNED = 'ASSIGNED';
 	readonly OPERATION_RECORD_STATUS_IN_OPERATION = 'IN_OPERATION';
 	readonly OPERATION_RECORD_STATUS_COMPLETED = 'COMPLETED';
 	readonly OPERATION_RECORD_STATUS_REPLACED = 'REPLACED';
 	readonly OPERATION_RECORD_STATUS_CANCELLED = 'CANCELLED';
+	readonly OPERATION_RECORD_STATUS_STOPPED = 'STOPPED';
 
 	readonly OPERATION_STATUS_SCHEDULED = 'SCHEDULED';
 	readonly OPERATION_STATUS_STARTING_SOON = 'STARTING_SOON';
 	readonly OPERATION_STATUS_IN_OPERATION = 'IN_OPERATION';
 	readonly OPERATION_STATUS_ATTENTION = 'ATTENTION';
 	readonly OPERATION_STATUS_COMPLETED = 'COMPLETED';
+	readonly OPERATION_STATUS_STOPPED = 'STOPPED';
+
 	readonly operationStatuses = [
 		this.OPERATION_STATUS_SCHEDULED,
 		this.OPERATION_STATUS_STARTING_SOON,
 		this.OPERATION_STATUS_IN_OPERATION,
 		this.OPERATION_STATUS_ATTENTION,
 		this.OPERATION_STATUS_COMPLETED,
+		this.OPERATION_STATUS_STOPPED,
 	];
 	readonly startingSoonDays = 3;
 
@@ -85,6 +93,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
 	readonly worklistStatuses = [
 		...this.workflowStatuses,
 		this.STATUS_PARTIALLY_COMPLETED,
+		this.STATUS_STOPPED,
 	];
 
 	requests: RequestMaster[] = [];
@@ -309,16 +318,16 @@ export class OperationsComponent implements OnInit, OnDestroy {
 						? true
 						: this.statusFilter
 							? operationStatus === this.statusFilter
-							: operationStatus !==
-								this.OPERATION_STATUS_COMPLETED;
+							: ![
+									this.OPERATION_STATUS_COMPLETED,
+									this.OPERATION_STATUS_STOPPED,
+								].includes(operationStatus);
 				const searchable = [
 					request.requestNo,
 					request.companyCode,
 					request.companyName,
-					request.divisionCode,
 					request.divisionName,
 					request.requestByName,
-					request.purpose,
 				]
 					.filter((value) => Boolean(value))
 					.join(' ')
@@ -404,6 +413,10 @@ export class OperationsComponent implements OnInit, OnDestroy {
 			return this.OPERATION_STATUS_COMPLETED;
 		}
 
+		if (request.status === this.STATUS_STOPPED) {
+			return this.OPERATION_STATUS_STOPPED;
+		}
+
 		const now = Date.now();
 		const start = new Date(request.startDate || '').getTime();
 		const end = new Date(request.endDate || '').getTime();
@@ -451,6 +464,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
 			[this.OPERATION_STATUS_STARTING_SOON]: 2,
 			[this.OPERATION_STATUS_SCHEDULED]: 3,
 			[this.OPERATION_STATUS_COMPLETED]: 4,
+			[this.OPERATION_STATUS_STOPPED]: 5,
 		};
 		const statusDiff =
 			(priority[this.operationStatus(a)] ?? 99) -
@@ -630,6 +644,55 @@ export class OperationsComponent implements OnInit, OnDestroy {
 		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
 
+	async cancelReservation(): Promise<void> {
+		if (!this.selectedRequest || !this.canCancelReservation) {
+			return;
+		}
+
+		const confirmed = await this.utilityService.confirm(
+			'Cancel Reservation',
+			'Reservation ini akan dibatalkan dan seluruh unit pada request akan langsung dilepas agar dapat digunakan request lain. Lanjutkan?',
+			'warning',
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		this.runAction(
+			this.operationsService.cancelReservation(this.selectedRequest.uuid),
+			'Reservation berhasil dibatalkan dan unit telah dilepas.',
+			() => {
+				this.selectedRequest = null;
+				this.detailViews = [];
+			},
+		);
+	}
+
+	async stopOperation(operation: EquipmentOperation): Promise<void> {
+		if (!this.selectedRequest || !this.canStop(operation)) {
+			return;
+		}
+
+		const confirmed = await this.utilityService.confirm(
+			'Stop Operation',
+			'Operation sedang berada dalam planned period. Unit akan dihentikan dan langsung dilepas agar dapat digunakan request lain. Lanjutkan?',
+			'warning',
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		this.runAction(
+			this.operationsService.stopOperation(
+				this.selectedRequest.uuid,
+				operation.uuid,
+			),
+			'Operation berhasil dihentikan dan unit telah dilepas.',
+		);
+	}
+
 	async completeOperation(operation: EquipmentOperation): Promise<void> {
 		if (!this.selectedRequest || !this.canComplete(operation)) {
 			return;
@@ -745,6 +808,54 @@ export class OperationsComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	get canCancelReservation(): boolean {
+		if (!this.selectedRequest || this.saving) {
+			return false;
+		}
+
+		if (
+			![this.STATUS_APPROVED, this.STATUS_ASSIGNED].includes(
+				this.requestStatus,
+			)
+		) {
+			return false;
+		}
+
+		const operations = this.detailViews.reduce<EquipmentOperation[]>(
+			(result, detail) => result.concat(detail.operations),
+			[],
+		);
+		const plannedStartTime = new Date(
+			this.selectedRequest.startDate || '',
+		).getTime();
+
+		return (
+			Number.isFinite(plannedStartTime) &&
+			Date.now() < plannedStartTime &&
+			operations.length > 0 &&
+			operations.every(
+				(operation) =>
+					operation.statusCode ===
+					this.OPERATION_RECORD_STATUS_ASSIGNED,
+			)
+		);
+	}
+
+	canStop(operation: EquipmentOperation): boolean {
+		if (!this.selectedRequest || this.saving) {
+			return false;
+		}
+
+		return (
+			this.operationStatus(this.selectedRequest) ===
+				this.OPERATION_STATUS_IN_OPERATION &&
+			[
+				this.OPERATION_RECORD_STATUS_ASSIGNED,
+				this.OPERATION_RECORD_STATUS_IN_OPERATION,
+			].includes(operation.statusCode)
+		);
+	}
+
 	canComplete(operation: EquipmentOperation): boolean {
 		if (!this.selectedRequest || this.saving) {
 			return false;
@@ -776,6 +887,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
 							this.OPERATION_RECORD_STATUS_COMPLETED,
 							this.OPERATION_RECORD_STATUS_REPLACED,
 							this.OPERATION_RECORD_STATUS_CANCELLED,
+							this.OPERATION_RECORD_STATUS_STOPPED,
 						].includes(operation.statusCode),
 				)
 				.map((operation) => operation.equipmentUnitUuid),
@@ -826,6 +938,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
 					COMPLETED: 'Completed',
 					REPLACED: 'Replaced',
 					CANCELLED: 'Cancelled',
+					STOPPED: 'Stopped',
 					REJECTED: 'Rejected',
 				} as Record<string, string>
 			)[status] || status
@@ -907,6 +1020,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
 					![
 						this.OPERATION_RECORD_STATUS_REPLACED,
 						this.OPERATION_RECORD_STATUS_CANCELLED,
+						this.OPERATION_RECORD_STATUS_STOPPED,
 					].includes(operation.statusCode),
 			).length;
 
@@ -1032,7 +1146,10 @@ export class OperationsComponent implements OnInit, OnDestroy {
 			return null;
 		}
 
-		return this.units.find((unit) => unit.uuid === this.previewUnitUuid) || null;
+		return (
+			this.units.find((unit) => unit.uuid === this.previewUnitUuid) ||
+			null
+		);
 	}
 
 	get previewUnitImageUrl(): string | null {
@@ -1105,6 +1222,9 @@ export class OperationsComponent implements OnInit, OnDestroy {
 
 			case this.OPERATION_STATUS_COMPLETED:
 				return 'Seluruh unit telah menyelesaikan operasi.';
+
+			case this.OPERATION_STATUS_STOPPED:
+				return 'Operation dihentikan sebelum selesai dan unit sudah dilepas.';
 
 			default:
 				return 'Informasi unit equipment request.';

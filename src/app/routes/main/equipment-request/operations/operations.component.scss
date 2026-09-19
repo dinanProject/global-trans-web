@@ -651,6 +651,11 @@
 	color: #b13b3b;
 }
 
+.status-stopped {
+	background: #f1e8ff;
+	color: #7142a8;
+}
+
 /* =========================================================
  * APPROVED UNIT DETAIL
  * ======================================================= */
@@ -709,6 +714,16 @@
 	i {
 		font-size: 13px;
 	}
+}
+
+.fulfilled.status-cancelled {
+	background: #ffe5e5;
+	color: #b13b3b;
+}
+
+.fulfilled.status-stopped {
+	background: #f1e8ff;
+	color: #7142a8;
 }
 
 .approved-unit-body {
@@ -922,7 +937,6 @@
 		margin-right: 7px;
 	}
 }
-
 
 /* =========================================================
  * GENERIC FORM SUPPORT
@@ -1243,8 +1257,6 @@
 		width: 100%;
 	}
 
-
-
 	.readonly-period {
 		align-items: flex-start;
 		flex-wrap: wrap;
@@ -1360,6 +1372,24 @@
 .status-attention {
 	background: #ffe5e5;
 	color: #b13b3b;
+}
+
+.operation-state-banner.status-completed {
+	border-color: #bce4c5;
+	background: #dff6e4;
+	color: #237a3d;
+}
+
+.operation-state-banner.status-cancelled {
+	border-color: #f0b9b9;
+	background: #fff0f0;
+	color: #a93232;
+}
+
+.operation-state-banner.status-stopped {
+	border-color: #d6c2ef;
+	background: #f6f0ff;
+	color: #7142a8;
 }
 
 @media (max-width: 1100px) {

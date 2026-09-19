@@ -88,15 +88,12 @@ export interface RequestMaster {
 	companyUuid?: string | null;
 	companyCode?: string | null;
 	companyName?: string | null;
-	divisionUuid?: string | null;
-	divisionCode?: string | null;
 	divisionName?: string | null;
 	requestByUuid?: string | null;
 	requestByName?: string | null;
 	requestDate: string;
 	startDate: string;
 	endDate: string;
-	purpose?: string | null;
 	notes?: string | null;
 	status: string;
 	statusName?: string | null;
@@ -131,7 +128,6 @@ export interface RequestFilter {
 	search?: string;
 	status?: string;
 	companyId?: number;
-	divisionUuid?: string;
 	startDate?: string;
 	endDate?: string;
 	isActive?: boolean;
@@ -139,10 +135,9 @@ export interface RequestFilter {
 
 export interface RequestPayload {
 	companyUuid: string | null;
-	divisionUuid: string | null;
+	divisionName: string | null;
 	startDate: string;
 	endDate: string;
-	purpose: string | null;
 	notes: string | null;
 	details: RequestDetail[];
 }
@@ -162,19 +157,18 @@ export interface RequestCompanyOption {
 	name: string;
 }
 
-export interface RequestDivisionOption {
-	uuid: string;
-	code: string;
-	name: string;
-	companyId?: number | null;
-}
-
 export interface CategoryOption {
 	id: number;
 	uuid?: string | null;
 	code?: string | null;
 	name: string;
 	icon?: string | null;
+}
+
+export interface UnitAvailabilityResult {
+	startDate: string;
+	endDate: string;
+	unavailableUnitIds: number[];
 }
 
 export interface UnitOption {
@@ -198,7 +192,6 @@ export interface RequestFormDialogData {
 	mode: 'create' | 'edit';
 	request?: RequestMaster;
 	company: RequestCompanyOption | null;
-	divisions: RequestDivisionOption[];
 	categories: CategoryOption[];
 	units: UnitOption[];
 }
@@ -231,11 +224,6 @@ export class RequestService {
 
 	private companiesCache$?: Observable<RequestCompanyOption[]>;
 
-	private readonly divisionsCache = new Map<
-		number,
-		Observable<RequestDivisionOption[]>
-	>();
-
 	private categoriesCache$?: Observable<CategoryOption[]>;
 	private unitsCache$?: Observable<UnitOption[]>;
 	private capacityUnitsCache$?: Observable<CapacityUnitOption[]>;
@@ -266,21 +254,39 @@ export class RequestService {
 	}
 
 	getAttachments(requestUuid: string): Observable<RequestAttachment[]> {
-		return this.apiService.get(`${this.baseUrl}/${requestUuid}/attachments`);
+		return this.apiService.get(
+			`${this.baseUrl}/${requestUuid}/attachments`,
+		);
 	}
 
-	uploadAttachment(requestUuid: string, file: File): Observable<RequestAttachment> {
+	uploadAttachment(
+		requestUuid: string,
+		file: File,
+	): Observable<RequestAttachment> {
 		const formData = new FormData();
 		formData.append('file', file, file.name);
-		return this.apiService.upload(`${this.baseUrl}/${requestUuid}/attachments`, formData);
+		return this.apiService.upload(
+			`${this.baseUrl}/${requestUuid}/attachments`,
+			formData,
+		);
 	}
 
-	downloadAttachment(requestUuid: string, attachmentUuid: string): Observable<Blob> {
-		return this.apiService.getBlob(`${this.baseUrl}/${requestUuid}/attachments/${attachmentUuid}/download`);
+	downloadAttachment(
+		requestUuid: string,
+		attachmentUuid: string,
+	): Observable<Blob> {
+		return this.apiService.getBlob(
+			`${this.baseUrl}/${requestUuid}/attachments/${attachmentUuid}/download`,
+		);
 	}
 
-	deleteAttachment(requestUuid: string, attachmentUuid: string): Observable<{ uuid: string }> {
-		return this.apiService.delete(`${this.baseUrl}/${requestUuid}/attachments/${attachmentUuid}`);
+	deleteAttachment(
+		requestUuid: string,
+		attachmentUuid: string,
+	): Observable<{ uuid: string }> {
+		return this.apiService.delete(
+			`${this.baseUrl}/${requestUuid}/attachments/${attachmentUuid}`,
+		);
 	}
 
 	deleteRequest(requestUuid: string): Observable<{ uuid: string }> {
@@ -307,23 +313,6 @@ export class RequestService {
 		return this.companiesCache$;
 	}
 
-	getDivisions(companyId?: number): Observable<RequestDivisionOption[]> {
-		const cacheKey = Number(companyId) || 0;
-		const cached = this.divisionsCache.get(cacheKey);
-
-		if (cached) {
-			return cached;
-		}
-
-		const request$ = this.apiService
-			.get('/division', this.compactParams({ companyId, isActive: 1 }))
-			.pipe(shareReplay({ bufferSize: 1, refCount: false }));
-
-		this.divisionsCache.set(cacheKey, request$);
-
-		return request$;
-	}
-
 	getCategories(): Observable<CategoryOption[]> {
 		if (!this.categoriesCache$) {
 			this.categoriesCache$ = this.apiService
@@ -344,6 +333,17 @@ export class RequestService {
 		}
 
 		return this.unitsCache$;
+	}
+
+	getUnitAvailability(
+		startDate: string,
+		endDate: string,
+		requestUuid?: string | null,
+	): Observable<UnitAvailabilityResult> {
+		return this.apiService.get(
+			`${this.baseUrl}/unit-availability`,
+			this.compactParams({ startDate, endDate, requestUuid }),
+		);
 	}
 
 	getUnitImage(uuid: string): Observable<Blob> {

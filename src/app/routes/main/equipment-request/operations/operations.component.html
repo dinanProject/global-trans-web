@@ -288,30 +288,32 @@
 						</div>
 
 						@if (loadingAttachments || attachments.length > 0) {
-							<div class="operation-attachments">
-								<div class="operation-attachments-header">
-									<div>
-										<i class="fas fa-paperclip"></i>
-										<strong>Attachments</strong>
-									</div>
-									<span>{{ loadingAttachments ? 'Loading...' : attachments.length + ' file(s)' }}</span>
+						<div class="operation-attachments">
+							<div class="operation-attachments-header">
+								<div>
+									<i class="fas fa-paperclip"></i>
+									<strong>Attachments</strong>
 								</div>
+								<span>{{ loadingAttachments ? 'Loading...' : attachments.length + ' file(s)' }}</span>
+							</div>
 
-								@if (!loadingAttachments) {
-									<div class="operation-attachment-list">
-										@for (attachment of attachments; track attachment.uuid) {
-											<button type="button" class="operation-attachment-item" (click)="openAttachment(attachment)">
-												<i [class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
-												<span>
-													<strong>{{ attachment.originalName }}</strong>
-													<small>{{ formatAttachmentSize(attachment.fileSize) }} · Open</small>
-												</span>
-												<i class="fas fa-external-link-alt"></i>
-											</button>
-										}
-									</div>
+							@if (!loadingAttachments) {
+							<div class="operation-attachment-list">
+								@for (attachment of attachments; track attachment.uuid) {
+								<button type="button" class="operation-attachment-item"
+									(click)="openAttachment(attachment)">
+									<i
+										[class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+									<span>
+										<strong>{{ attachment.originalName }}</strong>
+										<small>{{ formatAttachmentSize(attachment.fileSize) }} · Open</small>
+									</span>
+									<i class="fas fa-external-link-alt"></i>
+								</button>
 								}
 							</div>
+							}
+						</div>
 						}
 
 					</panel-body>
@@ -332,7 +334,7 @@
 						</div>
 
 						<div class="detail-list" *ngIf="detailViews.length > 0">
-							<div class="approved-unit-card" *ngFor="let detail of detailViews">
+							<div class="approved-unit-card" *ngFor="let detail of detailViews; let detailIndex = index">
 								<div class="approved-unit-header">
 									<div class="approved-unit-heading">
 										<h6>{{ detail.categoryName }}</h6>
@@ -367,7 +369,8 @@
 											</button>
 											} @else {
 											<div class="approved-unit-icon">
-												<img [src]="getEquipmentIcon(detail.categoryCode)" [alt]="detail.categoryName" />
+												<img [src]="getEquipmentIcon(detail.categoryCode)"
+													[alt]="detail.categoryName" />
 											</div>
 											}
 
@@ -438,7 +441,9 @@
 												detail.operations[0]
 													?.actualEndDate
 											">
-											<span>Completed At</span>
+											<span>{{ detail.operations[0]?.statusCode ===
+												OPERATION_RECORD_STATUS_STOPPED ? 'Stopped At' : 'Completed At'
+												}}</span>
 
 											<strong>
 												{{
@@ -451,9 +456,22 @@
 										</div>
 
 										<div class="approved-unit-actions">
+											<button type="button" class="btn btn-danger"
+												*ngIf="canCancelReservation && detailIndex === detailViews.length - 1"
+												(click)="cancelReservation()">
+												<i class="fas fa-ban me-2"></i>
+												Cancel Reservation
+											</button>
+
 											<ng-container *ngFor="
 													let operation of detail.operations
 												">
+												<button type="button" class="btn btn-danger complete-button"
+													*ngIf="canStop(operation)" (click)="stopOperation(operation)">
+													<i class="fas fa-stop-circle me-2"></i>
+													Stop Operation
+												</button>
+
 												<button type="button" class="btn btn-success complete-button" (click)="
 														completeOperation(
 															operation
@@ -500,7 +518,8 @@
 			<strong>{{ previewUnit.unitCode }} - {{ previewUnit.unitName }}</strong>
 			<span>Equipment Unit Image</span>
 		</div>
-		<button type="button" class="unit-image-preview-close" aria-label="Close equipment image preview" (click)="closeUnitImagePreview()">
+		<button type="button" class="unit-image-preview-close" aria-label="Close equipment image preview"
+			(click)="closeUnitImagePreview()">
 			<i class="fas fa-times"></i>
 		</button>
 		<div class="unit-image-preview-stage">

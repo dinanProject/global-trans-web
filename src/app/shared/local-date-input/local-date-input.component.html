@@ -1,0 +1,35 @@
+<div class="local-date-control">
+	<input
+		[type]="'text'"
+		[class]="'form-control local-date-display'"
+		[id]="inputId || null"
+		[value]="displayValue"
+		[placeholder]="placeholder"
+		[required]="required"
+		[disabled]="disabled"
+		readonly
+		(click)="openPicker()"
+	/>
+
+	<input
+		#nativePicker
+		class="local-date-native"
+		[type]="mode === 'date' ? 'date' : 'datetime-local'"
+		[value]="nativeValue"
+		[attr.min]="nativeMin"
+		[required]="required"
+		[disabled]="disabled"
+		tabindex="-1"
+		(input)="onNativeInput($event)"
+	/>
+
+	<button
+		type="button"
+		class="local-date-button"
+		[disabled]="disabled"
+		[attr.aria-label]="mode === 'date' ? 'Pilih tanggal' : 'Pilih tanggal dan waktu'"
+		(click)="openPicker()"
+	>
+		<i class="far fa-calendar-alt" aria-hidden="true"></i>
+	</button>
+</div>

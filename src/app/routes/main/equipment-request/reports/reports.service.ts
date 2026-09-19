@@ -11,13 +11,6 @@ export interface ReportCompanyOption {
 	name: string;
 }
 
-export interface ReportDivisionOption {
-	id: number;
-	uuid: string;
-	code: string;
-	name: string;
-	companyUuid: string;
-}
 
 export interface ReportCategoryOption {
 	id: number;
@@ -34,7 +27,6 @@ export interface ReportStatusOption {
 
 export interface ReportFiltersResponse {
 	companies: ReportCompanyOption[];
-	divisions: ReportDivisionOption[];
 	categories: ReportCategoryOption[];
 	statuses: ReportStatusOption[];
 }
@@ -43,7 +35,6 @@ export interface ReportExportFilter {
 	startDate?: string;
 	endDate?: string;
 	companyUuid?: string;
-	divisionUuid?: string;
 	status?: string;
 	categoryUuid?: string;
 }

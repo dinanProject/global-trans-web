@@ -8,6 +8,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { PageModule } from 'src/app/shared/page/page.module';
+import { LocalDateInputModule } from 'src/app/shared/local-date-input/local-date-input.module';
 import { PanelModule } from 'src/app/shared/panel/panel.module';
 import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { RequestDetailDialogComponent } from './request/request-detail-dialog/request-detail-dialog.component';
@@ -34,6 +35,7 @@ import { RequestFormDialogComponent } from './request/request-form-dialog/reques
 	imports: [
 		CommonModule,
 		ReactiveFormsModule,
+		LocalDateInputModule,
 		EquipmentRequestRoutingModule,
 
 		PageModule,

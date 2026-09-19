@@ -309,7 +309,6 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 					request.companyCode,
 					request.divisionName,
 					request.requestByName,
-					request.purpose,
 					request.statusName,
 					request.status,
 				]

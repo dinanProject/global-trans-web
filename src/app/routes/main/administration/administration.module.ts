@@ -15,6 +15,7 @@ import { PermissionFormDialogComponent } from './permission-management/permissio
 import { UserComponent } from './user/user.component';
 import { UserFormDialogComponent } from './user/user-form-dialog/user-form-dialog.component';
 import { PageModule } from 'src/app/shared/page/page.module';
+import { LocalDateInputModule } from 'src/app/shared/local-date-input/local-date-input.module';
 import { PanelModule } from 'src/app/shared/panel/panel.module';
 import { LoadingModule } from 'src/app/shared/loading/loading.module';
 import { MatMenuModule } from '@angular/material/menu';
@@ -45,6 +46,7 @@ import { EmailRetryDialogComponent } from './email/email-retry-dialog/email-retr
 		CommonModule,
 		FormsModule,
 		ReactiveFormsModule,
+		LocalDateInputModule,
 		FlexLayoutModule,
 
 		PageModule,

@@ -26,7 +26,6 @@ import {
 	CategoryOption,
 	RequestCompanyOption,
 	RequestDetail,
-	RequestDivisionOption,
 	RequestMaster,
 	RequestService,
 	RequestStatusOption,
@@ -54,7 +53,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 	requests: RequestMaster[] = [];
 	filteredRequests: RequestMaster[] = [];
 	company: RequestCompanyOption | null = null;
-	divisions: RequestDivisionOption[] = [];
 	categories: CategoryOption[] = [];
 	units: UnitOption[] = [];
 	statuses: RequestStatusOption[] = [];
@@ -64,7 +62,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 	deletingUuid = '';
 	actionUuid = '';
 	errorMessage = '';
-	submittingUuid = '';
 	maxEquipmentPreview = 1;
 	readonly pageSize = 20;
 	pageIndex = 0;
@@ -275,20 +272,13 @@ export class RequestComponent implements OnInit, OnDestroy {
 	}
 
 	canEdit(request: RequestMaster): boolean {
-		return (
-			Boolean(request.statusAllowEdit) && !Boolean(request.approvalLocked)
-		);
-	}
+		const currentUserUuid = this.sessionService.getUser()?.uuid;
 
-	canDelete(request: RequestMaster): boolean {
-		return request.status === 'DRAFT' && !Boolean(request.approvalLocked);
-	}
-
-	canSubmit(request: RequestMaster): boolean {
-		return (request.availableActions ?? []).some(
-			(action) =>
-				action.actionCode === 'SUBMIT' &&
-				action.permissionCode === 'EQUIPMENT_REQUEST.SUBMIT',
+		return Boolean(
+			currentUserUuid &&
+			request.requestByUuid === currentUserUuid &&
+			request.statusAllowEdit &&
+			!request.approvalLocked,
 		);
 	}
 
@@ -374,7 +364,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 
 		if (
 			this.company &&
-			this.divisions.length > 0 &&
 			this.categories.length > 0 &&
 			this.units.length > 0 &&
 			this.capacityUnits.length > 0
@@ -387,7 +376,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 
 		if (!companyId) {
 			this.company = null;
-			this.divisions = [];
 			this.categories = [];
 			this.units = [];
 			this.capacityUnits = [];
@@ -404,7 +392,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 
 		forkJoin({
 			companies: this.requestService.getCompanies(),
-			divisions: this.requestService.getDivisions(companyId),
 			categories: this.requestService.getCategories(),
 			units: this.requestService.getUnits(),
 			capacityUnits: this.requestService.getCapacityUnits(),
@@ -420,7 +407,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 							(item) => Number(item.id) === companyId,
 						) ?? null;
 
-					this.divisions = result.divisions ?? [];
 					this.categories = result.categories ?? [];
 					this.units = result.units ?? [];
 					this.capacityUnits = result.capacityUnits ?? [];
@@ -428,7 +414,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 					callback();
 				},
 				error: (error) => {
-					this.divisions = [];
 					this.categories = [];
 					this.units = [];
 					this.capacityUnits = [];
@@ -444,7 +429,7 @@ export class RequestComponent implements OnInit, OnDestroy {
 	private openFormDialog(
 		data: Omit<
 			RequestFormDialogData,
-			'company' | 'divisions' | 'categories' | 'units' | 'capacityUnits'
+			'company' | 'categories' | 'units' | 'capacityUnits'
 		>,
 	): void {
 		const dialogRef = this.dialog.open(RequestFormDialogComponent, {
@@ -457,7 +442,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 			data: {
 				...data,
 				company: this.company,
-				divisions: this.divisions,
 				categories: this.categories,
 				units: this.units,
 				capacityUnits: this.capacityUnits,
@@ -499,7 +483,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 				request.companyCode,
 				request.divisionName,
 				request.requestByName,
-				request.purpose,
 			]
 				.filter(Boolean)
 				.join(' ')
@@ -524,50 +507,5 @@ export class RequestComponent implements OnInit, OnDestroy {
 		}
 
 		return request.statusName || request.status;
-	}
-
-	submitRequest(request: RequestMaster): void {
-		if (!this.canSubmit(request)) {
-			this.utilityService.alert(
-				'Failed',
-				'Submit action tidak tersedia untuk request ini.',
-				'error',
-			);
-			return;
-		}
-
-		this.submittingUuid = request.uuid;
-
-		this.requestService
-			.executeAction(request.uuid, {
-				actionCode: 'SUBMIT',
-				remarks: null,
-			})
-			.pipe(
-				takeUntil(this.destroy$),
-				finalize(() => {
-					this.submittingUuid = '';
-				}),
-			)
-			.subscribe({
-				next: () => {
-					this.utilityService.alert(
-						'Success',
-						'Request berhasil disubmit untuk approval.',
-						'success',
-					);
-
-					this.loadRequests();
-				},
-				error: (error) => {
-					this.utilityService.alert(
-						'Failed',
-						error?.error?.meta?.message ??
-							error?.error?.message ??
-							'Failed to submit request.',
-						'error',
-					);
-				},
-			});
 	}
 }

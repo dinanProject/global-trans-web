@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { finalize, forkJoin, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, debounceTime, finalize, forkJoin, of, Subject, switchMap, takeUntil } from 'rxjs';
 
 import { UtilityService } from 'src/app/shared/utility/utility.service';
 
@@ -17,7 +17,6 @@ import {
 	CategoryOption,
 	RequestCompanyOption,
 	RequestDetail,
-	RequestDivisionOption,
 	RequestAttachment,
 	RequestMaster,
 	RequestPayload,
@@ -29,7 +28,6 @@ export interface RequestFormDialogData {
 	mode: 'create' | 'edit';
 	request?: RequestMaster;
 	company: RequestCompanyOption | null;
-	divisions: RequestDivisionOption[];
 	categories: CategoryOption[];
 	units: UnitOption[];
 	capacityUnits: CapacityUnitOption[];
@@ -54,6 +52,9 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 	readonly attachmentMaxBytes = 10 * 1024 * 1024;
 	private createdRequestUuid: string | null = null;
 	private readonly deletingAttachmentUuids = new Set<string>();
+	private readonly unavailableUnitIds = new Set<number>();
+	private readonly scheduleAvailability$ = new Subject<void>();
+	isCheckingUnitAvailability = false;
 
 	private readonly destroy$ = new Subject<void>();
 	private readonly unitImageUrls = new Map<string, string>();
@@ -62,7 +63,10 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 
 	readonly form = this.formBuilder.group({
 		companyId: [this.data.company?.id ?? null, Validators.required],
-		divisionUuid: [this.data.request?.divisionUuid ?? ''],
+		divisionName: [
+			this.data.request?.divisionName ?? '',
+			[Validators.required, Validators.maxLength(65535)],
+		],
 		startDate: [
 			this.toDateTimeInputValue(this.data.request?.startDate),
 			Validators.required,
@@ -70,10 +74,6 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		endDate: [
 			this.toDateTimeInputValue(this.data.request?.endDate),
 			Validators.required,
-		],
-		purpose: [
-			this.data.request?.purpose ?? '',
-			Validators.maxLength(65535),
 		],
 		notes: [this.data.request?.notes ?? '', Validators.maxLength(65535)],
 		details: this.formBuilder.array([]),
@@ -94,7 +94,31 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		if (details.length) details.forEach((detail) => this.addDetail(detail));
 		else this.addDetail();
 
-		if (this.data.request?.uuid) this.loadAttachments(this.data.request.uuid);
+		if (this.data.request?.uuid)
+			this.loadAttachments(this.data.request.uuid);
+
+		this.scheduleAvailability$
+			.pipe(
+				debounceTime(200),
+				switchMap(() => this.loadUnitAvailabilityForSchedule()),
+				takeUntil(this.destroy$),
+			)
+			.subscribe((result) => {
+				this.unavailableUnitIds.clear();
+				(result?.unavailableUnitIds ?? []).forEach((unitId) =>
+					this.unavailableUnitIds.add(Number(unitId)),
+				);
+			});
+
+		this.form.controls.startDate.valueChanges
+			.pipe(takeUntil(this.destroy$))
+			.subscribe(() => this.scheduleAvailability$.next());
+
+		this.form.controls.endDate.valueChanges
+			.pipe(takeUntil(this.destroy$))
+			.subscribe(() => this.scheduleAvailability$.next());
+
+		this.scheduleAvailability$.next();
 	}
 
 	ngOnDestroy(): void {
@@ -109,6 +133,14 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		return this.data.mode === 'create'
 			? 'Add Equipment Request'
 			: 'Edit Equipment Request';
+	}
+
+	get minimumStartDateTime(): string {
+		if (this.data.mode === 'edit' && this.data.request?.startDate) {
+			return this.toDateTimeInputValue(this.data.request.startDate);
+		}
+
+		return this.toDateTimeInputValue(new Date());
 	}
 
 	get details(): FormArray {
@@ -159,6 +191,10 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		return this.data.units.filter(
 			(unit) => Number(unit.categoryId) === categoryId,
 		);
+	}
+
+	isUnitUnavailable(unit: UnitOption): boolean {
+		return this.unavailableUnitIds.has(Number(unit.id));
 	}
 
 	onCategoryChange(detailIndex: number): void {
@@ -309,6 +345,18 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 			return;
 		}
 
+		const unavailableSelectedUnit = selectedUnitIds.find((unitId) =>
+			this.unavailableUnitIds.has(unitId),
+		);
+
+		if (unavailableSelectedUnit) {
+			const unit = this.data.units.find(
+				(item) => Number(item.id) === unavailableSelectedUnit,
+			);
+			this.errorMessage = `Equipment unit ${unit?.unitCode || unavailableSelectedUnit} tidak tersedia pada periode request.`;
+			return;
+		}
+
 		const startDate = this.formatDatabaseDateTime(value.startDate);
 		const endDate = this.formatDatabaseDateTime(value.endDate);
 
@@ -323,10 +371,9 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 
 		const payload: RequestPayload = {
 			companyUuid: this.data.company?.uuid ?? null,
-			divisionUuid: value.divisionUuid || null,
+			divisionName: value.divisionName?.trim() || null,
 			startDate,
 			endDate,
-			purpose: value.purpose?.trim() || null,
 			notes: value.notes?.trim() || null,
 			details: (value.details ?? []).map((detail: any) => ({
 				uuid: detail.uuid || null,
@@ -342,7 +389,8 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		this.isSaving = true;
 		this.errorMessage = '';
 
-		const existingRequestUuid = this.data.request?.uuid || this.createdRequestUuid;
+		const existingRequestUuid =
+			this.data.request?.uuid || this.createdRequestUuid;
 		const request$ = existingRequestUuid
 			? this.requestService.updateRequest(existingRequestUuid, payload)
 			: this.requestService.createRequest(payload);
@@ -350,29 +398,36 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		request$
 			.pipe(
 				switchMap((savedRequest) => {
-					if (this.data.mode === 'create' && savedRequest?.uuid) this.createdRequestUuid = savedRequest.uuid;
-					if (!savedRequest?.uuid || !this.pendingAttachments.length) return of(savedRequest);
+					if (this.data.mode === 'create' && savedRequest?.uuid)
+						this.createdRequestUuid = savedRequest.uuid;
+					if (!savedRequest?.uuid || !this.pendingAttachments.length)
+						return of(savedRequest);
 					return forkJoin(
 						this.pendingAttachments.map((file) =>
-							this.requestService.uploadAttachment(savedRequest.uuid, file),
+							this.requestService.uploadAttachment(
+								savedRequest.uuid,
+								file,
+							),
 						),
 					).pipe(switchMap(() => of(savedRequest)));
 				}),
 				finalize(() => (this.isSaving = false)),
 			)
 			.subscribe({
-			next: () => this.dialogRef.close({ action: 'save' }),
-			error: (error) => {
-				const message = error?.error?.meta?.message ?? 'Failed to save equipment request.';
-				if (this.createdRequestUuid) {
-					this.errorMessage = `Request sudah tersimpan, tetapi attachment gagal: ${message}. Silakan pilih ulang file yang gagal lalu Save kembali.`;
-					this.pendingAttachments = [];
-					this.loadAttachments(this.createdRequestUuid);
-				} else {
-					this.errorMessage = message;
-				}
-			},
-		});
+				next: () => this.dialogRef.close({ action: 'save' }),
+				error: (error) => {
+					const message =
+						error?.error?.meta?.message ??
+						'Failed to save equipment request.';
+					if (this.createdRequestUuid) {
+						this.errorMessage = `Request sudah tersimpan, tetapi attachment gagal: ${message}. Silakan pilih ulang file yang gagal lalu Save kembali.`;
+						this.pendingAttachments = [];
+						this.loadAttachments(this.createdRequestUuid);
+					} else {
+						this.errorMessage = message;
+					}
+				},
+			});
 	}
 
 	selectAttachments(event: Event): void {
@@ -382,7 +437,10 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		this.errorMessage = '';
 
 		for (const file of files) {
-			if (this.attachments.length + this.pendingAttachments.length >= this.attachmentMaxCount) {
+			if (
+				this.attachments.length + this.pendingAttachments.length >=
+				this.attachmentMaxCount
+			) {
 				this.errorMessage = `Maksimal ${this.attachmentMaxCount} attachment per request.`;
 				break;
 			}
@@ -390,7 +448,15 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 				this.errorMessage = `${file.name} melebihi batas 10 MB.`;
 				continue;
 			}
-			if (!['application/pdf','image/jpeg','image/png','image/gif','image/webp'].includes(file.type)) {
+			if (
+				![
+					'application/pdf',
+					'image/jpeg',
+					'image/png',
+					'image/gif',
+					'image/webp',
+				].includes(file.type)
+			) {
 				this.errorMessage = `${file.name} bukan PDF/image yang didukung.`;
 				continue;
 			}
@@ -430,7 +496,9 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 			.deleteAttachment(requestUuid, attachment.uuid)
 			.pipe(
 				takeUntil(this.destroy$),
-				finalize(() => this.deletingAttachmentUuids.delete(attachment.uuid)),
+				finalize(() =>
+					this.deletingAttachmentUuids.delete(attachment.uuid),
+				),
 			)
 			.subscribe({
 				next: () => {
@@ -459,15 +527,60 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 	}
 
 	formatFileSize(bytes: number): string {
-		if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+		if (bytes < 1024 * 1024)
+			return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
 
+	private loadUnitAvailabilityForSchedule() {
+		const startDate = this.formatDatabaseDateTime(
+			this.form.controls.startDate.value,
+		);
+		const endDate = this.formatDatabaseDateTime(
+			this.form.controls.endDate.value,
+		);
+
+		if (!startDate || !endDate || startDate >= endDate) {
+			this.unavailableUnitIds.clear();
+			return of({
+				startDate: startDate || '',
+				endDate: endDate || '',
+				unavailableUnitIds: [],
+			});
+		}
+
+		this.isCheckingUnitAvailability = true;
+
+		return this.requestService
+			.getUnitAvailability(
+				startDate,
+				endDate,
+				this.data.request?.uuid ?? null,
+			)
+			.pipe(
+				catchError((error) => {
+					this.errorMessage =
+						error?.error?.meta?.message ??
+						'Failed to check equipment unit availability.';
+
+					return of({
+						startDate,
+						endDate,
+						unavailableUnitIds: [],
+					});
+				}),
+				finalize(() => (this.isCheckingUnitAvailability = false)),
+			);
+	}
+
 	private loadAttachments(requestUuid: string): void {
-		this.requestService.getAttachments(requestUuid).pipe(takeUntil(this.destroy$)).subscribe({
-			next: (attachments) => (this.attachments = attachments ?? []),
-			error: () => (this.attachments = []),
-		});
+		this.requestService
+			.getAttachments(requestUuid)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (attachments) => (this.attachments = attachments ?? []),
+				error: () => (this.attachments = []),
+			});
 	}
 
 	cancel(): void {
@@ -536,14 +649,23 @@ export class RequestFormDialogComponent implements OnInit, OnDestroy {
 		if (typeof value === 'string') {
 			const normalizedValue = value.trim();
 
-			const localDateTimeMatch = normalizedValue.match(
-				/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/,
-			);
+			if (!normalizedValue) return '';
 
-			if (localDateTimeMatch) {
-				const [, year, month, day, hour, minute] = localDateTimeMatch;
+			const hasTimezone =
+				/Z$/i.test(normalizedValue) ||
+				/[+-]\d{2}:\d{2}$/.test(normalizedValue);
 
-				return `${year}-${month}-${day}T${hour}:${minute}`;
+			if (!hasTimezone) {
+				const localDateTimeMatch = normalizedValue.match(
+					/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/,
+				);
+
+				if (localDateTimeMatch) {
+					const [, year, month, day, hour, minute] =
+						localDateTimeMatch;
+
+					return `${year}-${month}-${day}T${hour}:${minute}`;
+				}
 			}
 		}
 

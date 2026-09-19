@@ -46,4 +46,21 @@ export class OperationsService {
 			{},
 		);
 	}
+
+	cancelReservation(requestUuid: string): Observable<unknown> {
+		return this.apiService.post(
+			`${this.baseUrl}/${requestUuid}/cancel-reservation`,
+			{},
+		);
+	}
+
+	stopOperation(
+		requestUuid: string,
+		operationUuid: string,
+	): Observable<EquipmentOperation> {
+		return this.apiService.post(
+			`${this.baseUrl}/${requestUuid}/${operationUuid}/stop`,
+			{},
+		);
+	}
 }

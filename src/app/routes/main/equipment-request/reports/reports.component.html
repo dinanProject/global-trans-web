@@ -42,31 +42,22 @@
 			<div class="filter-grid">
 				<div class="filter-field">
 					<label for="reportStartDate">Request Date From</label>
-					<input id="reportStartDate" type="date" class="form-control" [(ngModel)]="filter.startDate" />
+					<app-local-date-input inputId="reportStartDate" mode="date"
+						[(ngModel)]="filter.startDate"></app-local-date-input>
 				</div>
 
 				<div class="filter-field">
 					<label for="reportEndDate">Request Date To</label>
-					<input id="reportEndDate" type="date" class="form-control" [(ngModel)]="filter.endDate" />
+					<app-local-date-input inputId="reportEndDate" mode="date"
+						[(ngModel)]="filter.endDate"></app-local-date-input>
 				</div>
 
 				<div class="filter-field">
 					<label for="reportCompany">Company</label>
-					<select id="reportCompany" class="form-control" [(ngModel)]="filter.companyUuid"
-						(ngModelChange)="onCompanyChange()">
+					<select id="reportCompany" class="form-control" [(ngModel)]="filter.companyUuid">
 						<option value="">All Companies</option>
 						@for (company of companies; track company.uuid) {
 						<option [value]="company.uuid">{{ company.name }}</option>
-						}
-					</select>
-				</div>
-
-				<div class="filter-field">
-					<label for="reportDivision">Division</label>
-					<select id="reportDivision" class="form-control" [(ngModel)]="filter.divisionUuid">
-						<option value="">All Divisions</option>
-						@for (division of filteredDivisions; track division.uuid) {
-						<option [value]="division.uuid">{{ division.name }}</option>
 						}
 					</select>
 				</div>

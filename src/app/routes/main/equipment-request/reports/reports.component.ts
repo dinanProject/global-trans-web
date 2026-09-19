@@ -5,7 +5,6 @@ import { UtilityService } from 'src/app/shared/utility/utility.service';
 import {
 	ReportCategoryOption,
 	ReportCompanyOption,
-	ReportDivisionOption,
 	ReportExportFilter,
 	ReportsService,
 	ReportStatusOption,
@@ -22,7 +21,6 @@ export class ReportsComponent implements OnInit {
 	exporting = false;
 
 	companies: ReportCompanyOption[] = [];
-	divisions: ReportDivisionOption[] = [];
 	categories: ReportCategoryOption[] = [];
 	statuses: ReportStatusOption[] = [];
 
@@ -37,23 +35,7 @@ export class ReportsComponent implements OnInit {
 		this.loadFilters();
 	}
 
-	get filteredDivisions(): ReportDivisionOption[] {
-		if (!this.filter.companyUuid) return this.divisions;
-		return this.divisions.filter(
-			(item) => item.companyUuid === this.filter.companyUuid,
-		);
-	}
 
-	onCompanyChange(): void {
-		if (
-			this.filter.divisionUuid &&
-			!this.filteredDivisions.some(
-				(item) => item.uuid === this.filter.divisionUuid,
-			)
-		) {
-			this.filter.divisionUuid = '';
-		}
-	}
 
 	resetFilters(): void {
 		this.filter = this.emptyFilter();
@@ -97,7 +79,6 @@ export class ReportsComponent implements OnInit {
 			.subscribe({
 				next: (result) => {
 					this.companies = result.companies ?? [];
-					this.divisions = result.divisions ?? [];
 					this.categories = result.categories ?? [];
 					this.statuses = result.statuses ?? [];
 				},
@@ -132,7 +113,6 @@ export class ReportsComponent implements OnInit {
 			startDate: '',
 			endDate: '',
 			companyUuid: '',
-			divisionUuid: '',
 			status: '',
 			categoryUuid: '',
 		};

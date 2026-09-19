@@ -129,12 +129,6 @@
 						<td mat-cell *matCellDef="let user">
 							<h6>{{ user.companyName || "—" }}</h6>
 
-							<small
-								*ngIf="user.divisionName"
-								class="text-secondary"
-							>
-								{{ user.divisionName }}
-							</small>
 						</td>
 					</ng-container>
 

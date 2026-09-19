@@ -35,7 +35,7 @@ export class UserComponent implements OnInit, OnDestroy {
 	);
 	users: UserMaster[] = [];
 	filteredUsers: UserMaster[] = [];
-	options: UserOptions = { companies: [], divisions: [], roles: [] };
+	options: UserOptions = { companies: [], roles: [] };
 	isLoading = false;
 	deletingUuid = '';
 	resettingPasswordUuid = '';
@@ -92,7 +92,6 @@ export class UserComponent implements OnInit, OnDestroy {
 	private loadOptionsForDialog(callback: () => void): void {
 		if (
 			this.options.companies.length > 0 &&
-			this.options.divisions.length > 0 &&
 			this.options.roles.length > 0
 		) {
 			callback();
@@ -106,7 +105,6 @@ export class UserComponent implements OnInit, OnDestroy {
 				next: (value) => {
 					this.options = value ?? {
 						companies: [],
-						divisions: [],
 						roles: [],
 					};
 
@@ -317,7 +315,6 @@ export class UserComponent implements OnInit, OnDestroy {
 					user.phone,
 					user.companyName,
 					user.companyCode,
-					user.divisionName,
 					user.roleNames,
 				]
 					.filter(Boolean)

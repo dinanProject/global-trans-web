@@ -3,53 +3,36 @@
 		<h2>{{ title }}</h2>
 		<p>
 			{{
-				data.mode === "create"
-					? "Create a new reservation request."
-					: "Update reservation request information."
+			data.mode === "create"
+			? "Create a new reservation request."
+			: "Update reservation request information."
 			}}
 		</p>
 	</div>
-	<button
-		type="button"
-		class="dialog-close"
-		[disabled]="isSaving"
-		(click)="cancel()"
-	>
+	<button type="button" class="dialog-close" [disabled]="isSaving" (click)="cancel()">
 		<i class="fas fa-times"></i>
 	</button>
 </div>
 
 @if (reviewedUnitImageUrl; as reviewImageUrl) {
-	<div
-		#unitImageReview
-		class="unit-image-review-backdrop"
-		(click)="closeUnitImageReview()"
-	>
-		@if (reviewedUnit; as unit) {
-			<div class="unit-image-review-title">
-				<strong>{{ unit.unitName }}</strong>
-				<span>{{ unit.unitCode }}</span>
-			</div>
-		}
-
-		<button
-			type="button"
-			class="unit-image-review-close"
-			aria-label="Close equipment image preview"
-			(click)="$event.stopPropagation(); closeUnitImageReview()"
-		>
-			<i class="fas fa-times"></i>
-		</button>
-
-		<div class="unit-image-review-stage">
-			<img
-				class="unit-image-review-photo"
-				[src]="reviewImageUrl"
-				[alt]="reviewedUnit?.unitName || 'Equipment unit'"
-				(click)="$event.stopPropagation()"
-			/>
-		</div>
+<div #unitImageReview class="unit-image-review-backdrop" (click)="closeUnitImageReview()">
+	@if (reviewedUnit; as unit) {
+	<div class="unit-image-review-title">
+		<strong>{{ unit.unitName }}</strong>
+		<span>{{ unit.unitCode }}</span>
 	</div>
+	}
+
+	<button type="button" class="unit-image-review-close" aria-label="Close equipment image preview"
+		(click)="$event.stopPropagation(); closeUnitImageReview()">
+		<i class="fas fa-times"></i>
+	</button>
+
+	<div class="unit-image-review-stage">
+		<img class="unit-image-review-photo" [src]="reviewImageUrl" [alt]="reviewedUnit?.unitName || 'Equipment unit'"
+			(click)="$event.stopPropagation()" />
+	</div>
+</div>
 }
 
 <mat-dialog-content>
@@ -60,10 +43,7 @@
 
 	<form [formGroup]="form" novalidate>
 		<div class="dialog-layout">
-			<section
-				class="request-information"
-				[class.image-review-active]="reviewUnitUuid"
-			>
+			<section class="request-information" [class.image-review-active]="reviewUnitUuid">
 				<div class="section-heading">
 					<h6>Request Information</h6>
 					<small>Complete the reservation request information.</small>
@@ -73,37 +53,24 @@
 					<div class="form-group">
 						<label>Company</label>
 
-						<input
-							type="text"
-							class="form-control"
-							[value]="
+						<input type="text" class="form-control" [value]="
 								data.company
 									? data.company.name +
 										' (' +
 										data.company.code +
 										')'
 									: '—'
-							"
-							readonly
-						/>
+							" readonly />
 					</div>
 
 					<div class="form-group">
-						<label>Division</label>
+						<label>
+							Division
+							<span class="required">*</span>
+						</label>
 
-						<select
-							class="form-control"
-							formControlName="divisionUuid"
-						>
-							<option value="">Select division</option>
-
-							<option
-								*ngFor="let division of data.divisions"
-								[value]="division.uuid"
-							>
-								{{ division.name }} ({{ division.code }})
-							</option>
-						</select>
+						<input type="text" class="form-control" formControlName="divisionName"
+							placeholder="Enter division" />
 					</div>
 
 					<div class="form-group">
@@ -112,19 +79,13 @@
 							<span class="required">*</span>
 						</label>
 
-						<input
-							type="datetime-local"
-							class="form-control"
-							formControlName="startDate"
-						/>
+						<app-local-date-input mode="datetime" formControlName="startDate" [min]="minimumStartDateTime"
+							[required]="true"></app-local-date-input>
 
-						<span
-							class="field-error"
-							*ngIf="
+						<span class="field-error" *ngIf="
 								form.get('startDate')?.touched &&
 								form.get('startDate')?.hasError('required')
-							"
-						>
+							">
 							Start date wajib diisi.
 						</span>
 					</div>
@@ -135,45 +96,24 @@
 							<span class="required">*</span>
 						</label>
 
-						<input
-							type="datetime-local"
-							class="form-control"
-							formControlName="endDate"
-							[min]="form.get('startDate')?.value || null"
-						/>
+						<app-local-date-input mode="datetime" formControlName="endDate"
+							[min]="form.get('startDate')?.value || null" [required]="true"></app-local-date-input>
 
-						<span
-							class="field-error"
-							*ngIf="
+						<span class="field-error" *ngIf="
 								form.get('endDate')?.touched &&
 								form.get('endDate')?.hasError('required')
-							"
-						>
+							">
 							End date wajib diisi.
 						</span>
 					</div>
 				</div>
 
-				<div class="form-group">
-					<label>Purpose</label>
-
-					<textarea
-						class="form-control"
-						rows="3"
-						formControlName="purpose"
-						placeholder="Describe the operational purpose..."
-					></textarea>
-				</div>
 
 				<div class="form-group">
 					<label>Notes</label>
 
-					<textarea
-						class="form-control"
-						rows="2"
-						formControlName="notes"
-						placeholder="Additional notes..."
-					></textarea>
+					<textarea class="form-control" rows="2" formControlName="notes"
+						placeholder="Additional notes..."></textarea>
 				</div>
 				<div class="form-group attachment-field">
 					<div class="attachment-heading">
@@ -181,40 +121,44 @@
 							<label>Attachments</label>
 							<small>Optional supporting PDF or image, max. 5 files / 10 MB each.</small>
 						</div>
-						<label class="btn btn-light attachment-picker" [class.disabled]="attachments.length + pendingAttachments.length >= attachmentMaxCount">
+						<label class="btn btn-light attachment-picker"
+							[class.disabled]="attachments.length + pendingAttachments.length >= attachmentMaxCount">
 							<i class="fas fa-paperclip mr-1"></i> Add Files
-							<input type="file" hidden multiple accept="application/pdf,image/jpeg,image/png,image/gif,image/webp" (change)="selectAttachments($event)" />
+							<input type="file" hidden multiple
+								accept="application/pdf,image/jpeg,image/png,image/gif,image/webp"
+								(change)="selectAttachments($event)" />
 						</label>
 					</div>
 
 					@if (attachments.length || pendingAttachments.length) {
-						<div class="attachment-list">
-							@for (attachment of attachments; track attachment.uuid) {
-								<div class="attachment-item saved">
-									<i [class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
-									<div><strong>{{ attachment.originalName }}</strong><small>{{ formatFileSize(attachment.fileSize) }} · Saved</small></div>
-									@if (canManageSavedAttachments) {
-										<button
-											type="button"
-											class="attachment-remove"
-											[disabled]="isDeletingAttachment(attachment.uuid)"
-											(click)="removeSavedAttachment(attachment)"
-											aria-label="Remove saved attachment"
-											title="Remove attachment"
-										>
-											<i [class]="isDeletingAttachment(attachment.uuid) ? 'fas fa-spinner fa-spin' : 'fas fa-times'"></i>
-										</button>
-									}
-								</div>
-							}
-							@for (file of pendingAttachments; track file.name + file.size; let i = $index) {
-								<div class="attachment-item">
-									<i [class]="file.type === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
-									<div><strong>{{ file.name }}</strong><small>{{ formatFileSize(file.size) }} · Upload after save</small></div>
-									<button type="button" class="attachment-remove" (click)="removePendingAttachment(i)" aria-label="Remove attachment"><i class="fas fa-times"></i></button>
-								</div>
+					<div class="attachment-list">
+						@for (attachment of attachments; track attachment.uuid) {
+						<div class="attachment-item saved">
+							<i
+								[class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+							<div><strong>{{ attachment.originalName }}</strong><small>{{
+									formatFileSize(attachment.fileSize) }} · Saved</small></div>
+							@if (canManageSavedAttachments) {
+							<button type="button" class="attachment-remove"
+								[disabled]="isDeletingAttachment(attachment.uuid)"
+								(click)="removeSavedAttachment(attachment)" aria-label="Remove saved attachment"
+								title="Remove attachment">
+								<i
+									[class]="isDeletingAttachment(attachment.uuid) ? 'fas fa-spinner fa-spin' : 'fas fa-times'"></i>
+							</button>
 							}
 						</div>
+						}
+						@for (file of pendingAttachments; track file.name + file.size; let i = $index) {
+						<div class="attachment-item">
+							<i [class]="file.type === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+							<div><strong>{{ file.name }}</strong><small>{{ formatFileSize(file.size) }} · Upload after
+									save</small></div>
+							<button type="button" class="attachment-remove" (click)="removePendingAttachment(i)"
+								aria-label="Remove attachment"><i class="fas fa-times"></i></button>
+						</div>
+						}
+					</div>
 					}
 				</div>
 			</section>
@@ -228,43 +172,30 @@
 						</small>
 					</div>
 
-					<button
-						type="button"
-						class="btn btn-sm btn-light"
-						(click)="addDetail()"
-					>
+					<button type="button" class="btn btn-sm btn-light" (click)="addDetail()">
 						<i class="fas fa-plus mr-1"></i>
 						Add Row
 					</button>
 				</div>
 
 				<div formArrayName="details" class="detail-list">
-					<div
-						*ngFor="let detail of details.controls; let i = index"
-						[formGroupName]="i"
-						class="detail-card"
-					>
+					<div *ngFor="let detail of details.controls; let i = index" [formGroupName]="i" class="detail-card">
 						<div class="detail-card-header">
 							<div class="detail-title">
 								<span class="detail-category-icon">
-									<img
-										[src]="getCategoryIcon(i)"
-										[alt]="
+									<img [src]="getCategoryIcon(i)" [alt]="
 											getCategoryByDetail(i)?.name ||
 											'Equipment category'
-										"
-									/>
+										" />
 								</span>
 
 								<div>
-									<small class="detail-item-label"
-										>Equipment Item {{ i + 1 }}</small
-									>
+									<small class="detail-item-label">Equipment Item {{ i + 1 }}</small>
 
 									<strong>
 										{{
-											getCategoryByDetail(i)?.name ||
-												"Select Equipment"
+										getCategoryByDetail(i)?.name ||
+										"Select Equipment"
 										}}
 									</strong>
 
@@ -274,12 +205,8 @@
 								</div>
 							</div>
 
-							<button
-								type="button"
-								class="remove-detail"
-								[disabled]="details.length <= 1"
-								(click)="removeDetail(i)"
-							>
+							<button type="button" class="remove-detail" [disabled]="details.length <= 1"
+								(click)="removeDetail(i)">
 								<i class="fas fa-trash-alt"></i>
 							</button>
 						</div>
@@ -291,19 +218,13 @@
 									<span class="required">*</span>
 								</label>
 
-								<select
-									class="form-control"
-									formControlName="equipmentCategoryId"
-									(change)="onCategoryChange(i)"
-								>
+								<select class="form-control" formControlName="equipmentCategoryId"
+									(change)="onCategoryChange(i)">
 									<option [ngValue]="null">
 										Select category
 									</option>
 
-									<option
-										*ngFor="let category of data.categories"
-										[ngValue]="category.id"
-									>
+									<option *ngFor="let category of data.categories" [ngValue]="category.id">
 										{{ category.name }}
 									</option>
 								</select>
@@ -315,124 +236,96 @@
 									<span class="required">*</span>
 								</label>
 
-								<select
-									class="form-control"
-									formControlName="equipmentUnitId"
-									[disabled]="
+								<select class="form-control" formControlName="equipmentUnitId" [disabled]="
 										!detail.get('equipmentCategoryId')
-											?.value
-									"
-									(change)="onUnitChange(i)"
-								>
+											?.value || isCheckingUnitAvailability
+									" (change)="onUnitChange(i)">
 									<option [ngValue]="null">
 										{{
-											detail.get("equipmentCategoryId")
-												?.value
-												? "Select equipment unit"
-												: "Select category first"
+										detail.get("equipmentCategoryId")
+										?.value
+										? "Select equipment unit"
+										: "Select category first"
 										}}
 									</option>
 
-									<option
-										*ngFor="
+									<option *ngFor="
 											let unit of getUnitsByCategory(i)
-										"
-										[ngValue]="unit.id"
-										[disabled]="
+										" [ngValue]="unit.id" [disabled]="
 											unit.operationalStatusCode ===
-											'MAINTENANCE'
-										"
-									>
+												'MAINTENANCE' ||
+											isUnitUnavailable(unit)
+										">
 										{{ unit.unitCode }} -
 										{{ unit.unitName }}
 
-
-										<ng-container
-											*ngIf="
+										<ng-container *ngIf="
 												unit.operationalStatusCode ===
 												'MAINTENANCE'
-											"
-										>
+											">
 											- Maintenance
+										</ng-container>
+
+										<ng-container *ngIf="isUnitUnavailable(unit)">
+											- Not Available
 										</ng-container>
 									</option>
 								</select>
-								<span
-									class="field-error"
-									*ngIf="
+								<span class="field-error" *ngIf="
 										detail.get('equipmentUnitId')
 											?.touched &&
 										detail
 											.get('equipmentUnitId')
 											?.hasError('required')
-									"
-								>
+									">
 									Equipment unit wajib dipilih.
 								</span>
 							</div>
 
 							@if (getSelectedUnit(i); as selectedUnit) {
-								<div class="selected-unit-preview">
-									@if (
-										getSelectedUnitImageUrl(i);
-										as imageUrl
-									) {
-										<button
-											type="button"
-											class="selected-unit-image selected-unit-image-button"
-											[attr.aria-label]="
+							<div class="selected-unit-preview">
+								@if (
+								getSelectedUnitImageUrl(i);
+								as imageUrl
+								) {
+								<button type="button" class="selected-unit-image selected-unit-image-button"
+									[attr.aria-label]="
 												'Preview image for ' +
 												selectedUnit.unitName
-											"
-											(click)="openUnitImageReview(i)"
-										>
-											<img
-												[src]="imageUrl"
-												[alt]="selectedUnit.unitName"
-											/>
-											<span
-												class="selected-unit-image-overlay"
-											>
-												<i
-													class="fas fa-search-plus"
-												></i>
-											</span>
-										</button>
-									} @else {
-										<div class="selected-unit-image">
-											<div
-												class="selected-unit-image-fallback"
-											>
-												@if (
-													isSelectedUnitImageLoading(
-														i
-													)
-												) {
-													<i
-														class="fas fa-spinner fa-spin"
-													></i>
-												} @else {
-													<img
-														[src]="
+											" (click)="openUnitImageReview(i)">
+									<img [src]="imageUrl" [alt]="selectedUnit.unitName" />
+									<span class="selected-unit-image-overlay">
+										<i class="fas fa-search-plus"></i>
+									</span>
+								</button>
+								} @else {
+								<div class="selected-unit-image">
+									<div class="selected-unit-image-fallback">
+										@if (
+										isSelectedUnitImageLoading(
+										i
+										)
+										) {
+										<i class="fas fa-spinner fa-spin"></i>
+										} @else {
+										<img [src]="
 															getCategoryIcon(i)
-														"
-														[alt]="
+														" [alt]="
 															selectedUnit.unitName
-														"
-													/>
-												}
-											</div>
-										</div>
-									}
-
-									<div class="selected-unit-info">
-										<small>Selected Unit</small>
-										<strong>{{
-											selectedUnit.unitName
-										}}</strong>
-										<span>{{ selectedUnit.unitCode }}</span>
+														" />
+										}
 									</div>
 								</div>
+								}
+
+								<div class="selected-unit-info">
+									<small>Selected Unit</small>
+									<strong>{{
+										selectedUnit.unitName
+										}}</strong>
+									<span>{{ selectedUnit.unitCode }}</span>
+								</div>
+							</div>
 							}
 
 							<div class="form-group capacity-unit-field">
@@ -441,34 +334,25 @@
 									<span class="required">*</span>
 								</label>
 
-								<select
-									class="form-control"
-									formControlName="requiredCapacityUnit"
-								>
+								<select class="form-control" formControlName="requiredCapacityUnit">
 									<option value="">
 										Select capacity unit
 									</option>
 
-									<option
-										*ngFor="
+									<option *ngFor="
 											let capacityUnit of data.capacityUnits
-										"
-										[value]="capacityUnit.lookupCode"
-									>
+										" [value]="capacityUnit.lookupCode">
 										{{ capacityUnit.lookupValue }}
 									</option>
 								</select>
 
-								<span
-									class="field-error"
-									*ngIf="
+								<span class="field-error" *ngIf="
 										detail.get('requiredCapacityUnit')
 											?.touched &&
 										detail
 											.get('requiredCapacityUnit')
 											?.hasError('required')
-									"
-								>
+									">
 									Capacity unit wajib diisi.
 								</span>
 							</div>
@@ -479,38 +363,26 @@
 									<span class="required">*</span>
 								</label>
 
-								<input
-									type="number"
-									class="form-control"
-									formControlName="requiredCapacityValue"
-									min="0.01"
-									step="0.01"
-									placeholder="Enter lifting estimation"
-								/>
+								<input type="number" class="form-control" formControlName="requiredCapacityValue"
+									min="0.01" step="0.01" placeholder="Enter lifting estimation" />
 
-								<span
-									class="field-error"
-									*ngIf="
+								<span class="field-error" *ngIf="
 										detail.get('requiredCapacityValue')
 											?.touched &&
 										detail
 											.get('requiredCapacityValue')
 											?.hasError('required')
-									"
-								>
+									">
 									Lifting estimation wajib diisi.
 								</span>
 
-								<span
-									class="field-error"
-									*ngIf="
+								<span class="field-error" *ngIf="
 										detail.get('requiredCapacityValue')
 											?.touched &&
 										detail
 											.get('requiredCapacityValue')
 											?.hasError('min')
-									"
-								>
+									">
 									Lifting estimation harus lebih dari 0.
 								</span>
 							</div>
@@ -518,11 +390,7 @@
 							<div class="form-group remarks-field">
 								<label>Remarks</label>
 
-								<input
-									type="text"
-									class="form-control"
-									formControlName="remarks"
-								/>
+								<input type="text" class="form-control" formControlName="remarks" />
 							</div>
 						</div>
 					</div>
@@ -531,24 +399,8 @@
 		</div>
 	</form>
 </mat-dialog-content>
-<mat-dialog-actions
-	><button
-		type="button"
-		class="btn btn-light"
-		[disabled]="isSaving"
-		(click)="cancel()"
-	>
-		Cancel</button
-	><button
-		type="button"
-		class="btn btn-primary"
-		[disabled]="isSaving"
-		(click)="save()"
-	>
-		<span
-			*ngIf="isSaving"
-			class="spinner-border spinner-border-sm mr-1"
-		></span
-		>{{ isSaving ? "Saving..." : "Save" }}
-	</button></mat-dialog-actions
->
+<mat-dialog-actions><button type="button" class="btn btn-light" [disabled]="isSaving" (click)="cancel()">
+		Cancel</button><button type="button" class="btn btn-primary" [disabled]="isSaving || isCheckingUnitAvailability" (click)="save()">
+		<span *ngIf="isSaving" class="spinner-border spinner-border-sm mr-1"></span>{{ isSaving ? "Saving..." : "Save"
+		}}
+	</button></mat-dialog-actions>

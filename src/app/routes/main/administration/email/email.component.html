@@ -8,12 +8,7 @@
 			</small>
 		</div>
 
-		<button
-			type="button"
-			class="btn btn-light"
-			[disabled]="isLoading"
-			(click)="loadEmails()"
-		>
+		<button type="button" class="btn btn-light" [disabled]="isLoading" (click)="loadEmails()">
 			<i class="fas fa-sync-alt mr-1"></i>
 			Refresh
 		</button>
@@ -28,12 +23,8 @@
 					<div class="form-group search-field">
 						<label>Search</label>
 						<div class="input-group">
-							<input
-								type="text"
-								class="form-control"
-								[formControl]="searchControl"
-								placeholder="Email, subject, module, reference, error..."
-							/>
+							<input type="text" class="form-control" [formControl]="searchControl"
+								placeholder="Email, subject, module, reference, error..." />
 							<div class="input-group-append">
 								<span class="input-group-text">
 									<i class="fas fa-search"></i>
@@ -44,15 +35,9 @@
 
 					<div class="form-group status-field">
 						<label>Status</label>
-						<select
-							class="form-control"
-							[formControl]="statusControl"
-						>
+						<select class="form-control" [formControl]="statusControl">
 							<option value="">All Statuses</option>
-							<option
-								*ngFor="let status of statuses"
-								[value]="status"
-							>
+							<option *ngFor="let status of statuses" [value]="status">
 								{{ status }}
 							</option>
 						</select>
@@ -60,30 +45,18 @@
 
 					<div class="form-group date-field">
 						<label>Date From</label>
-						<input
-							type="date"
-							class="form-control"
-							[formControl]="dateFromControl"
-						/>
+						<app-local-date-input mode="date" [formControl]="dateFromControl"></app-local-date-input>
 					</div>
 
 					<div class="form-group date-field">
 						<label>Date To</label>
-						<input
-							type="date"
-							class="form-control"
-							[formControl]="dateToControl"
-						/>
+						<app-local-date-input mode="date" [formControl]="dateToControl"></app-local-date-input>
 					</div>
 				</div>
 
 				<div class="filter-actions">
-					<button
-						type="button"
-						class="btn btn-light reset-button"
-						[disabled]="isLoading"
-						(click)="resetFilters()"
-					>
+					<button type="button" class="btn btn-light reset-button" [disabled]="isLoading"
+						(click)="resetFilters()">
 						<i class="fas fa-undo mr-1"></i>
 						Reset
 					</button>
@@ -100,26 +73,18 @@
 				<loading text="Loading emails..."></loading>
 			</div>
 
-			<div
-				*ngIf="!isLoading && emails.length > 0"
-				class="table-responsive"
-			>
-				<table
-					mat-table
-					[dataSource]="emails"
-					[trackBy]="trackByUuid"
-					class="w-100 email-table"
-				>
+			<div *ngIf="!isLoading && emails.length > 0" class="table-responsive">
+				<table mat-table [dataSource]="emails" [trackBy]="trackByUuid" class="w-100 email-table">
 					<ng-container matColumnDef="createdAt">
 						<th mat-header-cell *matHeaderCellDef>Created</th>
 						<td mat-cell *matCellDef="let email">
 							<div class="date-cell">
 								<strong>{{
-									email.createdAt | date: "dd MMM yyyy"
-								}}</strong>
+									email.createdAt | date: "dd/MM/yyyy"
+									}}</strong>
 								<small class="text-secondary">{{
 									email.createdAt | date: "HH:mm:ss"
-								}}</small>
+									}}</small>
 							</div>
 						</td>
 					</ng-container>
@@ -129,16 +94,8 @@
 						<td mat-cell *matCellDef="let email">
 							<div class="recipient-cell">
 								<strong>{{ email.toEmail }}</strong>
-								<small
-									*ngIf="email.ccEmail"
-									class="text-secondary"
-									>CC: {{ email.ccEmail }}</small
-								>
-								<small
-									*ngIf="email.bccEmail"
-									class="text-secondary"
-									>BCC: {{ email.bccEmail }}</small
-								>
+								<small *ngIf="email.ccEmail" class="text-secondary">CC: {{ email.ccEmail }}</small>
+								<small *ngIf="email.bccEmail" class="text-secondary">BCC: {{ email.bccEmail }}</small>
 							</div>
 						</td>
 					</ng-container>
@@ -151,12 +108,10 @@
 							<div class="subject-cell">
 								<strong [title]="email.subject">{{
 									email.subject
-								}}</strong>
+									}}</strong>
 								<small class="text-secondary">
 									{{ email.moduleCode || "—" }}
-									<span *ngIf="email.referenceUuid"
-										>• {{ email.referenceUuid }}</span
-									>
+									<span *ngIf="email.referenceUuid">• {{ email.referenceUuid }}</span>
 								</small>
 							</div>
 						</td>
@@ -165,10 +120,7 @@
 					<ng-container matColumnDef="status">
 						<th mat-header-cell *matHeaderCellDef>Status</th>
 						<td mat-cell *matCellDef="let email">
-							<span
-								class="status-badge"
-								[ngClass]="getStatusClass(email.statusCode)"
-							>
+							<span class="status-badge" [ngClass]="getStatusClass(email.statusCode)">
 								<span class="status-dot"></span>
 								{{ email.statusCode }}
 							</span>
@@ -178,29 +130,18 @@
 					<ng-container matColumnDef="attempt">
 						<th mat-header-cell *matHeaderCellDef>Attempt</th>
 						<td mat-cell *matCellDef="let email">
-							<strong
-								>{{ email.attemptCount }} /
-								{{ email.maxAttempt }}</strong
-							>
+							<strong>{{ email.attemptCount }} /
+								{{ email.maxAttempt }}</strong>
 						</td>
 					</ng-container>
 
 					<ng-container matColumnDef="actions">
-						<th
-							mat-header-cell
-							*matHeaderCellDef
-							class="text-right"
-						>
+						<th mat-header-cell *matHeaderCellDef class="text-right">
 							Actions
 						</th>
 						<td mat-cell *matCellDef="let email" class="text-right">
-							<button
-								*ngIf="canRetry(email)"
-								type="button"
-								class="btn btn-sm email-retry-button mr-2"
-								[disabled]="actionUuid === email.uuid"
-								(click)="openRetryDialog(email)"
-							>
+							<button *ngIf="canRetry(email)" type="button" class="btn btn-sm email-retry-button mr-2"
+								[disabled]="actionUuid === email.uuid" (click)="openRetryDialog(email)">
 								<i class="fas fa-redo mr-1"></i>
 								Retry
 							</button>
@@ -208,17 +149,11 @@
 					</ng-container>
 
 					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-					<tr
-						mat-row
-						*matRowDef="let row; columns: displayedColumns"
-					></tr>
+					<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 				</table>
 			</div>
 
-			<div
-				*ngIf="!isLoading && emails.length === 0 && !errorMessage"
-				class="empty-state"
-			>
+			<div *ngIf="!isLoading && emails.length === 0 && !errorMessage" class="empty-state">
 				<i class="fas fa-envelope-open-text"></i>
 				<h5>No email transactions found</h5>
 				<p>
@@ -226,15 +161,9 @@
 				</p>
 			</div>
 
-			<mat-paginator
-				*ngIf="!isLoading && total > 0"
-				[length]="total"
-				[pageIndex]="page - 1"
-				[pageSize]="limit"
-				[pageSizeOptions]="pageSizeOptions"
-				[showFirstLastButtons]="true"
-				(page)="onPageChange($event)"
-			></mat-paginator>
+			<mat-paginator *ngIf="!isLoading && total > 0" [length]="total" [pageIndex]="page - 1" [pageSize]="limit"
+				[pageSizeOptions]="pageSizeOptions" [showFirstLastButtons]="true"
+				(page)="onPageChange($event)"></mat-paginator>
 		</panel-body>
 	</panel>
 </page-body>

@@ -53,8 +53,6 @@ interface MonitoringAssignment {
 	companyCode: string | null;
 	companyName: string | null;
 
-	divisionUuid: string | null;
-	divisionCode: string | null;
 	divisionName: string | null;
 
 	equipmentCategoryUuid: string | null;
@@ -76,7 +74,6 @@ interface MonitoringOverview {
 interface MonitoringFilters {
 	search: string;
 	companyUuid: string;
-	divisionUuid: string;
 	equipmentUuid: string;
 	status: string;
 	startDate: string;
@@ -86,13 +83,6 @@ interface MonitoringFilters {
 
 interface CompanyOption {
 	uuid: string;
-	code: string;
-	name: string;
-}
-
-interface DivisionOption {
-	uuid: string;
-	companyUuid: string;
 	code: string;
 	name: string;
 }
@@ -143,7 +133,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	assignments: MonitoringAssignment[] = [];
 
 	companyOptions: CompanyOption[] = [];
-	divisionOptions: DivisionOption[] = [];
 	equipmentOptions: EquipmentOption[] = [];
 
 	filters: MonitoringFilters = this.createEmptyFilters();
@@ -200,23 +189,19 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 		this.searchChange$.complete();
 	}
 
-	get filteredDivisionOptions(): DivisionOption[] {
-		if (!this.filters.companyUuid) {
-			return this.divisionOptions;
-		}
-
-		return this.divisionOptions.filter(
-			(division) => division.companyUuid === this.filters.companyUuid,
-		);
-	}
-
 	get worklistTotalPages(): number {
-		return Math.max(1, Math.ceil(this.assignments.length / this.worklistPageSize));
+		return Math.max(
+			1,
+			Math.ceil(this.assignments.length / this.worklistPageSize),
+		);
 	}
 
 	get paginatedAssignments(): MonitoringAssignment[] {
 		const startIndex = (this.worklistPage - 1) * this.worklistPageSize;
-		return this.assignments.slice(startIndex, startIndex + this.worklistPageSize);
+		return this.assignments.slice(
+			startIndex,
+			startIndex + this.worklistPageSize,
+		);
 	}
 
 	get worklistRangeStart(): number {
@@ -228,14 +213,16 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 	}
 
 	get worklistRangeEnd(): number {
-		return Math.min(this.worklistPage * this.worklistPageSize, this.assignments.length);
+		return Math.min(
+			this.worklistPage * this.worklistPageSize,
+			this.assignments.length,
+		);
 	}
 
 	get hasActiveFilters(): boolean {
 		return Boolean(
 			this.filters.search ||
 			this.filters.companyUuid ||
-			this.filters.divisionUuid ||
 			this.filters.equipmentUuid ||
 			(this.filters.status && this.filters.status !== 'ACTIVE') ||
 			this.filters.startDate ||
@@ -482,14 +469,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 
 	onCompanyChange(): void {
 		this.worklistPage = 1;
-		if (
-			this.filters.divisionUuid &&
-			!this.filteredDivisionOptions.some(
-				(division) => division.uuid === this.filters.divisionUuid,
-			)
-		) {
-			this.filters.divisionUuid = '';
-		}
 
 		this.loadMonitoring(false);
 	}
@@ -646,7 +625,10 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 						overview?.summary || this.createEmptySummary();
 
 					this.assignments = overview?.assignments || [];
-					this.worklistPage = Math.min(this.worklistPage, this.worklistTotalPages);
+					this.worklistPage = Math.min(
+						this.worklistPage,
+						this.worklistTotalPages,
+					);
 					this.loadUnitImages(this.assignments);
 
 					if (initializeOptions || this.assignments.length > 0) {
@@ -772,10 +754,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 			params = params.set('companyUuid', this.filters.companyUuid);
 		}
 
-		if (this.filters.divisionUuid) {
-			params = params.set('divisionUuid', this.filters.divisionUuid);
-		}
-
 		if (this.filters.equipmentUuid) {
 			params = params.set('equipmentUuid', this.filters.equipmentUuid);
 		}
@@ -805,9 +783,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 		const companies = new Map<string, CompanyOption>(
 			this.companyOptions.map((company) => [company.uuid, company]),
 		);
-		const divisions = new Map<string, DivisionOption>(
-			this.divisionOptions.map((division) => [division.uuid, division]),
-		);
 		const equipment = new Map<string, EquipmentOption>(
 			this.equipmentOptions.map((item) => [item.uuid, item]),
 		);
@@ -826,20 +801,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 			}
 
 			if (
-				assignment.divisionUuid &&
-				assignment.companyUuid &&
-				assignment.divisionCode &&
-				assignment.divisionName
-			) {
-				divisions.set(assignment.divisionUuid, {
-					uuid: assignment.divisionUuid,
-					companyUuid: assignment.companyUuid,
-					code: assignment.divisionCode,
-					name: assignment.divisionName,
-				});
-			}
-
-			if (
 				assignment.equipmentUnitUuid &&
 				assignment.equipmentUnitCode &&
 				assignment.equipmentUnitName
@@ -853,10 +814,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 		});
 
 		this.companyOptions = Array.from(companies.values()).sort((a, b) =>
-			a.name.localeCompare(b.name),
-		);
-
-		this.divisionOptions = Array.from(divisions.values()).sort((a, b) =>
 			a.name.localeCompare(b.name),
 		);
 
@@ -977,7 +934,6 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 		return {
 			search: '',
 			companyUuid: '',
-			divisionUuid: '',
 			equipmentUuid: '',
 			status: 'ACTIVE',
 			startDate: '',

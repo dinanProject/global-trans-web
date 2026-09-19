@@ -20,15 +20,8 @@ export interface UserCompanyOption {
 	code: string;
 	name: string;
 }
-export interface UserDivisionOption {
-	uuid: string;
-	code: string;
-	name: string;
-	companyUuid: string;
-}
 export interface UserOptions {
 	companies: UserCompanyOption[];
-	divisions: UserDivisionOption[];
 	roles: UserRoleOption[];
 }
 
@@ -42,9 +35,6 @@ export interface UserMaster {
 	companyUuid: string;
 	companyCode: string;
 	companyName: string;
-	divisionUuid?: string | null;
-	divisionCode?: string | null;
-	divisionName?: string | null;
 	roleCount?: number;
 	roleNames?: string;
 	roles?: UserRoleOption[];
@@ -52,7 +42,6 @@ export interface UserMaster {
 
 export interface UserPayload {
 	companyUuid: string;
-	divisionUuid: string | null;
 	email: string;
 	fullName: string;
 	phone: string | null;

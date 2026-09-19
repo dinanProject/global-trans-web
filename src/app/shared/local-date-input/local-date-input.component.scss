@@ -1,0 +1,47 @@
+:host {
+	display: block;
+	width: 100%;
+}
+
+.local-date-control {
+	position: relative;
+	width: 100%;
+}
+
+.local-date-display {
+	padding-right: 38px;
+	cursor: pointer;
+	background-color: #fff;
+}
+
+.local-date-display:disabled {
+	cursor: not-allowed;
+}
+
+.local-date-native {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	right: 12px;
+	bottom: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.local-date-button {
+	position: absolute;
+	top: 50%;
+	right: 8px;
+	transform: translateY(-50%);
+	width: 30px;
+	height: 30px;
+	border: 0;
+	background: transparent;
+	color: #64748b;
+	cursor: pointer;
+}
+
+.local-date-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}

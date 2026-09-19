@@ -8,12 +8,7 @@
 			</small>
 		</div>
 
-		<button
-			type="button"
-			class="btn btn-light"
-			[disabled]="isLoading"
-			(click)="loadLoginLogs()"
-		>
+		<button type="button" class="btn btn-light" [disabled]="isLoading" (click)="loadLoginLogs()">
 			<i class="fas fa-sync-alt mr-1"></i>
 			Refresh
 		</button>
@@ -28,29 +23,17 @@
 					<div class="form-group search-field">
 						<label for="loginLogSearch">Search</label>
 
-						<input
-							id="loginLogSearch"
-							type="text"
-							class="form-control"
-							[formControl]="searchControl"
-							placeholder="Name, email, or IP address"
-						/>
+						<input id="loginLogSearch" type="text" class="form-control" [formControl]="searchControl"
+							placeholder="Name, email, or IP address" />
 					</div>
 
 					<div class="form-group status-field">
 						<label for="loginLogStatus">Status</label>
 
-						<select
-							id="loginLogStatus"
-							class="form-control"
-							[formControl]="statusControl"
-						>
+						<select id="loginLogStatus" class="form-control" [formControl]="statusControl">
 							<option value="">All statuses</option>
 
-							<option
-								*ngFor="let status of loginStatuses"
-								[value]="status.lookupCode"
-							>
+							<option *ngFor="let status of loginStatuses" [value]="status.lookupCode">
 								{{ getLookupStatusLabel(status) }}
 							</option>
 						</select>
@@ -59,33 +42,20 @@
 					<div class="form-group date-field">
 						<label for="dateFrom">Date from</label>
 
-						<input
-							id="dateFrom"
-							type="date"
-							class="form-control"
-							[formControl]="dateFromControl"
-						/>
+						<app-local-date-input inputId="dateFrom" mode="date"
+							[formControl]="dateFromControl"></app-local-date-input>
 					</div>
 
 					<div class="form-group date-field">
 						<label for="dateTo">Date to</label>
 
-						<input
-							id="dateTo"
-							type="date"
-							class="form-control"
-							[formControl]="dateToControl"
-						/>
+						<app-local-date-input inputId="dateTo" mode="date"
+							[formControl]="dateToControl"></app-local-date-input>
 					</div>
 				</div>
 
 				<div class="filter-actions">
-					<button
-						type="button"
-						class="btn btn-light"
-						[disabled]="isLoading"
-						(click)="resetFilters()"
-					>
+					<button type="button" class="btn btn-light" [disabled]="isLoading" (click)="resetFilters()">
 						<i class="fas fa-undo mr-1"></i>
 						Reset
 					</button>
@@ -94,11 +64,7 @@
 		</panel-filter>
 
 		<panel-body class="panel-body-no-padding">
-			<div
-				*ngIf="errorMessage"
-				class="alert alert-danger error-message"
-				role="alert"
-			>
+			<div *ngIf="errorMessage" class="alert alert-danger error-message" role="alert">
 				{{ errorMessage }}
 			</div>
 
@@ -107,19 +73,14 @@
 			</div>
 
 			<div *ngIf="!isLoading" class="table-responsive">
-				<table
-					mat-table
-					[dataSource]="loginLogs"
-					[trackBy]="trackByUuid"
-					class="w-100 login-log-table"
-				>
+				<table mat-table [dataSource]="loginLogs" [trackBy]="trackByUuid" class="w-100 login-log-table">
 					<ng-container matColumnDef="createdAt">
 						<th mat-header-cell *matHeaderCellDef>Date & Time</th>
 
 						<td mat-cell *matCellDef="let log">
 							<div class="date-cell">
 								<strong>
-									{{ log.createdAt | date: "dd MMM yyyy" }}
+									{{ log.createdAt | date: "dd/MM/yyyy" }}
 								</strong>
 
 								<small class="text-secondary">
@@ -155,10 +116,7 @@
 						<th mat-header-cell *matHeaderCellDef>Status</th>
 
 						<td mat-cell *matCellDef="let log">
-							<span
-								class="status-badge"
-								[ngClass]="getStatusClass(log.statusCode)"
-							>
+							<span class="status-badge" [ngClass]="getStatusClass(log.statusCode)">
 								<span class="status-dot"></span>
 
 								{{ getStatusLabel(log.statusCode) }}
@@ -172,18 +130,12 @@
 						</th>
 
 						<td mat-cell *matCellDef="let log">
-							<div
-								*ngIf="log.failureReason; else noFailure"
-								class="failure-cell"
-							>
+							<div *ngIf="log.failureReason; else noFailure" class="failure-cell">
 								<strong>
 									{{ getFailureLabel(log.failureReason) }}
 								</strong>
 
-								<small
-									*ngIf="log.failureMessage"
-									class="text-secondary"
-								>
+								<small *ngIf="log.failureMessage" class="text-secondary">
 									{{ log.failureMessage }}
 								</small>
 							</div>
@@ -210,10 +162,7 @@
 						</th>
 
 						<td mat-cell *matCellDef="let log">
-							<span
-								class="user-agent"
-								[title]="log.userAgent || ''"
-							>
+							<span class="user-agent" [title]="log.userAgent || ''">
 								{{ formatUserAgent(log.userAgent) }}
 							</span>
 						</td>
@@ -221,10 +170,7 @@
 
 					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 
-					<tr
-						mat-row
-						*matRowDef="let row; columns: displayedColumns"
-					></tr>
+					<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 				</table>
 
 				<div *ngIf="loginLogs.length === 0" class="empty-state">
@@ -237,15 +183,9 @@
 			</div>
 
 			@if (!isLoading && total > 0) {
-				<mat-paginator
-					[length]="total"
-					[pageIndex]="page - 1"
-					[pageSize]="limit"
-					[pageSizeOptions]="pageSizeOptions"
-					[showFirstLastButtons]="true"
-					(page)="onPageChange($event)"
-				>
-				</mat-paginator>
+			<mat-paginator [length]="total" [pageIndex]="page - 1" [pageSize]="limit"
+				[pageSizeOptions]="pageSizeOptions" [showFirstLastButtons]="true" (page)="onPageChange($event)">
+			</mat-paginator>
 			}
 		</panel-body>
 	</panel>
