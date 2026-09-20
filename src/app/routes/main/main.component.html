@@ -36,10 +36,11 @@
 					<button type="button" class="theme-switch" (click)="toggleTheme()"
 						[attr.aria-label]="isDarkTheme() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
 						<span class="theme-switch-icon" aria-hidden="true">
-							<i class="fas" [class.fa-sun]="isDarkTheme()" [class.fa-moon]="!isDarkTheme()"></i>
+							<i class="fas" [class.fa-moon]="isDarkTheme()" [class.fa-sun]="!isDarkTheme()"></i>
 						</span>
+
 						<span class="theme-switch-label">
-							{{ isDarkTheme() ? "Light Mode" : "Dark Mode" }}
+							{{ isDarkTheme() ? "Dark Mode" : "Light Mode" }}
 						</span>
 						<span class="theme-switch-state" aria-hidden="true">
 							<span class="theme-switch-thumb"></span>
