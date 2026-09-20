@@ -447,8 +447,9 @@
 .summary-grid {
 	display: grid;
 	grid-template-columns:
-		minmax(210px, 0.9fr)
-		minmax(0, 1.8fr)
+		minmax(190px, 0.8fr)
+		minmax(160px, 0.65fr)
+		minmax(0, 1.55fr)
 		minmax(150px, 0.55fr);
 	gap: 14px;
 	width: 100%;
@@ -478,6 +479,37 @@
 }
 
 .company-summary {
+	min-width: 0;
+
+	> strong {
+		display: block;
+		margin-top: 2px;
+		color: var(--title-color);
+		font-size: 14px;
+		font-weight: 700;
+		line-height: 1.4;
+		overflow-wrap: anywhere;
+	}
+
+	> small {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		margin-top: 8px;
+		color: var(--label-color);
+		font-size: 11px;
+		font-weight: 600;
+		line-height: 1.4;
+
+		i {
+			flex: 0 0 auto;
+			color: var(--text-muted-26);
+			font-size: 11px;
+		}
+	}
+}
+
+.requester-summary {
 	min-width: 0;
 
 	> strong {
@@ -571,13 +603,14 @@
 	span {
 		min-width: 0;
 		margin: 0;
-		overflow: hidden;
+		overflow: visible;
 		color: var(--text-muted-21);
 		font-size: 10px;
 		font-weight: 600;
-		text-overflow: ellipsis;
+		line-height: 1.25;
+		text-overflow: clip;
 		text-transform: uppercase;
-		white-space: nowrap;
+		white-space: normal;
 	}
 
 	strong {
@@ -603,9 +636,12 @@
 
 .status-badge {
 	display: inline-flex;
-	padding: 5px 10px;
-	border-radius: 999px;
-	background: var(--surface-muted-18);
+	align-items: center;
+	gap: 7px;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
 	color: var(--text-secondary-36);
 	font-size: 11px;
 	font-weight: 700;
@@ -613,47 +649,44 @@
 	white-space: nowrap;
 }
 
-.status-approved {
-	background: var(--status-success-bg-08);
-	color: var(--status-success-text-09);
+.status-badge::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	flex: 0 0 7px;
+	border-radius: 50%;
+	background: currentColor;
 }
 
-.status-assigned {
-	background: var(--operation-blue-bg-active);
-	color: var(--status-info-text-08);
+.status-badge.status-approved {
+	color: var(--request-status-approved-text);
 }
 
-.status-in-progress,
-.status-in-operation {
-	background: var(--status-info-bg-08);
-	color: var(--status-info-text-09);
+.status-badge.status-assigned {
+	color: var(--request-status-scheduled-text);
 }
 
-.status-partially-completed,
-.partially-completed {
-	background: var(--status-success-bg-03);
-	color: var(--status-success-text-03);
+.status-badge.status-in-progress,
+.status-badge.status-in-operation {
+	color: var(--request-status-in-operation-text);
 }
 
-.status-completed {
-	background: var(--status-success-bg-09);
-	color: var(--status-success-text-10);
+.status-badge.status-partially-completed {
+	color: var(--request-status-partially-completed-text);
 }
 
-.status-replaced {
-	background: var(--interactive-bg-55);
-	color: var(--interactive-text-50);
+.status-badge.status-completed {
+	color: var(--request-status-completed-text);
 }
 
-.status-cancelled,
-.status-rejected {
-	background: var(--status-danger-bg-13);
-	color: var(--status-danger-text-15);
+.status-badge.status-replaced,
+.status-badge.status-stopped {
+	color: var(--request-status-stopped-text);
 }
 
-.status-stopped {
-	background: var(--interactive-bg-55);
-	color: var(--interactive-text-50);
+.status-badge.status-cancelled,
+.status-badge.status-rejected {
+	color: var(--request-status-rejected-text);
 }
 
 /* =========================================================
@@ -702,28 +735,56 @@
 	flex: 0 0 auto;
 	align-items: center;
 	gap: 7px;
-	padding: 6px 10px;
-	border-radius: 999px;
-	background: var(--interactive-bg-56);
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
 	color: var(--interactive-text-51);
 	font-size: 12px;
 	font-weight: 700;
 	line-height: 1;
 	white-space: nowrap;
-
-	i {
-		font-size: 13px;
-	}
 }
 
-.fulfilled.status-cancelled {
-	background: var(--status-danger-bg-13);
-	color: var(--status-danger-text-15);
+.fulfilled::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	flex: 0 0 7px;
+	border-radius: 50%;
+	background: currentColor;
 }
 
+.fulfilled.status-scheduled,
+.fulfilled.status-assigned {
+	color: var(--request-status-scheduled-text);
+}
+
+.fulfilled.status-starting-soon {
+	color: var(--request-status-starting-soon-text);
+}
+
+.fulfilled.status-in-operation,
+.fulfilled.status-in-progress {
+	color: var(--request-status-in-operation-text);
+}
+
+.fulfilled.status-attention {
+	color: var(--request-status-attention-text);
+}
+
+.fulfilled.status-completed {
+	color: var(--request-status-completed-text);
+}
+
+.fulfilled.status-cancelled,
+.fulfilled.status-rejected {
+	color: var(--request-status-rejected-text);
+}
+
+.fulfilled.status-replaced,
 .fulfilled.status-stopped {
-	background: var(--interactive-bg-55);
-	color: var(--interactive-text-50);
+	color: var(--request-status-stopped-text);
 }
 
 .approved-unit-body {
@@ -1054,8 +1115,9 @@
 @media (max-width: 1250px) {
 	.summary-grid {
 		grid-template-columns:
-			minmax(190px, 0.8fr)
-			minmax(0, 1.5fr);
+			minmax(180px, 0.8fr)
+			minmax(150px, 0.7fr)
+			minmax(0, 1.4fr);
 	}
 
 	.operation-progress-summary {
@@ -1338,6 +1400,11 @@
 	background: var(--status-warning-bg-01);
 }
 
+.operation-kpi.completed {
+	border-color: var(--status-success-border);
+	background: var(--status-success-bg-soft);
+}
+
 .operation-state-banner {
 	display: flex;
 	align-items: flex-start;
@@ -1359,37 +1426,52 @@
 	}
 }
 
-.status-scheduled {
-	background: var(--status-info-bg-05);
-	color: var(--status-info-text-10);
+.status-badge.status-scheduled {
+	color: var(--request-status-scheduled-text);
 }
 
-.status-starting-soon {
-	background: var(--interactive-bg-43);
-	color: var(--interactive-text-40);
+.status-badge.status-starting-soon {
+	color: var(--request-status-starting-soon-text);
 }
 
-.status-attention {
-	background: var(--status-warning-bg-02);
-	color: var(--status-warning-text-05);
+.status-badge.status-attention {
+	color: var(--request-status-attention-text);
+}
+
+.operation-state-banner.status-scheduled {
+	border-color: var(--request-status-scheduled-border);
+	background: var(--request-status-scheduled-bg);
+	color: var(--request-status-scheduled-text);
+}
+
+.operation-state-banner.status-starting-soon {
+	border-color: var(--request-status-starting-soon-border);
+	background: var(--request-status-starting-soon-bg);
+	color: var(--request-status-starting-soon-text);
+}
+
+.operation-state-banner.status-attention {
+	border-color: var(--request-status-attention-border);
+	background: var(--request-status-attention-bg);
+	color: var(--request-status-attention-text);
 }
 
 .operation-state-banner.status-completed {
-	border-color: var(--status-success-border-05);
-	background: var(--status-success-bg-09);
-	color: var(--status-success-text-10);
+	border-color: var(--request-status-completed-border);
+	background: var(--request-status-completed-bg);
+	color: var(--request-status-completed-text);
 }
 
 .operation-state-banner.status-cancelled {
-	border-color: var(--status-danger-border-12);
-	background: var(--status-danger-bg-14);
-	color: var(--status-danger-text-16);
+	border-color: var(--request-status-cancelled-border);
+	background: var(--request-status-cancelled-bg);
+	color: var(--request-status-cancelled-text);
 }
 
 .operation-state-banner.status-stopped {
-	border-color: var(--status-info-border-10);
-	background: var(--status-info-bg-12);
-	color: var(--status-info-text-11);
+	border-color: var(--request-status-stopped-border);
+	background: var(--request-status-stopped-bg);
+	color: var(--request-status-stopped-text);
 }
 
 @media (max-width: 1100px) {
@@ -1508,9 +1590,10 @@
 
 .summary-grid {
 	grid-template-columns:
-		minmax(180px, 0.8fr)
-		minmax(0, 1.7fr)
-		minmax(135px, 0.5fr);
+		minmax(0, 0.9fr)
+		minmax(0, 0.65fr)
+		minmax(250px, 1.55fr)
+		minmax(135px, 0.62fr);
 	gap: 10px;
 	margin-top: 12px;
 }
@@ -1532,6 +1615,16 @@
 	gap: 5px;
 	margin-top: 5px;
 	font-size: 10px;
+}
+
+.requester-summary > strong {
+	font-size: 12px;
+}
+
+.requester-summary {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .schedule-range {
@@ -1842,6 +1935,30 @@
 	}
 }
 
+@media (max-width: 1450px) and (min-width: 851px) {
+	.summary-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.schedule-summary,
+	.operation-progress-summary {
+		grid-column: 1 / -1;
+	}
+
+	.operation-progress-summary {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+		align-items: center;
+		gap: 18px;
+	}
+
+	.progress-summary-divider {
+		width: 1px;
+		height: 34px;
+		margin: 0;
+	}
+}
+
 /* =========================================================
  * MOBILE LAYOUT SAFETY
  * Keep Operations usable after the compact desktop tuning.
@@ -1982,9 +2099,9 @@
  * Keep this limited to the Request Summary state card only.
  * ======================================================= */
 .operation-state-banner.status-in-operation {
-	border-color: var(--status-info-border-14);
-	background: var(--status-info-bg-08);
-	color: var(--status-info-text-09);
+	border-color: var(--request-status-in-operation-border);
+	background: var(--request-status-in-operation-bg);
+	color: var(--request-status-in-operation-text);
 	animation: operationInProgressPulse 2.4s ease-in-out infinite;
 }
 
@@ -2024,13 +2141,12 @@
 
 	.operation-kpi.starting-soon,
 	.operation-kpi.in-operation,
-	.operation-kpi.attention {
+	.operation-kpi.attention,
+	.operation-kpi.completed {
 		background: var(--surface-raised);
 	}
 
-	.operation-state-banner.status-starting-soon,
-	.operation-state-banner.status-attention,
-	.operation-state-banner.status-cancelled {
-		background: var(--surface-muted);
+	.operation-kpi.completed {
+		border-color: var(--status-success-border);
 	}
 }

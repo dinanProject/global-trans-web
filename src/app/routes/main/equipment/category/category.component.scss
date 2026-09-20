@@ -42,6 +42,8 @@
 	}
 
 	td {
+		padding-top: 6px;
+		padding-bottom: 6px;
 		vertical-align: middle;
 	}
 
@@ -131,20 +133,17 @@
 }
 
 .category-icon {
-	width: 34px;
-	height: 34px;
-	flex: 0 0 34px;
+	width: 52px;
+	margin: 6px 0;
+	height: 52px;
+	flex: 0 0 52px;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: var(--border-radius);
-	background-color: var(--blue1);
-	color: var(--blue8);
-
-	i {
-		color: inherit;
-	}
+	border-radius: 8px;
+	background-color: var(--interactive-bg-20);
 }
+
 .category-icon img {
 	width: 28px;
 	height: 28px;

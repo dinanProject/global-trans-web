@@ -33,6 +33,10 @@ import {
 } from './request.service';
 
 import { SessionService } from 'src/app/core/services/session.service';
+import {
+	getEffectiveRequestStatusCode,
+	getEffectiveRequestStatusLabel,
+} from 'src/app/shared/effective-request-status';
 
 @Component({
 	selector: 'app-request',
@@ -288,6 +292,14 @@ export class RequestComponent implements OnInit, OnDestroy {
 			.replace(/_/g, '-');
 	}
 
+	effectiveStatusCode(request: RequestMaster): string {
+		return getEffectiveRequestStatusCode(request);
+	}
+
+	effectiveStatusLabel(request: RequestMaster): string {
+		return getEffectiveRequestStatusLabel(request);
+	}
+
 	trackByUuid(_: number, request: RequestMaster): string {
 		return request.uuid;
 	}
@@ -347,8 +359,74 @@ export class RequestComponent implements OnInit, OnDestroy {
 			.pipe(takeUntil(this.destroy$))
 			.subscribe({
 				next: (statuses) => {
-					this.statuses = (statuses ?? [])
-						.filter((status) => Number(status.isActive) === 1)
+					const activeStatuses = (statuses ?? [])
+						.filter(
+							(status) =>
+								Number(status.isActive) === 1 &&
+								![
+									'APPROVED',
+									'ASSIGNED',
+									'IN_PROGRESS',
+								].includes(status.code),
+						)
+						.sort(
+							(a, b) => Number(a.sortOrder) - Number(b.sortOrder),
+						);
+
+					const syntheticStatuses: RequestStatusOption[] = [
+						{
+							id: -1,
+							uuid: 'scheduled',
+							code: 'SCHEDULED',
+							name: 'Scheduled',
+							stage: 'operation',
+							sortOrder: 61,
+							allowEdit: false,
+							isTerminal: false,
+							isActive: 1,
+						},
+						{
+							id: -2,
+							uuid: 'starting-soon',
+							code: 'STARTING_SOON',
+							name: 'Starting Soon',
+							stage: 'operation',
+							sortOrder: 62,
+							allowEdit: false,
+							isTerminal: false,
+							isActive: 1,
+						},
+						{
+							id: -3,
+							uuid: 'in-operation',
+							code: 'IN_OPERATION',
+							name: 'In Operation',
+							stage: 'operation',
+							sortOrder: 63,
+							allowEdit: false,
+							isTerminal: false,
+							isActive: 1,
+						},
+						{
+							id: -4,
+							uuid: 'attention',
+							code: 'ATTENTION',
+							name: 'Attention',
+							stage: 'operation',
+							sortOrder: 64,
+							allowEdit: false,
+							isTerminal: false,
+							isActive: 1,
+						},
+					];
+
+					this.statuses = [...activeStatuses, ...syntheticStatuses]
+						.filter(
+							(status, index, all) =>
+								all.findIndex(
+									(item) => item.code === status.code,
+								) === index,
+						)
 						.sort(
 							(a, b) => Number(a.sortOrder) - Number(b.sortOrder),
 						);
@@ -473,7 +551,11 @@ export class RequestComponent implements OnInit, OnDestroy {
 		const endDate = this.endDateControl.value;
 
 		this.filteredRequests = this.requests.filter((request) => {
-			if (status !== 'all' && request.status !== status) return false;
+			if (
+				status !== 'all' &&
+				getEffectiveRequestStatusCode(request) !== status
+			)
+				return false;
 			if (startDate && request.endDate < startDate) return false;
 			if (endDate && request.startDate > endDate) return false;
 			if (!keyword) return true;
@@ -506,6 +588,6 @@ export class RequestComponent implements OnInit, OnDestroy {
 				: request.statusName || 'Waiting Client Approval';
 		}
 
-		return request.statusName || request.status;
+		return getEffectiveRequestStatusLabel(request);
 	}
 }

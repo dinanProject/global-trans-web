@@ -49,6 +49,8 @@
 		white-space: nowrap;
 	}
 	td {
+		padding-top: 6px;
+		padding-bottom: 6px;
 		vertical-align: middle;
 	}
 	/* Company mengambil sisa ruang */
@@ -178,18 +180,20 @@
 }
 
 .company-icon {
-	width: 34px;
-	height: 34px;
-	flex: 0 0 34px;
+	width: 52px;
+	margin: 6px 0;
+	height: 52px;
+	flex: 0 0 52px;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: var(--border-radius);
-	background-color: var(--blue1);
-	color: var(--blue8);
+	border-radius: 8px;
+	background-color: var(--company-list-icon-surface);
+	color: var(--company-list-icon-foreground);
 
 	i {
 		color: inherit;
+		font-size: 22px;
 	}
 }
 

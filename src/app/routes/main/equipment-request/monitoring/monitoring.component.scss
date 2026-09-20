@@ -669,23 +669,27 @@ td small {
 }
 
 .operation-assigned {
-	color: var(--status-info-text-03);
+	color: var(--request-status-scheduled-text);
 }
 
 .operation-running {
-	color: var(--status-info-text-04);
+	color: var(--request-status-in-operation-text);
 }
 
 .operation-completed {
-	color: var(--status-success-text-07);
+	color: var(--request-status-completed-text);
+}
+
+.operation-stopped {
+	color: var(--request-status-stopped-text);
 }
 
 .operation-default {
-	color: var(--status-info-text-05);
+	color: var(--request-status-stopped-text);
 }
 
 .sla-assigned {
-	color: var(--status-info-text-05);
+	color: var(--request-status-scheduled-text);
 }
 
 .sla-on-time {
@@ -1401,25 +1405,25 @@ td small {
 }
 
 .calendar-bar-assigned {
-	color: var(--status-info-text-03);
-	border-color: var(--status-info-border-03);
-	background: var(--status-info-bg-02);
+	color: var(--request-status-scheduled-text);
+	border-color: var(--status-info-border-02);
+	background: var(--status-info-bg-05);
 }
 
 .calendar-bar-running {
-	color: var(--interactive-text-45);
+	color: var(--request-status-in-operation-text);
 	border-color: var(--interactive-border-30);
 	background: var(--interactive-bg-50);
 }
 
 .calendar-bar-overdue {
-	color: var(--interactive-text-46);
+	color: var(--request-status-attention-text);
 	border-color: var(--interactive-border-31);
 	background: var(--interactive-bg-51);
 }
 
 .calendar-bar-completed {
-	color: var(--status-success-text-07);
+	color: var(--request-status-completed-text);
 	border-color: var(--status-success-border-02);
 	background: var(--status-success-bg-06);
 }

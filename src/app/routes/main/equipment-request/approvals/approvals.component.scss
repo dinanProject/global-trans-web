@@ -61,6 +61,7 @@
 }
 
 :host ::ng-deep .approval-table .mat-column-request {
+	position: relative;
 	width: 25%;
 }
 
@@ -87,17 +88,11 @@
 }
 
 .request-cell {
-	position: relative;
 	min-height: 54px;
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	min-width: 0;
-
-	&.unread {
-		padding-top: 8px;
-		padding-right: 46px;
-	}
 
 	h5,
 	h6 {
@@ -109,15 +104,16 @@
 
 .new-ribbon {
 	position: absolute;
-	top: -4px;
-	right: 0;
+	top: 0;
+	left: 0;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 42px;
+	width: 42px;
 	height: 20px;
-	padding: 0 8px;
-	border-radius: 0 0 6px 6px;
+	margin: 0;
+	padding: 0;
+	border-radius: 0 0 6px 0;
 	background: var(--interactive-bg-40);
 	color: var(--interactive-text-38);
 	font-size: 9px;
@@ -331,25 +327,32 @@
 .client-approved,
 .gtsi-review,
 .gtsi-reviewed {
-	color: var(--interactive-text-40);
+	color: var(--request-status-review-text);
 }
 
 .gtsi-approved,
 .assigned {
-	color: var(--blue8);
+	color: var(--request-status-approved-text);
 }
 
 .partially-completed {
-	color: var(--status-success-text-03);
+	color: var(--request-status-partially-completed-text);
 }
 
-.rejected,
+.rejected {
+	color: var(--request-status-rejected-text);
+}
+
 .cancelled {
-	color: var(--status-danger-text-11);
+	color: var(--request-status-cancelled-text);
+}
+
+.stopped {
+	color: var(--request-status-stopped-text);
 }
 
 .completed {
-	color: var(--status-success-text-04);
+	color: var(--request-status-completed-text);
 }
 
 .action-column {
@@ -497,4 +500,20 @@
 :host ::ng-deep .approval-table .mat-mdc-header-cell:last-child,
 :host ::ng-deep .approval-table .mat-mdc-cell:last-child {
 	padding-right: 28px !important;
+}
+
+.scheduled {
+	color: var(--request-status-scheduled-text);
+}
+
+.starting-soon {
+	color: var(--request-status-starting-soon-text);
+}
+
+.attention {
+	color: var(--request-status-attention-text);
+}
+
+.in-operation {
+	color: var(--request-status-in-operation-text);
 }

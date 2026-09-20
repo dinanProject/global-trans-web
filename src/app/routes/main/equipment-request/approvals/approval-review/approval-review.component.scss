@@ -97,9 +97,23 @@
 .review-back-button {
 	display: inline-flex;
 	align-items: center;
-	gap: 7px;
+	gap: 8px;
 
+	border-color: var(--interactive-border-17) !important;
+	background: var(--interactive-bg-20) !important;
+	color: var(--interactive-text-26) !important;
 	white-space: nowrap;
+}
+
+.review-back-button:hover,
+.review-back-button:focus {
+	border-color: var(--interactive-border-18) !important;
+	background: var(--interactive-bg-22) !important;
+	color: var(--interactive-text-27) !important;
+}
+
+.review-back-button i {
+	color: currentColor;
 }
 
 /* =========================================================
@@ -244,20 +258,22 @@
 	font-weight: 600;
 }
 
-.hero-status-pill {
+.hero-status-value {
 	display: inline-flex;
 	align-items: center;
-
-	padding: 6px 11px;
-
-	border: 1px solid var(--interactive-border-19);
-	border-radius: 999px;
-
-	background: var(--interactive-bg-29);
-	color: var(--interactive-text-29);
-
-	font-size: 10px;
+	gap: 7px;
+	font-size: 11px;
 	font-weight: 700;
+	white-space: nowrap;
+}
+
+.hero-status-value::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	flex: 0 0 7px;
+	border-radius: 50%;
+	background: currentColor;
 }
 
 /* =========================================================
@@ -271,7 +287,8 @@
 	margin-top: 12px;
 
 	border: 1px solid var(--interactive-border-20);
-	border-radius: 12px;
+	border-bottom: 0;
+	border-radius: 12px 12px 0 0;
 
 	background: var(--surface-07);
 }
@@ -359,7 +376,7 @@
    ========================================================= */
 
 .review-form {
-	margin-top: 16px;
+	margin-top: 0;
 }
 
 .review-section {
@@ -367,6 +384,10 @@
 	border-radius: 13px;
 
 	background: var(--surface-07);
+}
+
+.review-section.equipment-section {
+	border-radius: 0 0 13px 13px;
 }
 
 .section-header {
@@ -608,30 +629,82 @@
 .availability-status {
 	display: inline-flex;
 	align-items: center;
-	gap: 5px;
-
+	gap: 7px;
 	width: fit-content;
-
-	padding: 5px 9px;
-
-	border-radius: 999px;
-
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
 	font-size: 10px;
 	font-weight: 700;
 }
 
-.availability-status.is-available {
-	border: 1px solid var(--interactive-border-21);
+.availability-status::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	flex: 0 0 7px;
+	border-radius: 50%;
+	background: currentColor;
+}
 
-	background: var(--interactive-bg-35);
+.availability-status.is-available {
 	color: var(--interactive-text-32);
 }
 
 .availability-status.is-unavailable {
-	border: 1px solid var(--interactive-border-22);
-
-	background: var(--interactive-bg-36);
 	color: var(--interactive-text-33);
+}
+
+.hero-status-value.status-client-review,
+.hero-status-value.status-gtsi-review {
+	color: var(--request-status-review-text);
+}
+
+.hero-status-value.status-approved,
+.hero-status-value.status-assigned {
+	color: var(--request-status-approved-text);
+}
+
+.hero-status-value.status-partially-completed {
+	color: var(--request-status-partially-completed-text);
+}
+
+.hero-status-value.status-scheduled,
+.availability-status.status-scheduled {
+	color: var(--request-status-scheduled-text);
+}
+
+.hero-status-value.status-starting-soon,
+.availability-status.status-starting-soon {
+	color: var(--request-status-starting-soon-text);
+}
+
+.hero-status-value.status-in-operation,
+.availability-status.status-in-operation {
+	color: var(--request-status-in-operation-text);
+}
+
+.hero-status-value.status-attention,
+.availability-status.status-attention {
+	color: var(--request-status-attention-text);
+}
+
+.hero-status-value.status-completed,
+.availability-status.status-completed {
+	color: var(--request-status-completed-text);
+}
+
+.hero-status-value.status-stopped,
+.availability-status.status-stopped {
+	color: var(--request-status-stopped-text);
+}
+
+.hero-status-value.status-cancelled,
+.hero-status-value.status-rejected,
+.availability-status.status-cancelled,
+.availability-status.status-rejected {
+	color: var(--request-status-rejected-text);
 }
 
 .conflict-reference {
@@ -1387,7 +1460,6 @@ button.equipment-unit-image:focus-visible {
 		background: var(--status-danger-bg-soft);
 	}
 
-	.availability-status.is-unavailable,
 	.conflict-detail {
 		background: var(--surface-muted);
 	}

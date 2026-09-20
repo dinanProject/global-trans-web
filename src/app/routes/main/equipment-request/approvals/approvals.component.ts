@@ -16,6 +16,10 @@ import { RequestAction, RequestMaster } from '../request/request.service';
 import { ApprovalService } from './approvals.service';
 import { Menu } from 'src/app/core/models/menu.model';
 import { MainService } from '../../main.service';
+import {
+	getEffectiveRequestStatusCode,
+	getEffectiveRequestStatusLabel,
+} from 'src/app/shared/effective-request-status';
 
 @Component({
 	selector: 'app-equipment-request-approvals',
@@ -261,7 +265,11 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
 	}
 
 	getStatusDisplayName(request: RequestMaster): string {
-		return request.statusName || request.status;
+		return getEffectiveRequestStatusLabel(request);
+	}
+
+	effectiveStatusCode(request: RequestMaster): string {
+		return getEffectiveRequestStatusCode(request);
 	}
 
 	trackByUuid(_: number, request: RequestMaster): string {

@@ -34,7 +34,7 @@
 	font-weight: 500;
 	line-height: 1.3;
 	white-space: nowrap;
-	color: var(--text-secondary-05);
+	color: var(--request-status-draft-text);
 }
 
 .status-badge::before {
@@ -48,37 +48,44 @@
 }
 
 .draft {
-	color: var(--text-secondary-05);
+	color: var(--request-status-draft-text);
 }
 
 .client-review,
 .client-approval,
 .gtsi-review {
-	color: var(--interactive-text-40);
+	color: var(--request-status-review-text);
 }
 
 .approved,
 .gtsi-approved,
 .assigned {
-	color: var(--status-info-text-24);
+	color: var(--request-status-approved-text);
 }
 
 .in-progress,
 .in-operation {
-	color: var(--status-info-text-21);
+	color: var(--request-status-in-operation-text);
 }
 
 .partially-completed {
-	color: var(--status-success-text-03);
+	color: var(--request-status-partially-completed-text);
 }
 
 .completed {
-	color: var(--status-success-text-04);
+	color: var(--request-status-completed-text);
 }
 
-.rejected,
+.rejected {
+	color: var(--request-status-rejected-text);
+}
+
 .cancelled {
-	color: var(--status-danger-text-11);
+	color: var(--request-status-cancelled-text);
+}
+
+.stopped {
+	color: var(--request-status-stopped-text);
 }
 
 .date-field {
@@ -581,4 +588,16 @@
 		min-height: 32px;
 		padding: 0.25rem 0;
 	}
+}
+
+.scheduled {
+	color: var(--request-status-scheduled-text);
+}
+
+.starting-soon {
+	color: var(--request-status-starting-soon-text);
+}
+
+.attention {
+	color: var(--request-status-attention-text);
 }

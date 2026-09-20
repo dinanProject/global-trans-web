@@ -859,6 +859,36 @@
 	--interactive-border-61: #1a91eb;
 	--interactive-solid-59: #1a98f7;
 	--interactive-bg-93: #f5f8fa;
+
+	/* Equipment request lifecycle / effective-status semantic colors. */
+	--request-status-draft-text: var(--text-secondary-05);
+	--request-status-review-text: var(--interactive-text-40);
+	--request-status-approved-text: var(--status-info-text-24);
+	--request-status-scheduled-text: var(--status-info-text-24);
+	--request-status-starting-soon-text: var(--interactive-text-40);
+	--request-status-in-operation-text: var(--status-info-text-09);
+	--request-status-attention-text: var(--status-warning-text-05);
+	--request-status-partially-completed-text: var(--status-warning-text-03);
+	--request-status-completed-text: var(--status-success-text-10);
+	--request-status-stopped-text: var(--status-info-text-11);
+	--request-status-cancelled-text: var(--status-danger-text-15);
+	--request-status-rejected-text: var(--status-danger-text-15);
+
+	/* Effective-status surfaces used by Operations Request Summary. */
+	--request-status-scheduled-bg: var(--status-info-bg-soft);
+	--request-status-scheduled-border: var(--status-info-border);
+	--request-status-starting-soon-bg: var(--status-warning-bg-soft);
+	--request-status-starting-soon-border: var(--status-warning-border);
+	--request-status-in-operation-bg: var(--status-info-bg-08);
+	--request-status-in-operation-border: var(--status-info-border-09);
+	--request-status-attention-bg: var(--status-danger-bg-soft);
+	--request-status-attention-border: var(--status-danger-border);
+	--request-status-completed-bg: var(--status-success-bg-soft);
+	--request-status-completed-border: var(--status-success-border);
+	--request-status-stopped-bg: var(--status-info-bg-12);
+	--request-status-stopped-border: var(--status-info-border-10);
+	--request-status-cancelled-bg: var(--status-danger-bg-soft);
+	--request-status-cancelled-border: var(--status-danger-border);
 }
 
 html[data-theme="dark"] {
@@ -1839,9 +1869,11 @@ html[data-theme="dark"] {
 	--report-info-surface: #ffffff;
 	--report-card-border: #e4e9f0;
 
-	/* Administration entity icons. Preserve Light CURRENT blue treatment. */
+	/* Entity/list icons. Preserve Light CURRENT blue treatment. */
 	--management-icon-surface: #edf6fd;
 	--management-icon-foreground: #007bff;
+	--company-list-icon-surface: #eef6ff;
+	--company-list-icon-foreground: #007bff;
 	--approval-request-icon-surface: #edf6fd;
 	--approval-request-icon-foreground: #007bff;
 }
@@ -1963,9 +1995,11 @@ html[data-theme="dark"] {
 	--report-info-surface: var(--surface-muted);
 	--report-card-border: var(--border);
 
-	/* Administration entity icons need explicit foreground/background contrast in Dark. */
+	/* Entity/list icons need explicit foreground/background contrast in Dark. */
 	--management-icon-surface: #173452;
 	--management-icon-foreground: #8ecbff;
+	--company-list-icon-surface: #132f4e;
+	--company-list-icon-foreground: #8ecbff;
 	--approval-request-icon-surface: #173452;
 	--approval-request-icon-foreground: #8ecbff;
 

@@ -187,8 +187,8 @@
 						<th mat-header-cell *matHeaderCellDef>Status</th>
 						<td mat-cell *matCellDef="let request">
 							<div class="status-cell">
-								<span class="status-badge" [ngClass]="statusClass(request.status)">
-									{{ request.statusName || request.status }}
+								<span class="status-badge" [ngClass]="statusClass(effectiveStatusCode(request))">
+									{{ getStatusDisplayName(request) }}
 								</span>
 							</div>
 						</td>

@@ -500,6 +500,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 			RUNNING: 'In Operation',
 			IN_OPERATION: 'In Operation',
 			COMPLETED: 'Completed',
+			STOPPED: 'Stopped',
 		};
 
 		return labels[status] || this.formatStatus(status);
@@ -512,6 +513,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 			RUNNING: 'operation-running',
 			IN_OPERATION: 'operation-running',
 			COMPLETED: 'operation-completed',
+			STOPPED: 'operation-stopped',
 		};
 
 		return classes[status] || 'operation-default';
@@ -524,6 +526,7 @@ export class MonitoringComponent implements OnInit, OnDestroy {
 			RUNNING: 'fa-play',
 			IN_OPERATION: 'fa-play',
 			COMPLETED: 'fa-check',
+			STOPPED: 'fa-stop-circle',
 		};
 
 		return icons[status] || 'fa-circle';

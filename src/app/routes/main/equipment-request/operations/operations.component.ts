@@ -923,6 +923,7 @@ export class OperationsComponent implements OnInit, OnDestroy {
 		return unit ? `${unit.unitCode} - ${unit.unitName}` : uuid;
 	}
 
+
 	statusLabel(status: string): string {
 		return (
 			(

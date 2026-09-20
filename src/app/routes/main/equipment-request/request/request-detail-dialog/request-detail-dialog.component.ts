@@ -11,7 +11,7 @@ import {
 	RequestService,
 } from '../request.service';
 import { ApprovalService } from '../../approvals/approvals.service';
-
+import { getEffectiveRequestStatusLabel } from 'src/app/shared/effective-request-status';
 
 interface RequestJourneyItem {
 	title: string;
@@ -160,35 +160,56 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 
 	openAttachment(attachment: RequestAttachment): void {
 		if (!this.request?.uuid) return;
-		this.requestService.downloadAttachment(this.request.uuid, attachment.uuid).pipe(takeUntil(this.destroy$)).subscribe({
-			next: (blob) => {
-				const url = URL.createObjectURL(blob);
-				window.open(url, '_blank', 'noopener,noreferrer');
-				setTimeout(() => URL.revokeObjectURL(url), 60000);
-			},
-			error: () => this.utilityService.alert('Failed', 'Failed to open attachment.', 'error'),
-		});
+		this.requestService
+			.downloadAttachment(this.request.uuid, attachment.uuid)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (blob) => {
+					const url = URL.createObjectURL(blob);
+					window.open(url, '_blank', 'noopener,noreferrer');
+					setTimeout(() => URL.revokeObjectURL(url), 60000);
+				},
+				error: () =>
+					this.utilityService.alert(
+						'Failed',
+						'Failed to open attachment.',
+						'error',
+					),
+			});
 	}
 
 	formatFileSize(bytes: number): string {
-		if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+		if (bytes < 1024 * 1024)
+			return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
 
 	private loadAttachments(requestUuid: string): void {
 		this.attachmentImageUrls.forEach((url) => URL.revokeObjectURL(url));
 		this.attachmentImageUrls.clear();
-		this.requestService.getAttachments(requestUuid).pipe(takeUntil(this.destroy$)).subscribe({
-			next: (attachments) => {
-				this.attachments = attachments ?? [];
-				this.attachments.filter((item) => item.mimeType?.startsWith('image/')).forEach((item) => {
-					this.requestService.downloadAttachment(requestUuid, item.uuid).pipe(takeUntil(this.destroy$)).subscribe({
-						next: (blob) => this.attachmentImageUrls.set(item.uuid, URL.createObjectURL(blob)),
-					});
-				});
-			},
-			error: () => (this.attachments = []),
-		});
+		this.requestService
+			.getAttachments(requestUuid)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: (attachments) => {
+					this.attachments = attachments ?? [];
+					this.attachments
+						.filter((item) => item.mimeType?.startsWith('image/'))
+						.forEach((item) => {
+							this.requestService
+								.downloadAttachment(requestUuid, item.uuid)
+								.pipe(takeUntil(this.destroy$))
+								.subscribe({
+									next: (blob) =>
+										this.attachmentImageUrls.set(
+											item.uuid,
+											URL.createObjectURL(blob),
+										),
+								});
+						});
+				},
+				error: () => (this.attachments = []),
+			});
 	}
 
 	statusClass(status: string): string {
@@ -220,28 +241,7 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 	get currentStageLabel(): string {
 		if (!this.request) return '—';
 
-		const status = String(this.request.status || '').toUpperCase();
-		if (status === 'DRAFT') return 'Draft';
-		if (status === 'CLIENT_REVIEW') return 'Exxon Review';
-		if (status === 'REJECTED') return 'Rejected';
-		if (status === 'CANCELLED') return 'Cancelled';
-		if (status === 'COMPLETED') return 'Completed';
-
-		if (status === 'APPROVED') {
-			const now = Date.now();
-			const start = new Date(this.request.startDate).getTime();
-			const end = new Date(this.request.endDate).getTime();
-
-			if (Number.isFinite(end) && now > end) return 'Attention';
-			if (Number.isFinite(start) && now >= start) return 'In Operation';
-			if (Number.isFinite(start)) {
-				const reminderWindowMs = 3 * 24 * 60 * 60 * 1000;
-				if (start - now <= reminderWindowMs) return 'Starting Soon';
-			}
-			return 'Scheduled';
-		}
-
-		return this.request.statusName || this.request.status || '—';
+		return getEffectiveRequestStatusLabel(this.request);
 	}
 
 	get requestJourney(): RequestJourneyItem[] {
@@ -256,10 +256,13 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 		const reminderWindowMs = 3 * 24 * 60 * 60 * 1000;
 
 		const submitted = histories.find(
-			(history) => String(history.activity || '').toUpperCase() === 'SUBMIT',
+			(history) =>
+				String(history.activity || '').toUpperCase() === 'SUBMIT',
 		);
 		const completedHistories = histories.filter((history) =>
-			String(history.activity || '').toUpperCase().includes('COMPLETE'),
+			String(history.activity || '')
+				.toUpperCase()
+				.includes('COMPLETE'),
 		);
 		const completedHistory = completedHistories
 			.slice()
@@ -274,7 +277,9 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 
 		const isApproved =
 			String(exxonApproval?.status || '').toUpperCase() === 'APPROVED' ||
-			['APPROVED', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED'].includes(status);
+			['APPROVED', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED'].includes(
+				status,
+			);
 		const isRejected =
 			String(exxonApproval?.status || '').toUpperCase() === 'REJECTED' ||
 			status === 'REJECTED';
@@ -299,7 +304,8 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 					: 'Request is still in draft and has not been submitted.',
 				state: submitted ? 'completed' : 'current',
 				date: submitted?.createdAt || null,
-				actor: submitted?.userName || this.request.requestByName || null,
+				actor:
+					submitted?.userName || this.request.requestByName || null,
 				icon: 'fas fa-paper-plane',
 			},
 		];
@@ -307,10 +313,12 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 		if (isRejected) {
 			items.push({
 				title: 'Exxon Rejected',
-				description: 'Exxon made the final decision and rejected the request.',
+				description:
+					'Exxon made the final decision and rejected the request.',
 				state: 'rejected',
 				date: exxonApproval?.actionDate || null,
-				actor: exxonApproval?.userName || exxonApproval?.roleName || null,
+				actor:
+					exxonApproval?.userName || exxonApproval?.roleName || null,
 				remarks: exxonApproval?.remarks || null,
 				icon: 'fas fa-times',
 			});
@@ -322,7 +330,11 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 			description: isApproved
 				? 'Exxon approved the request and authorized the final planned period.'
 				: 'Waiting for Exxon final approval.',
-			state: isApproved ? 'completed' : status === 'CLIENT_REVIEW' ? 'current' : 'upcoming',
+			state: isApproved
+				? 'completed'
+				: status === 'CLIENT_REVIEW'
+					? 'current'
+					: 'upcoming',
 			date: exxonApproval?.actionDate || null,
 			actor: exxonApproval?.userName || exxonApproval?.roleName || null,
 			remarks: exxonApproval?.remarks || null,
@@ -359,13 +371,18 @@ export class RequestDetailDialogComponent implements OnInit, OnDestroy {
 					: inOperation
 						? 'Request is currently within the planned operational period.'
 						: 'Operation follows the approved planned start and end period.',
-				state: overdue || inOperation
-					? 'current'
-					: isCompleted
-						? 'completed'
-						: 'upcoming',
-				date: Number.isFinite(plannedStart) ? this.request.startDate : null,
-				icon: overdue ? 'fas fa-exclamation-triangle' : 'fas fa-play-circle',
+				state:
+					overdue || inOperation
+						? 'current'
+						: isCompleted
+							? 'completed'
+							: 'upcoming',
+				date: Number.isFinite(plannedStart)
+					? this.request.startDate
+					: null,
+				icon: overdue
+					? 'fas fa-exclamation-triangle'
+					: 'fas fa-play-circle',
 			},
 			{
 				title: 'Completed',

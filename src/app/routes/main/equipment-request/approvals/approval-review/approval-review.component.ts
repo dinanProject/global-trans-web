@@ -14,6 +14,10 @@ import {
 } from '../../request/request.service';
 import { ApprovalService } from '../approvals.service';
 import { MainService } from '../../../main.service';
+import {
+	getEffectiveRequestStatusCode,
+	getEffectiveRequestStatusLabel,
+} from 'src/app/shared/effective-request-status';
 
 @Component({
 	selector: 'app-approval-review',
@@ -666,6 +670,53 @@ export class ApprovalReviewComponent implements OnInit, OnDestroy {
 		}
 
 		this.executeAction(payload);
+	}
+
+	effectiveStatusCode(): string {
+		if (!this.request) {
+			return '';
+		}
+
+		return getEffectiveRequestStatusCode(this.request);
+	}
+
+	effectiveStatusLabel(): string {
+		if (!this.request) {
+			return '—';
+		}
+
+		return getEffectiveRequestStatusLabel(this.request);
+	}
+
+	statusClass(status?: string | null): string {
+		return `status-${String(status || '')
+			.toLowerCase()
+			.replace(/_/g, '-')}`;
+	}
+
+	isScheduleDrivenRequest(): boolean {
+		return ['APPROVED', 'ASSIGNED', 'IN_PROGRESS'].includes(
+			String(this.request?.status || '').toUpperCase(),
+		);
+	}
+
+	getAvailabilityDisplayLabel(
+		status?: string | null,
+		statusName?: string | null,
+	): string {
+		if (this.isScheduleDrivenRequest()) {
+			return this.effectiveStatusLabel();
+		}
+
+		return statusName || status || 'Availability unknown';
+	}
+
+	getAvailabilityDisplayClass(isAvailable: boolean): string {
+		if (this.isScheduleDrivenRequest()) {
+			return this.statusClass(this.effectiveStatusCode());
+		}
+
+		return isAvailable ? 'is-available' : 'is-unavailable';
 	}
 
 	getAvailabilityLabel(

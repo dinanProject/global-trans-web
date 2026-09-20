@@ -46,7 +46,7 @@
 			<strong>{{ operationCount(OPERATION_STATUS_ATTENTION) }}</strong>
 			<small>Past planned end</small>
 		</div>
-		<div class="operation-kpi">
+		<div class="operation-kpi completed">
 			<span>Completed</span>
 			<strong>{{ operationCount(OPERATION_STATUS_COMPLETED) }}</strong>
 		</div>
@@ -232,6 +232,15 @@
 								</small>
 							</div>
 
+							<div class="requester-summary">
+								<span>Requester</span>
+
+								<strong>
+									{{ selectedRequest.requestByName || "-" }}
+								</strong>
+
+							</div>
+
 							<div class="schedule-summary">
 								<span>Schedule</span>
 
@@ -340,19 +349,6 @@
 										<h6>{{ detail.categoryName }}</h6>
 									</div>
 
-									<span class="fulfilled" *ngIf="detail.operations.length > 0" [ngClass]="
-											statusClass(
-												detail.operations[0].statusCode
-											)
-										">
-										<i class="fas fa-check-circle"></i>
-
-										{{
-										statusLabel(
-										detail.operations[0].statusCode
-										)
-										}}
-									</span>
 								</div>
 
 								<ng-container *ngIf="

@@ -24,10 +24,6 @@
 			</div>
 		</div>
 
-		<button type="button" class="btn btn-light review-back-button" (click)="backToApprovals()">
-			<i class="fas fa-arrow-left"></i>
-			<span>Back to Review &amp; Approval</span>
-		</button>
 	</div>
 </page-header>
 
@@ -47,34 +43,6 @@
 		</div>
 
 		<ng-container *ngIf="!isLoading && request">
-			<!-- =====================================================
-			     REVIEW HERO
-			     ===================================================== -->
-			<section class="review-hero">
-				<div class="review-hero-main">
-					<div class="review-hero-icon">
-						<i class="fas fa-calendar-check"></i>
-					</div>
-
-					<div class="review-hero-copy">
-						<span class="review-hero-label"> Approval Review </span>
-
-						<h2>{{ getInfoTitle() }}</h2>
-
-						<p>
-							{{ getInfoDescription() }}
-						</p>
-					</div>
-				</div>
-
-				<div class="review-hero-status">
-					<span class="hero-status-label"> Current Status </span>
-
-					<span class="hero-status-pill">
-						{{ request.statusName || request.status || "—" }}
-					</span>
-				</div>
-			</section>
 
 			<!-- =====================================================
 			     REQUEST SUMMARY
@@ -195,12 +163,16 @@
 								</div>
 
 								@if (getUnitImageUrl(detail.equipmentUnitUuid); as imageUrl) {
-								<button type="button" class="equipment-unit-image" aria-label="Preview equipment unit image" (click)="openUnitImagePreview(detail.equipmentUnitUuid)">
-									<img [src]="imageUrl" [alt]="detail.equipmentUnitName || detail.equipmentCategoryName || 'Equipment unit'" />
+								<button type="button" class="equipment-unit-image"
+									aria-label="Preview equipment unit image"
+									(click)="openUnitImagePreview(detail.equipmentUnitUuid)">
+									<img [src]="imageUrl"
+										[alt]="detail.equipmentUnitName || detail.equipmentCategoryName || 'Equipment unit'" />
 								</button>
 								} @else {
 								<div class="equipment-unit-image equipment-unit-image-fallback">
-									<img src="assets/icons/equipment/equipment.svg" [alt]="detail.equipmentCategoryName || 'Equipment'" />
+									<img src="assets/icons/equipment/equipment.svg"
+										[alt]="detail.equipmentCategoryName || 'Equipment'" />
 								</div>
 								}
 
@@ -243,19 +215,13 @@
 											.availability as availability
 									">
 									<div class="availability-heading">
-										<span class="availability-status" [class.is-available]="
-												availability.isAvailableForRequestedPeriod
-											" [class.is-unavailable]="
-												!availability.isAvailableForRequestedPeriod
-											">
-											<i [class]="
-													availability.isAvailableForRequestedPeriod
-														? 'fas fa-check-circle'
-														: 'fas fa-exclamation-circle'
-												"></i>
-
+										<span class="availability-status" [ngClass]="
+											getAvailabilityDisplayClass(
+											availability.isAvailableForRequestedPeriod
+											)
+										">
 											{{
-											getAvailabilityLabel(
+											getAvailabilityDisplayLabel(
 											availability.status,
 											availability.statusName
 											)
@@ -270,7 +236,7 @@
 									</div>
 
 									<div class="availability-details">
-										<div class="availability-detail">
+										<div class="availability-detail" *ngIf="!isScheduleDrivenRequest()">
 											<span>Available From</span>
 
 											<strong class="date-value">
@@ -395,14 +361,21 @@
 				@if (attachments.length) {
 				<section class="review-section attachment-section">
 					<div class="section-header compact">
-						<div><span class="section-kicker">Supporting Documents</span><h3>Attachments</h3><p>Read-only reference provided with this request.</p></div>
-						<div class="section-counter"><i class="fas fa-paperclip"></i><span>{{ attachments.length }} file(s)</span></div>
+						<div><span class="section-kicker">Supporting Documents</span>
+							<h3>Attachments</h3>
+							<p>Read-only reference provided with this request.</p>
+						</div>
+						<div class="section-counter"><i class="fas fa-paperclip"></i><span>{{ attachments.length }}
+								file(s)</span></div>
 					</div>
 					<div class="review-attachment-list">
 						@for (attachment of attachments; track attachment.uuid) {
 						<button type="button" class="review-attachment" (click)="openAttachment(attachment)">
-							<i [class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
-							<span><strong>{{ attachment.originalName }}</strong><small>{{ formatFileSize(attachment.fileSize) }} · Open</small></span><i class="fas fa-external-link-alt"></i>
+							<i
+								[class]="attachment.mimeType === 'application/pdf' ? 'far fa-file-pdf' : 'far fa-file-image'"></i>
+							<span><strong>{{ attachment.originalName }}</strong><small>{{
+									formatFileSize(attachment.fileSize) }} · Open</small></span><i
+								class="fas fa-external-link-alt"></i>
 						</button>
 						}
 					</div>
@@ -582,8 +555,10 @@
 				}
 
 				<div class="review-action-buttons">
-					<button type="button" class="btn btn-light" [disabled]="isActionBusy" (click)="backToApprovals()">
+					<button type="button" class="btn btn-light" [class.review-back-button]="actions.length === 0"
+						[disabled]="isActionBusy" (click)="backToApprovals()">
 						@if (actions.length === 0) {
+						<i class="fas fa-arrow-left"></i>
 						Back to Review &amp; Approval
 						} @else {
 						Cancel
@@ -616,7 +591,8 @@
 			<strong>{{ previewUnitDetail.equipmentUnitCode }} - {{ previewUnitDetail.equipmentUnitName }}</strong>
 			<span>Equipment Unit Image</span>
 		</div>
-		<button type="button" class="unit-image-preview-close" aria-label="Close equipment image preview" (click)="closeUnitImagePreview()">
+		<button type="button" class="unit-image-preview-close" aria-label="Close equipment image preview"
+			(click)="closeUnitImagePreview()">
 			<i class="fas fa-times"></i>
 		</button>
 		<div class="unit-image-preview-stage">
